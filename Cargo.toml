@@ -1,0 +1,12 @@
+[workspace]
+resolver = "3"
+members = ["crates/openfx", "crates/openfx-bindgen"]
+
+[workspace.package]
+license = "BSD-3-Clause"
+repository = "https://github.com/kreantio/openfx-rs"
+
+[workspace.lints]
+
+[workspace.dependencies]
+openfx-bindgen = { path = "crates/openfx-bindgen" }
