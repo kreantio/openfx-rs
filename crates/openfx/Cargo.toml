@@ -1,0 +1,14 @@
+[package]
+name = "openfx"
+version = "0.1.0"
+edition = "2024"
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+
+[build-dependencies]
+openfx-bindgen.workspace = true
+
+[lints]
+workspace = true
