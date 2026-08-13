@@ -155,8 +155,8 @@ impl Plugin for BasicExamplePlugin {
 - [ ] TODO
 
 ```rs
-use openfx::generic::low::{export_plugins, plugin_struct, PluginStruct, Plugins};
-use openfx::image_effect_v1::high::{actions, Context, LowLayerWrapper, Plugin};
+use openfx::generic::low::{PluginStruct, Plugins, export_plugins, plugin_struct};
+use openfx::image_effect_v1::high::{Context, LowLayerWrapper, Plugin, PluginInstance, actions};
 
 // …
 
@@ -169,18 +169,37 @@ impl Plugins for MyPlugins {
     }
 }
 
-struct BasicExamplePlugin {}
+struct BasicExamplePlugin;
 
 impl Plugin for BasicExamplePlugin {
     const PLUGIN_IDENTIFIER: &'static str = "org.openeffects:BasicExamplePlugin";
     const PLUGIN_VERSION: (u32, u32) = (1, 0);
-    fn action_describe(
+    type Instance = BasicExamplePluginInstance;
+    fn describe(
         &self,
         ctx: &actions::describe::Context,
         in_args: &actions::describe::InArgs,
     ) -> actions::describe::Result {
         todo!()
     }
+    fn create_instance(&self, ctx: &Context) -> actions::create_instance::Result<Self::Instance> {
+        todo!()
+    }
+    // …
+}
+
+#[derive(Default)]
+struct BasicExamplePluginInstance {}
+
+impl PluginInstance for BasicExamplePluginInstance {
+    fn get_region_of_definition(
+        &self,
+        ctx: &Context,
+        in_args: &actions::get_region_of_definition::InArgs,
+    ) -> actions::get_region_of_definition::Result {
+        todo!()
+    }
+    // …
 }
 
 // …
