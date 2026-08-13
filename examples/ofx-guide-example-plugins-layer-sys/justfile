@@ -1,0 +1,5 @@
+build *args:
+    deno run --allow-all scripts/bundle.ts \
+      --base-name=OfxGuideExamplePluginsLayerSys \
+      --info-plist=assets/info.plist \
+      {{ args }}
