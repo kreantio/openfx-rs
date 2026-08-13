@@ -1,6 +1,10 @@
 [workspace]
 resolver = "3"
-members = ["crates/openfx", "crates/openfx-bindgen"]
+members = [
+  "crates/openfx",
+  "crates/openfx-bindgen",
+  "examples/ofx-guide-example-plugins-layer-sys",
+]
 
 [workspace.package]
 license = "BSD-3-Clause"
@@ -9,4 +13,14 @@ repository = "https://github.com/kreantio/openfx-rs"
 [workspace.lints]
 
 [workspace.dependencies]
+openfx = { path = "crates/openfx" }
 openfx-bindgen = { path = "crates/openfx-bindgen" }
+
+bindgen = "0.72.1"
+convert_case = "0.11.0"
+prettyplease = "0.3.0"
+proc-macro2 = "1.0.107"
+quote = "1.0.47"
+rayon = "1.12.0"
+syn = "3.0.3"
+tracing = "0.1.44"
