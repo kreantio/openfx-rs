@@ -6,7 +6,7 @@ use std::{
 use openfx::{
     generic::sys::{
         core::{
-            OfxHost, OfxPlugin, OfxPropertySetHandle, OfxPropertySetStruct, OfxStatus,
+            OfxHost, OfxPropertySetHandle, OfxPropertySetStruct, OfxStatus,
             kOfxActionCreateInstance, kOfxActionDescribe, kOfxActionDestroyInstance,
             kOfxActionLoad, kOfxActionUnload, kOfxPropInstanceData, kOfxPropLabel, kOfxPropName,
             kOfxStatErrMissingHostFeature, kOfxStatErrUnsupported, kOfxStatFailed, kOfxStatOK,
@@ -14,27 +14,20 @@ use openfx::{
         },
         property::{OfxPropertySuiteV1, kOfxPropertySuite},
     },
-    image_effect_v1::sys::image_effect::{
-        OfxImageEffectHandle, OfxImageEffectSuiteV1, kOfxImageComponentAlpha,
-        kOfxImageComponentRGBA, kOfxImageEffectActionDescribeInContext,
-        kOfxImageEffectActionIsIdentity, kOfxImageEffectContextFilter, kOfxImageEffectPluginApi,
-        kOfxImageEffectPluginPropGrouping, kOfxImageEffectPropContext,
-        kOfxImageEffectPropSupportedComponents, kOfxImageEffectPropSupportedContexts,
-        kOfxImageEffectSuite,
+    image_effect_v1::{
+        sys::image_effect::{
+            OfxImageEffectHandle, OfxImageEffectSuiteV1, kOfxImageComponentAlpha,
+            kOfxImageComponentRGBA, kOfxImageEffectActionDescribeInContext,
+            kOfxImageEffectActionIsIdentity, kOfxImageEffectContextFilter,
+            kOfxImageEffectPluginPropGrouping, kOfxImageEffectPropContext,
+            kOfxImageEffectPropSupportedComponents, kOfxImageEffectPropSupportedContexts,
+            kOfxImageEffectSuite,
+        },
+        sys_helpers::Plugin,
     },
 };
 
 use crate::definitions::{PLUGIN_1_BASICS_IDENTIFIER, PLUGIN_1_BASICS_LABEL, PLUGINS_GROUPING};
-
-pub static EFFECT_PLUGIN_STRUCT_BASICS: OfxPlugin = OfxPlugin {
-    pluginApi: kOfxImageEffectPluginApi.as_ptr(),
-    apiVersion: 1,
-    pluginIdentifier: PLUGIN_1_BASICS_IDENTIFIER.as_ptr(),
-    pluginVersionMajor: 1,
-    pluginVersionMinor: 0,
-    setHost: Some(set_host),
-    mainEntry: Some(main_entry),
-};
 
 static HOST_STRUCT: OnceLock<SaferHostStruct<'static>> = OnceLock::new();
 #[derive(Clone)]
@@ -55,71 +48,78 @@ struct SharedData<'a> {
     image_effect_suite: &'a OfxImageEffectSuiteV1,
 }
 
-unsafe extern "C" fn set_host(host_struct: *mut OfxHost) {
-    fn inner(host_struct: *mut OfxHost) -> Result<(), &'static str> {
-        let host_struct = unsafe {
-            host_struct
-                .as_mut()
-                .ok_or("`host_struct` should not be null.")?
-        };
-        let host = unsafe {
-            host_struct
-                .host
-                .as_mut()
-                .ok_or("`host_struct.host` should not be null.")?
-        };
-        let fetch_suite = host_struct
-            .fetchSuite
-            .ok_or("`host_struct.fetchSuite` should not be null.")?;
+pub struct PluginExampleBasic;
+impl Plugin for PluginExampleBasic {
+    const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_1_BASICS_IDENTIFIER;
+    const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
+    const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
 
-        if HOST_STRUCT
-            .set(SaferHostStruct { host, fetch_suite })
-            .is_err()
-        {
-            return Err("`HOST_STRUCT` has already been initialized before.");
+    extern "C" fn set_host(host_struct: *mut OfxHost) {
+        fn inner(host_struct: *mut OfxHost) -> Result<(), &'static str> {
+            let host_struct = unsafe {
+                host_struct
+                    .as_mut()
+                    .ok_or("`host_struct` should not be null.")?
+            };
+            let host = unsafe {
+                host_struct
+                    .host
+                    .as_mut()
+                    .ok_or("`host_struct.host` should not be null.")?
+            };
+            let fetch_suite = host_struct
+                .fetchSuite
+                .ok_or("`host_struct.fetchSuite` should not be null.")?;
+
+            if HOST_STRUCT
+                .set(SaferHostStruct { host, fetch_suite })
+                .is_err()
+            {
+                return Err("`HOST_STRUCT` has already been initialized before.");
+            }
+            Ok(())
         }
-        Ok(())
+
+        match inner(host_struct) {
+            Ok(_) => {}
+            Err(err) => {
+                tracing::error!("Failed to set host: {}", err);
+            }
+        }
     }
 
-    match inner(host_struct) {
-        Ok(_) => {}
-        Err(err) => {
-            tracing::error!("Failed to set host: {}", err);
-        }
-    }
-}
+    extern "C" fn main_entry(
+        action: *const c_char,
+        handle: *const c_void,
+        in_args: OfxPropertySetHandle,
+        out_args: OfxPropertySetHandle,
+    ) -> OfxStatus {
+        let effect = handle as OfxImageEffectHandle;
+        let action = if action.is_null() {
+            return kOfxStatReplyDefault;
+        } else {
+            unsafe { CStr::from_ptr(action) }
+        };
 
-unsafe extern "C" fn main_entry(
-    action: *const c_char,
-    handle: *const c_void,
-    in_args: OfxPropertySetHandle,
-    out_args: OfxPropertySetHandle,
-) -> OfxStatus {
-    let effect = handle as OfxImageEffectHandle;
-    let action = if action.is_null() {
-        return kOfxStatReplyDefault;
-    } else {
-        unsafe { CStr::from_ptr(action) }
-    };
+        let result = match true {
+            _ if action == kOfxActionLoad => action_load(),
+            _ if action == kOfxActionUnload => action_unload(),
+            _ if action == kOfxActionDescribe => action_describe(effect),
+            _ if action == kOfxImageEffectActionDescribeInContext => {
+                action_describe_in_context(effect, in_args)
+            }
+            _ if action == kOfxActionCreateInstance => action_create_instance(effect),
+            _ if action == kOfxActionDestroyInstance => action_destroy_instance(effect),
+            _ if action == kOfxImageEffectActionIsIdentity => {
+                action_is_identity(effect, in_args, out_args)
+            }
+            _ => Err(kOfxStatReplyDefault),
+        };
 
-    let result = match true {
-        _ if action == kOfxActionLoad => action_load(),
-        _ if action == kOfxActionUnload => action_unload(),
-        _ if action == kOfxActionDescribe => action_describe(effect),
-        _ if action == kOfxImageEffectActionDescribeInContext => {
-            action_describe_in_context(effect, in_args)
+        match result {
+            Ok(_) => kOfxStatOK as OfxStatus,
+            Err(status) => status,
         }
-        _ if action == kOfxActionCreateInstance => action_create_instance(effect),
-        _ if action == kOfxActionDestroyInstance => action_destroy_instance(effect),
-        _ if action == kOfxImageEffectActionIsIdentity => {
-            action_is_identity(effect, in_args, out_args)
-        }
-        _ => Err(kOfxStatReplyDefault),
-    };
-
-    match result {
-        Ok(_) => kOfxStatOK as OfxStatus,
-        Err(status) => status,
     }
 }
 

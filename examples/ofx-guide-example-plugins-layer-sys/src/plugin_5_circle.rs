@@ -7,33 +7,38 @@ use std::{
 
 use openfx::{
     generic::sys::core::{
-        OfxHost, OfxPlugin, OfxPropertySetHandle, OfxRectI, OfxStatus, OfxTime,
-        kOfxActionCreateInstance, kOfxActionDescribe, kOfxActionDestroyInstance, kOfxActionLoad,
-        kOfxActionUnload, kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort,
-        kOfxPropAPIVersion, kOfxPropInstanceData, kOfxPropLabel, kOfxPropName, kOfxPropTime,
+        OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, OfxTime, kOfxActionCreateInstance,
+        kOfxActionDescribe, kOfxActionDestroyInstance, kOfxActionLoad, kOfxActionUnload,
+        kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxPropAPIVersion,
+        kOfxPropInstanceData, kOfxPropLabel, kOfxPropName, kOfxPropTime,
         kOfxStatErrMissingHostFeature, kOfxStatErrUnsupported, kOfxStatFailed, kOfxStatOK,
         kOfxStatReplyDefault,
     },
-    image_effect_v1::sys::{
-        image_effect::{
-            OfxImageClipHandle, OfxImageEffectHandle, kOfxImageComponentAlpha,
-            kOfxImageComponentRGB, kOfxImageComponentRGBA, kOfxImageEffectActionDescribeInContext,
-            kOfxImageEffectActionGetRegionOfDefinition, kOfxImageEffectActionIsIdentity,
-            kOfxImageEffectActionRender, kOfxImageEffectContextFilter, kOfxImageEffectPluginApi,
-            kOfxImageEffectPluginPropGrouping, kOfxImageEffectPluginPropHostFrameThreading,
-            kOfxImageEffectPluginRenderThreadSafety, kOfxImageEffectPropContext,
-            kOfxImageEffectPropRegionOfDefinition, kOfxImageEffectPropRenderScale,
-            kOfxImageEffectPropRenderWindow, kOfxImageEffectPropSupportedComponents,
-            kOfxImageEffectPropSupportedContexts, kOfxImageEffectPropSupportedPixelDepths,
-            kOfxImageEffectPropSupportsMultiResolution, kOfxImageEffectRenderFullySafe,
+    image_effect_v1::{
+        sys::{
+            image_effect::{
+                OfxImageClipHandle, OfxImageEffectHandle, kOfxImageComponentAlpha,
+                kOfxImageComponentRGB, kOfxImageComponentRGBA,
+                kOfxImageEffectActionDescribeInContext, kOfxImageEffectActionGetRegionOfDefinition,
+                kOfxImageEffectActionIsIdentity, kOfxImageEffectActionRender,
+                kOfxImageEffectContextFilter, kOfxImageEffectPluginPropGrouping,
+                kOfxImageEffectPluginPropHostFrameThreading,
+                kOfxImageEffectPluginRenderThreadSafety, kOfxImageEffectPropContext,
+                kOfxImageEffectPropRegionOfDefinition, kOfxImageEffectPropRenderScale,
+                kOfxImageEffectPropRenderWindow, kOfxImageEffectPropSupportedComponents,
+                kOfxImageEffectPropSupportedContexts, kOfxImageEffectPropSupportedPixelDepths,
+                kOfxImageEffectPropSupportsMultiResolution, kOfxImageEffectRenderFullySafe,
+            },
+            param::{
+                OfxParamHandle, kOfxParamCoordinatesNormalised, kOfxParamDoubleTypeX,
+                kOfxParamDoubleTypeXYAbsolute, kOfxParamPropDefault,
+                kOfxParamPropDefaultCoordinateSystem, kOfxParamPropDisplayMax,
+                kOfxParamPropDisplayMin, kOfxParamPropDoubleType, kOfxParamPropHint,
+                kOfxParamPropMin, kOfxParamTypeBoolean, kOfxParamTypeDouble, kOfxParamTypeDouble2D,
+                kOfxParamTypeRGBA,
+            },
         },
-        param::{
-            OfxParamHandle, kOfxParamCoordinatesNormalised, kOfxParamDoubleTypeX,
-            kOfxParamDoubleTypeXYAbsolute, kOfxParamPropDefault,
-            kOfxParamPropDefaultCoordinateSystem, kOfxParamPropDisplayMax, kOfxParamPropDisplayMin,
-            kOfxParamPropDoubleType, kOfxParamPropHint, kOfxParamPropMin, kOfxParamTypeBoolean,
-            kOfxParamTypeDouble, kOfxParamTypeDouble2D, kOfxParamTypeRGBA,
-        },
+        sys_helpers::Plugin,
     },
 };
 use processing::{pixel_processing, rect_d_to_array, rect_i_from_array};
@@ -46,16 +51,6 @@ use crate::{
             BitDepth, ClipImageManaged, SharedDataHelper, param_get_value_at_time,
         },
     },
-};
-
-pub static EFFECT_PLUGIN_STRUCT_CIRCLE: OfxPlugin = OfxPlugin {
-    pluginApi: kOfxImageEffectPluginApi.as_ptr(),
-    apiVersion: 1,
-    pluginIdentifier: PLUGIN_5_CIRCLE_IDENTIFIER.as_ptr(),
-    pluginVersionMajor: 1,
-    pluginVersionMinor: 0,
-    setHost: Some(set_host),
-    mainEntry: Some(main_entry),
 };
 
 static HOST_STRUCT: OnceLock<SaferHostStruct<'static>> = OnceLock::new();
@@ -90,74 +85,81 @@ const CENTRE_PARAM_NAME: &CStr = c"centre";
 const COLOUR_PARAM_NAME: &CStr = c"colour";
 const GROW_ROD_PARAM_NAME: &CStr = c"growRoD";
 
-unsafe extern "C" fn set_host(host_struct: *mut OfxHost) {
-    fn inner(host_struct: *mut OfxHost) -> Result<(), &'static str> {
-        let host_struct = unsafe {
-            host_struct
-                .as_mut()
-                .ok_or("`host_struct` should not be null.")?
-        };
-        let host = unsafe {
-            host_struct
-                .host
-                .as_mut()
-                .ok_or("`host_struct.host` should not be null.")?
-        };
-        let fetch_suite = host_struct
-            .fetchSuite
-            .ok_or("`host_struct.fetchSuite` should not be null.")?;
+pub struct PluginExampleCircle;
+impl Plugin for PluginExampleCircle {
+    const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_5_CIRCLE_IDENTIFIER;
+    const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
+    const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
 
-        if HOST_STRUCT
-            .set(SaferHostStruct { host, fetch_suite })
-            .is_err()
-        {
-            return Err("`HOST_STRUCT` has already been initialized before.");
+    extern "C" fn set_host(host_struct: *mut OfxHost) {
+        fn inner(host_struct: *mut OfxHost) -> Result<(), &'static str> {
+            let host_struct = unsafe {
+                host_struct
+                    .as_mut()
+                    .ok_or("`host_struct` should not be null.")?
+            };
+            let host = unsafe {
+                host_struct
+                    .host
+                    .as_mut()
+                    .ok_or("`host_struct.host` should not be null.")?
+            };
+            let fetch_suite = host_struct
+                .fetchSuite
+                .ok_or("`host_struct.fetchSuite` should not be null.")?;
+
+            if HOST_STRUCT
+                .set(SaferHostStruct { host, fetch_suite })
+                .is_err()
+            {
+                return Err("`HOST_STRUCT` has already been initialized before.");
+            }
+            Ok(())
         }
-        Ok(())
+
+        match inner(host_struct) {
+            Ok(_) => {}
+            Err(err) => {
+                tracing::error!("Failed to set host: {}", err);
+            }
+        }
     }
 
-    match inner(host_struct) {
-        Ok(_) => {}
-        Err(err) => {
-            tracing::error!("Failed to set host: {}", err);
-        }
-    }
-}
+    extern "C" fn main_entry(
+        action: *const c_char,
+        handle: *const c_void,
+        in_args: OfxPropertySetHandle,
+        out_args: OfxPropertySetHandle,
+    ) -> OfxStatus {
+        let effect = handle as OfxImageEffectHandle;
+        let action = if action.is_null() {
+            return kOfxStatReplyDefault;
+        } else {
+            unsafe { CStr::from_ptr(action) }
+        };
+        let result = match true {
+            _ if action == kOfxActionLoad => action_load(),
+            _ if action == kOfxActionUnload => action_unload(),
+            _ if action == kOfxActionDescribe => action_describe(effect),
+            _ if action == kOfxImageEffectActionDescribeInContext => {
+                action_describe_in_context(effect, in_args)
+            }
+            _ if action == kOfxActionCreateInstance => action_create_instance(effect),
+            _ if action == kOfxActionDestroyInstance => action_destroy_instance(effect),
+            _ if action == kOfxImageEffectActionIsIdentity => {
+                action_is_identity(effect, in_args, out_args)
+            }
+            _ if action == kOfxImageEffectActionGetRegionOfDefinition => {
+                action_get_region_of_definition(effect, in_args, out_args)
+            }
+            _ if action == kOfxImageEffectActionRender => action_render(effect, in_args, out_args),
+            _ => Err(kOfxStatReplyDefault),
+        };
 
-unsafe extern "C" fn main_entry(
-    action: *const c_char,
-    handle: *const c_void,
-    in_args: OfxPropertySetHandle,
-    out_args: OfxPropertySetHandle,
-) -> OfxStatus {
-    let effect = handle as OfxImageEffectHandle;
-    let action = if action.is_null() {
-        return kOfxStatReplyDefault;
-    } else {
-        unsafe { CStr::from_ptr(action) }
-    };
-    let result = match true {
-        _ if action == kOfxActionLoad => action_load(),
-        _ if action == kOfxActionUnload => action_unload(),
-        _ if action == kOfxActionDescribe => action_describe(effect),
-        _ if action == kOfxImageEffectActionDescribeInContext => {
-            action_describe_in_context(effect, in_args)
+        match result {
+            Ok(_) => kOfxStatOK,
+            Err(status) => status,
         }
-        _ if action == kOfxActionCreateInstance => action_create_instance(effect),
-        _ if action == kOfxActionDestroyInstance => action_destroy_instance(effect),
-        _ if action == kOfxImageEffectActionIsIdentity => {
-            action_is_identity(effect, in_args, out_args)
-        }
-        _ if action == kOfxImageEffectActionGetRegionOfDefinition => {
-            action_get_region_of_definition(effect, in_args, out_args)
-        }
-        _ if action == kOfxImageEffectActionRender => action_render(effect, in_args, out_args),
-        _ => Err(kOfxStatReplyDefault),
-    };
-
-    match result {
-        Ok(_) => kOfxStatOK,
-        Err(status) => status,
     }
 }
 

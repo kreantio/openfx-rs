@@ -5,37 +5,31 @@ use std::{
 
 use openfx::{
     generic::sys::core::{
-        OfxHost, OfxPlugin, OfxPropertySetHandle, OfxRectI, OfxStatus, OfxTime,
-        kOfxActionCreateInstance, kOfxActionDescribe, kOfxActionDestroyInstance, kOfxActionLoad,
-        kOfxActionUnload, kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxPropLabel,
-        kOfxPropTime, kOfxStatErrUnsupported, kOfxStatFailed, kOfxStatOK, kOfxStatReplyDefault,
+        OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, OfxTime, kOfxActionCreateInstance,
+        kOfxActionDescribe, kOfxActionDestroyInstance, kOfxActionLoad, kOfxActionUnload,
+        kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxPropLabel, kOfxPropTime,
+        kOfxStatErrUnsupported, kOfxStatFailed, kOfxStatOK, kOfxStatReplyDefault,
     },
-    image_effect_v1::sys::image_effect::{
-        OfxImageEffectHandle, kOfxImageComponentAlpha, kOfxImageComponentRGB,
-        kOfxImageComponentRGBA, kOfxImageEffectActionDescribeInContext,
-        kOfxImageEffectActionRender, kOfxImageEffectContextFilter, kOfxImageEffectPluginApi,
-        kOfxImageEffectPluginPropGrouping, kOfxImageEffectPluginPropHostFrameThreading,
-        kOfxImageEffectPluginRenderThreadSafety, kOfxImageEffectPropComponents,
-        kOfxImageEffectPropContext, kOfxImageEffectPropPixelDepth, kOfxImageEffectPropRenderWindow,
-        kOfxImageEffectPropSupportedComponents, kOfxImageEffectPropSupportedContexts,
-        kOfxImageEffectPropSupportedPixelDepths, kOfxImageEffectRenderFullySafe,
-        kOfxImagePropBounds, kOfxImagePropData, kOfxImagePropRowBytes,
+    image_effect_v1::{
+        sys::image_effect::{
+            OfxImageEffectHandle, kOfxImageComponentAlpha, kOfxImageComponentRGB,
+            kOfxImageComponentRGBA, kOfxImageEffectActionDescribeInContext,
+            kOfxImageEffectActionRender, kOfxImageEffectContextFilter,
+            kOfxImageEffectPluginPropGrouping, kOfxImageEffectPluginPropHostFrameThreading,
+            kOfxImageEffectPluginRenderThreadSafety, kOfxImageEffectPropComponents,
+            kOfxImageEffectPropContext, kOfxImageEffectPropPixelDepth,
+            kOfxImageEffectPropRenderWindow, kOfxImageEffectPropSupportedComponents,
+            kOfxImageEffectPropSupportedContexts, kOfxImageEffectPropSupportedPixelDepths,
+            kOfxImageEffectRenderFullySafe, kOfxImagePropBounds, kOfxImagePropData,
+            kOfxImagePropRowBytes,
+        },
+        sys_helpers::Plugin,
     },
 };
 
 use crate::{
     definitions::{PLUGIN_2_INVERT_IDENTIFIER, PLUGIN_2_INVERT_LABEL, PLUGINS_GROUPING},
     helpers::{SaferHostStruct, SharedData, shared_data_helper::SharedDataHelper},
-};
-
-pub static EFFECT_PLUGIN_STRUCT_INVERT: OfxPlugin = OfxPlugin {
-    pluginApi: kOfxImageEffectPluginApi.as_ptr(),
-    apiVersion: 1,
-    pluginIdentifier: PLUGIN_2_INVERT_IDENTIFIER.as_ptr(),
-    pluginVersionMajor: 1,
-    pluginVersionMinor: 0,
-    setHost: Some(set_host),
-    mainEntry: Some(main_entry),
 };
 
 static HOST_STRUCT: OnceLock<SaferHostStruct> = OnceLock::new();
@@ -48,71 +42,78 @@ fn shared_data_lockless() -> Result<SharedData<'static>, OfxStatus> {
     Ok(data.clone())
 }
 
-unsafe extern "C" fn set_host(host_struct: *mut OfxHost) {
-    fn inner(host_struct: *mut OfxHost) -> Result<(), &'static str> {
-        let host_struct = unsafe {
-            host_struct
-                .as_mut()
-                .ok_or("`host_struct` should not be null.")?
-        };
-        let host = unsafe {
-            host_struct
-                .host
-                .as_mut()
-                .ok_or("`host_struct.host` should not be null.")?
-        };
-        let fetch_suite = host_struct
-            .fetchSuite
-            .ok_or("`host_struct.fetchSuite` should not be null.")?;
+pub struct PluginExampleInvert;
+impl Plugin for PluginExampleInvert {
+    const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_2_INVERT_IDENTIFIER;
+    const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
+    const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
 
-        if HOST_STRUCT
-            .set(SaferHostStruct { host, fetch_suite })
-            .is_err()
-        {
-            return Err("`HOST_STRUCT` has already been initialized before.");
-        }
-        Ok(())
-    }
+    extern "C" fn set_host(host_struct: *mut OfxHost) {
+        fn inner(host_struct: *mut OfxHost) -> Result<(), &'static str> {
+            let host_struct = unsafe {
+                host_struct
+                    .as_mut()
+                    .ok_or("`host_struct` should not be null.")?
+            };
+            let host = unsafe {
+                host_struct
+                    .host
+                    .as_mut()
+                    .ok_or("`host_struct.host` should not be null.")?
+            };
+            let fetch_suite = host_struct
+                .fetchSuite
+                .ok_or("`host_struct.fetchSuite` should not be null.")?;
 
-    match inner(host_struct) {
-        Ok(_) => {}
-        Err(err) => {
-            tracing::error!("Failed to set host: {}", err);
-        }
-    }
-}
-
-unsafe extern "C" fn main_entry(
-    action: *const c_char,
-    handle: *const c_void,
-    in_args: OfxPropertySetHandle,
-    out_args: OfxPropertySetHandle,
-) -> OfxStatus {
-    let effect = handle as OfxImageEffectHandle;
-    let action = if action.is_null() {
-        return kOfxStatReplyDefault;
-    } else {
-        unsafe { CStr::from_ptr(action) }
-    };
-    let result = match true {
-        _ if action == kOfxActionLoad => action_load(),
-        _ if action == kOfxActionUnload => action_unload(),
-        _ if action == kOfxActionDescribe => action_describe(effect),
-        _ if action == kOfxImageEffectActionDescribeInContext => {
-            action_describe_in_context(effect, in_args)
-        }
-        _ if action == kOfxImageEffectActionRender => action_render(effect, in_args, out_args),
-        _ if action == kOfxActionCreateInstance || action == kOfxActionDestroyInstance => {
-            // We need to handle these actions (even if it's just a no-op) for DaVinci resolve to properly load our plugin
-            // If not handled, it'll load the plugin but will never show the controls or actually render anything
+            if HOST_STRUCT
+                .set(SaferHostStruct { host, fetch_suite })
+                .is_err()
+            {
+                return Err("`HOST_STRUCT` has already been initialized before.");
+            }
             Ok(())
         }
-        _ => Err(kOfxStatReplyDefault),
-    };
 
-    match result {
-        Ok(_) => kOfxStatOK,
-        Err(status) => status,
+        match inner(host_struct) {
+            Ok(_) => {}
+            Err(err) => {
+                tracing::error!("Failed to set host: {}", err);
+            }
+        }
+    }
+
+    extern "C" fn main_entry(
+        action: *const c_char,
+        handle: *const c_void,
+        in_args: OfxPropertySetHandle,
+        out_args: OfxPropertySetHandle,
+    ) -> OfxStatus {
+        let effect = handle as OfxImageEffectHandle;
+        let action = if action.is_null() {
+            return kOfxStatReplyDefault;
+        } else {
+            unsafe { CStr::from_ptr(action) }
+        };
+        let result = match true {
+            _ if action == kOfxActionLoad => action_load(),
+            _ if action == kOfxActionUnload => action_unload(),
+            _ if action == kOfxActionDescribe => action_describe(effect),
+            _ if action == kOfxImageEffectActionDescribeInContext => {
+                action_describe_in_context(effect, in_args)
+            }
+            _ if action == kOfxImageEffectActionRender => action_render(effect, in_args, out_args),
+            _ if action == kOfxActionCreateInstance || action == kOfxActionDestroyInstance => {
+                // We need to handle these actions (even if it's just a no-op) for DaVinci resolve to properly load our plugin
+                // If not handled, it'll load the plugin but will never show the controls or actually render anything
+                Ok(())
+            }
+            _ => Err(kOfxStatReplyDefault),
+        };
+
+        match result {
+            Ok(_) => kOfxStatOK,
+            Err(status) => status,
+        }
     }
 }
 
