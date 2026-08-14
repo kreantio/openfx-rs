@@ -239,7 +239,7 @@ fn deduplicate(
             }
         }
 
-        let mut use_items: Vec<syn::Item> = vec![];
+        let mut use_items: Vec<(String, syn::Item)> = vec![];
         for (mod_name, names) in to_use {
             let mut names: Vec<String> = names.into_iter().collect();
             names.sort();
@@ -274,10 +274,11 @@ fn deduplicate(
                 semi_token: Default::default(),
             };
 
-            use_items.push(syn::Item::Use(use_item));
+            use_items.push((mod_name.clone(), syn::Item::Use(use_item)));
         }
+        use_items.sort_by(|(mod_name_a, _), (mod_name_b, _)| mod_name_a.cmp(mod_name_b));
 
-        dedup_items.splice(0..0, use_items);
+        dedup_items.splice(0..0, use_items.into_iter().map(|(_, item)| item));
 
         let new_file = syn::File {
             items: dedup_items,
