@@ -34,7 +34,7 @@ use openfx::{
 
 // …
 
-const EFFECT_PLUGIN_STRUCTS: [*const OfxPlugin; 5] = [&EFFECT_PLUGIN_STRUCT_FOO];
+const EFFECT_PLUGIN_STRUCTS: [*const OfxPlugin; 1] = [&EFFECT_PLUGIN_STRUCT_FOO];
 
 #[unsafe(no_mangle)]
 pub extern "C" fn OfxGetNumberOfPlugins() -> c_int {
@@ -107,10 +107,10 @@ impl Plugin for BasicExamplePlugin {
     const PLUGIN_IDENTIFIER: &'static CStr = c"org.openeffects:BasicExamplePlugin";
     const PLUGIN_VERSION_MAJOR: c_uint = 1;
     const PLUGIN_VERSION_MINOR: c_uint = 0;
-    fn set_host(host: *mut OfxHost) {
+    extern "C" fn set_host(host: *mut OfxHost) {
         todo!()
     }
-    fn main_entry(
+    extern "C" fn main_entry(
         action: *const c_char,
         handle: *const c_void,
         in_args: OfxPropertySetHandle,
