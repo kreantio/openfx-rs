@@ -1,0 +1,11 @@
+generated-c-bindings-path := "generated/c_bindings"
+
+generate:
+    rm -rf {{ generated-c-bindings-path }}
+    mkdir -p {{ generated-c-bindings-path }}
+    cargo run --release --package openfx-bindgen --bin openfx-bindgen -- \
+      --input-c-headers "vendor/openfx/include" \
+      --output-c-bindings "{{ generated-c-bindings-path }}"
+
+publish: generate
+    cargo publish

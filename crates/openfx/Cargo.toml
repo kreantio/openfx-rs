@@ -5,8 +5,5 @@ edition = "2024"
 license.workspace = true
 repository.workspace = true
 
-[build-dependencies]
-openfx-bindgen.workspace = true
-
 [lints]
 workspace = true

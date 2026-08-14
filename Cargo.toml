@@ -17,6 +17,7 @@ openfx = { path = "crates/openfx" }
 openfx-bindgen = { path = "crates/openfx-bindgen" }
 
 bindgen = "0.72.1"
+clap = "4.6.6"
 convert_case = "0.11.0"
 prettyplease = "0.3.0"
 proc-macro2 = "1.0.107"
