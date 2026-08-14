@@ -167,9 +167,6 @@ fn collect_headers(
                         .allowlist_function("") // blocking all
                         .allowlist_type("Ofx.+")
                         .allowlist_var("kOfx.+")
-                        // Tell cargo to invalidate the built crate whenever any of the
-                        // included header files changed.
-                        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
                         .generate_cstr(true)
                         .generate()?
                         .to_string(),
