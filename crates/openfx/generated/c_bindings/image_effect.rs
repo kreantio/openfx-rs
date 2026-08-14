@@ -46,11 +46,12 @@ use super::param::{
     kOfxParamHostPropSupportsBooleanAnimation, kOfxParamHostPropSupportsChoiceAnimation,
     kOfxParamHostPropSupportsCustomAnimation, kOfxParamHostPropSupportsCustomInteract,
     kOfxParamHostPropSupportsStrChoice, kOfxParamHostPropSupportsStrChoiceAnimation,
-    kOfxParamHostPropSupportsStringAnimation, kOfxParamInvalidateAll,
-    kOfxParamInvalidateValueChange, kOfxParamInvalidateValueChangeToEnd,
-    kOfxParamPageSkipColumn, kOfxParamPageSkipRow, kOfxParamPropAnimates,
-    kOfxParamPropCacheInvalidation, kOfxParamPropCanUndo, kOfxParamPropChoiceEnum,
-    kOfxParamPropChoiceOption, kOfxParamPropChoiceOrder,
+    kOfxParamHostPropSupportsStringAnimation, kOfxParamInterpType,
+    kOfxParamInterpTypeConstantStep, kOfxParamInterpTypeLinear,
+    kOfxParamInterpTypeSmooth, kOfxParamInvalidateAll, kOfxParamInvalidateValueChange,
+    kOfxParamInvalidateValueChangeToEnd, kOfxParamPageSkipColumn, kOfxParamPageSkipRow,
+    kOfxParamPropAnimates, kOfxParamPropCacheInvalidation, kOfxParamPropCanUndo,
+    kOfxParamPropChoiceEnum, kOfxParamPropChoiceOption, kOfxParamPropChoiceOrder,
     kOfxParamPropCustomInterpCallbackV1, kOfxParamPropCustomValue, kOfxParamPropDataPtr,
     kOfxParamPropDefault, kOfxParamPropDefaultCoordinateSystem, kOfxParamPropDigits,
     kOfxParamPropDimensionLabel, kOfxParamPropDisplayMax, kOfxParamPropDisplayMin,
@@ -125,6 +126,7 @@ pub const kOfxHostNativeOriginCenter: &::std::ffi::CStr = c"kOfxImageEffectHostP
 pub const kOfxImageEffectHostPropNativeOrigin: &::std::ffi::CStr = c"OfxImageEffectHostPropNativeOrigin";
 pub const kOfxImageEffectPropInteractiveRenderStatus: &::std::ffi::CStr = c"OfxImageEffectPropInteractiveRenderStatus";
 pub const kOfxImageEffectPluginPropGrouping: &::std::ffi::CStr = c"OfxImageEffectPluginPropGrouping";
+pub const kOfxImageEffectPluginPropObsolete: &::std::ffi::CStr = c"OfxImageEffectPluginPropObsolete";
 pub const kOfxImageEffectPropSupportsOverlays: &::std::ffi::CStr = c"OfxImageEffectPropSupportsOverlays";
 pub const kOfxImageEffectPluginPropOverlayInteractV1: &::std::ffi::CStr = c"OfxImageEffectPluginPropOverlayInteractV1";
 pub const kOfxImageEffectPluginPropOverlayInteractV2: &::std::ffi::CStr = c"OfxImageEffectPluginPropOverlayInteractV2";
@@ -181,6 +183,9 @@ pub const kOfxImageFieldUpper: &::std::ffi::CStr = c"OfxFieldUpper";
 pub const kOfxImageFieldBoth: &::std::ffi::CStr = c"OfxFieldBoth";
 pub const kOfxImageFieldSingle: &::std::ffi::CStr = c"OfxFieldSingle";
 pub const kOfxImageFieldDoubled: &::std::ffi::CStr = c"OfxFieldDoubled";
+pub const kOfxImageEffectPropBehaviourWhenUnlicensed: &::std::ffi::CStr = c"OfxImageEffectPropBehaviourWhenUnlicensed";
+pub const kOfxUnlicensedContinue: &::std::ffi::CStr = c"OfxUnlicensedContinue";
+pub const kOfxUnlicensedFail: &::std::ffi::CStr = c"OfxUnlicensedFail";
 pub const kOfxImageEffectOutputClipName: &::std::ffi::CStr = c"Output";
 pub const kOfxImageEffectSimpleSourceClipName: &::std::ffi::CStr = c"Source";
 pub const kOfxImageEffectTransitionSourceFromClipName: &::std::ffi::CStr = c"SourceFrom";
