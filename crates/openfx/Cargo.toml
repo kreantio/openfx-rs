@@ -2,8 +2,11 @@
 name = "openfx"
 version = "0.1.0"
 edition = "2024"
+description = "Rust bindings for the OpenFX API"
 license.workspace = true
 repository.workspace = true
+include = ["src/**", "generated/**", "README.md", "LICENSE.md"]
+license-file = "LICENSE.md"
 
 [lints]
 workspace = true
