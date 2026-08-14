@@ -82,6 +82,10 @@ pub const kOfxParamCoordinatesCanonical: &::std::ffi::CStr = c"OfxParamCoordinat
 pub const kOfxParamCoordinatesNormalised: &::std::ffi::CStr = c"OfxParamCoordinatesNormalised";
 pub const kOfxParamPropHasHostOverlayHandle: &::std::ffi::CStr = c"OfxParamPropHasHostOverlayHandle";
 pub const kOfxParamPropUseHostOverlayHandle: &::std::ffi::CStr = c"kOfxParamPropUseHostOverlayHandle";
+pub const kOfxParamInterpTypeConstantStep: &::std::ffi::CStr = c"OfxParamInterpTypeConstantStep";
+pub const kOfxParamInterpTypeLinear: &::std::ffi::CStr = c"OfxParamInterpTypeLinear";
+pub const kOfxParamInterpTypeSmooth: &::std::ffi::CStr = c"OfxParamInterpTypeSmooth";
+pub const kOfxParamInterpType: &::std::ffi::CStr = c"OfxParamInterpType";
 pub const kOfxParamPropShowTimeMarker: &::std::ffi::CStr = c"OfxParamPropShowTimeMarker";
 pub const kOfxPluginPropParamPageOrder: &::std::ffi::CStr = c"OfxPluginPropParamPageOrder";
 pub const kOfxParamPropPageChild: &::std::ffi::CStr = c"OfxParamPropPageChild";
@@ -310,7 +314,16 @@ The plugin needs to parse the two strings encoding keyframes on either side of t
 we need a value for. It should then interpolate a new value for it, encode it into a string and set
 the ::kOfxParamPropCustomValue property with this on the outArgs handle.
 
-The interp value is a linear interpolation amount, however his may be derived from a cubic (or other) curve.*/
+The interp value is a linear interpolation amount, however his may be derived from a cubic (or other) curve.
+
+@actiondef
+inArgs:
+- OfxParamPropCustomValue
+- OfxParamPropInterpolationTime
+- OfxParamPropInterpolationAmount
+outArgs:
+- OfxParamPropCustomValue
+- OfxParamPropInterpolationTime*/
 pub type OfxCustomParamInterpFuncV1 = ::std::option::Option<
     unsafe extern "C" fn(
         instance: OfxParamSetHandle,

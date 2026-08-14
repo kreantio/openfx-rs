@@ -320,3 +320,4 @@ pub const kOfxStatErrValue: OfxStatus = 11;
 pub const kOfxStatReplyYes: OfxStatus = 12;
 pub const kOfxStatReplyNo: OfxStatus = 13;
 pub const kOfxStatReplyDefault: OfxStatus = 14;
+pub const kOfxStatUnlicensed: OfxStatus = 15;
