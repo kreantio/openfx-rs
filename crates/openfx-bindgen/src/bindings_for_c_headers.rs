@@ -61,21 +61,40 @@ fn generate_bindings_for_c_headers_inner(
     let headers = Header::headers_from_folder(&headers_folder)
         .map_err(|err| format!("Failed to collect headers: {}", err))?;
     let headers = sort_by_dependencies(headers);
-    let deduplicated_syn_files =
-        deduplicate(&headers).map_err(|err| format!("Failed to deduplicate headers: {}", err))?;
+    let DeduplicateOutput {
+        deduplicated_syn_files,
+        checks_syn_files,
+    } = deduplicate(&headers).map_err(|err| format!("Failed to deduplicate headers: {}", err))?;
+
+    std::fs::create_dir_all(output_folder.join("checks"))?;
 
     for header in headers {
         let mod_name = &header.mod_name_snake_case;
         let output_path = output_folder.join(format!("{}.rs", mod_name));
-        let syn_file = deduplicated_syn_files
-            .get(&header.name)
-            .expect("deduplicated_syn_files should contain the mod_name");
+
+        let syn_file = deduplicated_syn_files.get(&header.name).ok_or_else(|| {
+            format!(
+                "`deduplicated_syn_files` should contain the header with name `{}`",
+                header.name
+            )
+        })?;
         let mut code = prettyplease::unparse(syn_file);
         if let Some(additional_rust_code) = &header.additional_rust_code {
             code.push('\n');
             code.push_str(additional_rust_code);
         }
         std::fs::write(&output_path, code)?;
+
+        let checks_syn_file = checks_syn_files.get(&header.name).ok_or_else(|| {
+            format!(
+                "`check_syn_files` should contain the header with name `{}`",
+                header.name
+            )
+        })?;
+        std::fs::write(
+            output_folder.join(format!("checks/{}.rs", mod_name)),
+            prettyplease::unparse(checks_syn_file),
+        )?;
     }
 
     Ok(())
@@ -204,27 +223,101 @@ impl Header {
     }
 }
 
-fn deduplicate(
-    headers: &[Header],
-) -> Result<HashMap<String, syn::File>, Box<dyn std::error::Error>> {
+struct DeduplicateOutput {
+    deduplicated_syn_files: HashMap<String, syn::File>,
+    checks_syn_files: HashMap<String, syn::File>,
+}
+
+fn deduplicate(headers: &[Header]) -> Result<DeduplicateOutput, Box<dyn std::error::Error>> {
     // item name -> `mod_name_snake_case` of the header file that defines it
     let mut seen_names: HashMap<String, String> = HashMap::new();
 
     let mut deduplicated_syn_files: HashMap<String, syn::File> = HashMap::new();
+    let mut checks_syn_files: HashMap<String, syn::File> = HashMap::new();
 
     for header in headers {
         // `mod_name_snake_case` -> item names
-        let mut to_use: HashMap<String, HashSet<String>> = HashMap::new();
+        let mut dup_names: HashMap<String, HashSet<String>> = HashMap::new();
         let mut dedup_items: Vec<syn::Item> = vec![];
 
         let syn_file = syn::parse_file(&header.bindgen_generated_rust_code)?;
 
-        for item in &syn_file.items {
+        // `check_items`: `const _: () = { … };`
+        let (items, check_items) = syn_file.items.iter().partition::<Vec<_>, _>(
+            |item| !matches!(item, syn::Item::Const(item_const) if item_const.ident == "_"),
+        );
+
+        checks_syn_files.insert(
+            header.name.clone(),
+            syn::File {
+                items: check_items.into_iter().cloned().collect(),
+                shebang: None,
+                frontmatter: None,
+                attrs: vec![],
+            },
+        );
+
+        for (ident, item) in collect_root_item_idents(&items) {
+            let name = ident.to_string();
+            if let Some(mod_name) = seen_names.get(&name) {
+                dup_names
+                    .entry(mod_name.clone())
+                    .or_default()
+                    .insert(name.clone());
+            } else {
+                seen_names.insert(name.clone(), header.mod_name_snake_case.clone());
+                dedup_items.push(item.clone());
+            }
+        }
+
+        let mut syn_files = syn::File {
+            items: dedup_items,
+            ..syn_file
+        };
+
+        let used_idents = collect_idents(&syn_files);
+
+        for set in dup_names.values_mut() {
+            set.retain(|name| used_idents.contains(name));
+        }
+
+        let mut use_items: Vec<(String, syn::Item)> = vec![];
+        for (mod_name, names) in dup_names {
+            if names.is_empty() {
+                continue;
+            }
+
+            let mut names: Vec<&String> = names.iter().collect();
+            names.sort();
+
+            let use_item = make_use_item(&mod_name, &names);
+
+            use_items.push((mod_name.clone(), syn::Item::Use(use_item)));
+        }
+        use_items.sort_by(|(mod_name_a, _), (mod_name_b, _)| mod_name_a.cmp(mod_name_b));
+
+        syn_files
+            .items
+            .splice(0..0, use_items.into_iter().map(|(_, item)| item));
+
+        deduplicated_syn_files.insert(header.name.clone(), syn_files);
+    }
+
+    Ok(DeduplicateOutput {
+        deduplicated_syn_files,
+        checks_syn_files,
+    })
+}
+
+fn collect_root_item_idents<'a>(items: &[&'a syn::Item]) -> Vec<(&'a syn::Ident, &'a syn::Item)> {
+    items
+        .iter()
+        .filter_map(|item| {
             let ident = match item {
-                syn::Item::Const(item_const) => item_const.ident.clone(),
-                syn::Item::Fn(item_fn) => item_fn.sig.ident.clone(),
-                syn::Item::Struct(item_struct) => item_struct.ident.clone(),
-                syn::Item::Type(item_type) => item_type.ident.clone(),
+                syn::Item::Const(item_const) => &item_const.ident,
+                syn::Item::Fn(item_fn) => &item_fn.sig.ident,
+                syn::Item::Struct(item_struct) => &item_struct.ident,
+                syn::Item::Type(item_type) => &item_type.ident,
                 syn::Item::Enum(_)
                 | syn::Item::ExternCrate(_)
                 | syn::Item::ForeignMod(_)
@@ -241,48 +334,33 @@ fn deduplicate(
                 syn::Item::Verbatim(_) => panic!("unexpected verbatim item: {}", quote! { #item }),
                 _ => panic!("unexpected unknown item: {}", quote! { #item }),
             };
-            let name = ident.to_string();
-            if name == "_" {
-                dedup_items.push(item.clone());
-                continue;
-            } else if name == "kOfxStatOK" {
+
+            if ident == "kOfxStatOK" {
                 // included in `additional_rust_code`.
-                continue;
-            }
-
-            if let Some(mod_name) = seen_names.get(&name) {
-                to_use
-                    .entry(mod_name.clone())
-                    .or_default()
-                    .insert(name.clone());
+                None
             } else {
-                seen_names.insert(name.clone(), header.mod_name_snake_case.clone());
-                dedup_items.push(item.clone());
+                Some((ident, *item))
             }
+        })
+        .collect()
+}
+
+fn collect_idents(syn_file: &syn::File) -> HashSet<String> {
+    struct IdentVisitor {
+        idents: HashSet<String>,
+    }
+    impl<'a> syn::visit::Visit<'a> for IdentVisitor {
+        fn visit_ident(&mut self, ident: &syn::Ident) {
+            self.idents.insert(ident.to_string());
         }
-
-        let mut use_items: Vec<(String, syn::Item)> = vec![];
-        for (mod_name, names) in to_use {
-            let mut names: Vec<&String> = names.iter().collect();
-            names.sort();
-
-            let use_item = make_use_item(&mod_name, &names);
-
-            use_items.push((mod_name.clone(), syn::Item::Use(use_item)));
-        }
-        use_items.sort_by(|(mod_name_a, _), (mod_name_b, _)| mod_name_a.cmp(mod_name_b));
-
-        dedup_items.splice(0..0, use_items.into_iter().map(|(_, item)| item));
-
-        let new_file = syn::File {
-            items: dedup_items,
-            ..syn_file
-        };
-
-        deduplicated_syn_files.insert(header.name.clone(), new_file);
     }
 
-    Ok(deduplicated_syn_files)
+    let mut visitor = IdentVisitor {
+        idents: HashSet::new(),
+    };
+    syn::visit::visit_file(&mut visitor, syn_file);
+
+    visitor.idents
 }
 
 fn make_use_item(mod_name: &str, names: &[&String]) -> syn::ItemUse {

@@ -24,5 +24,4 @@ include_c_bindings!(param);
 include_c_bindings!(parametric_param);
 include_c_bindings!(pixels);
 include_c_bindings!(progress);
-include_c_bindings!(property);
 include_c_bindings!(time_line);
