@@ -4,17 +4,17 @@ This crate provides bindings for the OpenFX API in 3 abstraction layers:
 
 - layer `sys` (`openfx::*::sys`): raw low-level bindings generated from the
   OpenFX C headers.
-- layer `low_typed` (`openfx::*::low_typed`): unsafe low-level bindings built on
-  top of the `sys` bindings, where types of values from the `sys` bindings are
-  converted to stronger types generated from the official C++ bindings
-  (`$OFX_REPO/openfx-cpp/include`) with runtime overhead.
-- layer `high` (`openfx::*::high`): (generally) safe and rust-idiomatic
-  high-level bindings built on top of the `low_typed` bindings. There definitely
-  is some runtime overhead.
+- layer `low_{plugin,host}` (`openfx::*::{low_plugin,low_host}`): unsafe
+  low-level bindings built on top of the `sys` bindings, where types of values
+  from the `sys` bindings are converted to stronger types generated from the
+  official C++ bindings (`$OFX_REPO/openfx-cpp/include`) with runtime overhead.
+- layer `high_{plugin,host}` (`openfx::*::{high_plugin,high_host}`): (generally)
+  safe and rust-idiomatic high-level bindings built on top of the `low_*`
+  bindings. There definitely is some runtime overhead.
 
-The first two layers are just building blocks for the layer `high`. Although you
-can use them directly, it is recommended to use the `high` layer bindings for
-most use cases.
+The first two layers are just building blocks for the layer `high_*`. Although
+you can use them directly, it is recommended to use the `high_*` layer bindings
+for most use cases.
 
 ## for Plugin Development
 
@@ -125,14 +125,14 @@ impl Plugin for BasicExamplePlugin {
 
 </details>
 
-#### writing plugins in layer `low_typed`
+#### TODO: writing plugins in layer `low_plugin`
 
-<details><summary>TODO: example code</summary>
+<details><summary>example code</summary>
 
 ```rs
-use openfx::generic::low_typed::Status;
+use openfx::generic::low_plugin::Status;
 use openfx::generic::sys_helpers::{export_plugins, plugin_struct, PluginStruct, Plugins};
-use openfx::image_effect_v1::low_typed::{Action, Host, Plugin};
+use openfx::image_effect_v1::low_plugin::{Action, Host, Plugin};
 
 // …
 
@@ -165,13 +165,13 @@ impl Plugin for BasicExamplePlugin {
 
 </details>
 
-#### writing plugins in layer `high`
+#### TODO: writing plugins in layer `high_plugin`
 
-<details><summary>TODO: example code</summary>
+<details><summary>example code</summary>
 
 ```rs
 use openfx::generic::sys_helpers::{PluginStruct, Plugins, export_plugins, plugin_struct};
-use openfx::image_effect_v1::high::{Context, Plugin, PluginInstance, actions};
+use openfx::image_effect_v1::high_plugin::{Context, Plugin, PluginInstance, actions};
 
 // …
 
