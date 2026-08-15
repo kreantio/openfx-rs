@@ -1,6 +1,6 @@
 use std::{
     collections::{HashMap, HashSet},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 use convert_case::Casing as _;
@@ -58,7 +58,7 @@ fn generate_bindings_for_c_headers_inner(
     let headers_folder = headers_folder.into();
     let output_folder = output_folder.into();
 
-    let headers = collect_headers(&headers_folder)
+    let headers = Header::headers_from_folder(&headers_folder)
         .map_err(|err| format!("Failed to collect headers: {}", err))?;
     let headers = sort_by_dependencies(headers);
     let deduplicated_syn_files =
@@ -81,102 +81,127 @@ fn generate_bindings_for_c_headers_inner(
     Ok(())
 }
 
-fn collect_headers(
-    headers_folder: impl Into<PathBuf>,
-) -> Result<Vec<Header>, Box<dyn std::error::Error + Send + Sync>> {
-    let headers_folder = headers_folder.into();
+pub(crate) struct Header {
+    /// without the `.h` extension, with the `ofx` prefix, e.g.
+    /// `ofxImageEffect`.
+    pub name: String,
+    /// without the `ofx` prefix, in snake case, e.g. `image_effect`.
+    pub mod_name_snake_case: String,
+    /// without the `.h` extension, with the `ofx` prefix, e.g.
+    /// `ofxImageEffect`.
+    pub included_headers: HashSet<String>,
+    /// Unfortunately even though this is not a proc-macro, we still can't send
+    /// `syn` or `proc_macro2` values across threads.
+    pub bindgen_generated_rust_code: String,
 
-    let mut entries: Vec<(std::fs::DirEntry, String)> = vec![];
-    for entry in std::fs::read_dir(&headers_folder)? {
-        let entry = entry?;
-        let path = entry.path();
-        if !entry.file_type()?.is_file() || path.extension().is_none_or(|ext| ext != "h") {
-            continue;
+    pub additional_rust_code: Option<String>,
+}
+
+impl Header {
+    fn headers_from_folder(
+        headers_folder: impl Into<PathBuf>,
+    ) -> Result<Vec<Self>, Box<dyn std::error::Error + Send + Sync>> {
+        let headers_folder = headers_folder.into();
+
+        let mut entries: Vec<(std::fs::DirEntry, String)> = vec![];
+        for entry in std::fs::read_dir(&headers_folder)? {
+            let entry = entry?;
+            let path = entry.path();
+            if !entry.file_type()?.is_file() || path.extension().is_none_or(|ext| ext != "h") {
+                continue;
+            }
+            let name = path
+                .file_stem()
+                .ok_or_else(|| format!("Failed to get file stem for path: {:?}", path))?
+                .to_string_lossy()
+                .to_string();
+            if !name.starts_with("ofx") || name == COLORSPACE_HEADER_NAME {
+                continue;
+            }
+            entries.push((entry, name));
         }
-        let name = path
-            .file_stem()
-            .ok_or_else(|| format!("Failed to get file stem for path: {:?}", path))?
-            .to_string_lossy()
-            .to_string();
-        if !name.starts_with("ofx") || name == COLORSPACE_HEADER_NAME {
-            continue;
-        }
-        entries.push((entry, name));
+
+        let headers: Vec<Header> = entries
+            .par_iter()
+            .map(
+                |(entry, name)| -> Result<Header, Box<dyn std::error::Error + Send + Sync>> {
+                    let path = entry.path();
+
+                    let c_code = std::fs::read_to_string(&path)?;
+                    Self::from_c_code(&headers_folder, &path, name, &c_code)
+                },
+            )
+            .collect::<Result<Vec<_>, _>>()?;
+
+        Ok(headers)
     }
 
-    let headers: Vec<Header> = entries
-        .par_iter()
-        .map(
-            |(entry, name)| -> Result<Header, Box<dyn std::error::Error + Send + Sync>> {
-                let path = entry.path();
-                let name_snake_case = name
-                    .strip_prefix("ofx")
-                    .unwrap()
-                    .to_case(convert_case::Case::Snake);
+    fn from_c_code(
+        headers_folder: &Path,
+        path: &Path,
+        name: &str,
+        c_code: &str,
+    ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
+        let name_snake_case = name
+            .strip_prefix("ofx")
+            .unwrap()
+            .to_case(convert_case::Case::Snake);
 
-                let c_code = std::fs::read_to_string(&path)?;
-                let mut included_headers = HashSet::new();
-                for line in c_code.lines() {
-                    static INCLUDE_PREFIX: &str = "#include \"";
-                    static INCLUDE_SUFFIX: &str = ".h\"";
+        let mut included_headers = HashSet::new();
+        for line in c_code.lines() {
+            static INCLUDE_PREFIX: &str = "#include \"";
+            static INCLUDE_SUFFIX: &str = ".h\"";
 
-                    if line.starts_with(INCLUDE_PREFIX) && line.ends_with(INCLUDE_SUFFIX) {
-                        let include_name = line
-                            [(INCLUDE_PREFIX.len())..(line.len() - INCLUDE_SUFFIX.len())]
-                            .to_string();
+            if line.starts_with(INCLUDE_PREFIX) && line.ends_with(INCLUDE_SUFFIX) {
+                let include_name =
+                    line[(INCLUDE_PREFIX.len())..(line.len() - INCLUDE_SUFFIX.len())].to_string();
 
-                        if include_name == COLORSPACE_HEADER_NAME {
-                            continue;
-                        }
-                        included_headers.insert(include_name);
-                    }
+                if include_name == COLORSPACE_HEADER_NAME {
+                    continue;
                 }
+                included_headers.insert(include_name);
+            }
+        }
 
-                let mut additional_rust_code: Option<String> = None;
-                if name == "ofxCore" {
-                    let mut additional_lines: Vec<String> = vec![];
+        let mut additional_rust_code: Option<String> = None;
+        if name == "ofxCore" {
+            let mut additional_lines: Vec<String> = vec![];
 
-                    for line in c_code.lines() {
-                        const PREFIX: &str = "#define kOfxStat";
-                        if !line.starts_with(PREFIX) {
-                            continue;
-                        }
-                        let rest = line[PREFIX.len()..].trim();
-                        let (name, rest) = rest
-                            .split_once(' ')
-                            .ok_or_else(|| format!("Failed to split line: {}", line))?;
-                        let num = extract_number(rest).ok_or_else(|| {
-                            format!("Failed to extract number from line: {}", line)
-                        })?;
-                        additional_lines
-                            .push(format!("pub const kOfxStat{}: OfxStatus = {};", name, num));
-                    }
-                    additional_rust_code = Some(additional_lines.join("\n"));
-                } else {
-                    included_headers.insert("ofxCore".to_string());
+            for line in c_code.lines() {
+                const PREFIX: &str = "#define kOfxStat";
+                if !line.starts_with(PREFIX) {
+                    continue;
                 }
+                let rest = line[PREFIX.len()..].trim();
+                let (name, rest) = rest
+                    .split_once(' ')
+                    .ok_or_else(|| format!("Failed to split line: {}", line))?;
+                let num = extract_number(rest)
+                    .ok_or_else(|| format!("Failed to extract number from line: {}", line))?;
+                additional_lines.push(format!("pub const kOfxStat{}: OfxStatus = {};", name, num));
+            }
+            additional_rust_code = Some(additional_lines.join("\n"));
+        } else {
+            included_headers.insert("ofxCore".to_string());
+        }
 
-                Ok(Header {
-                    name: name.clone(),
-                    mod_name_snake_case: name_snake_case,
-                    included_headers,
-                    bindgen_generated_rust_code: bindgen::Builder::default()
-                        .header("stdbool.h")
-                        .header(headers_folder.join("ofxCore.h").to_string_lossy())
-                        .header(path.to_string_lossy())
-                        .allowlist_function("") // blocking all
-                        .allowlist_type("Ofx.+")
-                        .allowlist_var("kOfx.+")
-                        .generate_cstr(true)
-                        .generate()?
-                        .to_string(),
-                    additional_rust_code,
-                })
-            },
-        )
-        .collect::<Result<Vec<_>, _>>()?;
-
-    Ok(headers)
+        Ok(Header {
+            name: name.to_owned(),
+            mod_name_snake_case: name_snake_case,
+            included_headers,
+            bindgen_generated_rust_code: bindgen::Builder::default()
+                .header("stdbool.h")
+                .header(headers_folder.join("ofxCore.h").to_string_lossy())
+                .header(path.to_string_lossy())
+                .allowlist_function("") // blocking all
+                .allowlist_type("Ofx.+")
+                .allowlist_var("kOfx.+")
+                .generate_cstr(true)
+                .generate()?
+                .to_string(),
+            additional_rust_code,
+        })
+    }
 }
 
 fn deduplicate(
@@ -238,38 +263,10 @@ fn deduplicate(
 
         let mut use_items: Vec<(String, syn::Item)> = vec![];
         for (mod_name, names) in to_use {
-            let mut names: Vec<String> = names.into_iter().collect();
+            let mut names: Vec<&String> = names.iter().collect();
             names.sort();
 
-            let use_item = syn::ItemUse {
-                attrs: vec![],
-                vis: syn::Visibility::Inherited,
-                use_token: Default::default(),
-                leading_colon: None,
-                tree: syn::UseTree::Path(syn::UsePath {
-                    ident: syn::Ident::new("super", proc_macro2::Span::call_site()),
-                    colon2_token: Default::default(),
-                    tree: Box::new(syn::UseTree::Path(syn::UsePath {
-                        ident: syn::Ident::new(&mod_name, proc_macro2::Span::call_site()),
-                        colon2_token: Default::default(),
-                        tree: Box::new(syn::UseTree::Group(syn::UseGroup {
-                            brace_token: Default::default(),
-                            items: names
-                                .into_iter()
-                                .map(|name| {
-                                    syn::UseTree::Name(syn::UseName {
-                                        ident: syn::Ident::new(
-                                            &name,
-                                            proc_macro2::Span::call_site(),
-                                        ),
-                                    })
-                                })
-                                .collect(),
-                        })),
-                    })),
-                }),
-                semi_token: Default::default(),
-            };
+            let use_item = make_use_item(&mod_name, &names);
 
             use_items.push((mod_name.clone(), syn::Item::Use(use_item)));
         }
@@ -288,20 +285,33 @@ fn deduplicate(
     Ok(deduplicated_syn_files)
 }
 
-pub(crate) struct Header {
-    /// without the `.h` extension, with the `ofx` prefix, e.g.
-    /// `ofxImageEffect`.
-    pub name: String,
-    /// without the `ofx` prefix, in snake case, e.g. `image_effect`.
-    pub mod_name_snake_case: String,
-    /// without the `.h` extension, with the `ofx` prefix, e.g.
-    /// `ofxImageEffect`.
-    pub included_headers: HashSet<String>,
-    /// Unfortunately even though this is not a proc-macro, we still can't send
-    /// `syn` or `proc_macro2` values across threads.
-    pub bindgen_generated_rust_code: String,
-
-    pub additional_rust_code: Option<String>,
+fn make_use_item(mod_name: &str, names: &[&String]) -> syn::ItemUse {
+    syn::ItemUse {
+        attrs: vec![],
+        vis: syn::Visibility::Inherited,
+        use_token: Default::default(),
+        leading_colon: None,
+        tree: syn::UseTree::Path(syn::UsePath {
+            ident: syn::Ident::new("super", proc_macro2::Span::call_site()),
+            colon2_token: Default::default(),
+            tree: Box::new(syn::UseTree::Path(syn::UsePath {
+                ident: syn::Ident::new(mod_name, proc_macro2::Span::call_site()),
+                colon2_token: Default::default(),
+                tree: Box::new(syn::UseTree::Group(syn::UseGroup {
+                    brace_token: Default::default(),
+                    items: names
+                        .iter()
+                        .map(|name| {
+                            syn::UseTree::Name(syn::UseName {
+                                ident: syn::Ident::new(name, proc_macro2::Span::call_site()),
+                            })
+                        })
+                        .collect(),
+                })),
+            })),
+        }),
+        semi_token: Default::default(),
+    }
 }
 
 impl DependencySortable for Header {
