@@ -19,6 +19,16 @@ macro_rules! include_c_bindings {
                 ".rs"
             ));
 
+            mod checks {
+                use crate::sys_umbrella::*;
+                include!(concat!(
+                    env!("CARGO_MANIFEST_DIR"),
+                    "/generated/c_bindings/checks/",
+                    stringify!($name),
+                    ".rs"
+                ));
+            }
+
             $($additional_items)*
         }
     }
