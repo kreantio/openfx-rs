@@ -2,9 +2,12 @@
 
 ## Prerequisites
 
-To build the crate `openfx`, you will need to install the following tools:
+To update the generated code in the crate `openfx`:
 
-- [`just`]
+- you need to ensure that POSIX tools like `rm` and `mkdir` are available in
+  your environment.
+- you will need to install the following tools:
+  - [`just`]
 
 To build some of the examples, you will need to install the following tools:
 
