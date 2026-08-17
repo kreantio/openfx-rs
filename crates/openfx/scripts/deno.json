@@ -7,7 +7,7 @@
   },
   "tasks": {
     "test": "deno task 'test:*'",
-    "test:parsers:ofxPropMetadata": "deno test --allow-read=.. ./src/parsers/parser-ofxPropMetadata/mod.test.ts -- --crate-path=..",
+    "test:parsers:ofxPropsMetadata": "deno test --allow-read=.. ./src/parsers/parser-ofxPropsMetadata/mod.test.ts -- --crate-path=..",
     "test:parsers:ofxPropsBySet": "deno test --allow-read=.. ./src/parsers/parser-ofxPropsBySet/mod.test.ts -- --crate-path=.."
   }
 }
