@@ -10,6 +10,18 @@
 // about the surrounding shape.
 
 import { createToken, CstParser, EOF, Lexer } from "chevrotain";
+import type { TokenType } from "chevrotain";
+import {
+  fail,
+  Include,
+  lexingError,
+  makeHeaderLexer,
+  parseCppString,
+  parsingError,
+  PragmaOnce,
+  toInt,
+} from "../../common-by-llms/mod.ts";
+import type { LexIssue, ParseIssue } from "../../common-by-llms/mod.ts";
 import { PropType as PropTypeSchema } from "../types.ts";
 import type { FinalResult, PropType, Result, Structure } from "../types.ts";
 
@@ -21,22 +33,8 @@ const PROP_TYPES = new Set<string>(PropTypeSchema.options);
 // ---------------------------------------------------------------------------
 
 // --- skipped by the lexer ---------------------------------------------------
-
-const WhiteSpace = createToken({
-  name: "WhiteSpace",
-  pattern: /\s+/,
-  group: Lexer.SKIPPED,
-});
-const LineComment = createToken({
-  name: "LineComment",
-  pattern: /\/\/[^\n\r]*/,
-  group: Lexer.SKIPPED,
-});
-const BlockComment = createToken({
-  name: "BlockComment",
-  pattern: /\/\*[\s\S]*?\*\//,
-  group: Lexer.SKIPPED,
-});
+// Trivia tokens live in ../../common-by-llms (shared with the other header
+// parsers) and are re-exported here only as needed by the token lists below.
 
 // --- token categories -------------------------------------------------------
 // Categories let the grammar consume "any token except X" inside regions whose
@@ -68,24 +66,9 @@ const soupBraceAndTemplate = [AnyExceptBrace, AnyExceptAngleOrComma];
 
 // --- preprocessor -----------------------------------------------------------
 
-// `#pragma once` (and nothing else -- any other pragma fails to lex).
-const PragmaOnce = createToken({
-  name: "PragmaOnce",
-  pattern: /#pragma[ \t]+once\b/,
-});
-const Include = createToken({ name: "Include", pattern: Lexer.NA });
-const IncludeAngle = createToken({
-  name: "IncludeAngle",
-  pattern: /#include[ \t]*<[^>\n\r]*>/,
-  categories: [Include],
-});
-const IncludeQuoted = createToken({
-  name: "IncludeQuoted",
-  pattern: /#include[ \t]*"[^"\n\r]*"/,
-  categories: [Include],
-});
-// A whole `#define ...` directive including backslash-newline continuations
-// (a newline may only appear escaped).
+// `#pragma once`, includes and trivia come from ../../common-by-llms. This
+// dialect additionally allows a whole `#define ...` directive including
+// backslash-newline continuations (a newline may only appear escaped).
 const DefineDirective = createToken({
   name: "DefineDirective",
   pattern: /#define(?:[^\\\n\r]|\\[\s\S])*/,
@@ -273,15 +256,9 @@ const Identifier = createToken({
   categories: soupEverywhere,
 });
 
-const lexerTokens = [
-  WhiteSpace,
-  LineComment,
-  BlockComment,
-  // Preprocessor tokens must precede everything that could match their text.
+const dialectTokens: TokenType[] = [
+  // `#define` is specific to this dialect (the DEFINE_PROP_TRAITS macro).
   DefineDirective,
-  PragmaOnce,
-  IncludeAngle,
-  IncludeQuoted,
   // Longer keywords before shorter prefixes and before Identifier.
   StaticAssertKW,
   EqEq,
@@ -326,14 +303,15 @@ const lexerTokens = [
   Identifier,
 ];
 const parserTokens = [
-  ...lexerTokens,
+  ...dialectTokens,
+  PragmaOnce,
   Include,
   AnyExceptBrace,
   AnyExceptParenOrSemicolon,
   AnyExceptAngleOrComma,
 ];
 
-const ofxLexer = new Lexer(lexerTokens, { positionTracking: "onlyOffset" });
+const ofxLexer = makeHeaderLexer(dialectTokens);
 
 // ---------------------------------------------------------------------------
 // Parser
@@ -349,42 +327,6 @@ type AssertionsInner = Extract<
   OpenfxInnerElement,
   { type: "namespace:assertions" }
 >["inner"];
-
-function fail(message: string): never {
-  throw new Error(message);
-}
-
-/** Maps a token offset in the source to a 1-based line number. */
-function lineOf(source: string, offset: number): number {
-  let line = 1;
-  for (let i = 0; i < offset && i < source.length; i++) {
-    if (source.charCodeAt(i) === 10) line++;
-  }
-  return line;
-}
-
-/**
- * Parses the simple string literals used by the header. The header contains
- * plain quoted identifiers only; anything fancier is a structural change and
- * is rejected.
- */
-function parseCppString(image: string): string {
-  if (
-    image.length < 2 || image[0] !== '"' || image[image.length - 1] !== '"' ||
-    image.slice(1, -1).includes('"') || image.slice(1, -1).includes("\\")
-  ) {
-    fail(`unsupported string literal: ${image}`);
-  }
-  return image.slice(1, -1);
-}
-
-function toInt(image: string, what: string): number {
-  const value = Number(image);
-  if (!Number.isSafeInteger(value) || value < 0) {
-    fail(`invalid ${what}: ${image}`);
-  }
-  return value;
-}
 
 class OfxPropsMetadataParser extends CstParser {
   // --- collected data ---------------------------------------------------------
@@ -922,32 +864,19 @@ class OfxPropsMetadataParser extends CstParser {
 // Public API
 // ---------------------------------------------------------------------------
 
+const HEADER_NAME = "ofxPropsMetadata.h";
+
 export function parse(headerCode: string): Result {
   const lexingResult = ofxLexer.tokenize(headerCode);
   if (lexingResult.errors.length > 0) {
-    const details = lexingResult.errors.map((e) => {
-      const where = e.offset !== undefined
-        ? ` (line ${lineOf(headerCode, e.offset)})`
-        : "";
-      return `${e.message}${where}`;
-    }).join("\n");
-    throw new Error(`Failed to lex ofxPropsMetadata.h:\n${details}`);
+    lexingError(HEADER_NAME, headerCode, lexingResult.errors as LexIssue[]);
   }
 
   const parser = new OfxPropsMetadataParser();
   parser.input = lexingResult.tokens;
   parser.headerFile();
   if (parser.errors.length > 0) {
-    const details = parser.errors.map((e) => {
-      const where = e.token?.startOffset !== undefined
-        ? ` (line ${lineOf(headerCode, e.token.startOffset)})`
-        : "";
-      return `${e.message}${where}`;
-    }).join("\n");
-    const error = new Error(`Failed to parse ofxPropsMetadata.h:\n${details}`);
-    // Attach the first offending token for programmatic inspection.
-    Object.assign(error, { token: parser.errors[0].token });
-    throw error;
+    parsingError(HEADER_NAME, headerCode, parser.errors as ParseIssue[]);
   }
 
   return {
