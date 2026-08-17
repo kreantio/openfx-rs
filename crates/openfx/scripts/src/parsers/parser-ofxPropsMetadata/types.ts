@@ -77,12 +77,14 @@ export const Result = z.object({
 export type Result = z.infer<typeof Result>;
 
 export const FinalResult = z.object({
+  propEnumValues: PropEnumValues,
   propertyInfos: z.record(
     z.string(),
     z.object({
       type: z.union([
         PropType.exclude(["Enum"]),
-        z.record(z.literal("Enum"), z.set(z.string())),
+        // value: key in `PropEnumValues`
+        z.record(z.literal("Enum"), z.string()),
       ]),
       dimension: z.number().int().nonnegative(),
     }),
