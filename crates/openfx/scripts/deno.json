@@ -1,0 +1,12 @@
+{
+  "imports": {
+    "@std/assert": "jsr:@std/assert@^1.0.19",
+    "@std/cli": "jsr:@std/cli@^1.0.32",
+    "@zod/zod": "jsr:@zod/zod@^4.4.3",
+    "chevrotain": "npm:chevrotain@^13.2.0"
+  },
+  "tasks": {
+    "test": "deno task 'test:*'",
+    "test:parsers:ofxPropMetadata": "deno test --allow-read .. ./src/parsers/parser-ofxPropMetadata/mod.test.ts -- --crate-path=.."
+  }
+}
