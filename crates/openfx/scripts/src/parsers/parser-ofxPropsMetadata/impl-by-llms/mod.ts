@@ -920,11 +920,13 @@ export function makeFinalResult(result: Result): FinalResult {
     }
     propertyInfos[name] = {
       type: primary === "Enum"
-        ? { Enum: propEnumValues[name] ?? new Set<string>() }
+        // The Enum value is the key of this property's entry in
+        // `propEnumValues`, which the final result also carries.
+        ? { Enum: name }
         : primary,
       dimension: entry.dimension,
     };
   }
 
-  return { propertyInfos };
+  return { propEnumValues, propertyInfos };
 }
