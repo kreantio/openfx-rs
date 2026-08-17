@@ -1,5 +1,5 @@
 // Scaffolding shared between the ofx header parsers
-// (`parser-ofxPropMetadata` and `parser-ofxPropsBySet`), moved here per the
+// (`parser-ofxPropsMetadata` and `parser-ofxPropsBySet`), moved here per the
 // instructions in each parser's `impl-by-llms/INSTRUCTIONS.md`.
 //
 // Everything here is dialect-agnostic: trivia tokens that carry no token
