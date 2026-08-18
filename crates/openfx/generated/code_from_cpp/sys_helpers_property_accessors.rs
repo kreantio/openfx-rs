@@ -1,0 +1,2869 @@
+use crate::internal::sys_helpers_macros::{
+    make_property_dimension_getter, make_property_getter, make_property_getter_for_type,
+    make_property_resetter, make_property_setter, make_property_setter_for_type,
+};
+make_property_setter_for_type!(pub set_doubles, ..., Double);
+make_property_getter_for_type!(pub get_doubles, ..., Double);
+make_property_setter_for_type!(pub set_double, 1, Double);
+make_property_getter_for_type!(pub get_double, 1, Double);
+make_property_setter_for_type!(priv set_doubles_2, 2, Double);
+make_property_getter_for_type!(priv get_doubles_2, 2, Double);
+make_property_setter_for_type!(priv set_doubles_3, 3, Double);
+make_property_getter_for_type!(priv get_doubles_3, 3, Double);
+make_property_setter_for_type!(priv set_doubles_4, 4, Double);
+make_property_getter_for_type!(priv get_doubles_4, 4, Double);
+make_property_setter_for_type!(pub set_ints, ..., Int);
+make_property_getter_for_type!(pub get_ints, ..., Int);
+make_property_setter_for_type!(pub set_int, 1, Int);
+make_property_getter_for_type!(pub get_int, 1, Int);
+make_property_setter_for_type!(priv set_ints_2, 2, Int);
+make_property_getter_for_type!(priv get_ints_2, 2, Int);
+make_property_setter_for_type!(priv set_ints_4, 4, Int);
+make_property_getter_for_type!(priv get_ints_4, 4, Int);
+make_property_setter_for_type!(pub set_pointers, ..., Pointer);
+make_property_getter_for_type!(pub get_pointers, ..., Pointer);
+make_property_setter_for_type!(pub set_pointer, 1, Pointer);
+make_property_getter_for_type!(pub get_pointer, 1, Pointer);
+make_property_setter_for_type!(pub set_strings, ..., String);
+make_property_getter_for_type!(pub get_strings, ..., String);
+make_property_setter_for_type!(pub set_string, 1, String);
+make_property_getter_for_type!(pub get_string, 1, String);
+make_property_setter_for_type!(priv set_strings_2, 2, String);
+make_property_getter_for_type!(priv get_strings_2, 2, String);
+make_property_setter!(
+    set_OfxImageClipPropColourspace,
+    kOfxImageClipPropColourspace,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageClipPropColourspace,
+    kOfxImageClipPropColourspace,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageClipPropColourspace,
+    kOfxImageClipPropColourspace
+);
+make_property_setter!(
+    set_OfxImageClipPropConnected,
+    kOfxImageClipPropConnected,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageClipPropConnected,
+    kOfxImageClipPropConnected,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxImageClipPropConnected, kOfxImageClipPropConnected);
+make_property_setter!(
+    set_OfxImageClipPropContinuousSamples,
+    kOfxImageClipPropContinuousSamples,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageClipPropContinuousSamples,
+    kOfxImageClipPropContinuousSamples,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageClipPropContinuousSamples,
+    kOfxImageClipPropContinuousSamples
+);
+make_property_setter!(
+    set_OfxImageClipPropFieldExtraction,
+    kOfxImageClipPropFieldExtraction,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageClipPropFieldExtraction,
+    kOfxImageClipPropFieldExtraction,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageClipPropFieldExtraction,
+    kOfxImageClipPropFieldExtraction
+);
+make_property_setter!(
+    set_OfxImageClipPropFieldOrder,
+    kOfxImageClipPropFieldOrder,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageClipPropFieldOrder,
+    kOfxImageClipPropFieldOrder,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageClipPropFieldOrder,
+    kOfxImageClipPropFieldOrder
+);
+make_property_setter!(
+    set_OfxImageClipPropIsMask,
+    kOfxImageClipPropIsMask,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageClipPropIsMask,
+    kOfxImageClipPropIsMask,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxImageClipPropIsMask, kOfxImageClipPropIsMask);
+make_property_setter!(
+    set_OfxImageClipPropOptional,
+    kOfxImageClipPropOptional,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageClipPropOptional,
+    kOfxImageClipPropOptional,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxImageClipPropOptional, kOfxImageClipPropOptional);
+make_property_setter!(set_OfxImageClipPropPreferredColourspaces, kOfxImageClipPropPreferredColourspaces, set_strings, ..., String);
+make_property_getter!(get_OfxImageClipPropPreferredColourspaces, kOfxImageClipPropPreferredColourspaces, get_strings, ..., String);
+make_property_resetter!(
+    reset_OfxImageClipPropPreferredColourspaces,
+    kOfxImageClipPropPreferredColourspaces
+);
+make_property_dimension_getter!(
+    get_dimension_OfxImageClipPropPreferredColourspaces,
+    kOfxImageClipPropPreferredColourspaces
+);
+make_property_setter!(
+    set_OfxImageClipPropUnmappedComponents,
+    kOfxImageClipPropUnmappedComponents,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageClipPropUnmappedComponents,
+    kOfxImageClipPropUnmappedComponents,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageClipPropUnmappedComponents,
+    kOfxImageClipPropUnmappedComponents
+);
+make_property_setter!(
+    set_OfxImageClipPropUnmappedPixelDepth,
+    kOfxImageClipPropUnmappedPixelDepth,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageClipPropUnmappedPixelDepth,
+    kOfxImageClipPropUnmappedPixelDepth,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageClipPropUnmappedPixelDepth,
+    kOfxImageClipPropUnmappedPixelDepth
+);
+make_property_setter!(
+    set_OfxImageEffectFrameVarying,
+    kOfxImageEffectFrameVarying,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectFrameVarying,
+    kOfxImageEffectFrameVarying,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectFrameVarying,
+    kOfxImageEffectFrameVarying
+);
+make_property_setter!(
+    set_OfxImageEffectHostPropIsBackground,
+    kOfxImageEffectHostPropIsBackground,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectHostPropIsBackground,
+    kOfxImageEffectHostPropIsBackground,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectHostPropIsBackground,
+    kOfxImageEffectHostPropIsBackground
+);
+make_property_setter!(
+    set_OfxImageEffectHostPropNativeOrigin,
+    kOfxImageEffectHostPropNativeOrigin,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectHostPropNativeOrigin,
+    kOfxImageEffectHostPropNativeOrigin,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectHostPropNativeOrigin,
+    kOfxImageEffectHostPropNativeOrigin
+);
+make_property_setter!(
+    set_OfxImageEffectInstancePropEffectDuration,
+    kOfxImageEffectInstancePropEffectDuration,
+    set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectInstancePropEffectDuration,
+    kOfxImageEffectInstancePropEffectDuration,
+    get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectInstancePropEffectDuration,
+    kOfxImageEffectInstancePropEffectDuration
+);
+make_property_setter!(
+    set_OfxImageEffectInstancePropSequentialRender,
+    kOfxImageEffectInstancePropSequentialRender,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectInstancePropSequentialRender,
+    kOfxImageEffectInstancePropSequentialRender,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectInstancePropSequentialRender,
+    kOfxImageEffectInstancePropSequentialRender
+);
+make_property_setter!(
+    set_OfxImageEffectPluginPropFieldRenderTwiceAlways,
+    kOfxImageEffectPluginPropFieldRenderTwiceAlways,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPluginPropFieldRenderTwiceAlways,
+    kOfxImageEffectPluginPropFieldRenderTwiceAlways,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPluginPropFieldRenderTwiceAlways,
+    kOfxImageEffectPluginPropFieldRenderTwiceAlways
+);
+make_property_setter!(
+    set_OfxImageEffectPluginPropGrouping,
+    kOfxImageEffectPluginPropGrouping,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPluginPropGrouping,
+    kOfxImageEffectPluginPropGrouping,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPluginPropGrouping,
+    kOfxImageEffectPluginPropGrouping
+);
+make_property_setter!(
+    set_OfxImageEffectPluginPropHostFrameThreading,
+    kOfxImageEffectPluginPropHostFrameThreading,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPluginPropHostFrameThreading,
+    kOfxImageEffectPluginPropHostFrameThreading,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPluginPropHostFrameThreading,
+    kOfxImageEffectPluginPropHostFrameThreading
+);
+make_property_setter!(
+    set_OfxImageEffectPluginPropObsolete,
+    kOfxImageEffectPluginPropObsolete,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPluginPropObsolete,
+    kOfxImageEffectPluginPropObsolete,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPluginPropObsolete,
+    kOfxImageEffectPluginPropObsolete
+);
+make_property_setter!(
+    set_OfxImageEffectPluginPropOverlayInteractV1,
+    kOfxImageEffectPluginPropOverlayInteractV1,
+    set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxImageEffectPluginPropOverlayInteractV1,
+    kOfxImageEffectPluginPropOverlayInteractV1,
+    get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(
+    reset_OfxImageEffectPluginPropOverlayInteractV1,
+    kOfxImageEffectPluginPropOverlayInteractV1
+);
+make_property_setter!(
+    set_OfxImageEffectPluginPropOverlayInteractV2,
+    kOfxImageEffectPluginPropOverlayInteractV2,
+    set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxImageEffectPluginPropOverlayInteractV2,
+    kOfxImageEffectPluginPropOverlayInteractV2,
+    get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(
+    reset_OfxImageEffectPluginPropOverlayInteractV2,
+    kOfxImageEffectPluginPropOverlayInteractV2
+);
+make_property_setter!(
+    set_OfxImageEffectPluginPropSingleInstance,
+    kOfxImageEffectPluginPropSingleInstance,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPluginPropSingleInstance,
+    kOfxImageEffectPluginPropSingleInstance,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPluginPropSingleInstance,
+    kOfxImageEffectPluginPropSingleInstance
+);
+make_property_setter!(
+    set_OfxImageEffectPluginRenderThreadSafety,
+    kOfxImageEffectPluginRenderThreadSafety,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPluginRenderThreadSafety,
+    kOfxImageEffectPluginRenderThreadSafety,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPluginRenderThreadSafety,
+    kOfxImageEffectPluginRenderThreadSafety
+);
+make_property_setter!(
+    set_OfxImageEffectPropCPURenderSupported,
+    kOfxImageEffectPropCPURenderSupported,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropCPURenderSupported,
+    kOfxImageEffectPropCPURenderSupported,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropCPURenderSupported,
+    kOfxImageEffectPropCPURenderSupported
+);
+make_property_setter!(set_OfxImageEffectPropClipPreferencesSlaveParam, kOfxImageEffectPropClipPreferencesSlaveParam, set_strings, ..., String);
+make_property_getter!(get_OfxImageEffectPropClipPreferencesSlaveParam, kOfxImageEffectPropClipPreferencesSlaveParam, get_strings, ..., String);
+make_property_resetter!(
+    reset_OfxImageEffectPropClipPreferencesSlaveParam,
+    kOfxImageEffectPropClipPreferencesSlaveParam
+);
+make_property_dimension_getter!(
+    get_dimension_OfxImageEffectPropClipPreferencesSlaveParam,
+    kOfxImageEffectPropClipPreferencesSlaveParam
+);
+make_property_setter!(set_OfxImageEffectPropColourManagementAvailableConfigs, kOfxImageEffectPropColourManagementAvailableConfigs, set_strings, ..., String);
+make_property_getter!(get_OfxImageEffectPropColourManagementAvailableConfigs, kOfxImageEffectPropColourManagementAvailableConfigs, get_strings, ..., String);
+make_property_resetter!(
+    reset_OfxImageEffectPropColourManagementAvailableConfigs,
+    kOfxImageEffectPropColourManagementAvailableConfigs
+);
+make_property_dimension_getter!(
+    get_dimension_OfxImageEffectPropColourManagementAvailableConfigs,
+    kOfxImageEffectPropColourManagementAvailableConfigs
+);
+make_property_setter!(
+    set_OfxImageEffectPropColourManagementConfig,
+    kOfxImageEffectPropColourManagementConfig,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropColourManagementConfig,
+    kOfxImageEffectPropColourManagementConfig,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropColourManagementConfig,
+    kOfxImageEffectPropColourManagementConfig
+);
+make_property_setter!(
+    set_OfxImageEffectPropColourManagementStyle,
+    kOfxImageEffectPropColourManagementStyle,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropColourManagementStyle,
+    kOfxImageEffectPropColourManagementStyle,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropColourManagementStyle,
+    kOfxImageEffectPropColourManagementStyle
+);
+make_property_setter!(
+    set_OfxImageEffectPropComponents,
+    kOfxImageEffectPropComponents,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropComponents,
+    kOfxImageEffectPropComponents,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropComponents,
+    kOfxImageEffectPropComponents
+);
+make_property_setter!(
+    set_OfxImageEffectPropContext,
+    kOfxImageEffectPropContext,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropContext,
+    kOfxImageEffectPropContext,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxImageEffectPropContext, kOfxImageEffectPropContext);
+make_property_setter!(
+    set_OfxImageEffectPropCudaEnabled,
+    kOfxImageEffectPropCudaEnabled,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropCudaEnabled,
+    kOfxImageEffectPropCudaEnabled,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropCudaEnabled,
+    kOfxImageEffectPropCudaEnabled
+);
+make_property_setter!(
+    set_OfxImageEffectPropCudaRenderSupported,
+    kOfxImageEffectPropCudaRenderSupported,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropCudaRenderSupported,
+    kOfxImageEffectPropCudaRenderSupported,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropCudaRenderSupported,
+    kOfxImageEffectPropCudaRenderSupported
+);
+make_property_setter!(
+    set_OfxImageEffectPropCudaStream,
+    kOfxImageEffectPropCudaStream,
+    set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxImageEffectPropCudaStream,
+    kOfxImageEffectPropCudaStream,
+    get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropCudaStream,
+    kOfxImageEffectPropCudaStream
+);
+make_property_setter!(
+    set_OfxImageEffectPropCudaStreamSupported,
+    kOfxImageEffectPropCudaStreamSupported,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropCudaStreamSupported,
+    kOfxImageEffectPropCudaStreamSupported,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropCudaStreamSupported,
+    kOfxImageEffectPropCudaStreamSupported
+);
+make_property_setter!(
+    set_OfxImageEffectPropDisplayColourspace,
+    kOfxImageEffectPropDisplayColourspace,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropDisplayColourspace,
+    kOfxImageEffectPropDisplayColourspace,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropDisplayColourspace,
+    kOfxImageEffectPropDisplayColourspace
+);
+make_property_setter!(
+    set_OfxImageEffectPropFieldToRender,
+    kOfxImageEffectPropFieldToRender,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropFieldToRender,
+    kOfxImageEffectPropFieldToRender,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropFieldToRender,
+    kOfxImageEffectPropFieldToRender
+);
+make_property_setter!(
+    set_OfxImageEffectPropFrameRange,
+    kOfxImageEffectPropFrameRange,
+    set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropFrameRange,
+    kOfxImageEffectPropFrameRange,
+    get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropFrameRange,
+    kOfxImageEffectPropFrameRange
+);
+make_property_setter!(
+    set_OfxImageEffectPropFrameRate,
+    kOfxImageEffectPropFrameRate,
+    set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropFrameRate,
+    kOfxImageEffectPropFrameRate,
+    get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropFrameRate,
+    kOfxImageEffectPropFrameRate
+);
+make_property_setter!(
+    set_OfxImageEffectPropFrameStep,
+    kOfxImageEffectPropFrameStep,
+    set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropFrameStep,
+    kOfxImageEffectPropFrameStep,
+    get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropFrameStep,
+    kOfxImageEffectPropFrameStep
+);
+make_property_setter!(
+    set_OfxImageEffectPropInAnalysis,
+    kOfxImageEffectPropInAnalysis,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropInAnalysis,
+    kOfxImageEffectPropInAnalysis,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropInAnalysis,
+    kOfxImageEffectPropInAnalysis
+);
+make_property_setter!(
+    set_OfxImageEffectPropInteractiveRenderStatus,
+    kOfxImageEffectPropInteractiveRenderStatus,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropInteractiveRenderStatus,
+    kOfxImageEffectPropInteractiveRenderStatus,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropInteractiveRenderStatus,
+    kOfxImageEffectPropInteractiveRenderStatus
+);
+make_property_setter!(
+    set_OfxImageEffectPropMetalCommandQueue,
+    kOfxImageEffectPropMetalCommandQueue,
+    set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxImageEffectPropMetalCommandQueue,
+    kOfxImageEffectPropMetalCommandQueue,
+    get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropMetalCommandQueue,
+    kOfxImageEffectPropMetalCommandQueue
+);
+make_property_setter!(
+    set_OfxImageEffectPropMetalEnabled,
+    kOfxImageEffectPropMetalEnabled,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropMetalEnabled,
+    kOfxImageEffectPropMetalEnabled,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropMetalEnabled,
+    kOfxImageEffectPropMetalEnabled
+);
+make_property_setter!(
+    set_OfxImageEffectPropMetalRenderSupported,
+    kOfxImageEffectPropMetalRenderSupported,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropMetalRenderSupported,
+    kOfxImageEffectPropMetalRenderSupported,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropMetalRenderSupported,
+    kOfxImageEffectPropMetalRenderSupported
+);
+make_property_setter!(
+    set_OfxImageEffectPropSupportsMultipleClipDepths,
+    kOfxImageEffectPropSupportsMultipleClipDepths,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropSupportsMultipleClipDepths,
+    kOfxImageEffectPropSupportsMultipleClipDepths,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropSupportsMultipleClipDepths,
+    kOfxImageEffectPropSupportsMultipleClipDepths
+);
+make_property_setter!(
+    set_OfxImageEffectPropNoSpatialAwareness,
+    kOfxImageEffectPropNoSpatialAwareness,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropNoSpatialAwareness,
+    kOfxImageEffectPropNoSpatialAwareness,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropNoSpatialAwareness,
+    kOfxImageEffectPropNoSpatialAwareness
+);
+make_property_setter!(
+    set_OfxImageEffectPropOCIOConfig,
+    kOfxImageEffectPropOCIOConfig,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropOCIOConfig,
+    kOfxImageEffectPropOCIOConfig,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropOCIOConfig,
+    kOfxImageEffectPropOCIOConfig
+);
+make_property_setter!(
+    set_OfxImageEffectPropOCIODisplay,
+    kOfxImageEffectPropOCIODisplay,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropOCIODisplay,
+    kOfxImageEffectPropOCIODisplay,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropOCIODisplay,
+    kOfxImageEffectPropOCIODisplay
+);
+make_property_setter!(
+    set_OfxImageEffectPropOCIOView,
+    kOfxImageEffectPropOCIOView,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropOCIOView,
+    kOfxImageEffectPropOCIOView,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropOCIOView,
+    kOfxImageEffectPropOCIOView
+);
+make_property_setter!(
+    set_OfxImageEffectPropOpenCLCommandQueue,
+    kOfxImageEffectPropOpenCLCommandQueue,
+    set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxImageEffectPropOpenCLCommandQueue,
+    kOfxImageEffectPropOpenCLCommandQueue,
+    get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropOpenCLCommandQueue,
+    kOfxImageEffectPropOpenCLCommandQueue
+);
+make_property_setter!(
+    set_OfxImageEffectPropOpenCLEnabled,
+    kOfxImageEffectPropOpenCLEnabled,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropOpenCLEnabled,
+    kOfxImageEffectPropOpenCLEnabled,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropOpenCLEnabled,
+    kOfxImageEffectPropOpenCLEnabled
+);
+make_property_setter!(
+    set_OfxImageEffectPropOpenCLImage,
+    kOfxImageEffectPropOpenCLImage,
+    set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxImageEffectPropOpenCLImage,
+    kOfxImageEffectPropOpenCLImage,
+    get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropOpenCLImage,
+    kOfxImageEffectPropOpenCLImage
+);
+make_property_setter!(
+    set_OfxImageEffectPropOpenCLRenderSupported,
+    kOfxImageEffectPropOpenCLRenderSupported,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropOpenCLRenderSupported,
+    kOfxImageEffectPropOpenCLRenderSupported,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropOpenCLRenderSupported,
+    kOfxImageEffectPropOpenCLRenderSupported
+);
+make_property_setter!(
+    set_OfxImageEffectPropOpenCLSupported,
+    kOfxImageEffectPropOpenCLSupported,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropOpenCLSupported,
+    kOfxImageEffectPropOpenCLSupported,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropOpenCLSupported,
+    kOfxImageEffectPropOpenCLSupported
+);
+make_property_setter!(
+    set_OfxImageEffectPropOpenGLEnabled,
+    kOfxImageEffectPropOpenGLEnabled,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropOpenGLEnabled,
+    kOfxImageEffectPropOpenGLEnabled,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropOpenGLEnabled,
+    kOfxImageEffectPropOpenGLEnabled
+);
+make_property_setter!(
+    set_OfxImageEffectPropOpenGLRenderSupported,
+    kOfxImageEffectPropOpenGLRenderSupported,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropOpenGLRenderSupported,
+    kOfxImageEffectPropOpenGLRenderSupported,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropOpenGLRenderSupported,
+    kOfxImageEffectPropOpenGLRenderSupported
+);
+make_property_setter!(
+    set_OfxImageEffectPropOpenGLTextureIndex,
+    kOfxImageEffectPropOpenGLTextureIndex,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropOpenGLTextureIndex,
+    kOfxImageEffectPropOpenGLTextureIndex,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropOpenGLTextureIndex,
+    kOfxImageEffectPropOpenGLTextureIndex
+);
+make_property_setter!(
+    set_OfxImageEffectPropOpenGLTextureTarget,
+    kOfxImageEffectPropOpenGLTextureTarget,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropOpenGLTextureTarget,
+    kOfxImageEffectPropOpenGLTextureTarget,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropOpenGLTextureTarget,
+    kOfxImageEffectPropOpenGLTextureTarget
+);
+make_property_setter!(
+    set_OfxImageEffectPropProjectPixelAspectRatio,
+    kOfxImageEffectPropProjectPixelAspectRatio,
+    set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropProjectPixelAspectRatio,
+    kOfxImageEffectPropProjectPixelAspectRatio,
+    get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropProjectPixelAspectRatio,
+    kOfxImageEffectPropProjectPixelAspectRatio
+);
+make_property_setter!(
+    set_OfxImageEffectPropPixelDepth,
+    kOfxImageEffectPropPixelDepth,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropPixelDepth,
+    kOfxImageEffectPropPixelDepth,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropPixelDepth,
+    kOfxImageEffectPropPixelDepth
+);
+make_property_setter!(
+    set_OfxImageEffectPropPluginHandle,
+    kOfxImageEffectPropPluginHandle,
+    set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxImageEffectPropPluginHandle,
+    kOfxImageEffectPropPluginHandle,
+    get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropPluginHandle,
+    kOfxImageEffectPropPluginHandle
+);
+make_property_setter!(
+    set_OfxImageEffectPropPreMultiplication,
+    kOfxImageEffectPropPreMultiplication,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropPreMultiplication,
+    kOfxImageEffectPropPreMultiplication,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropPreMultiplication,
+    kOfxImageEffectPropPreMultiplication
+);
+make_property_setter!(
+    set_OfxImageEffectPropProjectExtent,
+    kOfxImageEffectPropProjectExtent,
+    set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropProjectExtent,
+    kOfxImageEffectPropProjectExtent,
+    get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropProjectExtent,
+    kOfxImageEffectPropProjectExtent
+);
+make_property_setter!(
+    set_OfxImageEffectPropProjectOffset,
+    kOfxImageEffectPropProjectOffset,
+    set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropProjectOffset,
+    kOfxImageEffectPropProjectOffset,
+    get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropProjectOffset,
+    kOfxImageEffectPropProjectOffset
+);
+make_property_setter!(
+    set_OfxImageEffectPropProjectSize,
+    kOfxImageEffectPropProjectSize,
+    set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropProjectSize,
+    kOfxImageEffectPropProjectSize,
+    get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropProjectSize,
+    kOfxImageEffectPropProjectSize
+);
+make_property_setter!(
+    set_OfxImageEffectPropRegionOfDefinition,
+    kOfxImageEffectPropRegionOfDefinition,
+    set_doubles_4,
+    4,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropRegionOfDefinition,
+    kOfxImageEffectPropRegionOfDefinition,
+    get_doubles_4,
+    4,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropRegionOfDefinition,
+    kOfxImageEffectPropRegionOfDefinition
+);
+make_property_setter!(
+    set_OfxImageEffectPropRegionOfInterest,
+    kOfxImageEffectPropRegionOfInterest,
+    set_doubles_4,
+    4,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropRegionOfInterest,
+    kOfxImageEffectPropRegionOfInterest,
+    get_doubles_4,
+    4,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropRegionOfInterest,
+    kOfxImageEffectPropRegionOfInterest
+);
+make_property_setter!(
+    set_OfxImageEffectPropRenderQualityDraft,
+    kOfxImageEffectPropRenderQualityDraft,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropRenderQualityDraft,
+    kOfxImageEffectPropRenderQualityDraft,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropRenderQualityDraft,
+    kOfxImageEffectPropRenderQualityDraft
+);
+make_property_setter!(
+    set_OfxImageEffectPropRenderScale,
+    kOfxImageEffectPropRenderScale,
+    set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropRenderScale,
+    kOfxImageEffectPropRenderScale,
+    get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropRenderScale,
+    kOfxImageEffectPropRenderScale
+);
+make_property_setter!(
+    set_OfxImageEffectPropRenderWindow,
+    kOfxImageEffectPropRenderWindow,
+    set_ints_4,
+    4,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropRenderWindow,
+    kOfxImageEffectPropRenderWindow,
+    get_ints_4,
+    4,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropRenderWindow,
+    kOfxImageEffectPropRenderWindow
+);
+make_property_setter!(
+    set_OfxImageEffectPropSequentialRenderStatus,
+    kOfxImageEffectPropSequentialRenderStatus,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropSequentialRenderStatus,
+    kOfxImageEffectPropSequentialRenderStatus,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropSequentialRenderStatus,
+    kOfxImageEffectPropSequentialRenderStatus
+);
+make_property_setter!(
+    set_OfxImageEffectPropSetableFielding,
+    kOfxImageEffectPropSetableFielding,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropSetableFielding,
+    kOfxImageEffectPropSetableFielding,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropSetableFielding,
+    kOfxImageEffectPropSetableFielding
+);
+make_property_setter!(
+    set_OfxImageEffectPropSetableFrameRate,
+    kOfxImageEffectPropSetableFrameRate,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropSetableFrameRate,
+    kOfxImageEffectPropSetableFrameRate,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropSetableFrameRate,
+    kOfxImageEffectPropSetableFrameRate
+);
+make_property_setter!(set_OfxImageEffectPropSupportedComponents, kOfxImageEffectPropSupportedComponents, set_strings, ..., String);
+make_property_getter!(get_OfxImageEffectPropSupportedComponents, kOfxImageEffectPropSupportedComponents, get_strings, ..., String);
+make_property_resetter!(
+    reset_OfxImageEffectPropSupportedComponents,
+    kOfxImageEffectPropSupportedComponents
+);
+make_property_dimension_getter!(
+    get_dimension_OfxImageEffectPropSupportedComponents,
+    kOfxImageEffectPropSupportedComponents
+);
+make_property_setter!(set_OfxImageEffectPropSupportedContexts, kOfxImageEffectPropSupportedContexts, set_strings, ..., String);
+make_property_getter!(get_OfxImageEffectPropSupportedContexts, kOfxImageEffectPropSupportedContexts, get_strings, ..., String);
+make_property_resetter!(
+    reset_OfxImageEffectPropSupportedContexts,
+    kOfxImageEffectPropSupportedContexts
+);
+make_property_dimension_getter!(
+    get_dimension_OfxImageEffectPropSupportedContexts,
+    kOfxImageEffectPropSupportedContexts
+);
+make_property_setter!(set_OfxImageEffectPropSupportedPixelDepths, kOfxImageEffectPropSupportedPixelDepths, set_strings, ..., String);
+make_property_getter!(get_OfxImageEffectPropSupportedPixelDepths, kOfxImageEffectPropSupportedPixelDepths, get_strings, ..., String);
+make_property_resetter!(
+    reset_OfxImageEffectPropSupportedPixelDepths,
+    kOfxImageEffectPropSupportedPixelDepths
+);
+make_property_dimension_getter!(
+    get_dimension_OfxImageEffectPropSupportedPixelDepths,
+    kOfxImageEffectPropSupportedPixelDepths
+);
+make_property_setter!(
+    set_OfxImageEffectPropSupportsMultiResolution,
+    kOfxImageEffectPropSupportsMultiResolution,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropSupportsMultiResolution,
+    kOfxImageEffectPropSupportsMultiResolution,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropSupportsMultiResolution,
+    kOfxImageEffectPropSupportsMultiResolution
+);
+make_property_setter!(
+    set_OfxImageEffectPropSupportsMultipleClipPARs,
+    kOfxImageEffectPropSupportsMultipleClipPARs,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropSupportsMultipleClipPARs,
+    kOfxImageEffectPropSupportsMultipleClipPARs,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropSupportsMultipleClipPARs,
+    kOfxImageEffectPropSupportsMultipleClipPARs
+);
+make_property_setter!(
+    set_OfxImageEffectPropSupportsOverlays,
+    kOfxImageEffectPropSupportsOverlays,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropSupportsOverlays,
+    kOfxImageEffectPropSupportsOverlays,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropSupportsOverlays,
+    kOfxImageEffectPropSupportsOverlays
+);
+make_property_setter!(
+    set_OfxImageEffectPropSupportsTiles,
+    kOfxImageEffectPropSupportsTiles,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropSupportsTiles,
+    kOfxImageEffectPropSupportsTiles,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropSupportsTiles,
+    kOfxImageEffectPropSupportsTiles
+);
+make_property_setter!(
+    set_OfxImageEffectPropTemporalClipAccess,
+    kOfxImageEffectPropTemporalClipAccess,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropTemporalClipAccess,
+    kOfxImageEffectPropTemporalClipAccess,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropTemporalClipAccess,
+    kOfxImageEffectPropTemporalClipAccess
+);
+make_property_setter!(
+    set_OfxImageEffectPropThumbnailRender,
+    kOfxImageEffectPropThumbnailRender,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropThumbnailRender,
+    kOfxImageEffectPropThumbnailRender,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropThumbnailRender,
+    kOfxImageEffectPropThumbnailRender
+);
+make_property_setter!(
+    set_OfxImageEffectPropUnmappedFrameRange,
+    kOfxImageEffectPropUnmappedFrameRange,
+    set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropUnmappedFrameRange,
+    kOfxImageEffectPropUnmappedFrameRange,
+    get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropUnmappedFrameRange,
+    kOfxImageEffectPropUnmappedFrameRange
+);
+make_property_setter!(
+    set_OfxImageEffectPropUnmappedFrameRate,
+    kOfxImageEffectPropUnmappedFrameRate,
+    set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropUnmappedFrameRate,
+    kOfxImageEffectPropUnmappedFrameRate,
+    get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropUnmappedFrameRate,
+    kOfxImageEffectPropUnmappedFrameRate
+);
+make_property_setter!(
+    set_OfxImagePropBounds,
+    kOfxImagePropBounds,
+    set_ints_4,
+    4,
+    Int
+);
+make_property_getter!(
+    get_OfxImagePropBounds,
+    kOfxImagePropBounds,
+    get_ints_4,
+    4,
+    Int
+);
+make_property_resetter!(reset_OfxImagePropBounds, kOfxImagePropBounds);
+make_property_setter!(
+    set_OfxImagePropData,
+    kOfxImagePropData,
+    set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxImagePropData,
+    kOfxImagePropData,
+    get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(reset_OfxImagePropData, kOfxImagePropData);
+make_property_setter!(
+    set_OfxImagePropField,
+    kOfxImagePropField,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImagePropField,
+    kOfxImagePropField,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxImagePropField, kOfxImagePropField);
+make_property_setter!(
+    set_OfxImagePropPixelAspectRatio,
+    kOfxImagePropPixelAspectRatio,
+    set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxImagePropPixelAspectRatio,
+    kOfxImagePropPixelAspectRatio,
+    get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImagePropPixelAspectRatio,
+    kOfxImagePropPixelAspectRatio
+);
+make_property_setter!(
+    set_OfxImagePropRegionOfDefinition,
+    kOfxImagePropRegionOfDefinition,
+    set_ints_4,
+    4,
+    Int
+);
+make_property_getter!(
+    get_OfxImagePropRegionOfDefinition,
+    kOfxImagePropRegionOfDefinition,
+    get_ints_4,
+    4,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImagePropRegionOfDefinition,
+    kOfxImagePropRegionOfDefinition
+);
+make_property_setter!(
+    set_OfxImagePropRowBytes,
+    kOfxImagePropRowBytes,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImagePropRowBytes,
+    kOfxImagePropRowBytes,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxImagePropRowBytes, kOfxImagePropRowBytes);
+make_property_setter!(
+    set_OfxImagePropUniqueIdentifier,
+    kOfxImagePropUniqueIdentifier,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImagePropUniqueIdentifier,
+    kOfxImagePropUniqueIdentifier,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImagePropUniqueIdentifier,
+    kOfxImagePropUniqueIdentifier
+);
+make_property_setter!(
+    set_OfxInteractPropBackgroundColour,
+    kOfxInteractPropBackgroundColour,
+    set_doubles_3,
+    3,
+    Double
+);
+make_property_getter!(
+    get_OfxInteractPropBackgroundColour,
+    kOfxInteractPropBackgroundColour,
+    get_doubles_3,
+    3,
+    Double
+);
+make_property_resetter!(
+    reset_OfxInteractPropBackgroundColour,
+    kOfxInteractPropBackgroundColour
+);
+make_property_setter!(
+    set_OfxInteractPropBitDepth,
+    kOfxInteractPropBitDepth,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxInteractPropBitDepth,
+    kOfxInteractPropBitDepth,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxInteractPropBitDepth, kOfxInteractPropBitDepth);
+make_property_setter!(
+    set_OfxInteractPropDrawContext,
+    kOfxInteractPropDrawContext,
+    set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxInteractPropDrawContext,
+    kOfxInteractPropDrawContext,
+    get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(
+    reset_OfxInteractPropDrawContext,
+    kOfxInteractPropDrawContext
+);
+make_property_setter!(
+    set_OfxInteractPropHasAlpha,
+    kOfxInteractPropHasAlpha,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxInteractPropHasAlpha,
+    kOfxInteractPropHasAlpha,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxInteractPropHasAlpha, kOfxInteractPropHasAlpha);
+make_property_setter!(
+    set_OfxInteractPropPenPosition,
+    kOfxInteractPropPenPosition,
+    set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxInteractPropPenPosition,
+    kOfxInteractPropPenPosition,
+    get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxInteractPropPenPosition,
+    kOfxInteractPropPenPosition
+);
+make_property_setter!(
+    set_OfxInteractPropPenPressure,
+    kOfxInteractPropPenPressure,
+    set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxInteractPropPenPressure,
+    kOfxInteractPropPenPressure,
+    get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxInteractPropPenPressure,
+    kOfxInteractPropPenPressure
+);
+make_property_setter!(
+    set_OfxInteractPropPenViewportPosition,
+    kOfxInteractPropPenViewportPosition,
+    set_ints_2,
+    2,
+    Int
+);
+make_property_getter!(
+    get_OfxInteractPropPenViewportPosition,
+    kOfxInteractPropPenViewportPosition,
+    get_ints_2,
+    2,
+    Int
+);
+make_property_resetter!(
+    reset_OfxInteractPropPenViewportPosition,
+    kOfxInteractPropPenViewportPosition
+);
+make_property_setter!(
+    set_OfxInteractPropPixelScale,
+    kOfxInteractPropPixelScale,
+    set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxInteractPropPixelScale,
+    kOfxInteractPropPixelScale,
+    get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(reset_OfxInteractPropPixelScale, kOfxInteractPropPixelScale);
+make_property_setter!(set_OfxInteractPropSlaveToParam, kOfxInteractPropSlaveToParam, set_strings, ..., String);
+make_property_getter!(get_OfxInteractPropSlaveToParam, kOfxInteractPropSlaveToParam, get_strings, ..., String);
+make_property_resetter!(
+    reset_OfxInteractPropSlaveToParam,
+    kOfxInteractPropSlaveToParam
+);
+make_property_dimension_getter!(
+    get_dimension_OfxInteractPropSlaveToParam,
+    kOfxInteractPropSlaveToParam
+);
+make_property_setter!(
+    set_OfxInteractPropSuggestedColour,
+    kOfxInteractPropSuggestedColour,
+    set_doubles_3,
+    3,
+    Double
+);
+make_property_getter!(
+    get_OfxInteractPropSuggestedColour,
+    kOfxInteractPropSuggestedColour,
+    get_doubles_3,
+    3,
+    Double
+);
+make_property_resetter!(
+    reset_OfxInteractPropSuggestedColour,
+    kOfxInteractPropSuggestedColour
+);
+make_property_setter!(
+    set_OfxInteractPropViewportSize,
+    kOfxInteractPropViewportSize,
+    set_ints_2,
+    2,
+    Int
+);
+make_property_getter!(
+    get_OfxInteractPropViewportSize,
+    kOfxInteractPropViewportSize,
+    get_ints_2,
+    2,
+    Int
+);
+make_property_resetter!(
+    reset_OfxInteractPropViewportSize,
+    kOfxInteractPropViewportSize
+);
+make_property_setter!(set_OfxOpenGLPropPixelDepth, kOfxOpenGLPropPixelDepth, set_strings, ..., String);
+make_property_getter!(get_OfxOpenGLPropPixelDepth, kOfxOpenGLPropPixelDepth, get_strings, ..., String);
+make_property_resetter!(reset_OfxOpenGLPropPixelDepth, kOfxOpenGLPropPixelDepth);
+make_property_dimension_getter!(
+    get_dimension_OfxOpenGLPropPixelDepth,
+    kOfxOpenGLPropPixelDepth
+);
+make_property_setter!(
+    set_OfxParamHostPropMaxPages,
+    kOfxParamHostPropMaxPages,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropMaxPages,
+    kOfxParamHostPropMaxPages,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamHostPropMaxPages, kOfxParamHostPropMaxPages);
+make_property_setter!(
+    set_OfxParamHostPropMaxParameters,
+    kOfxParamHostPropMaxParameters,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropMaxParameters,
+    kOfxParamHostPropMaxParameters,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropMaxParameters,
+    kOfxParamHostPropMaxParameters
+);
+make_property_setter!(
+    set_OfxParamHostPropPageRowColumnCount,
+    kOfxParamHostPropPageRowColumnCount,
+    set_ints_2,
+    2,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropPageRowColumnCount,
+    kOfxParamHostPropPageRowColumnCount,
+    get_ints_2,
+    2,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropPageRowColumnCount,
+    kOfxParamHostPropPageRowColumnCount
+);
+make_property_setter!(
+    set_OfxParamHostPropSupportsBooleanAnimation,
+    kOfxParamHostPropSupportsBooleanAnimation,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropSupportsBooleanAnimation,
+    kOfxParamHostPropSupportsBooleanAnimation,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropSupportsBooleanAnimation,
+    kOfxParamHostPropSupportsBooleanAnimation
+);
+make_property_setter!(
+    set_OfxParamHostPropSupportsChoiceAnimation,
+    kOfxParamHostPropSupportsChoiceAnimation,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropSupportsChoiceAnimation,
+    kOfxParamHostPropSupportsChoiceAnimation,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropSupportsChoiceAnimation,
+    kOfxParamHostPropSupportsChoiceAnimation
+);
+make_property_setter!(
+    set_OfxParamHostPropSupportsCustomAnimation,
+    kOfxParamHostPropSupportsCustomAnimation,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropSupportsCustomAnimation,
+    kOfxParamHostPropSupportsCustomAnimation,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropSupportsCustomAnimation,
+    kOfxParamHostPropSupportsCustomAnimation
+);
+make_property_setter!(
+    set_OfxParamHostPropSupportsCustomInteract,
+    kOfxParamHostPropSupportsCustomInteract,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropSupportsCustomInteract,
+    kOfxParamHostPropSupportsCustomInteract,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropSupportsCustomInteract,
+    kOfxParamHostPropSupportsCustomInteract
+);
+make_property_setter!(
+    set_OfxParamHostPropSupportsParametricAnimation,
+    kOfxParamHostPropSupportsParametricAnimation,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropSupportsParametricAnimation,
+    kOfxParamHostPropSupportsParametricAnimation,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropSupportsParametricAnimation,
+    kOfxParamHostPropSupportsParametricAnimation
+);
+make_property_setter!(
+    set_OfxParamHostPropSupportsStrChoice,
+    kOfxParamHostPropSupportsStrChoice,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropSupportsStrChoice,
+    kOfxParamHostPropSupportsStrChoice,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropSupportsStrChoice,
+    kOfxParamHostPropSupportsStrChoice
+);
+make_property_setter!(
+    set_OfxParamHostPropSupportsStrChoiceAnimation,
+    kOfxParamHostPropSupportsStrChoiceAnimation,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropSupportsStrChoiceAnimation,
+    kOfxParamHostPropSupportsStrChoiceAnimation,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropSupportsStrChoiceAnimation,
+    kOfxParamHostPropSupportsStrChoiceAnimation
+);
+make_property_setter!(
+    set_OfxParamHostPropSupportsStringAnimation,
+    kOfxParamHostPropSupportsStringAnimation,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropSupportsStringAnimation,
+    kOfxParamHostPropSupportsStringAnimation,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropSupportsStringAnimation,
+    kOfxParamHostPropSupportsStringAnimation
+);
+make_property_setter!(
+    set_OfxParamPropAnimates,
+    kOfxParamPropAnimates,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropAnimates,
+    kOfxParamPropAnimates,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropAnimates, kOfxParamPropAnimates);
+make_property_setter!(
+    set_OfxParamPropCacheInvalidation,
+    kOfxParamPropCacheInvalidation,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropCacheInvalidation,
+    kOfxParamPropCacheInvalidation,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxParamPropCacheInvalidation,
+    kOfxParamPropCacheInvalidation
+);
+make_property_setter!(
+    set_OfxParamPropCanUndo,
+    kOfxParamPropCanUndo,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropCanUndo,
+    kOfxParamPropCanUndo,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropCanUndo, kOfxParamPropCanUndo);
+make_property_setter!(
+    set_OfxParamPropChoiceEnum,
+    kOfxParamPropChoiceEnum,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropChoiceEnum,
+    kOfxParamPropChoiceEnum,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropChoiceEnum, kOfxParamPropChoiceEnum);
+make_property_setter!(set_OfxParamPropChoiceOption, kOfxParamPropChoiceOption, set_strings, ..., String);
+make_property_getter!(get_OfxParamPropChoiceOption, kOfxParamPropChoiceOption, get_strings, ..., String);
+make_property_resetter!(reset_OfxParamPropChoiceOption, kOfxParamPropChoiceOption);
+make_property_dimension_getter!(
+    get_dimension_OfxParamPropChoiceOption,
+    kOfxParamPropChoiceOption
+);
+make_property_setter!(set_OfxParamPropChoiceOrder, kOfxParamPropChoiceOrder, set_ints, ..., Int);
+make_property_getter!(get_OfxParamPropChoiceOrder, kOfxParamPropChoiceOrder, get_ints, ..., Int);
+make_property_resetter!(reset_OfxParamPropChoiceOrder, kOfxParamPropChoiceOrder);
+make_property_dimension_getter!(
+    get_dimension_OfxParamPropChoiceOrder,
+    kOfxParamPropChoiceOrder
+);
+make_property_setter!(
+    set_OfxParamPropCustomInterpCallbackV1,
+    kOfxParamPropCustomInterpCallbackV1,
+    set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxParamPropCustomInterpCallbackV1,
+    kOfxParamPropCustomInterpCallbackV1,
+    get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(
+    reset_OfxParamPropCustomInterpCallbackV1,
+    kOfxParamPropCustomInterpCallbackV1
+);
+make_property_setter!(
+    set_OfxParamPropCustomValue,
+    kOfxParamPropCustomValue,
+    set_strings_2,
+    2,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropCustomValue,
+    kOfxParamPropCustomValue,
+    get_strings_2,
+    2,
+    String
+);
+make_property_resetter!(reset_OfxParamPropCustomValue, kOfxParamPropCustomValue);
+make_property_setter!(
+    set_OfxParamPropDataPtr,
+    kOfxParamPropDataPtr,
+    set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxParamPropDataPtr,
+    kOfxParamPropDataPtr,
+    get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(reset_OfxParamPropDataPtr, kOfxParamPropDataPtr);
+make_property_setter!(set_OfxParamPropDefault, kOfxParamPropDefault, set_ints, ..., Int);
+make_property_getter!(get_OfxParamPropDefault, kOfxParamPropDefault, get_ints, ..., Int);
+make_property_resetter!(reset_OfxParamPropDefault, kOfxParamPropDefault);
+make_property_dimension_getter!(get_dimension_OfxParamPropDefault, kOfxParamPropDefault);
+make_property_setter!(
+    set_OfxParamPropDefaultCoordinateSystem,
+    kOfxParamPropDefaultCoordinateSystem,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropDefaultCoordinateSystem,
+    kOfxParamPropDefaultCoordinateSystem,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxParamPropDefaultCoordinateSystem,
+    kOfxParamPropDefaultCoordinateSystem
+);
+make_property_setter!(set_OfxParamPropDigits, kOfxParamPropDigits, set_int, 1, Int);
+make_property_getter!(get_OfxParamPropDigits, kOfxParamPropDigits, get_int, 1, Int);
+make_property_resetter!(reset_OfxParamPropDigits, kOfxParamPropDigits);
+make_property_setter!(
+    set_OfxParamPropDimensionLabel,
+    kOfxParamPropDimensionLabel,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropDimensionLabel,
+    kOfxParamPropDimensionLabel,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxParamPropDimensionLabel,
+    kOfxParamPropDimensionLabel
+);
+make_property_setter!(set_OfxParamPropDisplayMax, kOfxParamPropDisplayMax, set_ints, ..., Int);
+make_property_getter!(get_OfxParamPropDisplayMax, kOfxParamPropDisplayMax, get_ints, ..., Int);
+make_property_resetter!(reset_OfxParamPropDisplayMax, kOfxParamPropDisplayMax);
+make_property_dimension_getter!(
+    get_dimension_OfxParamPropDisplayMax,
+    kOfxParamPropDisplayMax
+);
+make_property_setter!(set_OfxParamPropDisplayMin, kOfxParamPropDisplayMin, set_ints, ..., Int);
+make_property_getter!(get_OfxParamPropDisplayMin, kOfxParamPropDisplayMin, get_ints, ..., Int);
+make_property_resetter!(reset_OfxParamPropDisplayMin, kOfxParamPropDisplayMin);
+make_property_dimension_getter!(
+    get_dimension_OfxParamPropDisplayMin,
+    kOfxParamPropDisplayMin
+);
+make_property_setter!(
+    set_OfxParamPropDoubleType,
+    kOfxParamPropDoubleType,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropDoubleType,
+    kOfxParamPropDoubleType,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxParamPropDoubleType, kOfxParamPropDoubleType);
+make_property_setter!(
+    set_OfxParamPropEnabled,
+    kOfxParamPropEnabled,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropEnabled,
+    kOfxParamPropEnabled,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropEnabled, kOfxParamPropEnabled);
+make_property_setter!(
+    set_OfxParamPropEvaluateOnChange,
+    kOfxParamPropEvaluateOnChange,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropEvaluateOnChange,
+    kOfxParamPropEvaluateOnChange,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamPropEvaluateOnChange,
+    kOfxParamPropEvaluateOnChange
+);
+make_property_setter!(
+    set_OfxParamPropGroupOpen,
+    kOfxParamPropGroupOpen,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropGroupOpen,
+    kOfxParamPropGroupOpen,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropGroupOpen, kOfxParamPropGroupOpen);
+make_property_setter!(
+    set_OfxParamPropHasHostOverlayHandle,
+    kOfxParamPropHasHostOverlayHandle,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropHasHostOverlayHandle,
+    kOfxParamPropHasHostOverlayHandle,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamPropHasHostOverlayHandle,
+    kOfxParamPropHasHostOverlayHandle
+);
+make_property_setter!(
+    set_OfxParamPropHint,
+    kOfxParamPropHint,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropHint,
+    kOfxParamPropHint,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxParamPropHint, kOfxParamPropHint);
+make_property_setter!(
+    set_OfxParamPropIncrement,
+    kOfxParamPropIncrement,
+    set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxParamPropIncrement,
+    kOfxParamPropIncrement,
+    get_double,
+    1,
+    Double
+);
+make_property_resetter!(reset_OfxParamPropIncrement, kOfxParamPropIncrement);
+make_property_setter!(
+    set_OfxParamPropInteractMinimumSize,
+    kOfxParamPropInteractMinimumSize,
+    set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxParamPropInteractMinimumSize,
+    kOfxParamPropInteractMinimumSize,
+    get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxParamPropInteractMinimumSize,
+    kOfxParamPropInteractMinimumSize
+);
+make_property_setter!(
+    set_OfxParamPropInteractPreferedSize,
+    kOfxParamPropInteractPreferedSize,
+    set_ints_2,
+    2,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropInteractPreferedSize,
+    kOfxParamPropInteractPreferedSize,
+    get_ints_2,
+    2,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamPropInteractPreferedSize,
+    kOfxParamPropInteractPreferedSize
+);
+make_property_setter!(
+    set_OfxParamPropInteractSize,
+    kOfxParamPropInteractSize,
+    set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxParamPropInteractSize,
+    kOfxParamPropInteractSize,
+    get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(reset_OfxParamPropInteractSize, kOfxParamPropInteractSize);
+make_property_setter!(
+    set_OfxParamPropInteractSizeAspect,
+    kOfxParamPropInteractSizeAspect,
+    set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxParamPropInteractSizeAspect,
+    kOfxParamPropInteractSizeAspect,
+    get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxParamPropInteractSizeAspect,
+    kOfxParamPropInteractSizeAspect
+);
+make_property_setter!(
+    set_OfxParamPropInteractV1,
+    kOfxParamPropInteractV1,
+    set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxParamPropInteractV1,
+    kOfxParamPropInteractV1,
+    get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(reset_OfxParamPropInteractV1, kOfxParamPropInteractV1);
+make_property_setter!(
+    set_OfxParamPropInterpolationAmount,
+    kOfxParamPropInterpolationAmount,
+    set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxParamPropInterpolationAmount,
+    kOfxParamPropInterpolationAmount,
+    get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxParamPropInterpolationAmount,
+    kOfxParamPropInterpolationAmount
+);
+make_property_setter!(
+    set_OfxParamPropInterpolationTime,
+    kOfxParamPropInterpolationTime,
+    set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxParamPropInterpolationTime,
+    kOfxParamPropInterpolationTime,
+    get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxParamPropInterpolationTime,
+    kOfxParamPropInterpolationTime
+);
+make_property_setter!(
+    set_OfxParamPropIsAnimating,
+    kOfxParamPropIsAnimating,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropIsAnimating,
+    kOfxParamPropIsAnimating,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropIsAnimating, kOfxParamPropIsAnimating);
+make_property_setter!(
+    set_OfxParamPropIsAutoKeying,
+    kOfxParamPropIsAutoKeying,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropIsAutoKeying,
+    kOfxParamPropIsAutoKeying,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropIsAutoKeying, kOfxParamPropIsAutoKeying);
+make_property_setter!(set_OfxParamPropMax, kOfxParamPropMax, set_ints, ..., Int);
+make_property_getter!(get_OfxParamPropMax, kOfxParamPropMax, get_ints, ..., Int);
+make_property_resetter!(reset_OfxParamPropMax, kOfxParamPropMax);
+make_property_dimension_getter!(get_dimension_OfxParamPropMax, kOfxParamPropMax);
+make_property_setter!(set_OfxParamPropMin, kOfxParamPropMin, set_ints, ..., Int);
+make_property_getter!(get_OfxParamPropMin, kOfxParamPropMin, get_ints, ..., Int);
+make_property_resetter!(reset_OfxParamPropMin, kOfxParamPropMin);
+make_property_dimension_getter!(get_dimension_OfxParamPropMin, kOfxParamPropMin);
+make_property_setter!(set_OfxParamPropPageChild, kOfxParamPropPageChild, set_strings, ..., String);
+make_property_getter!(get_OfxParamPropPageChild, kOfxParamPropPageChild, get_strings, ..., String);
+make_property_resetter!(reset_OfxParamPropPageChild, kOfxParamPropPageChild);
+make_property_dimension_getter!(get_dimension_OfxParamPropPageChild, kOfxParamPropPageChild);
+make_property_setter!(
+    set_OfxParamPropParametricDimension,
+    kOfxParamPropParametricDimension,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropParametricDimension,
+    kOfxParamPropParametricDimension,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamPropParametricDimension,
+    kOfxParamPropParametricDimension
+);
+make_property_setter!(
+    set_OfxParamPropParametricInteractBackground,
+    kOfxParamPropParametricInteractBackground,
+    set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxParamPropParametricInteractBackground,
+    kOfxParamPropParametricInteractBackground,
+    get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(
+    reset_OfxParamPropParametricInteractBackground,
+    kOfxParamPropParametricInteractBackground
+);
+make_property_setter!(
+    set_OfxParamPropParametricRange,
+    kOfxParamPropParametricRange,
+    set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxParamPropParametricRange,
+    kOfxParamPropParametricRange,
+    get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxParamPropParametricRange,
+    kOfxParamPropParametricRange
+);
+make_property_setter!(set_OfxParamPropParametricUIColour, kOfxParamPropParametricUIColour, set_doubles, ..., Double);
+make_property_getter!(get_OfxParamPropParametricUIColour, kOfxParamPropParametricUIColour, get_doubles, ..., Double);
+make_property_resetter!(
+    reset_OfxParamPropParametricUIColour,
+    kOfxParamPropParametricUIColour
+);
+make_property_dimension_getter!(
+    get_dimension_OfxParamPropParametricUIColour,
+    kOfxParamPropParametricUIColour
+);
+make_property_setter!(
+    set_OfxParamPropParent,
+    kOfxParamPropParent,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropParent,
+    kOfxParamPropParent,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxParamPropParent, kOfxParamPropParent);
+make_property_setter!(
+    set_OfxParamPropPersistant,
+    kOfxParamPropPersistant,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropPersistant,
+    kOfxParamPropPersistant,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropPersistant, kOfxParamPropPersistant);
+make_property_setter!(
+    set_OfxParamPropPluginMayWrite,
+    kOfxParamPropPluginMayWrite,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropPluginMayWrite,
+    kOfxParamPropPluginMayWrite,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamPropPluginMayWrite,
+    kOfxParamPropPluginMayWrite
+);
+make_property_setter!(
+    set_OfxParamPropScriptName,
+    kOfxParamPropScriptName,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropScriptName,
+    kOfxParamPropScriptName,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxParamPropScriptName, kOfxParamPropScriptName);
+make_property_setter!(set_OfxParamPropSecret, kOfxParamPropSecret, set_int, 1, Int);
+make_property_getter!(get_OfxParamPropSecret, kOfxParamPropSecret, get_int, 1, Int);
+make_property_resetter!(reset_OfxParamPropSecret, kOfxParamPropSecret);
+make_property_setter!(
+    set_OfxParamPropShowTimeMarker,
+    kOfxParamPropShowTimeMarker,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropShowTimeMarker,
+    kOfxParamPropShowTimeMarker,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamPropShowTimeMarker,
+    kOfxParamPropShowTimeMarker
+);
+make_property_setter!(
+    set_OfxParamPropStringFilePathExists,
+    kOfxParamPropStringFilePathExists,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropStringFilePathExists,
+    kOfxParamPropStringFilePathExists,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamPropStringFilePathExists,
+    kOfxParamPropStringFilePathExists
+);
+make_property_setter!(
+    set_OfxParamPropStringMode,
+    kOfxParamPropStringMode,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropStringMode,
+    kOfxParamPropStringMode,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxParamPropStringMode, kOfxParamPropStringMode);
+make_property_setter!(
+    set_OfxParamPropType,
+    kOfxParamPropType,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropType,
+    kOfxParamPropType,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxParamPropType, kOfxParamPropType);
+make_property_setter!(
+    set_OfxPluginPropFilePath,
+    kOfxPluginPropFilePath,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxPluginPropFilePath,
+    kOfxPluginPropFilePath,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxPluginPropFilePath, kOfxPluginPropFilePath);
+make_property_setter!(set_OfxPluginPropParamPageOrder, kOfxPluginPropParamPageOrder, set_strings, ..., String);
+make_property_getter!(get_OfxPluginPropParamPageOrder, kOfxPluginPropParamPageOrder, get_strings, ..., String);
+make_property_resetter!(
+    reset_OfxPluginPropParamPageOrder,
+    kOfxPluginPropParamPageOrder
+);
+make_property_dimension_getter!(
+    get_dimension_OfxPluginPropParamPageOrder,
+    kOfxPluginPropParamPageOrder
+);
+make_property_setter!(set_OfxPropAPIVersion, kOfxPropAPIVersion, set_ints, ..., Int);
+make_property_getter!(get_OfxPropAPIVersion, kOfxPropAPIVersion, get_ints, ..., Int);
+make_property_resetter!(reset_OfxPropAPIVersion, kOfxPropAPIVersion);
+make_property_dimension_getter!(get_dimension_OfxPropAPIVersion, kOfxPropAPIVersion);
+make_property_setter!(
+    set_OfxPropChangeReason,
+    kOfxPropChangeReason,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxPropChangeReason,
+    kOfxPropChangeReason,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxPropChangeReason, kOfxPropChangeReason);
+make_property_setter!(
+    set_OfxPropEffectInstance,
+    kOfxPropEffectInstance,
+    set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxPropEffectInstance,
+    kOfxPropEffectInstance,
+    get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(reset_OfxPropEffectInstance, kOfxPropEffectInstance);
+make_property_setter!(
+    set_OfxPropHostOSHandle,
+    kOfxPropHostOSHandle,
+    set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxPropHostOSHandle,
+    kOfxPropHostOSHandle,
+    get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(reset_OfxPropHostOSHandle, kOfxPropHostOSHandle);
+make_property_setter!(set_OfxPropIcon, kOfxPropIcon, set_strings_2, 2, String);
+make_property_getter!(get_OfxPropIcon, kOfxPropIcon, get_strings_2, 2, String);
+make_property_resetter!(reset_OfxPropIcon, kOfxPropIcon);
+make_property_setter!(
+    set_OfxPropInstanceData,
+    kOfxPropInstanceData,
+    set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxPropInstanceData,
+    kOfxPropInstanceData,
+    get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(reset_OfxPropInstanceData, kOfxPropInstanceData);
+make_property_setter!(
+    set_OfxPropIsInteractive,
+    kOfxPropIsInteractive,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxPropIsInteractive,
+    kOfxPropIsInteractive,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxPropIsInteractive, kOfxPropIsInteractive);
+make_property_setter!(set_OfxPropLabel, kOfxPropLabel, set_string, 1, String);
+make_property_getter!(get_OfxPropLabel, kOfxPropLabel, get_string, 1, String);
+make_property_resetter!(reset_OfxPropLabel, kOfxPropLabel);
+make_property_setter!(
+    set_OfxPropLongLabel,
+    kOfxPropLongLabel,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxPropLongLabel,
+    kOfxPropLongLabel,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxPropLongLabel, kOfxPropLongLabel);
+make_property_setter!(set_OfxPropName, kOfxPropName, set_string, 1, String);
+make_property_getter!(get_OfxPropName, kOfxPropName, get_string, 1, String);
+make_property_resetter!(reset_OfxPropName, kOfxPropName);
+make_property_setter!(
+    set_OfxPropParamSetNeedsSyncing,
+    kOfxPropParamSetNeedsSyncing,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxPropParamSetNeedsSyncing,
+    kOfxPropParamSetNeedsSyncing,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxPropParamSetNeedsSyncing,
+    kOfxPropParamSetNeedsSyncing
+);
+make_property_setter!(
+    set_OfxPropPluginDescription,
+    kOfxPropPluginDescription,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxPropPluginDescription,
+    kOfxPropPluginDescription,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxPropPluginDescription, kOfxPropPluginDescription);
+make_property_setter!(
+    set_OfxPropShortLabel,
+    kOfxPropShortLabel,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxPropShortLabel,
+    kOfxPropShortLabel,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxPropShortLabel, kOfxPropShortLabel);
+make_property_setter!(set_OfxPropTime, kOfxPropTime, set_double, 1, Double);
+make_property_getter!(get_OfxPropTime, kOfxPropTime, get_double, 1, Double);
+make_property_resetter!(reset_OfxPropTime, kOfxPropTime);
+make_property_setter!(set_OfxPropType, kOfxPropType, set_string, 1, String);
+make_property_getter!(get_OfxPropType, kOfxPropType, get_string, 1, String);
+make_property_resetter!(reset_OfxPropType, kOfxPropType);
+make_property_setter!(set_OfxPropVersion, kOfxPropVersion, set_ints, ..., Int);
+make_property_getter!(get_OfxPropVersion, kOfxPropVersion, get_ints, ..., Int);
+make_property_resetter!(reset_OfxPropVersion, kOfxPropVersion);
+make_property_dimension_getter!(get_dimension_OfxPropVersion, kOfxPropVersion);
+make_property_setter!(
+    set_OfxPropVersionLabel,
+    kOfxPropVersionLabel,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxPropVersionLabel,
+    kOfxPropVersionLabel,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxPropVersionLabel, kOfxPropVersionLabel);
+make_property_setter!(
+    set_OfxParamPropUseHostOverlayHandle,
+    kOfxParamPropUseHostOverlayHandle,
+    set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropUseHostOverlayHandle,
+    kOfxParamPropUseHostOverlayHandle,
+    get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamPropUseHostOverlayHandle,
+    kOfxParamPropUseHostOverlayHandle
+);
+make_property_setter!(
+    set_OfxPropKeyString,
+    kOfxPropKeyString,
+    set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxPropKeyString,
+    kOfxPropKeyString,
+    get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxPropKeyString, kOfxPropKeyString);
+make_property_setter!(set_OfxPropKeySym, kOfxPropKeySym, set_int, 1, Int);
+make_property_getter!(get_OfxPropKeySym, kOfxPropKeySym, get_int, 1, Int);
+make_property_resetter!(reset_OfxPropKeySym, kOfxPropKeySym);
