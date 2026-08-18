@@ -85,18 +85,18 @@ function genLowEnums(
 
     if (valuesList[0]!.startsWith("Ofx")) {
       items.push(
-        `crate::internal::low_macros::make_enum_from_paths!(${name}, ${
+        `crate::internal::low_macros::make_enum_from_paths!(${name},${
           valuesList.map((v) => {
             const path = `crate::sys_umbrella::k${v}`;
-            return `#[doc = "See: [\`${path}\`]."] ${v} => ${path}`;
+            return `\n    /// See: [\`${path}\`].\n    ${v} => ${path}`;
           }).join(", ")
-        });`,
+        }\n);`,
       );
     } else {
       items.push(
-        `crate::internal::low_macros::make_enum_from_idents!(${name}, ${
-          valuesList.map((v) => `r#${v} : c"${v}"`).join(", ")
-        });`,
+        `crate::internal::low_macros::make_enum_from_idents!(${name},${
+          valuesList.map((v) => `\n    r#${v} : c"${v}"`).join(", ")
+        }\n);`,
       );
     }
   }
