@@ -26,3 +26,11 @@ OfxImageEffectPropColourManagementOCIO = "OfxImageEffectColourManagementOCIO"
 
 OfxImageAlphaPremultiplied = "OfxImagePreMultiplied"
 OfxImageAlphaUnPremultiplied = "OfxImageUnPreMultiplied"
+
+OfxImageEffectPropMultipleClipDepths = "OfxImageEffectPropSupportsMultipleClipDepths"
+OfxImageEffectPropPixelAspectRatio = "OfxImageEffectPropProjectPixelAspectRatio"
+OfxInteractPropViewport = "OfxInteractPropViewportSize"
+OfxParamPropCustomCallbackV1 = "OfxParamPropCustomInterpCallbackV1"
+kOfxParamPropUseHostOverlayHandle = "OfxParamPropUseHostOverlayHandle"
+kOfxPropKeyString = "OfxPropKeyString"
+kOfxPropKeySym = "OfxPropKeySym"

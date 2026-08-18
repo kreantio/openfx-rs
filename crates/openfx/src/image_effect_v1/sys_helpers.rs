@@ -41,3 +41,10 @@ impl<T: Plugin> generic::sys_helpers::Plugin for T {
         T::main_entry(action, handle, in_args, out_args)
     }
 }
+
+pub mod properties {
+    include!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/generated/code_from_cpp/sys_helpers_property_accessors.rs",
+    ));
+}

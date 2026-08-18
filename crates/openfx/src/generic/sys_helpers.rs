@@ -85,3 +85,50 @@ pub macro export_plugins($plugins_type:ty) {
         }
     }
 }
+
+pub mod properties {
+    /// ## SAFETY
+    ///
+    /// - `suite` must be a valid pointer to
+    ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
+    /// - `handle` must be a valid handle of
+    ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
+    pub unsafe fn reset_property(
+        suite: *const crate::sys_umbrella::OfxPropertySuiteV1,
+        handle: crate::sys_umbrella::OfxPropertySetHandle,
+        property: *const std::os::raw::c_char,
+    ) -> Result<(), crate::sys_umbrella::OfxStatus> {
+        // SAFETY: granted by the standard
+        let suite_fn = unsafe { (&*suite).propReset.unwrap_unchecked() };
+        if let s = unsafe { suite_fn(handle, property) }
+            && s != crate::sys_umbrella::kOfxStatOK
+        {
+            Err(s)
+        } else {
+            Ok(())
+        }
+    }
+
+    /// ## SAFETY
+    ///
+    /// - `suite` must be a valid pointer to
+    ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
+    /// - `handle` must be a valid handle of
+    ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
+    pub unsafe fn get_property_dimension(
+        suite: *const crate::sys_umbrella::OfxPropertySuiteV1,
+        handle: crate::sys_umbrella::OfxPropertySetHandle,
+        property: *const std::os::raw::c_char,
+    ) -> Result<std::os::raw::c_int, crate::sys_umbrella::OfxStatus> {
+        // SAFETY: granted by the standard
+        let suite_fn = unsafe { (&*suite).propGetDimension.unwrap_unchecked() };
+        let mut dimension: std::os::raw::c_int = 0;
+        if let s = unsafe { suite_fn(handle, property, &mut dimension) }
+            && s != crate::sys_umbrella::kOfxStatOK
+        {
+            Err(s)
+        } else {
+            Ok(dimension)
+        }
+    }
+}

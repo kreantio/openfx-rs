@@ -8,9 +8,10 @@ import {
   makeFinalResult as makeFinalResultOfxPropsMetadata,
   parse as parseOfxPropsMetadata,
 } from "../src/parsers/parser-ofxPropsMetadata/impl-by-llms/mod.ts";
-import {
-  FinalResult as FinalResultOfxPropsMetadata,
-} from "../src/parsers/parser-ofxPropsMetadata/types.ts";
+
+import { CodegenConfig } from "../src/definitions.ts";
+import { genLowEnums } from "../src/generators/gen-low-enums.ts";
+import { genSysHelpersPropertyAccessors } from "../src/generators/gen-sys-helpers-property-accessors.ts";
 
 function doParseArgs(args: string[]) {
   const result = parseArgs(args, {
@@ -36,10 +37,6 @@ function doParseArgs(args: string[]) {
 type _Args = ReturnType<typeof doParseArgs>;
 type Args = Required<_Args>;
 
-interface CodegenConfig {
-  "property_value_to_key_exceptions": Record<string, string>;
-}
-
 function parseCodegenConfig(tomlText: string): CodegenConfig {
   return toml.parse(tomlText);
 }
@@ -59,49 +56,13 @@ async function main(args: Args) {
     path.join(args["output-code-from-cpp"], "low_enums.rs"),
     genLowEnums(propsMetadata, codegenConfig),
   );
-}
-
-function genLowEnums(
-  fr: FinalResultOfxPropsMetadata,
-  cfg: CodegenConfig,
-): string {
-  const items: string[] = [];
-  for (
-    const [name, values] of Object.entries(fr.propEnumValues)
-      .toSorted((a, b) => a[0].localeCompare(b[0]))
-  ) {
-    const valuesList = [...values]
-      .map((v) => {
-        const fix = cfg.property_value_to_key_exceptions[v];
-        if (fix) {
-          console.info(
-            `Fix: replacing enum variant name "${v}" with "${fix}" for property \`${name}\``,
-          );
-          return fix;
-        }
-        return v;
-      })
-      .toSorted();
-
-    if (valuesList[0]!.startsWith("Ofx")) {
-      items.push(
-        `crate::internal::low_macros::make_enum_from_paths!(${name},${
-          valuesList.map((v) => {
-            const path = `crate::sys_umbrella::k${v}`;
-            return `\n    /// See: [\`${path}\`].\n    ${v} => ${path}`;
-          }).join(", ")
-        }\n);`,
-      );
-    } else {
-      items.push(
-        `crate::internal::low_macros::make_enum_from_idents!(${name},${
-          valuesList.map((v) => `\n    r#${v} : c"${v}"`).join(", ")
-        }\n);`,
-      );
-    }
-  }
-
-  return items.join("\n");
+  await Deno.writeTextFile(
+    path.join(
+      args["output-code-from-cpp"],
+      "sys_helpers_property_accessors.rs",
+    ),
+    genSysHelpersPropertyAccessors(propsMetadata, codegenConfig),
+  );
 }
 
 await main(doParseArgs(Deno.args) as Args);
