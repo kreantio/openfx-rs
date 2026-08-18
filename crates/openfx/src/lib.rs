@@ -2,6 +2,7 @@
 
 pub mod generic;
 pub mod image_effect_v1;
+pub(crate) mod internal;
 
 /// a workaround for `include_c_bindings`. TODO: remove this.
 #[allow(unused_imports)]
