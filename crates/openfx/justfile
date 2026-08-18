@@ -1,5 +1,6 @@
 vendor-c-path := "vendor/openfx/include"
 generated-c-bindings-path := "generated/c_bindings"
+generated-code-from-c-path := "generated/code_from_c"
 vendor-cpp-path := "vendor/openfx/openfx-cpp/include/openfx"
 generated-code-from-cpp-path := "generated/code_from_cpp"
 codegen-config-path := "codegen-config.toml"
@@ -11,7 +12,8 @@ generate-c-bindings:
     mkdir -p "{{ generated-c-bindings-path }}"
     cargo run --release --package openfx-bindgen --bin openfx-bindgen -- \
       --input-c-headers "{{ vendor-c-path }}" \
-      --output-c-bindings "{{ generated-c-bindings-path }}"
+      --output-c-bindings "{{ generated-c-bindings-path }}" \
+      --output-code-from-c "{{ generated-code-from-c-path }}"
 
 generate-code-from-cpp:
     rm -rf "{{ generated-code-from-cpp-path }}"
