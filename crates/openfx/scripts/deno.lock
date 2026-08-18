@@ -7,7 +7,8 @@
     "jsr:@std/internal@^1.0.12": "1.0.14",
     "jsr:@std/internal@^1.0.14": "1.0.14",
     "jsr:@zod/zod@^4.4.3": "4.4.3",
-    "npm:chevrotain@^13.2.0": "13.2.0"
+    "npm:chevrotain@^13.2.0": "13.2.0",
+    "npm:toml@5": "5.0.0"
   },
   "jsr": {
     "@std/assert@1.0.19": {
@@ -65,6 +66,9 @@
         "@chevrotain/types",
         "@chevrotain/utils"
       ]
+    },
+    "toml@5.0.0": {
+      "integrity": "sha512-bsqEd+g7fzlrw7LEynQ6W6aOK/lTOlepz5x1sJyIV9fTZVJS2Q76nuju6FK+gZhW5bUpvB7mCEqdR0u4WziMFw=="
     }
   },
   "workspace": {
@@ -72,7 +76,8 @@
       "jsr:@std/assert@^1.0.19",
       "jsr:@std/cli@^1.0.32",
       "jsr:@zod/zod@^4.4.3",
-      "npm:chevrotain@^13.2.0"
+      "npm:chevrotain@^13.2.0",
+      "npm:toml@5"
     ]
   }
 }

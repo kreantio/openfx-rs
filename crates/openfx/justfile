@@ -1,17 +1,28 @@
+vendor-c-path := "vendor/openfx/include"
 generated-c-bindings-path := "generated/c_bindings"
-generated-code-from-path := "generated/code_from_cpp"
+vendor-cpp-path := "vendor/openfx/openfx-cpp/include/openfx"
 generated-code-from-cpp-path := "generated/code_from_cpp"
+codegen-config-path := "codegen-config.toml"
 
-generate:
-    rm -rf {{ generated-c-bindings-path }}
-    rm -rf {{ generated-code-from-path }}
-    rm -rf {{ generated-code-from-cpp-path }}
-    mkdir -p {{ generated-c-bindings-path }}
-    mkdir -p {{ generated-code-from-path }}
-    mkdir -p {{ generated-code-from-cpp-path }}
+generate: generate-c-bindings generate-code-from-cpp
+
+generate-c-bindings:
+    rm -rf "{{ generated-c-bindings-path }}"
+    mkdir -p "{{ generated-c-bindings-path }}"
     cargo run --release --package openfx-bindgen --bin openfx-bindgen -- \
-      --input-c-headers "vendor/openfx/include" \
+      --input-c-headers "{{ vendor-c-path }}" \
       --output-c-bindings "{{ generated-c-bindings-path }}"
+
+generate-code-from-cpp:
+    rm -rf "{{ generated-code-from-cpp-path }}"
+    mkdir -p "{{ generated-code-from-cpp-path }}"
+    deno run --allow-read="{{ vendor-cpp-path }}" --allow-read="{{ codegen-config-path }}" \
+      --allow-write="{{ generated-code-from-cpp-path }}" \
+      scripts/bin/generate-code-from-cpp.ts \
+      --codegen-config="{{ codegen-config-path }}" \
+      --input-cpp-headers="{{ vendor-cpp-path }}" \
+      --output-code-from-cpp="{{ generated-code-from-cpp-path }}"
+    find "{{ generated-code-from-cpp-path }}" -name "*.rs" | xargs rustfmt
 
 publish: generate
     cargo publish
