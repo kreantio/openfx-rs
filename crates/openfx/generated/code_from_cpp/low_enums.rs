@@ -60,7 +60,7 @@ macro make_enum_from_paths($name:ident, $(#[$meta:meta] $var:ident => $var_path:
     /// The returned pointer is valid as long as the [`std::ffi::CString`] inside [`Self::Other`] is not dropped.
     pub fn as_ptr(&self) -> *const std::os::raw::c_char {
       match self {
-        $(Self::$var => $var_path.as_ptr() as *const std::os::raw::c_char,)*
+        $(Self::$var => $var_path.as_ptr(),)*
         Self::Other(ptr) => *ptr,
       }
     }
