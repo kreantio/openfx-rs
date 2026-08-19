@@ -76,6 +76,26 @@ fn generate_bindings_for_c_headers_inner(
 
     let mut statuses: HashSet<String> = HashSet::new();
 
+    gen_c_bindings(
+        &output_folder,
+        &headers,
+        &deduplicated_syn_files,
+        &checks_syn_files,
+        &mut statuses,
+    )?;
+
+    gen_low_statuses(&output_folder_c, statuses)?;
+
+    Ok(())
+}
+
+fn gen_c_bindings(
+    output_folder: &Path,
+    headers: &[Header],
+    deduplicated_syn_files: &std::collections::HashMap<String, syn::File>,
+    checks_syn_files: &std::collections::HashMap<String, syn::File>,
+    statuses: &mut HashSet<String>,
+) -> Result<(), Box<dyn std::error::Error>> {
     for header in headers {
         let mod_name = &header.mod_name_snake_case;
         let output_path = output_folder.join(format!("{}.rs", mod_name));
@@ -105,54 +125,59 @@ fn generate_bindings_for_c_headers_inner(
         )?;
 
         if !header.additional_info.statuses.is_empty() {
-            statuses.extend(header.additional_info.statuses);
+            statuses.extend(header.additional_info.statuses.clone());
         }
     }
 
-    {
-        let mut statuses: Vec<String> = statuses.into_iter().collect();
-        statuses.sort();
-        let status_sys_ident = statuses
-            .iter()
-            .map(|status| {
-                syn::Ident::new(
-                    &format!("kOfxStat{}", status),
-                    proc_macro2::Span::call_site(),
-                )
-            })
-            .collect::<Vec<_>>();
-        let statuses = statuses
-            .iter()
-            .map(|status| syn::Ident::new(status, proc_macro2::Span::call_site()))
-            .collect::<Vec<_>>();
+    Ok(())
+}
 
-        let code = quote! {
-            pub enum OfxStatus {
-                #(#statuses,)*
-                Unknown(crate::generic::sys::core::OfxStatus),
-            }
-            impl From<crate::generic::sys::core::OfxStatus> for OfxStatus {
-                fn from(status: crate::generic::sys::core::OfxStatus) -> Self {
-                    match status {
-                        #(crate::generic::sys::core::#status_sys_ident => Self::#statuses,)*
-                        _ => Self::Unknown(status),
-                    }
+fn gen_low_statuses(
+    output_folder_c: &Path,
+    statuses: HashSet<String>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut statuses: Vec<String> = statuses.into_iter().collect();
+    statuses.sort();
+    let status_sys_ident = statuses
+        .iter()
+        .map(|status| {
+            syn::Ident::new(
+                &format!("kOfxStat{}", status),
+                proc_macro2::Span::call_site(),
+            )
+        })
+        .collect::<Vec<_>>();
+    let statuses = statuses
+        .iter()
+        .map(|status| syn::Ident::new(status, proc_macro2::Span::call_site()))
+        .collect::<Vec<_>>();
+
+    let code = quote! {
+        pub enum OfxStatus {
+            #(#statuses,)*
+            Unknown(crate::generic::sys::core::OfxStatus),
+        }
+        impl From<crate::generic::sys::core::OfxStatus> for OfxStatus {
+            fn from(status: crate::generic::sys::core::OfxStatus) -> Self {
+                match status {
+                    #(crate::generic::sys::core::#status_sys_ident => Self::#statuses,)*
+                    _ => Self::Unknown(status),
                 }
             }
-            impl From<OfxStatus> for crate::generic::sys::core::OfxStatus {
-                fn from(status: OfxStatus) -> Self {
-                    match status {
-                        #(OfxStatus::#statuses => crate::generic::sys::core::#status_sys_ident,)*
-                        OfxStatus::Unknown(status) => status,
-                    }
+        }
+        impl From<OfxStatus> for crate::generic::sys::core::OfxStatus {
+            fn from(status: OfxStatus) -> Self {
+                match status {
+                    #(OfxStatus::#statuses => crate::generic::sys::core::#status_sys_ident,)*
+                    OfxStatus::Unknown(status) => status,
                 }
             }
-        };
-        std::fs::write(
-            output_folder_c.join("low_statuses.rs"),
-            prettyplease::unparse(&syn::parse2(code)?),
-        )?;
-    }
+        }
+    };
+    std::fs::write(
+        output_folder_c.join("low_statuses.rs"),
+        prettyplease::unparse(&syn::parse2(code)?),
+    )?;
 
     Ok(())
 }
