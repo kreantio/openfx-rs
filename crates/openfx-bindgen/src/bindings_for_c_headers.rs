@@ -69,6 +69,7 @@ fn generate_bindings_for_c_headers_inner(
     let DeduplicateOutput {
         deduplicated_syn_files,
         checks_syn_files,
+        root_item_idents_per_header,
     } = deduplicate(&headers).map_err(|err| format!("Failed to deduplicate headers: {}", err))?;
 
     std::fs::create_dir_all(output_folder.join("checks"))?;
@@ -85,6 +86,8 @@ fn generate_bindings_for_c_headers_inner(
     )?;
 
     gen_low_statuses(&output_folder_c, statuses)?;
+
+    gen_data_root_idents(&output_folder_c, root_item_idents_per_header)?;
 
     Ok(())
 }
@@ -178,6 +181,19 @@ fn gen_low_statuses(
         output_folder_c.join("low_statuses.rs"),
         prettyplease::unparse(&syn::parse2(code)?),
     )?;
+
+    Ok(())
+}
+
+fn gen_data_root_idents(
+    output_folder_c: &Path,
+    root_item_idents_per_header: HashMap<String, HashSet<String>>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    std::fs::create_dir_all(output_folder_c.join("data"))?;
+    let path = output_folder_c.join("data/root_item_idents_per_header.json");
+
+    let json = serde_json::to_string_pretty(&root_item_idents_per_header)?;
+    std::fs::write(path, json)?;
 
     Ok(())
 }
@@ -318,6 +334,7 @@ impl Header {
 struct DeduplicateOutput {
     deduplicated_syn_files: HashMap<String, syn::File>,
     checks_syn_files: HashMap<String, syn::File>,
+    root_item_idents_per_header: HashMap<String, HashSet<String>>,
 }
 
 fn deduplicate(headers: &[Header]) -> Result<DeduplicateOutput, Box<dyn std::error::Error>> {
@@ -326,12 +343,9 @@ fn deduplicate(headers: &[Header]) -> Result<DeduplicateOutput, Box<dyn std::err
 
     let mut deduplicated_syn_files: HashMap<String, syn::File> = HashMap::new();
     let mut checks_syn_files: HashMap<String, syn::File> = HashMap::new();
+    let mut root_item_idents_per_header: HashMap<String, HashSet<String>> = HashMap::new();
 
     for header in headers {
-        // `mod_name_snake_case` -> item names
-        let mut dup_names: HashMap<String, HashSet<String>> = HashMap::new();
-        let mut dedup_items: Vec<syn::Item> = vec![];
-
         let syn_file = syn::parse_file(&header.bindgen_generated_rust_code)?;
 
         // `check_items`: `const _: () = { … };`
@@ -349,7 +363,10 @@ fn deduplicate(headers: &[Header]) -> Result<DeduplicateOutput, Box<dyn std::err
             },
         );
 
-        for (ident, item) in collect_root_item_idents(&items) {
+        // `mod_name_snake_case` -> item names
+        let mut dup_names: HashMap<String, HashSet<String>> = HashMap::new();
+        let mut dedup_items: Vec<syn::Item> = vec![];
+        for (ident, item) in collect_root_item_idents_per_header(&items) {
             let name = ident.to_string();
             if let Some(mod_name) = seen_names.get(&name) {
                 dup_names
@@ -359,6 +376,10 @@ fn deduplicate(headers: &[Header]) -> Result<DeduplicateOutput, Box<dyn std::err
             } else {
                 seen_names.insert(name.clone(), header.mod_name_snake_case.clone());
                 dedup_items.push(item.clone());
+                root_item_idents_per_header
+                    .entry(header.mod_name_snake_case.clone())
+                    .or_default()
+                    .insert(name);
             }
         }
 
@@ -398,10 +419,13 @@ fn deduplicate(headers: &[Header]) -> Result<DeduplicateOutput, Box<dyn std::err
     Ok(DeduplicateOutput {
         deduplicated_syn_files,
         checks_syn_files,
+        root_item_idents_per_header,
     })
 }
 
-fn collect_root_item_idents<'a>(items: &[&'a syn::Item]) -> Vec<(&'a syn::Ident, &'a syn::Item)> {
+fn collect_root_item_idents_per_header<'a>(
+    items: &[&'a syn::Item],
+) -> Vec<(&'a syn::Ident, &'a syn::Item)> {
     items
         .iter()
         .filter_map(|item| {

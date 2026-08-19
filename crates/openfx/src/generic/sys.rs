@@ -1,4 +1,5 @@
-//! This module is maintained manually for now.
+//! The list of C bindings included in this module is currently maintained
+//! manually.
 
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
@@ -6,9 +7,9 @@
 #![allow(unused)]
 #![allow(clippy::all)]
 
-macro_rules! include_c_bindings {
+macro_rules! include_mod_c_bindings {
     ($name:ident) => {
-        include_c_bindings!($name, {});
+        include_mod_c_bindings!($name, {});
     };
     ($name:ident, {$($additional_items:tt)*}) => {
         pub mod $name {
@@ -34,9 +35,9 @@ macro_rules! include_c_bindings {
     }
 }
 
-pub(crate) use include_c_bindings;
+pub(crate) use include_mod_c_bindings;
 
-include_c_bindings!(core, {
+include_mod_c_bindings!(core, {
     unsafe impl Sync for OfxPlugin {}
 });
-include_c_bindings!(property);
+include_mod_c_bindings!(property);

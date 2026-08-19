@@ -87,10 +87,32 @@ pub macro export_plugins($plugins_type:ty) {
 }
 
 pub mod properties {
+    //! The list of headers for properties included in this module is currently
+    //! maintained manually.
+
+    macro_rules! include_accessors {
+        ($name:ident) => {
+            include!(concat!(
+                env!("CARGO_MANIFEST_DIR"),
+                "/generated/code_from_cpp/sys_helpers_property_accessors/",
+                stringify!($name),
+                ".rs"
+            ));
+        };
+    }
+    pub(crate) use include_accessors;
+
+    use crate::internal::sys_helpers_macros::{
+        make_property_dimension_getter, make_property_getter, make_property_getter_for_type,
+        make_property_resetter, make_property_setter, make_property_setter_for_type,
+    };
+
     include!(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/generated/code_from_cpp/sys_helpers_property_accessors_generic.rs",
     ));
+
+    include_accessors!(core);
 
     /// ## SAFETY
     ///

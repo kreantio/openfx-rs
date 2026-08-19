@@ -1,4 +1,5 @@
-//! This module is maintained manually for now.
+//! The list of C bindings included in this module is currently maintained
+//! manually.
 
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
@@ -8,20 +9,20 @@
 
 use crate::generic::sys::*;
 
-include_c_bindings!(colour);
-include_c_bindings!(dialog);
-include_c_bindings!(draw_suite);
-include_c_bindings!(gpu_render);
-include_c_bindings!(image_effect);
-include_c_bindings!(interact);
-include_c_bindings!(key_syms);
-include_c_bindings!(memory);
-include_c_bindings!(message);
-include_c_bindings!(multi_thread);
-include_c_bindings!(old);
-include_c_bindings!(open_gl_render);
-include_c_bindings!(param);
-include_c_bindings!(parametric_param);
-include_c_bindings!(pixels);
-include_c_bindings!(progress);
-include_c_bindings!(time_line);
+include_mod_c_bindings!(colour);
+include_mod_c_bindings!(dialog);
+include_mod_c_bindings!(draw_suite);
+include_mod_c_bindings!(gpu_render);
+include_mod_c_bindings!(image_effect);
+include_mod_c_bindings!(interact);
+include_mod_c_bindings!(key_syms);
+include_mod_c_bindings!(memory);
+include_mod_c_bindings!(message);
+include_mod_c_bindings!(multi_thread);
+include_mod_c_bindings!(old);
+include_mod_c_bindings!(open_gl_render);
+include_mod_c_bindings!(param);
+include_mod_c_bindings!(parametric_param);
+include_mod_c_bindings!(pixels);
+include_mod_c_bindings!(progress);
+include_mod_c_bindings!(time_line);

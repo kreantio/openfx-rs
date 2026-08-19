@@ -1,6 +1,3 @@
-use crate::internal::sys_helpers_macros::{
-    make_property_getter_for_type, make_property_setter_for_type,
-};
 make_property_setter_for_type!(pub set_doubles, ..., Double);
 make_property_getter_for_type!(pub get_doubles, ..., Double);
 make_property_setter_for_type!(pub set_double, 1, Double);

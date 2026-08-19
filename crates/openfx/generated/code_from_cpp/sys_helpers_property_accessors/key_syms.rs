@@ -1,0 +1,30 @@
+make_property_setter!(
+    set_OfxPropKeyString,
+    kOfxPropKeyString,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxPropKeyString,
+    kOfxPropKeyString,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxPropKeyString, kOfxPropKeyString);
+make_property_setter!(
+    set_OfxPropKeySym,
+    kOfxPropKeySym,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxPropKeySym,
+    kOfxPropKeySym,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxPropKeySym, kOfxPropKeySym);

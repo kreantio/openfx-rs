@@ -18,6 +18,7 @@ function doParseArgs(args: string[]) {
     string: [
       "codegen-config",
       "input-cpp-headers",
+      "input-data-from-c",
       "output-code-from-cpp",
     ],
   });
@@ -30,6 +31,9 @@ function doParseArgs(args: string[]) {
   }
   if (!result["output-code-from-cpp"]) {
     throw new Error("Missing `--output-code-from-cpp`");
+  }
+  if (!result["input-data-from-c"]) {
+    throw new Error("Missing `--input-data-from-c`");
   }
 
   return result;
@@ -57,10 +61,12 @@ async function main(args: Args) {
     genLowEnums(propsMetadata, codegenConfig),
   );
   {
-    const { generic, image_effect_v1 } = genSysHelpersPropertyAccessors(
-      propsMetadata,
-      codegenConfig,
-    );
+    const { generic, image_effect_v1: codePerMod } =
+      await genSysHelpersPropertyAccessors(
+        propsMetadata,
+        codegenConfig,
+        { dataFromCPath: args["input-data-from-c"] },
+      );
     await Deno.writeTextFile(
       path.join(
         args["output-code-from-cpp"],
@@ -68,13 +74,20 @@ async function main(args: Args) {
       ),
       generic,
     );
-    await Deno.writeTextFile(
-      path.join(
-        args["output-code-from-cpp"],
-        "sys_helpers_property_accessors_image_effect_v1.rs",
-      ),
-      image_effect_v1,
+    await Deno.mkdir(
+      path.join(args["output-code-from-cpp"], "sys_helpers_property_accessors"),
+      { recursive: true },
     );
+    for (const [mod, code] of Object.entries(codePerMod)) {
+      await Deno.writeTextFile(
+        path.join(
+          args["output-code-from-cpp"],
+          "sys_helpers_property_accessors",
+          `${mod}.rs`,
+        ),
+        code,
+      );
+    }
   }
 }
 

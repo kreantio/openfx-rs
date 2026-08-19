@@ -1,0 +1,82 @@
+make_property_setter!(
+    set_OfxParamHostPropSupportsParametricAnimation,
+    kOfxParamHostPropSupportsParametricAnimation,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropSupportsParametricAnimation,
+    kOfxParamHostPropSupportsParametricAnimation,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropSupportsParametricAnimation,
+    kOfxParamHostPropSupportsParametricAnimation
+);
+make_property_setter!(
+    set_OfxParamPropParametricDimension,
+    kOfxParamPropParametricDimension,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropParametricDimension,
+    kOfxParamPropParametricDimension,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamPropParametricDimension,
+    kOfxParamPropParametricDimension
+);
+make_property_setter!(
+    set_OfxParamPropParametricInteractBackground,
+    kOfxParamPropParametricInteractBackground,
+    crate::generic::sys_helpers::properties::set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxParamPropParametricInteractBackground,
+    kOfxParamPropParametricInteractBackground,
+    crate::generic::sys_helpers::properties::get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(
+    reset_OfxParamPropParametricInteractBackground,
+    kOfxParamPropParametricInteractBackground
+);
+make_property_setter!(
+    set_OfxParamPropParametricRange,
+    kOfxParamPropParametricRange,
+    crate::generic::sys_helpers::properties::set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxParamPropParametricRange,
+    kOfxParamPropParametricRange,
+    crate::generic::sys_helpers::properties::get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxParamPropParametricRange,
+    kOfxParamPropParametricRange
+);
+make_property_setter!(set_OfxParamPropParametricUIColour, kOfxParamPropParametricUIColour, crate::generic::sys_helpers::properties::set_doubles, ..., Double);
+make_property_getter!(get_OfxParamPropParametricUIColour, kOfxParamPropParametricUIColour, crate::generic::sys_helpers::properties::get_doubles, ..., Double);
+make_property_resetter!(
+    reset_OfxParamPropParametricUIColour,
+    kOfxParamPropParametricUIColour
+);
+make_property_dimension_getter!(
+    get_dimension_OfxParamPropParametricUIColour,
+    kOfxParamPropParametricUIColour
+);

@@ -1,0 +1,145 @@
+make_property_setter!(
+    set_OfxInteractPropBackgroundColour,
+    kOfxInteractPropBackgroundColour,
+    crate::generic::sys_helpers::properties::set_doubles_3,
+    3,
+    Double
+);
+make_property_getter!(
+    get_OfxInteractPropBackgroundColour,
+    kOfxInteractPropBackgroundColour,
+    crate::generic::sys_helpers::properties::get_doubles_3,
+    3,
+    Double
+);
+make_property_resetter!(
+    reset_OfxInteractPropBackgroundColour,
+    kOfxInteractPropBackgroundColour
+);
+make_property_setter!(
+    set_OfxInteractPropBitDepth,
+    kOfxInteractPropBitDepth,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxInteractPropBitDepth,
+    kOfxInteractPropBitDepth,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxInteractPropBitDepth, kOfxInteractPropBitDepth);
+make_property_setter!(
+    set_OfxInteractPropHasAlpha,
+    kOfxInteractPropHasAlpha,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxInteractPropHasAlpha,
+    kOfxInteractPropHasAlpha,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxInteractPropHasAlpha, kOfxInteractPropHasAlpha);
+make_property_setter!(
+    set_OfxInteractPropPenPosition,
+    kOfxInteractPropPenPosition,
+    crate::generic::sys_helpers::properties::set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxInteractPropPenPosition,
+    kOfxInteractPropPenPosition,
+    crate::generic::sys_helpers::properties::get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxInteractPropPenPosition,
+    kOfxInteractPropPenPosition
+);
+make_property_setter!(
+    set_OfxInteractPropPenPressure,
+    kOfxInteractPropPenPressure,
+    crate::generic::sys_helpers::properties::set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxInteractPropPenPressure,
+    kOfxInteractPropPenPressure,
+    crate::generic::sys_helpers::properties::get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxInteractPropPenPressure,
+    kOfxInteractPropPenPressure
+);
+make_property_setter!(
+    set_OfxInteractPropPenViewportPosition,
+    kOfxInteractPropPenViewportPosition,
+    crate::generic::sys_helpers::properties::set_ints_2,
+    2,
+    Int
+);
+make_property_getter!(
+    get_OfxInteractPropPenViewportPosition,
+    kOfxInteractPropPenViewportPosition,
+    crate::generic::sys_helpers::properties::get_ints_2,
+    2,
+    Int
+);
+make_property_resetter!(
+    reset_OfxInteractPropPenViewportPosition,
+    kOfxInteractPropPenViewportPosition
+);
+make_property_setter!(
+    set_OfxInteractPropPixelScale,
+    kOfxInteractPropPixelScale,
+    crate::generic::sys_helpers::properties::set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxInteractPropPixelScale,
+    kOfxInteractPropPixelScale,
+    crate::generic::sys_helpers::properties::get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(reset_OfxInteractPropPixelScale, kOfxInteractPropPixelScale);
+make_property_setter!(set_OfxInteractPropSlaveToParam, kOfxInteractPropSlaveToParam, crate::generic::sys_helpers::properties::set_strings, ..., String);
+make_property_getter!(get_OfxInteractPropSlaveToParam, kOfxInteractPropSlaveToParam, crate::generic::sys_helpers::properties::get_strings, ..., String);
+make_property_resetter!(
+    reset_OfxInteractPropSlaveToParam,
+    kOfxInteractPropSlaveToParam
+);
+make_property_dimension_getter!(
+    get_dimension_OfxInteractPropSlaveToParam,
+    kOfxInteractPropSlaveToParam
+);
+make_property_setter!(
+    set_OfxInteractPropSuggestedColour,
+    kOfxInteractPropSuggestedColour,
+    crate::generic::sys_helpers::properties::set_doubles_3,
+    3,
+    Double
+);
+make_property_getter!(
+    get_OfxInteractPropSuggestedColour,
+    kOfxInteractPropSuggestedColour,
+    crate::generic::sys_helpers::properties::get_doubles_3,
+    3,
+    Double
+);
+make_property_resetter!(
+    reset_OfxInteractPropSuggestedColour,
+    kOfxInteractPropSuggestedColour
+);
