@@ -43,8 +43,22 @@ impl<T: Plugin> generic::sys_helpers::Plugin for T {
 }
 
 pub mod properties {
-    include!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/generated/code_from_cpp/sys_helpers_property_accessors_image_effect_v1.rs",
-    ));
+    //! The list of headers for properties included in this module is currently
+    //! maintained manually.
+
+    use crate::generic::sys_helpers::properties::include_accessors;
+    use crate::internal::sys_helpers_macros::{
+        make_property_dimension_getter, make_property_getter, make_property_resetter,
+        make_property_setter,
+    };
+
+    include_accessors!(colour);
+    include_accessors!(draw_suite);
+    include_accessors!(gpu_render);
+    include_accessors!(image_effect);
+    include_accessors!(interact);
+    include_accessors!(key_syms);
+    include_accessors!(old);
+    include_accessors!(param);
+    include_accessors!(parametric_param);
 }

@@ -1,0 +1,18 @@
+make_property_setter!(
+    set_OfxInteractPropDrawContext,
+    kOfxInteractPropDrawContext,
+    crate::generic::sys_helpers::properties::set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxInteractPropDrawContext,
+    kOfxInteractPropDrawContext,
+    crate::generic::sys_helpers::properties::get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(
+    reset_OfxInteractPropDrawContext,
+    kOfxInteractPropDrawContext
+);

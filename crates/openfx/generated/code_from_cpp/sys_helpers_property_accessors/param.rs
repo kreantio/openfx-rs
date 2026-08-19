@@ -1,0 +1,834 @@
+make_property_setter!(
+    set_OfxParamHostPropMaxPages,
+    kOfxParamHostPropMaxPages,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropMaxPages,
+    kOfxParamHostPropMaxPages,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamHostPropMaxPages, kOfxParamHostPropMaxPages);
+make_property_setter!(
+    set_OfxParamHostPropMaxParameters,
+    kOfxParamHostPropMaxParameters,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropMaxParameters,
+    kOfxParamHostPropMaxParameters,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropMaxParameters,
+    kOfxParamHostPropMaxParameters
+);
+make_property_setter!(
+    set_OfxParamHostPropPageRowColumnCount,
+    kOfxParamHostPropPageRowColumnCount,
+    crate::generic::sys_helpers::properties::set_ints_2,
+    2,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropPageRowColumnCount,
+    kOfxParamHostPropPageRowColumnCount,
+    crate::generic::sys_helpers::properties::get_ints_2,
+    2,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropPageRowColumnCount,
+    kOfxParamHostPropPageRowColumnCount
+);
+make_property_setter!(
+    set_OfxParamHostPropSupportsBooleanAnimation,
+    kOfxParamHostPropSupportsBooleanAnimation,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropSupportsBooleanAnimation,
+    kOfxParamHostPropSupportsBooleanAnimation,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropSupportsBooleanAnimation,
+    kOfxParamHostPropSupportsBooleanAnimation
+);
+make_property_setter!(
+    set_OfxParamHostPropSupportsChoiceAnimation,
+    kOfxParamHostPropSupportsChoiceAnimation,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropSupportsChoiceAnimation,
+    kOfxParamHostPropSupportsChoiceAnimation,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropSupportsChoiceAnimation,
+    kOfxParamHostPropSupportsChoiceAnimation
+);
+make_property_setter!(
+    set_OfxParamHostPropSupportsCustomAnimation,
+    kOfxParamHostPropSupportsCustomAnimation,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropSupportsCustomAnimation,
+    kOfxParamHostPropSupportsCustomAnimation,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropSupportsCustomAnimation,
+    kOfxParamHostPropSupportsCustomAnimation
+);
+make_property_setter!(
+    set_OfxParamHostPropSupportsCustomInteract,
+    kOfxParamHostPropSupportsCustomInteract,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropSupportsCustomInteract,
+    kOfxParamHostPropSupportsCustomInteract,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropSupportsCustomInteract,
+    kOfxParamHostPropSupportsCustomInteract
+);
+make_property_setter!(
+    set_OfxParamHostPropSupportsStrChoice,
+    kOfxParamHostPropSupportsStrChoice,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropSupportsStrChoice,
+    kOfxParamHostPropSupportsStrChoice,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropSupportsStrChoice,
+    kOfxParamHostPropSupportsStrChoice
+);
+make_property_setter!(
+    set_OfxParamHostPropSupportsStrChoiceAnimation,
+    kOfxParamHostPropSupportsStrChoiceAnimation,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropSupportsStrChoiceAnimation,
+    kOfxParamHostPropSupportsStrChoiceAnimation,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropSupportsStrChoiceAnimation,
+    kOfxParamHostPropSupportsStrChoiceAnimation
+);
+make_property_setter!(
+    set_OfxParamHostPropSupportsStringAnimation,
+    kOfxParamHostPropSupportsStringAnimation,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamHostPropSupportsStringAnimation,
+    kOfxParamHostPropSupportsStringAnimation,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamHostPropSupportsStringAnimation,
+    kOfxParamHostPropSupportsStringAnimation
+);
+make_property_setter!(
+    set_OfxParamPropAnimates,
+    kOfxParamPropAnimates,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropAnimates,
+    kOfxParamPropAnimates,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropAnimates, kOfxParamPropAnimates);
+make_property_setter!(
+    set_OfxParamPropCacheInvalidation,
+    kOfxParamPropCacheInvalidation,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropCacheInvalidation,
+    kOfxParamPropCacheInvalidation,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxParamPropCacheInvalidation,
+    kOfxParamPropCacheInvalidation
+);
+make_property_setter!(
+    set_OfxParamPropCanUndo,
+    kOfxParamPropCanUndo,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropCanUndo,
+    kOfxParamPropCanUndo,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropCanUndo, kOfxParamPropCanUndo);
+make_property_setter!(
+    set_OfxParamPropChoiceEnum,
+    kOfxParamPropChoiceEnum,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropChoiceEnum,
+    kOfxParamPropChoiceEnum,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropChoiceEnum, kOfxParamPropChoiceEnum);
+make_property_setter!(set_OfxParamPropChoiceOption, kOfxParamPropChoiceOption, crate::generic::sys_helpers::properties::set_strings, ..., String);
+make_property_getter!(get_OfxParamPropChoiceOption, kOfxParamPropChoiceOption, crate::generic::sys_helpers::properties::get_strings, ..., String);
+make_property_resetter!(reset_OfxParamPropChoiceOption, kOfxParamPropChoiceOption);
+make_property_dimension_getter!(
+    get_dimension_OfxParamPropChoiceOption,
+    kOfxParamPropChoiceOption
+);
+make_property_setter!(set_OfxParamPropChoiceOrder, kOfxParamPropChoiceOrder, crate::generic::sys_helpers::properties::set_ints, ..., Int);
+make_property_getter!(get_OfxParamPropChoiceOrder, kOfxParamPropChoiceOrder, crate::generic::sys_helpers::properties::get_ints, ..., Int);
+make_property_resetter!(reset_OfxParamPropChoiceOrder, kOfxParamPropChoiceOrder);
+make_property_dimension_getter!(
+    get_dimension_OfxParamPropChoiceOrder,
+    kOfxParamPropChoiceOrder
+);
+make_property_setter!(
+    set_OfxParamPropCustomInterpCallbackV1,
+    kOfxParamPropCustomInterpCallbackV1,
+    crate::generic::sys_helpers::properties::set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxParamPropCustomInterpCallbackV1,
+    kOfxParamPropCustomInterpCallbackV1,
+    crate::generic::sys_helpers::properties::get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(
+    reset_OfxParamPropCustomInterpCallbackV1,
+    kOfxParamPropCustomInterpCallbackV1
+);
+make_property_setter!(
+    set_OfxParamPropCustomValue,
+    kOfxParamPropCustomValue,
+    crate::generic::sys_helpers::properties::set_strings_2,
+    2,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropCustomValue,
+    kOfxParamPropCustomValue,
+    crate::generic::sys_helpers::properties::get_strings_2,
+    2,
+    String
+);
+make_property_resetter!(reset_OfxParamPropCustomValue, kOfxParamPropCustomValue);
+make_property_setter!(
+    set_OfxParamPropDataPtr,
+    kOfxParamPropDataPtr,
+    crate::generic::sys_helpers::properties::set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxParamPropDataPtr,
+    kOfxParamPropDataPtr,
+    crate::generic::sys_helpers::properties::get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(reset_OfxParamPropDataPtr, kOfxParamPropDataPtr);
+make_property_setter!(set_OfxParamPropDefault, kOfxParamPropDefault, crate::generic::sys_helpers::properties::set_ints, ..., Int);
+make_property_getter!(get_OfxParamPropDefault, kOfxParamPropDefault, crate::generic::sys_helpers::properties::get_ints, ..., Int);
+make_property_resetter!(reset_OfxParamPropDefault, kOfxParamPropDefault);
+make_property_dimension_getter!(get_dimension_OfxParamPropDefault, kOfxParamPropDefault);
+make_property_setter!(
+    set_OfxParamPropDefaultCoordinateSystem,
+    kOfxParamPropDefaultCoordinateSystem,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropDefaultCoordinateSystem,
+    kOfxParamPropDefaultCoordinateSystem,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxParamPropDefaultCoordinateSystem,
+    kOfxParamPropDefaultCoordinateSystem
+);
+make_property_setter!(
+    set_OfxParamPropDigits,
+    kOfxParamPropDigits,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropDigits,
+    kOfxParamPropDigits,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropDigits, kOfxParamPropDigits);
+make_property_setter!(
+    set_OfxParamPropDimensionLabel,
+    kOfxParamPropDimensionLabel,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropDimensionLabel,
+    kOfxParamPropDimensionLabel,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxParamPropDimensionLabel,
+    kOfxParamPropDimensionLabel
+);
+make_property_setter!(set_OfxParamPropDisplayMax, kOfxParamPropDisplayMax, crate::generic::sys_helpers::properties::set_ints, ..., Int);
+make_property_getter!(get_OfxParamPropDisplayMax, kOfxParamPropDisplayMax, crate::generic::sys_helpers::properties::get_ints, ..., Int);
+make_property_resetter!(reset_OfxParamPropDisplayMax, kOfxParamPropDisplayMax);
+make_property_dimension_getter!(
+    get_dimension_OfxParamPropDisplayMax,
+    kOfxParamPropDisplayMax
+);
+make_property_setter!(set_OfxParamPropDisplayMin, kOfxParamPropDisplayMin, crate::generic::sys_helpers::properties::set_ints, ..., Int);
+make_property_getter!(get_OfxParamPropDisplayMin, kOfxParamPropDisplayMin, crate::generic::sys_helpers::properties::get_ints, ..., Int);
+make_property_resetter!(reset_OfxParamPropDisplayMin, kOfxParamPropDisplayMin);
+make_property_dimension_getter!(
+    get_dimension_OfxParamPropDisplayMin,
+    kOfxParamPropDisplayMin
+);
+make_property_setter!(
+    set_OfxParamPropDoubleType,
+    kOfxParamPropDoubleType,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropDoubleType,
+    kOfxParamPropDoubleType,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxParamPropDoubleType, kOfxParamPropDoubleType);
+make_property_setter!(
+    set_OfxParamPropEnabled,
+    kOfxParamPropEnabled,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropEnabled,
+    kOfxParamPropEnabled,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropEnabled, kOfxParamPropEnabled);
+make_property_setter!(
+    set_OfxParamPropEvaluateOnChange,
+    kOfxParamPropEvaluateOnChange,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropEvaluateOnChange,
+    kOfxParamPropEvaluateOnChange,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamPropEvaluateOnChange,
+    kOfxParamPropEvaluateOnChange
+);
+make_property_setter!(
+    set_OfxParamPropGroupOpen,
+    kOfxParamPropGroupOpen,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropGroupOpen,
+    kOfxParamPropGroupOpen,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropGroupOpen, kOfxParamPropGroupOpen);
+make_property_setter!(
+    set_OfxParamPropHasHostOverlayHandle,
+    kOfxParamPropHasHostOverlayHandle,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropHasHostOverlayHandle,
+    kOfxParamPropHasHostOverlayHandle,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamPropHasHostOverlayHandle,
+    kOfxParamPropHasHostOverlayHandle
+);
+make_property_setter!(
+    set_OfxParamPropHint,
+    kOfxParamPropHint,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropHint,
+    kOfxParamPropHint,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxParamPropHint, kOfxParamPropHint);
+make_property_setter!(
+    set_OfxParamPropIncrement,
+    kOfxParamPropIncrement,
+    crate::generic::sys_helpers::properties::set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxParamPropIncrement,
+    kOfxParamPropIncrement,
+    crate::generic::sys_helpers::properties::get_double,
+    1,
+    Double
+);
+make_property_resetter!(reset_OfxParamPropIncrement, kOfxParamPropIncrement);
+make_property_setter!(
+    set_OfxParamPropInteractMinimumSize,
+    kOfxParamPropInteractMinimumSize,
+    crate::generic::sys_helpers::properties::set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxParamPropInteractMinimumSize,
+    kOfxParamPropInteractMinimumSize,
+    crate::generic::sys_helpers::properties::get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxParamPropInteractMinimumSize,
+    kOfxParamPropInteractMinimumSize
+);
+make_property_setter!(
+    set_OfxParamPropInteractPreferedSize,
+    kOfxParamPropInteractPreferedSize,
+    crate::generic::sys_helpers::properties::set_ints_2,
+    2,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropInteractPreferedSize,
+    kOfxParamPropInteractPreferedSize,
+    crate::generic::sys_helpers::properties::get_ints_2,
+    2,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamPropInteractPreferedSize,
+    kOfxParamPropInteractPreferedSize
+);
+make_property_setter!(
+    set_OfxParamPropInteractSize,
+    kOfxParamPropInteractSize,
+    crate::generic::sys_helpers::properties::set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxParamPropInteractSize,
+    kOfxParamPropInteractSize,
+    crate::generic::sys_helpers::properties::get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(reset_OfxParamPropInteractSize, kOfxParamPropInteractSize);
+make_property_setter!(
+    set_OfxParamPropInteractSizeAspect,
+    kOfxParamPropInteractSizeAspect,
+    crate::generic::sys_helpers::properties::set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxParamPropInteractSizeAspect,
+    kOfxParamPropInteractSizeAspect,
+    crate::generic::sys_helpers::properties::get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxParamPropInteractSizeAspect,
+    kOfxParamPropInteractSizeAspect
+);
+make_property_setter!(
+    set_OfxParamPropInteractV1,
+    kOfxParamPropInteractV1,
+    crate::generic::sys_helpers::properties::set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxParamPropInteractV1,
+    kOfxParamPropInteractV1,
+    crate::generic::sys_helpers::properties::get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(reset_OfxParamPropInteractV1, kOfxParamPropInteractV1);
+make_property_setter!(
+    set_OfxParamPropInterpolationAmount,
+    kOfxParamPropInterpolationAmount,
+    crate::generic::sys_helpers::properties::set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxParamPropInterpolationAmount,
+    kOfxParamPropInterpolationAmount,
+    crate::generic::sys_helpers::properties::get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxParamPropInterpolationAmount,
+    kOfxParamPropInterpolationAmount
+);
+make_property_setter!(
+    set_OfxParamPropInterpolationTime,
+    kOfxParamPropInterpolationTime,
+    crate::generic::sys_helpers::properties::set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxParamPropInterpolationTime,
+    kOfxParamPropInterpolationTime,
+    crate::generic::sys_helpers::properties::get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxParamPropInterpolationTime,
+    kOfxParamPropInterpolationTime
+);
+make_property_setter!(
+    set_OfxParamPropIsAnimating,
+    kOfxParamPropIsAnimating,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropIsAnimating,
+    kOfxParamPropIsAnimating,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropIsAnimating, kOfxParamPropIsAnimating);
+make_property_setter!(
+    set_OfxParamPropIsAutoKeying,
+    kOfxParamPropIsAutoKeying,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropIsAutoKeying,
+    kOfxParamPropIsAutoKeying,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropIsAutoKeying, kOfxParamPropIsAutoKeying);
+make_property_setter!(set_OfxParamPropMax, kOfxParamPropMax, crate::generic::sys_helpers::properties::set_ints, ..., Int);
+make_property_getter!(get_OfxParamPropMax, kOfxParamPropMax, crate::generic::sys_helpers::properties::get_ints, ..., Int);
+make_property_resetter!(reset_OfxParamPropMax, kOfxParamPropMax);
+make_property_dimension_getter!(get_dimension_OfxParamPropMax, kOfxParamPropMax);
+make_property_setter!(set_OfxParamPropMin, kOfxParamPropMin, crate::generic::sys_helpers::properties::set_ints, ..., Int);
+make_property_getter!(get_OfxParamPropMin, kOfxParamPropMin, crate::generic::sys_helpers::properties::get_ints, ..., Int);
+make_property_resetter!(reset_OfxParamPropMin, kOfxParamPropMin);
+make_property_dimension_getter!(get_dimension_OfxParamPropMin, kOfxParamPropMin);
+make_property_setter!(set_OfxParamPropPageChild, kOfxParamPropPageChild, crate::generic::sys_helpers::properties::set_strings, ..., String);
+make_property_getter!(get_OfxParamPropPageChild, kOfxParamPropPageChild, crate::generic::sys_helpers::properties::get_strings, ..., String);
+make_property_resetter!(reset_OfxParamPropPageChild, kOfxParamPropPageChild);
+make_property_dimension_getter!(get_dimension_OfxParamPropPageChild, kOfxParamPropPageChild);
+make_property_setter!(
+    set_OfxParamPropParent,
+    kOfxParamPropParent,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropParent,
+    kOfxParamPropParent,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxParamPropParent, kOfxParamPropParent);
+make_property_setter!(
+    set_OfxParamPropPersistant,
+    kOfxParamPropPersistant,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropPersistant,
+    kOfxParamPropPersistant,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropPersistant, kOfxParamPropPersistant);
+make_property_setter!(
+    set_OfxParamPropPluginMayWrite,
+    kOfxParamPropPluginMayWrite,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropPluginMayWrite,
+    kOfxParamPropPluginMayWrite,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamPropPluginMayWrite,
+    kOfxParamPropPluginMayWrite
+);
+make_property_setter!(
+    set_OfxParamPropScriptName,
+    kOfxParamPropScriptName,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropScriptName,
+    kOfxParamPropScriptName,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxParamPropScriptName, kOfxParamPropScriptName);
+make_property_setter!(
+    set_OfxParamPropSecret,
+    kOfxParamPropSecret,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropSecret,
+    kOfxParamPropSecret,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxParamPropSecret, kOfxParamPropSecret);
+make_property_setter!(
+    set_OfxParamPropShowTimeMarker,
+    kOfxParamPropShowTimeMarker,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropShowTimeMarker,
+    kOfxParamPropShowTimeMarker,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamPropShowTimeMarker,
+    kOfxParamPropShowTimeMarker
+);
+make_property_setter!(
+    set_OfxParamPropStringFilePathExists,
+    kOfxParamPropStringFilePathExists,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropStringFilePathExists,
+    kOfxParamPropStringFilePathExists,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamPropStringFilePathExists,
+    kOfxParamPropStringFilePathExists
+);
+make_property_setter!(
+    set_OfxParamPropStringMode,
+    kOfxParamPropStringMode,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropStringMode,
+    kOfxParamPropStringMode,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxParamPropStringMode, kOfxParamPropStringMode);
+make_property_setter!(
+    set_OfxParamPropType,
+    kOfxParamPropType,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxParamPropType,
+    kOfxParamPropType,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxParamPropType, kOfxParamPropType);
+make_property_setter!(set_OfxPluginPropParamPageOrder, kOfxPluginPropParamPageOrder, crate::generic::sys_helpers::properties::set_strings, ..., String);
+make_property_getter!(get_OfxPluginPropParamPageOrder, kOfxPluginPropParamPageOrder, crate::generic::sys_helpers::properties::get_strings, ..., String);
+make_property_resetter!(
+    reset_OfxPluginPropParamPageOrder,
+    kOfxPluginPropParamPageOrder
+);
+make_property_dimension_getter!(
+    get_dimension_OfxPluginPropParamPageOrder,
+    kOfxPluginPropParamPageOrder
+);
+make_property_setter!(
+    set_OfxPropParamSetNeedsSyncing,
+    kOfxPropParamSetNeedsSyncing,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxPropParamSetNeedsSyncing,
+    kOfxPropParamSetNeedsSyncing,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxPropParamSetNeedsSyncing,
+    kOfxPropParamSetNeedsSyncing
+);
+make_property_setter!(
+    set_OfxParamPropUseHostOverlayHandle,
+    kOfxParamPropUseHostOverlayHandle,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxParamPropUseHostOverlayHandle,
+    kOfxParamPropUseHostOverlayHandle,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxParamPropUseHostOverlayHandle,
+    kOfxParamPropUseHostOverlayHandle
+);
