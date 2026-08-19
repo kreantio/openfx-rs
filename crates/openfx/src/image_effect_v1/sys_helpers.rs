@@ -45,6 +45,6 @@ impl<T: Plugin> generic::sys_helpers::Plugin for T {
 pub mod properties {
     include!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/generated/code_from_cpp/sys_helpers_property_accessors.rs",
+        "/generated/code_from_cpp/sys_helpers_property_accessors_image_effect_v1.rs",
     ));
 }
