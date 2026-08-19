@@ -87,6 +87,11 @@ pub macro export_plugins($plugins_type:ty) {
 }
 
 pub mod properties {
+    include!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/generated/code_from_cpp/sys_helpers_property_accessors_generic.rs",
+    ));
+
     /// ## SAFETY
     ///
     /// - `suite` must be a valid pointer to

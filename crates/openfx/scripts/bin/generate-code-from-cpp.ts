@@ -56,13 +56,26 @@ async function main(args: Args) {
     path.join(args["output-code-from-cpp"], "low_enums.rs"),
     genLowEnums(propsMetadata, codegenConfig),
   );
-  await Deno.writeTextFile(
-    path.join(
-      args["output-code-from-cpp"],
-      "sys_helpers_property_accessors.rs",
-    ),
-    genSysHelpersPropertyAccessors(propsMetadata, codegenConfig),
-  );
+  {
+    const { generic, image_effect_v1 } = genSysHelpersPropertyAccessors(
+      propsMetadata,
+      codegenConfig,
+    );
+    await Deno.writeTextFile(
+      path.join(
+        args["output-code-from-cpp"],
+        "sys_helpers_property_accessors_generic.rs",
+      ),
+      generic,
+    );
+    await Deno.writeTextFile(
+      path.join(
+        args["output-code-from-cpp"],
+        "sys_helpers_property_accessors_image_effect_v1.rs",
+      ),
+      image_effect_v1,
+    );
+  }
 }
 
 await main(doParseArgs(Deno.args) as Args);

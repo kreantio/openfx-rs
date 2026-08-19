@@ -51,7 +51,7 @@ pub macro make_property_setter_for_type {
             }
         }
     },
-    (priv $name:ident, $n:literal, $type:ident) => {
+    (pub(crate) $name:ident, $n:literal, $type:ident) => {
         /// ## SAFETY
         ///
         /// - `suite` must be a valid pointer to
@@ -61,7 +61,7 @@ pub macro make_property_setter_for_type {
         /// - The type of `property`'s value must match the type this function
         ///   is specialized for.
         #[inline(always)]
-        unsafe fn $name(
+        pub(crate) unsafe fn $name(
             suite: *const crate::sys_umbrella::OfxPropertySuiteV1,
             handle: crate::sys_umbrella::OfxPropertySetHandle,
             property: *const std::os::raw::c_char,
@@ -133,7 +133,7 @@ pub macro make_property_getter_for_type {
             }
         }
     },
-    (priv $name:ident, $n:literal, $type:ident) => {
+    (pub(crate) $name:ident, $n:literal, $type:ident) => {
         /// ## SAFETY
         ///
         /// - `suite` must be a valid pointer to
@@ -143,7 +143,7 @@ pub macro make_property_getter_for_type {
         /// - The type of `property`'s value must match the type this function
         ///   is specialized for.
         #[inline(always)]
-        unsafe fn $name(
+        pub(crate) unsafe fn $name(
             suite: *const crate::sys_umbrella::OfxPropertySuiteV1,
             handle: crate::sys_umbrella::OfxPropertySetHandle,
             property: *const std::os::raw::c_char,
@@ -189,7 +189,7 @@ pub macro make_property_getter_for_type {
 }
 
 pub macro make_property_setter {
-    (@, $name:ident, $key_name:ident, $fn_name:ident, $value_type:ty, $type:ident) => {
+    (@, $name:ident, $key_name:ident, $fn_name:path, $value_type:ty, $type:ident) => {
         /// ## SAFETY
         ///
         /// - `suite` must be a valid pointer to
@@ -216,19 +216,19 @@ pub macro make_property_setter {
             }
         }
     },
-    ($name:ident, $key_name:ident, $fn_name:ident, 1, $type:ident) => {
+    ($name:ident, $key_name:ident, $fn_name:path, 1, $type:ident) => {
         make_property_setter!(@, $name, $key_name, $fn_name, type_ident_to_type!($type, set), $type);
     },
-    ($name:ident, $key_name:ident, $fn_name:ident, $n:literal, $type:ident) => {
+    ($name:ident, $key_name:ident, $fn_name:path, $n:literal, $type:ident) => {
         make_property_setter!(@, $name, $key_name, $fn_name, [type_ident_to_type!($type, set); $n], $type);
     },
-    ($name:ident, $key_name:ident, $fn_name:ident, ..., $type:ident) => {
+    ($name:ident, $key_name:ident, $fn_name:path, ..., $type:ident) => {
         make_property_setter!(@, $name, $key_name, $fn_name, &[type_ident_to_type!($type, set)], $type);
     },
 }
 
 pub macro make_property_getter {
-    (@fixed, $name:ident, $key_name:ident, $fn_name:ident, $value_type:ty, $type:ident) => {
+    (@fixed, $name:ident, $key_name:ident, $fn_name:path, $value_type:ty, $type:ident) => {
         /// ## SAFETY
         ///
         /// - `suite` must be a valid pointer to
@@ -253,7 +253,7 @@ pub macro make_property_getter {
             }
         }
     },
-    (@..., $name:ident, $key_name:ident, $fn_name:ident, $value_type:ty, $type:ident) => {
+    (@..., $name:ident, $key_name:ident, $fn_name:path, $value_type:ty, $type:ident) => {
         /// ## SAFETY
         ///
         /// - `suite` must be a valid pointer to
@@ -280,13 +280,13 @@ pub macro make_property_getter {
             }
         }
     },
-    ($name:ident, $key_name:ident, $fn_name:ident, 1, $type:ident) => {
+    ($name:ident, $key_name:ident, $fn_name:path, 1, $type:ident) => {
         make_property_getter!(@fixed, $name, $key_name, $fn_name, type_ident_to_type!($type, get), $type);
     },
-    ($name:ident, $key_name:ident, $fn_name:ident, $n:literal, $type:ident) => {
+    ($name:ident, $key_name:ident, $fn_name:path, $n:literal, $type:ident) => {
         make_property_getter!(@fixed, $name, $key_name, $fn_name, [type_ident_to_type!($type, get); $n], $type);
     },
-    ($name:ident, $key_name:ident, $fn_name:ident, ..., $type:ident) => {
+    ($name:ident, $key_name:ident, $fn_name:path, ..., $type:ident) => {
         make_property_getter!(@..., $name, $key_name, $fn_name, [type_ident_to_type!($type, get)], $type);
     },
 }

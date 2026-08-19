@@ -7,18 +7,26 @@ import {
 export function genSysHelpersPropertyAccessors(
   fr: FinalResultOfxPropsMetadata,
   cfg: CodegenConfig,
-): string {
-  const parts: string[] = [];
+): { generic: string; image_effect_v1: string } {
+  const partsGeneric: string[] = [];
+  const partsImageEffectV1: string[] = [];
 
-  parts.push(
-    "use crate::internal::sys_helpers_macros::{make_property_setter_for_type, make_property_getter_for_type, make_property_setter, make_property_getter, make_property_resetter, make_property_dimension_getter};",
+  partsGeneric.push(
+    "use crate::internal::sys_helpers_macros::{make_property_setter_for_type, make_property_getter_for_type};",
   );
 
-  genAccessorsForTypesWithDimensions(parts, fr);
+  partsImageEffectV1.push(
+    "use crate::internal::sys_helpers_macros::{make_property_setter, make_property_getter, make_property_resetter, make_property_dimension_getter};",
+  );
 
-  genAccessors(parts, fr, cfg);
+  genAccessorsForTypesWithDimensions(partsGeneric, fr);
 
-  return parts.join("\n");
+  genAccessors(partsImageEffectV1, fr, cfg);
+
+  return {
+    generic: partsGeneric.join("\n"),
+    image_effect_v1: partsImageEffectV1.join("\n"),
+  };
 }
 
 function genAccessorsForTypesWithDimensions(
@@ -54,9 +62,9 @@ function genAccessorsForTypesWithDimensions(
     const ds = [...ds_].toSorted();
 
     for (const d of ds) {
-      const fnNameS = getFnName("set", ty, d);
-      const fnNameG = getFnName("get", ty, d);
-      const vis = d > 1 ? "priv" : "pub";
+      const fnNameS = getFnName("set", ty, d, false);
+      const fnNameG = getFnName("get", ty, d, false);
+      const vis = d > 1 ? "pub(crate)" : "pub";
       if (d === 0) {
         parts.push(...[
           `make_property_setter_for_type!(pub ${fnNameS}, ..., ${ty});`,
@@ -94,8 +102,8 @@ function genAccessors(
       v_type = "Int";
     }
 
-    const fnNameS = getFnName("set", v_type, v.dimension);
-    const fnNameG = getFnName("get", v_type, v.dimension);
+    const fnNameS = getFnName("set", v_type, v.dimension, true);
+    const fnNameG = getFnName("get", v_type, v.dimension, true);
     if (v.dimension === 0) {
       parts.push(...[
         `make_property_setter!(set_${k}, k${k}, ${fnNameS}, ..., ${v_type});`,
@@ -119,13 +127,20 @@ function genAccessors(
   }
 }
 
-function getFnName(getOrSet: "get" | "set", ty: string, d: number): string {
+function getFnName(
+  getOrSet: "get" | "set",
+  ty: string,
+  d: number,
+  withPath: boolean,
+): string {
+  const path = withPath ? "crate::generic::sys_helpers::properties::" : "";
+
   const tyLower = ty.toLowerCase();
   if (d === 0) {
-    return `${getOrSet}_${tyLower}s`;
+    return `${path}${getOrSet}_${tyLower}s`;
   } else if (d === 1) {
-    return `${getOrSet}_${tyLower}`;
+    return `${path}${getOrSet}_${tyLower}`;
   } else {
-    return `${getOrSet}_${tyLower}s_${d}`;
+    return `${path}${getOrSet}_${tyLower}s_${d}`;
   }
 }
