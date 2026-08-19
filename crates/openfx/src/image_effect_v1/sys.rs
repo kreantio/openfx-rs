@@ -6,7 +6,7 @@
 #![allow(unused)]
 #![allow(clippy::all)]
 
-pub use crate::generic::sys::*;
+use crate::generic::sys::*;
 
 include_c_bindings!(colour);
 include_c_bindings!(dialog);
