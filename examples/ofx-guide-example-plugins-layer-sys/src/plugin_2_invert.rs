@@ -4,26 +4,35 @@ use std::{
 };
 
 use openfx::{
-    generic::sys::core::{
-        OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, OfxTime, kOfxActionCreateInstance,
-        kOfxActionDescribe, kOfxActionDestroyInstance, kOfxActionLoad, kOfxActionUnload,
-        kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxPropLabel, kOfxPropTime,
-        kOfxStatErrUnsupported, kOfxStatFailed, kOfxStatOK, kOfxStatReplyDefault,
+    generic::{
+        sys::core::{
+            OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, OfxTime, kOfxActionCreateInstance,
+            kOfxActionDescribe, kOfxActionDestroyInstance, kOfxActionLoad, kOfxActionUnload,
+            kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxStatErrUnsupported,
+            kOfxStatFailed, kOfxStatOK, kOfxStatReplyDefault,
+        },
+        sys_helpers::properties::{get_OfxPropTime, set_OfxPropLabel},
     },
     image_effect_v1::{
         sys::image_effect::{
             OfxImageEffectHandle, kOfxImageComponentAlpha, kOfxImageComponentRGB,
             kOfxImageComponentRGBA, kOfxImageEffectActionDescribeInContext,
             kOfxImageEffectActionRender, kOfxImageEffectContextFilter,
-            kOfxImageEffectPluginPropGrouping, kOfxImageEffectPluginPropHostFrameThreading,
-            kOfxImageEffectPluginRenderThreadSafety, kOfxImageEffectPropComponents,
-            kOfxImageEffectPropContext, kOfxImageEffectPropPixelDepth,
-            kOfxImageEffectPropRenderWindow, kOfxImageEffectPropSupportedComponents,
-            kOfxImageEffectPropSupportedContexts, kOfxImageEffectPropSupportedPixelDepths,
-            kOfxImageEffectRenderFullySafe, kOfxImagePropBounds, kOfxImagePropData,
-            kOfxImagePropRowBytes,
+            kOfxImageEffectRenderFullySafe,
         },
-        sys_helpers::Plugin,
+        sys_helpers::{
+            Plugin,
+            properties::{
+                get_OfxImageEffectPropComponents, get_OfxImageEffectPropContext,
+                get_OfxImageEffectPropPixelDepth, get_OfxImageEffectPropRenderWindow,
+                get_OfxImagePropBounds, get_OfxImagePropData, get_OfxImagePropRowBytes,
+                set_OfxImageEffectPluginPropGrouping,
+                set_OfxImageEffectPluginPropHostFrameThreading,
+                set_OfxImageEffectPluginRenderThreadSafety,
+                set_OfxImageEffectPropSupportedComponents, set_OfxImageEffectPropSupportedContexts,
+                set_OfxImageEffectPropSupportedPixelDepths,
+            },
+        },
     },
 };
 
@@ -142,33 +151,34 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> Result<(), OfxStatus> {
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let descriptor_helper = unsafe { data.make_property_set_helper_for_image_effect(descriptor) }?;
+    let s_prop = data.inner().property_suite;
 
-    descriptor_helper.prop_set_string(kOfxPropLabel, 0, PLUGIN_2_INVERT_LABEL)?;
-    descriptor_helper.prop_set_string(kOfxImageEffectPluginPropGrouping, 0, PLUGINS_GROUPING)?;
-    descriptor_helper.prop_set_string(
-        kOfxImageEffectPropSupportedContexts,
-        0,
-        kOfxImageEffectContextFilter,
-    )?;
+    let props = unsafe { data.get_property_set_from_image_effect(descriptor) }?;
 
-    for (i, bp) in [kOfxBitDepthFloat, kOfxBitDepthShort, kOfxBitDepthByte]
-        .iter()
-        .enumerate()
-    {
-        descriptor_helper.prop_set_string(
-            kOfxImageEffectPropSupportedPixelDepths,
-            i as c_int,
-            bp,
+    unsafe {
+        set_OfxPropLabel(s_prop, props, PLUGIN_2_INVERT_LABEL.as_ptr())?;
+        set_OfxImageEffectPluginPropGrouping(s_prop, props, PLUGINS_GROUPING.as_ptr())?;
+        set_OfxImageEffectPropSupportedContexts(
+            s_prop,
+            props,
+            &[kOfxImageEffectContextFilter.as_ptr()],
         )?;
+        set_OfxImageEffectPropSupportedPixelDepths(
+            s_prop,
+            props,
+            &[
+                kOfxBitDepthFloat.as_ptr(),
+                kOfxBitDepthShort.as_ptr(),
+                kOfxBitDepthByte.as_ptr(),
+            ],
+        )?;
+        set_OfxImageEffectPluginRenderThreadSafety(
+            s_prop,
+            props,
+            kOfxImageEffectRenderFullySafe.as_ptr(),
+        )?;
+        set_OfxImageEffectPluginPropHostFrameThreading(s_prop, props, 1)?;
     }
-
-    descriptor_helper.prop_set_string(
-        kOfxImageEffectPluginRenderThreadSafety,
-        0,
-        kOfxImageEffectRenderFullySafe,
-    )?;
-    descriptor_helper.prop_set_int(kOfxImageEffectPluginPropHostFrameThreading, 0, 1)?;
 
     Ok(())
 }
@@ -180,34 +190,28 @@ fn action_describe_in_context(
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let property_suite_helper = data.property_suite_helper();
+    let s_prop = data.inner().property_suite;
     let image_effect_suite_helper = data.image_effect_suite_helper();
 
-    let in_args_helper = unsafe { property_suite_helper.make_property_set_helper(in_args) };
-
-    let context = in_args_helper.prop_get_string(kOfxImageEffectPropContext, 0)?;
-    if context != Some(kOfxImageEffectContextFilter) {
+    let context = unsafe { get_OfxImageEffectPropContext(s_prop, in_args) }?;
+    if context.is_null() || unsafe { CStr::from_ptr(context) } != kOfxImageEffectContextFilter {
         return Err(kOfxStatErrUnsupported);
     }
 
     for name in [c"Output", c"Source"] {
         let props = unsafe { image_effect_suite_helper.clip_define(descriptor, name) }?;
-        let props_helper = unsafe { property_suite_helper.make_property_set_helper(props) };
 
-        for (i, comp) in [
-            kOfxImageComponentRGBA,
-            kOfxImageComponentAlpha,
-            kOfxImageComponentRGB,
-        ]
-        .iter()
-        .enumerate()
-        {
-            props_helper.prop_set_string(
-                kOfxImageEffectPropSupportedComponents,
-                i as c_int,
-                comp,
-            )?;
-        }
+        (unsafe {
+            set_OfxImageEffectPropSupportedComponents(
+                s_prop,
+                props,
+                &[
+                    kOfxImageComponentRGBA.as_ptr(),
+                    kOfxImageComponentAlpha.as_ptr(),
+                    kOfxImageComponentRGB.as_ptr(),
+                ],
+            )
+        })?;
     }
 
     Ok(())
@@ -248,28 +252,20 @@ fn pixel_processing<T>(
 where
     T: std::ops::Sub<Output = T> + Copy + Default,
 {
-    let property_suite_helper = data.property_suite_helper();
+    let s_prop = data.inner().property_suite;
 
-    let output_img_helper = unsafe { property_suite_helper.make_property_set_helper(output_img) };
-    let dst_row_bytes = output_img_helper.prop_get_int(kOfxImagePropRowBytes, 0)?;
-    let dst_bounds = {
-        let mut dst_bounds: [c_int; 4] = [0; 4];
-        output_img_helper.prop_get_int_n(kOfxImagePropBounds, &mut dst_bounds)?;
-        rect_i_from_array(&dst_bounds)
-    };
-    let dst_ptr = output_img_helper.prop_get_pointer(kOfxImagePropData, 0)? as *mut T;
+    let dst_row_bytes = unsafe { get_OfxImagePropRowBytes(s_prop, output_img) }?;
+    let dst_bounds = unsafe { get_OfxImagePropBounds(s_prop, output_img) }?;
+    let dst_bounds = rect_i_from_array(&dst_bounds);
+    let dst_ptr = unsafe { get_OfxImagePropData(s_prop, output_img) }? as *mut T;
     if dst_ptr.is_null() {
         return Err(kOfxStatFailed);
     }
 
-    let source_img_helper = unsafe { property_suite_helper.make_property_set_helper(source_img) };
-    let src_row_bytes = source_img_helper.prop_get_int(kOfxImagePropRowBytes, 0)?;
-    let src_bounds = {
-        let mut src_bounds: [c_int; 4] = [0; 4];
-        source_img_helper.prop_get_int_n(kOfxImagePropBounds, &mut src_bounds)?;
-        rect_i_from_array(&src_bounds)
-    };
-    let src_ptr = source_img_helper.prop_get_pointer(kOfxImagePropData, 0)? as *mut T;
+    let src_row_bytes = unsafe { get_OfxImagePropRowBytes(s_prop, source_img) }?;
+    let src_bounds = unsafe { get_OfxImagePropBounds(s_prop, source_img) }?;
+    let src_bounds = rect_i_from_array(&src_bounds);
+    let src_ptr = unsafe { get_OfxImagePropData(s_prop, source_img) }? as *mut T;
     if src_ptr.is_null() {
         return Err(kOfxStatFailed);
     }
@@ -340,17 +336,12 @@ fn action_render(
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let property_suite_helper = data.property_suite_helper();
+    let s_prop = data.inner().property_suite;
     let image_effect_suite_helper = data.image_effect_suite_helper();
 
-    let in_args_helper = unsafe { property_suite_helper.make_property_set_helper(in_args) };
-
-    let time: OfxTime = in_args_helper.prop_get_double(kOfxPropTime, 0)?;
-    let render_window = {
-        let mut render_window: [c_int; 4] = [0; 4];
-        in_args_helper.prop_get_int_n(kOfxImageEffectPropRenderWindow, &mut render_window)?;
-        rect_i_from_array(&render_window)
-    };
+    let time: OfxTime = unsafe { get_OfxPropTime(s_prop, in_args) }?;
+    let render_window = unsafe { get_OfxImageEffectPropRenderWindow(s_prop, in_args) }?;
+    let render_window = rect_i_from_array(&render_window);
 
     let output_clip = unsafe { image_effect_suite_helper.clip_get_handle(instance, c"Output") }?;
     let source_clip = unsafe { image_effect_suite_helper.clip_get_handle(instance, c"Source") }?;
@@ -371,22 +362,25 @@ fn action_render(
         output_img: OfxPropertySetHandle,
         render_window: OfxRectI,
     ) -> Result<(), OfxStatus> {
-        let property_suite_helper = data.property_suite_helper();
+        let s_prop = data.inner().property_suite;
 
-        let output_img_helper =
-            unsafe { property_suite_helper.make_property_set_helper(output_img) };
-
-        let components = output_img_helper.prop_get_string(kOfxImageEffectPropComponents, 0)?;
-        let n_comps = match components {
-            Some(c) if c == kOfxImageComponentRGBA => 4,
-            Some(c) if c == kOfxImageComponentRGB => 3,
-            Some(c) if c == kOfxImageComponentAlpha => 1,
+        let components = unsafe { get_OfxImageEffectPropComponents(s_prop, output_img) }?;
+        if components.is_null() {
+            return Err(kOfxStatErrUnsupported);
+        }
+        let n_comps = match unsafe { CStr::from_ptr(components) } {
+            c if c == kOfxImageComponentRGBA => 4,
+            c if c == kOfxImageComponentRGB => 3,
+            c if c == kOfxImageComponentAlpha => 1,
             _ => return Err(kOfxStatErrUnsupported),
         };
 
-        let data_type = output_img_helper.prop_get_string(kOfxImageEffectPropPixelDepth, 0)?;
-        match data_type {
-            Some(c) if c == kOfxBitDepthByte => pixel_processing(
+        let data_type = unsafe { get_OfxImageEffectPropPixelDepth(s_prop, output_img) }?;
+        if data_type.is_null() {
+            return Err(kOfxStatErrUnsupported);
+        }
+        match unsafe { CStr::from_ptr(data_type) } {
+            c if c == kOfxBitDepthByte => pixel_processing(
                 255u8,
                 data,
                 instance,
@@ -395,7 +389,7 @@ fn action_render(
                 render_window,
                 n_comps,
             ),
-            Some(c) if c == kOfxBitDepthShort => pixel_processing(
+            c if c == kOfxBitDepthShort => pixel_processing(
                 65535u16,
                 data,
                 instance,
@@ -404,7 +398,7 @@ fn action_render(
                 render_window,
                 n_comps,
             ),
-            Some(c) if c == kOfxBitDepthFloat => pixel_processing(
+            c if c == kOfxBitDepthFloat => pixel_processing(
                 1.0f32,
                 data,
                 instance,

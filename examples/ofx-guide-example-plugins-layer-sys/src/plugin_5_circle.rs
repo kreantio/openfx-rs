@@ -6,13 +6,18 @@ use std::{
 };
 
 use openfx::{
-    generic::sys::core::{
-        OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, OfxTime, kOfxActionCreateInstance,
-        kOfxActionDescribe, kOfxActionDestroyInstance, kOfxActionLoad, kOfxActionUnload,
-        kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxPropAPIVersion,
-        kOfxPropInstanceData, kOfxPropLabel, kOfxPropName, kOfxPropTime,
-        kOfxStatErrMissingHostFeature, kOfxStatErrUnsupported, kOfxStatFailed, kOfxStatOK,
-        kOfxStatReplyDefault,
+    generic::{
+        sys::core::{
+            OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, OfxTime, kOfxActionCreateInstance,
+            kOfxActionDescribe, kOfxActionDestroyInstance, kOfxActionLoad, kOfxActionUnload,
+            kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxPropAPIVersion,
+            kOfxStatErrMissingHostFeature, kOfxStatErrUnsupported, kOfxStatFailed, kOfxStatOK,
+            kOfxStatReplyDefault,
+        },
+        sys_helpers::properties::{
+            get_OfxPropAPIVersion, get_OfxPropInstanceData, get_OfxPropTime,
+            get_property_dimension, set_OfxPropInstanceData, set_OfxPropLabel, set_OfxPropName,
+        },
     },
     image_effect_v1::{
         sys::{
@@ -21,24 +26,30 @@ use openfx::{
                 kOfxImageComponentRGB, kOfxImageComponentRGBA,
                 kOfxImageEffectActionDescribeInContext, kOfxImageEffectActionGetRegionOfDefinition,
                 kOfxImageEffectActionIsIdentity, kOfxImageEffectActionRender,
-                kOfxImageEffectContextFilter, kOfxImageEffectPluginPropGrouping,
-                kOfxImageEffectPluginPropHostFrameThreading,
-                kOfxImageEffectPluginRenderThreadSafety, kOfxImageEffectPropContext,
-                kOfxImageEffectPropRegionOfDefinition, kOfxImageEffectPropRenderScale,
-                kOfxImageEffectPropRenderWindow, kOfxImageEffectPropSupportedComponents,
-                kOfxImageEffectPropSupportedContexts, kOfxImageEffectPropSupportedPixelDepths,
-                kOfxImageEffectPropSupportsMultiResolution, kOfxImageEffectRenderFullySafe,
+                kOfxImageEffectContextFilter, kOfxImageEffectRenderFullySafe,
             },
             param::{
                 OfxParamHandle, kOfxParamCoordinatesNormalised, kOfxParamDoubleTypeX,
-                kOfxParamDoubleTypeXYAbsolute, kOfxParamPropDefault,
-                kOfxParamPropDefaultCoordinateSystem, kOfxParamPropDisplayMax,
-                kOfxParamPropDisplayMin, kOfxParamPropDoubleType, kOfxParamPropHint,
-                kOfxParamPropMin, kOfxParamTypeBoolean, kOfxParamTypeDouble, kOfxParamTypeDouble2D,
-                kOfxParamTypeRGBA,
+                kOfxParamDoubleTypeXYAbsolute, kOfxParamTypeBoolean, kOfxParamTypeDouble,
+                kOfxParamTypeDouble2D, kOfxParamTypeRGBA,
             },
         },
-        sys_helpers::Plugin,
+        sys_helpers::{
+            Plugin,
+            properties::{
+                get_OfxImageEffectPropContext, get_OfxImageEffectPropRenderScale,
+                get_OfxImageEffectPropRenderWindow, get_OfxImageEffectPropSupportsMultiResolution,
+                set_OfxImageEffectPluginPropGrouping,
+                set_OfxImageEffectPluginPropHostFrameThreading,
+                set_OfxImageEffectPluginRenderThreadSafety,
+                set_OfxImageEffectPropRegionOfDefinition,
+                set_OfxImageEffectPropSupportedComponents, set_OfxImageEffectPropSupportedContexts,
+                set_OfxImageEffectPropSupportedPixelDepths, set_OfxParamPropDefault_Double,
+                set_OfxParamPropDefault_Int, set_OfxParamPropDefaultCoordinateSystem,
+                set_OfxParamPropDisplayMax_Double, set_OfxParamPropDisplayMin_Double,
+                set_OfxParamPropDoubleType, set_OfxParamPropHint, set_OfxParamPropMin_Double,
+            },
+        },
     },
 };
 use processing::{pixel_processing, rect_d_to_array, rect_i_from_array};
@@ -174,16 +185,24 @@ fn action_load() -> Result<(), OfxStatus> {
     *data = Some({
         let data = SharedData::try_new(host_struct)?;
 
+        let s_prop = data.property_suite;
+
         let additional = {
             let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-            let host_props = data.make_property_set_helper_for_host()?;
-            let var_size = host_props.prop_get_dimension(kOfxPropAPIVersion)?;
+            let host_props = data.inner().host_struct.host;
+            let host_props = std::ptr::from_ref(host_props).cast_mut();
+
+            let var_size =
+                unsafe { get_property_dimension(s_prop, host_props, kOfxPropAPIVersion.as_ptr()) }?;
+            // let var_size = host_props.prop_get_dimension(kOfxPropAPIVersion)?;
             let mut api_version = [1, 0];
             if var_size == 1 {
-                api_version[0] = host_props.prop_get_int(kOfxPropAPIVersion, 0)?;
+                let mut my_api_version = [0];
+                (unsafe { get_OfxPropAPIVersion(s_prop, host_props, &mut my_api_version) })?;
+                api_version[0] = my_api_version[0];
             } else {
-                host_props.prop_get_int_n(kOfxPropAPIVersion, &mut api_version)?;
+                (unsafe { get_OfxPropAPIVersion(s_prop, host_props, &mut api_version) })?;
             }
 
             // we only support 1.2 and above
@@ -191,10 +210,8 @@ fn action_load() -> Result<(), OfxStatus> {
                 return Err(kOfxStatErrMissingHostFeature);
             }
 
-            let host_supports_multi_res = host_props
-                .prop_get_int(kOfxImageEffectPropSupportsMultiResolution, 0)
-                .unwrap_or_default()
-                == 1;
+            let host_supports_multi_res =
+                unsafe { get_OfxImageEffectPropSupportsMultiResolution(s_prop, host_props) }? == 1;
 
             AdditionalSharedData {
                 api_version,
@@ -221,30 +238,34 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> Result<(), OfxStatus> {
     let (data, _additional) = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let descriptor = unsafe { data.make_property_set_helper_for_image_effect(descriptor) }?;
+    let s_prop = data.inner().property_suite;
 
-    descriptor.prop_set_string(kOfxPropLabel, 0, PLUGIN_5_CIRCLE_LABEL)?;
-    descriptor.prop_set_string(kOfxImageEffectPluginPropGrouping, 0, PLUGINS_GROUPING)?;
+    let descriptor = unsafe { data.get_property_set_from_image_effect(descriptor) }?;
 
-    descriptor.prop_set_string(
-        kOfxImageEffectPropSupportedContexts,
-        0,
-        kOfxImageEffectContextFilter,
-    )?;
-
-    for (i, bp) in [kOfxBitDepthFloat, kOfxBitDepthShort, kOfxBitDepthByte]
-        .iter()
-        .enumerate()
-    {
-        descriptor.prop_set_string(kOfxImageEffectPropSupportedPixelDepths, i as c_int, bp)?;
+    unsafe {
+        set_OfxPropLabel(s_prop, descriptor, PLUGIN_5_CIRCLE_LABEL.as_ptr())?;
+        set_OfxImageEffectPluginPropGrouping(s_prop, descriptor, PLUGINS_GROUPING.as_ptr())?;
+        set_OfxImageEffectPropSupportedContexts(
+            s_prop,
+            descriptor,
+            &[kOfxImageEffectContextFilter.as_ptr()],
+        )?;
+        set_OfxImageEffectPropSupportedPixelDepths(
+            s_prop,
+            descriptor,
+            &[
+                kOfxBitDepthFloat.as_ptr(),
+                kOfxBitDepthShort.as_ptr(),
+                kOfxBitDepthByte.as_ptr(),
+            ],
+        )?;
+        set_OfxImageEffectPluginRenderThreadSafety(
+            s_prop,
+            descriptor,
+            kOfxImageEffectRenderFullySafe.as_ptr(),
+        )?;
+        set_OfxImageEffectPluginPropHostFrameThreading(s_prop, descriptor, 1)?;
     }
-
-    descriptor.prop_set_string(
-        kOfxImageEffectPluginRenderThreadSafety,
-        0,
-        kOfxImageEffectRenderFullySafe,
-    )?;
-    descriptor.prop_set_int(kOfxImageEffectPluginPropHostFrameThreading, 0, 1)?;
 
     Ok(())
 }
@@ -256,91 +277,100 @@ fn action_describe_in_context(
     let (data, additional) = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let s_prop = data.property_suite_helper();
+    let s_prop = data.inner().property_suite;
     let s_ifx = data.image_effect_suite_helper();
 
-    let in_args = unsafe { s_prop.make_property_set_helper(in_args) };
-
-    let context = in_args.prop_get_string(kOfxImageEffectPropContext, 0)?;
-    if context != Some(kOfxImageEffectContextFilter) {
+    let context = unsafe { get_OfxImageEffectPropContext(s_prop, in_args) }?;
+    if context.is_null() {
+        return Err(kOfxStatErrUnsupported);
+    }
+    let context = unsafe { CStr::from_ptr(context) };
+    if context != kOfxImageEffectContextFilter {
         return Err(kOfxStatErrUnsupported);
     }
 
     for name in [c"Output", c"Source"] {
         let props = unsafe { s_ifx.clip_define(descriptor, name) }?;
-        let props = unsafe { s_prop.make_property_set_helper(props) };
 
-        (unsafe {
-            props.prop_set_string_n_raw(
-                kOfxImageEffectPropSupportedComponents,
+        unsafe {
+            set_OfxImageEffectPropSupportedComponents(
+                s_prop,
+                props,
                 &[
                     kOfxImageComponentRGBA.as_ptr(),
                     kOfxImageComponentAlpha.as_ptr(),
                     kOfxImageComponentRGB.as_ptr(),
                 ],
             )
-        })?;
+        }?;
     }
 
     let param_set = unsafe { data.make_param_set_helper_for_image_effect(descriptor) }?;
 
     {
         let param_props = param_set.param_define(kOfxParamTypeDouble, RADIUS_PARAM_NAME)?;
-        let param_props = unsafe { s_prop.make_property_set_helper(param_props) };
-        param_props.prop_set_string(kOfxParamPropDoubleType, 0, kOfxParamDoubleTypeX)?;
-        // Not supported by DaVinci Resolve. To make the plugin work there, we
-        // ignore the return value here. TODO: Calculate the default value in
-        // canonical coordinate if this fails.
-        param_props
-            .prop_set_string(
-                kOfxParamPropDefaultCoordinateSystem,
-                0,
-                kOfxParamCoordinatesNormalised,
+        unsafe {
+            set_OfxParamPropDoubleType(s_prop, param_props, kOfxParamDoubleTypeX.as_ptr())?;
+            // Not supported by DaVinci Resolve. To make the plugin work there,
+            // we ignore the return value here. TODO: Calculate the default value
+            // in canonical coordinate if this fails.
+            set_OfxParamPropDefaultCoordinateSystem(
+                s_prop,
+                param_props,
+                kOfxParamCoordinatesNormalised.as_ptr(),
             )
             .ok();
-        param_props.prop_set_double(kOfxParamPropDefault, 0, 0.25)?;
-        param_props.prop_set_double(kOfxParamPropMin, 0, 0.0)?;
-        param_props.prop_set_double(kOfxParamPropDisplayMin, 0, 0.0)?;
-        param_props.prop_set_double(kOfxParamPropDisplayMax, 0, 2.0)?;
-        param_props.prop_set_string(kOfxPropLabel, 0, c"Radius")?;
-        param_props.prop_set_string(kOfxParamPropHint, 0, c"The radius of the circle.")?;
+            set_OfxParamPropDefault_Double(s_prop, param_props, &[0.25])?;
+            set_OfxParamPropMin_Double(s_prop, param_props, &[0.0])?;
+            set_OfxParamPropDisplayMin_Double(s_prop, param_props, &[0.0])?;
+            set_OfxParamPropDisplayMax_Double(s_prop, param_props, &[2.0])?;
+            set_OfxPropLabel(s_prop, param_props, c"Radius".as_ptr())?;
+            set_OfxParamPropHint(s_prop, param_props, c"The radius of the circle.".as_ptr())?;
+        }
     }
 
     {
         let param_props = param_set.param_define(kOfxParamTypeDouble2D, CENTRE_PARAM_NAME)?;
-        let param_props = unsafe { s_prop.make_property_set_helper(param_props) };
-        param_props.prop_set_string(kOfxParamPropDoubleType, 0, kOfxParamDoubleTypeXYAbsolute)?;
-        // Not supported by DaVinci Resolve. See above.
-        param_props
-            .prop_set_string(
-                kOfxParamPropDefaultCoordinateSystem,
-                0,
-                kOfxParamCoordinatesNormalised,
+        unsafe {
+            set_OfxParamPropDoubleType(
+                s_prop,
+                param_props,
+                kOfxParamDoubleTypeXYAbsolute.as_ptr(),
+            )?;
+            // Not supported by DaVinci Resolve. See above.
+            set_OfxParamPropDefaultCoordinateSystem(
+                s_prop,
+                param_props,
+                kOfxParamCoordinatesNormalised.as_ptr(),
             )
             .ok();
-        param_props.prop_set_double_n(kOfxParamPropDefault, &[0.5, 0.5])?;
-        param_props.prop_set_string(kOfxPropLabel, 0, c"Centre")?;
-        param_props.prop_set_string(kOfxParamPropHint, 0, c"The centre of the circle.")?;
+            set_OfxParamPropDefault_Double(s_prop, param_props, &[0.5, 0.5])?;
+            set_OfxPropLabel(s_prop, param_props, c"Centre".as_ptr())?;
+            set_OfxParamPropHint(s_prop, param_props, c"The centre of the circle.".as_ptr())?;
+        }
     }
 
     {
         let param_props = param_set.param_define(kOfxParamTypeRGBA, COLOUR_PARAM_NAME)?;
-        let param_props = unsafe { s_prop.make_property_set_helper(param_props) };
-        param_props.prop_set_double_n(kOfxParamPropDefault, &[1.0, 1.0, 1.0, 0.5])?;
-        param_props.prop_set_string(kOfxPropLabel, 0, c"Colour")?;
-        param_props.prop_set_string(kOfxParamPropHint, 0, c"The colour of the circle.")?;
+        unsafe {
+            set_OfxParamPropDefault_Double(s_prop, param_props, &[1.0, 1.0, 1.0, 0.5])?;
+            set_OfxPropLabel(s_prop, param_props, c"Colour".as_ptr())?;
+            set_OfxParamPropHint(s_prop, param_props, c"The colour of the circle.".as_ptr())?;
+        }
     }
 
     if additional.host_supports_multi_res {
         let param_props = param_set.param_define(kOfxParamTypeBoolean, GROW_ROD_PARAM_NAME)?;
-        let param_props = unsafe { s_prop.make_property_set_helper(param_props) };
-        param_props.prop_set_int(kOfxParamPropDefault, 0, 0)?;
-        param_props.prop_set_string(kOfxPropLabel, 0, c"Grow RoD")?;
-        param_props.prop_set_string(
-            kOfxParamPropHint,
-            0,
-            c"Whether to grow the output's Region of Definition to include the circle.",
-        )?;
+        unsafe {
+            set_OfxParamPropDefault_Int(s_prop, param_props, &[0])?;
+            set_OfxPropLabel(s_prop, param_props, c"Grow RoD".as_ptr())?;
+            set_OfxParamPropHint(
+                s_prop,
+                param_props,
+                c"Whether to grow the output's Region of Definition to include the circle."
+                    .as_ptr(),
+            )?;
+        }
     }
 
     Ok(())
@@ -350,9 +380,10 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> Result<(), OfxStatu
     let (data, additional) = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
+    let s_prop = data.inner().property_suite;
     let s_ifx = data.image_effect_suite_helper();
 
-    let instance_props = unsafe { data.make_property_set_helper_for_image_effect(instance) }?;
+    let instance_props = unsafe { data.get_property_set_from_image_effect(instance) }?;
 
     let source_clip = unsafe { s_ifx.clip_get_handle(instance, c"Source") }?;
     let output_clip = unsafe { s_ifx.clip_get_handle(instance, c"Output") }?;
@@ -379,7 +410,7 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> Result<(), OfxStatu
 
     // SAFETY: the pointee is kept alive by `Box::into_raw` until it is
     // reclaimed with `Box::from_raw` in `action_destroy_instance`.
-    match unsafe { instance_props.prop_set_pointer(kOfxPropInstanceData, 0, instance_data_ptr) } {
+    match unsafe { set_OfxPropInstanceData(s_prop, instance_props, instance_data_ptr) } {
         Ok(_) => Ok(()),
         Err(err) => {
             drop(unsafe { Box::from_raw(instance_data_ptr as *mut InstanceData) });
@@ -392,8 +423,10 @@ fn action_destroy_instance(instance: OfxImageEffectHandle) -> Result<(), OfxStat
     let (data, _additional) = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let instance_props = unsafe { data.make_property_set_helper_for_image_effect(instance) }?;
-    let instance_data_ptr = instance_props.prop_get_pointer(kOfxPropInstanceData, 0)?;
+    let s_prop = data.inner().property_suite;
+
+    let instance_props = unsafe { data.get_property_set_from_image_effect(instance) }?;
+    let instance_data_ptr = unsafe { get_OfxPropInstanceData(s_prop, instance_props) }?;
     if instance_data_ptr.is_null() {
         return Err(kOfxStatFailed);
     }
@@ -418,14 +451,11 @@ fn action_get_region_of_definition(
 
     let instance_data = unsafe { data.get_instance_data::<InstanceData>(effect)? };
 
-    let s_prop = data.property_suite_helper();
+    let s_prop = data.inner().property_suite;
     let s_ifx = data.image_effect_suite_helper();
     let s_param = data.parameter_suite_helper();
 
-    let in_args = unsafe { s_prop.make_property_set_helper(in_args) };
-    let out_args = unsafe { s_prop.make_property_set_helper(out_args) };
-
-    let time = in_args.prop_get_double(kOfxPropTime, 0)?;
+    let time = unsafe { get_OfxPropTime(s_prop, in_args) }?;
 
     let growing_rod = if let Some(grow_rod_param) = instance_data.grow_rod_param {
         (unsafe { s_param.param_get_value_at_time_int(grow_rod_param, time) })? != 0
@@ -456,10 +486,7 @@ fn action_get_region_of_definition(
     rod.x2 = f64::max(rod.x2, centre_x + radius);
     rod.y2 = f64::max(rod.y2, centre_y + radius);
 
-    out_args.prop_set_double_n(
-        kOfxImageEffectPropRegionOfDefinition,
-        &rect_d_to_array(&rod),
-    )?;
+    unsafe { set_OfxImageEffectPropRegionOfDefinition(s_prop, out_args, rect_d_to_array(&rod)) }?;
 
     Ok(())
 }
@@ -472,16 +499,13 @@ fn action_is_identity(
     let (data, _additional) = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let s_prop = data.property_suite_helper();
+    let s_prop = data.inner().property_suite;
     let s_ifx = data.image_effect_suite_helper();
     let s_param = data.parameter_suite_helper();
 
     let instance_data = unsafe { data.get_instance_data::<InstanceData>(effect)? };
 
-    let in_args = unsafe { s_prop.make_property_set_helper(in_args) };
-    let out_args = unsafe { s_prop.make_property_set_helper(out_args) };
-
-    let time = in_args.prop_get_double(kOfxPropTime, 0)?;
+    let time = unsafe { get_OfxPropTime(s_prop, in_args) }?;
 
     let radius =
         unsafe { s_param.param_get_value_at_time_double(instance_data.radius_param, time) }?;
@@ -519,7 +543,7 @@ fn action_is_identity(
     };
 
     if is_identity {
-        out_args.prop_set_string(kOfxPropName, 0, c"Source")?;
+        unsafe { set_OfxPropName(s_prop, out_args, c"Source".as_ptr()) }?;
         Ok(())
     } else {
         Err(kOfxStatReplyDefault)
@@ -534,22 +558,13 @@ fn action_render(
     let (data, _additional) = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let s_prop = data.property_suite_helper();
+    let s_prop = data.inner().property_suite;
     let s_param = data.parameter_suite_helper();
 
-    let in_args = unsafe { s_prop.make_property_set_helper(in_args) };
-
-    let time: OfxTime = in_args.prop_get_double(kOfxPropTime, 0)?;
-    let render_window = {
-        let mut render_window: [c_int; 4] = [0; 4];
-        in_args.prop_get_int_n(kOfxImageEffectPropRenderWindow, &mut render_window)?;
-        rect_i_from_array(&render_window)
-    };
-    let render_scale = {
-        let mut render_scale: [f64; 2] = [0.0; 2];
-        in_args.prop_get_double_n(kOfxImageEffectPropRenderScale, &mut render_scale)?;
-        render_scale
-    };
+    let time: OfxTime = unsafe { get_OfxPropTime(s_prop, in_args) }?;
+    let render_window = unsafe { get_OfxImageEffectPropRenderWindow(s_prop, in_args) }?;
+    let render_window = rect_i_from_array(&render_window);
+    let render_scale = unsafe { get_OfxImageEffectPropRenderScale(s_prop, in_args) }?;
 
     let instance_data = unsafe { data.get_instance_data::<InstanceData>(instance)? };
 

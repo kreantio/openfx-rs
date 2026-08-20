@@ -1,18 +1,20 @@
-use std::ffi::{CStr, c_char, c_int, c_void};
+use std::ffi::{CStr, c_int, c_void};
 
 use openfx::generic::sys::core::{
     OfxPropertySetHandle, OfxPropertySetStruct, OfxRectD, OfxRectI, OfxStatus, OfxTime,
-    kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxPropInstanceData,
-    kOfxStatErrMissingHostFeature, kOfxStatErrUnsupported, kOfxStatFailed, kOfxStatOK,
+    kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxStatErrMissingHostFeature,
+    kOfxStatErrUnsupported, kOfxStatFailed, kOfxStatOK,
 };
-use openfx::generic::sys::property::OfxPropertySuiteV1;
+use openfx::generic::sys_helpers::properties::get_OfxPropInstanceData;
 use openfx::image_effect_v1::sys::image_effect::{
     OfxImageClipHandle, OfxImageEffectHandle, OfxImageEffectSuiteV1, kOfxImageComponentAlpha,
-    kOfxImageComponentRGB, kOfxImageComponentRGBA, kOfxImageEffectPropComponents,
-    kOfxImageEffectPropPixelDepth, kOfxImagePropBounds, kOfxImagePropData,
-    kOfxImagePropPixelAspectRatio, kOfxImagePropRowBytes,
+    kOfxImageComponentRGB, kOfxImageComponentRGBA,
 };
 use openfx::image_effect_v1::sys::param::{OfxParamHandle, OfxParamSetHandle, OfxParameterSuiteV1};
+use openfx::image_effect_v1::sys_helpers::properties::{
+    get_OfxImageEffectPropComponents, get_OfxImageEffectPropPixelDepth, get_OfxImagePropBounds,
+    get_OfxImagePropData, get_OfxImagePropPixelAspectRatio, get_OfxImagePropRowBytes,
+};
 
 use super::internal_utils::rect_i_from_array;
 
@@ -35,11 +37,6 @@ impl<'data> SharedDataHelper<'data> {
         self.shared_data
     }
 
-    pub fn property_suite_helper(&self) -> PropertySuiteHelper<'data> {
-        PropertySuiteHelper {
-            property_suite: self.shared_data.property_suite,
-        }
-    }
     pub fn image_effect_suite_helper(&self) -> ImageEffectSuiteHelper<'data> {
         ImageEffectSuiteHelper {
             image_effect_suite: self.shared_data.image_effect_suite,
@@ -60,31 +57,15 @@ impl<'data> SharedDataHelper<'data> {
         &self,
         effect: OfxImageEffectHandle,
     ) -> Result<&T, OfxStatus> {
-        let instance_props = unsafe { self.make_property_set_helper_for_image_effect(effect) }?;
-        let instance_data_ptr = instance_props.prop_get_pointer(kOfxPropInstanceData, 0)?;
+        // let instance_props = unsafe { self.make_property_set_helper_for_image_effect(effect) }?;
+        // let instance_data_ptr = instance_props.prop_get_pointer(kOfxPropInstanceData, 0)?;
+        let props = unsafe { self.image_effect_suite_helper().get_property_set(effect) }?;
+        let instance_data_ptr =
+            unsafe { get_OfxPropInstanceData(self.shared_data.property_suite, props) }?;
         if instance_data_ptr.is_null() {
             return Err(kOfxStatFailed);
         }
         Ok(unsafe { &*(instance_data_ptr as *const T) })
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `effect` is valid, and will remain
-    /// valid for the lifetime of the returned value.
-    pub unsafe fn make_property_set_helper_for_image_effect(
-        &self,
-        handle: OfxImageEffectHandle,
-    ) -> Result<PropertySetHelper<'data>, OfxStatus> {
-        let props = unsafe { self.image_effect_suite_helper().get_property_set(handle) }?;
-
-        Ok(unsafe { self.property_suite_helper().make_property_set_helper(props) })
-    }
-
-    pub fn make_property_set_helper_for_host(&self) -> Result<PropertySetHelper<'data>, OfxStatus> {
-        let host = self.shared_data.host_struct.host as *const _ as *mut _;
-
-        Ok(unsafe { self.property_suite_helper().make_property_set_helper(host) })
     }
 
     /// ## Safety
@@ -103,6 +84,28 @@ impl<'data> SharedDataHelper<'data> {
         })
     }
 
+    pub unsafe fn get_property_set_from_image_effect(
+        &self,
+        handle: OfxImageEffectHandle,
+    ) -> Result<OfxPropertySetHandle, OfxStatus> {
+        let mut props: *mut OfxPropertySetStruct = std::ptr::null_mut();
+        let stat = unsafe {
+            self.shared_data
+                .image_effect_suite
+                .getPropertySet
+                .ok_or(kOfxStatErrMissingHostFeature)?(handle, &mut props)
+        };
+        if stat != kOfxStatOK {
+            return Err(stat);
+        }
+
+        if props.is_null() {
+            Err(kOfxStatFailed)
+        } else {
+            Ok(props as OfxPropertySetHandle)
+        }
+    }
+
     /// ## Safety
     ///
     /// The caller must ensure that the input `clip` is valid, and will remain
@@ -119,516 +122,6 @@ impl<'data> SharedDataHelper<'data> {
         }?;
 
         unsafe { ClipImageManaged::try_new(self, image_handle) }
-    }
-}
-
-pub struct PropertySuiteHelper<'data> {
-    property_suite: &'data OfxPropertySuiteV1,
-}
-
-impl<'data> PropertySuiteHelper<'data> {
-    #[expect(unused)]
-    pub fn inner(&self) -> &OfxPropertySuiteV1 {
-        self.property_suite
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `handle` is valid, and will remain
-    /// valid for the lifetime of the returned value.
-    pub unsafe fn make_property_set_helper(
-        &self,
-        handle: OfxPropertySetHandle,
-    ) -> PropertySetHelper<'data> {
-        PropertySetHelper {
-            property_suite_helper: PropertySuiteHelper {
-                property_suite: self.property_suite,
-            },
-            props: handle,
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `handle` is valid.
-    pub unsafe fn prop_set_string(
-        &self,
-        handle: OfxPropertySetHandle,
-        property: &CStr,
-        index: c_int,
-        value: &CStr,
-    ) -> Result<(), OfxStatus> {
-        let prop_set_string = self
-            .property_suite
-            .propSetString
-            .ok_or(kOfxStatErrMissingHostFeature)?;
-
-        if let stat = (unsafe { prop_set_string(handle, property.as_ptr(), index, value.as_ptr()) })
-            && stat != kOfxStatOK
-        {
-            Err(stat)
-        } else {
-            Ok(())
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `handle` is valid.
-    ///
-    /// The caller must ensure that the `values` slice contains valid pointers.
-    pub unsafe fn prop_set_string_n_raw(
-        &self,
-        handle: OfxPropertySetHandle,
-        property: &CStr,
-        values: &[*const c_char],
-    ) -> Result<(), OfxStatus> {
-        let prop_set_string_n = self
-            .property_suite
-            .propSetStringN
-            .ok_or(kOfxStatErrMissingHostFeature)?;
-
-        if let stat = (unsafe {
-            prop_set_string_n(
-                handle,
-                property.as_ptr(),
-                values.len() as c_int,
-                values.as_ptr(),
-            )
-        }) && stat != kOfxStatOK
-        {
-            Err(stat)
-        } else {
-            Ok(())
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `handle` is valid.
-    pub unsafe fn prop_get_string(
-        &self,
-        handle: OfxPropertySetHandle,
-        property: &CStr,
-        index: c_int,
-    ) -> Result<Option<&CStr>, OfxStatus> {
-        let prop_get_string = self
-            .property_suite
-            .propGetString
-            .ok_or(kOfxStatErrMissingHostFeature)?;
-
-        let mut value_ptr: *mut c_char = std::ptr::null_mut();
-        if let stat = (unsafe { prop_get_string(handle, property.as_ptr(), index, &mut value_ptr) })
-            && stat != kOfxStatOK
-        {
-            return Err(stat);
-        }
-
-        if value_ptr.is_null() {
-            return Ok(None);
-        }
-
-        let value_cstr = unsafe { CStr::from_ptr(value_ptr) };
-        Ok(Some(value_cstr))
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `handle` is valid.
-    pub unsafe fn prop_set_int(
-        &self,
-        handle: OfxPropertySetHandle,
-        property: &CStr,
-        index: c_int,
-        value: c_int,
-    ) -> Result<(), OfxStatus> {
-        let prop_set_int = self
-            .property_suite
-            .propSetInt
-            .ok_or(kOfxStatErrMissingHostFeature)?;
-
-        if let stat = (unsafe { prop_set_int(handle, property.as_ptr(), index, value) })
-            && stat != kOfxStatOK
-        {
-            Err(stat)
-        } else {
-            Ok(())
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `handle` is valid.
-    pub unsafe fn prop_get_int(
-        &self,
-        handle: OfxPropertySetHandle,
-        property: &CStr,
-        index: c_int,
-    ) -> Result<c_int, OfxStatus> {
-        let prop_get_int = self
-            .property_suite
-            .propGetInt
-            .ok_or(kOfxStatErrMissingHostFeature)?;
-
-        let mut value: c_int = 0;
-        if let stat = (unsafe { prop_get_int(handle, property.as_ptr(), index, &mut value) })
-            && stat != kOfxStatOK
-        {
-            Err(stat)
-        } else {
-            Ok(value)
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `handle` is valid.
-    pub unsafe fn prop_get_int_n(
-        &self,
-        handle: OfxPropertySetHandle,
-        property: &CStr,
-        values: &mut [c_int],
-    ) -> Result<(), OfxStatus> {
-        let prop_get_int_n = self
-            .property_suite
-            .propGetIntN
-            .ok_or(kOfxStatErrMissingHostFeature)?;
-
-        if let stat = (unsafe {
-            prop_get_int_n(
-                handle,
-                property.as_ptr(),
-                values.len() as c_int,
-                values.as_mut_ptr(),
-            )
-        }) && stat != kOfxStatOK
-        {
-            Err(stat)
-        } else {
-            Ok(())
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `handle` is valid.
-    pub unsafe fn prop_set_double(
-        &self,
-        handle: OfxPropertySetHandle,
-        property: &CStr,
-        index: c_int,
-        value: f64,
-    ) -> Result<(), OfxStatus> {
-        let prop_set_double = self
-            .property_suite
-            .propSetDouble
-            .ok_or(kOfxStatErrMissingHostFeature)?;
-
-        if let stat = (unsafe { prop_set_double(handle, property.as_ptr(), index, value) })
-            && stat != kOfxStatOK
-        {
-            Err(stat)
-        } else {
-            Ok(())
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `handle` is valid.
-    pub unsafe fn prop_set_double_n(
-        &self,
-        handle: OfxPropertySetHandle,
-        property: &CStr,
-        values: &[f64],
-    ) -> Result<(), OfxStatus> {
-        let prop_set_double_n = self
-            .property_suite
-            .propSetDoubleN
-            .ok_or(kOfxStatErrMissingHostFeature)?;
-
-        if let stat = (unsafe {
-            prop_set_double_n(
-                handle,
-                property.as_ptr(),
-                values.len() as c_int,
-                values.as_ptr(),
-            )
-        }) && stat != kOfxStatOK
-        {
-            Err(stat)
-        } else {
-            Ok(())
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `handle` is valid.
-    pub unsafe fn prop_get_double(
-        &self,
-        handle: OfxPropertySetHandle,
-        property: &CStr,
-        index: c_int,
-    ) -> Result<f64, OfxStatus> {
-        let prop_get_double = self
-            .property_suite
-            .propGetDouble
-            .ok_or(kOfxStatErrMissingHostFeature)?;
-
-        let mut value: f64 = 0.0;
-        if let stat = (unsafe { prop_get_double(handle, property.as_ptr(), index, &mut value) })
-            && stat != kOfxStatOK
-        {
-            Err(stat)
-        } else {
-            Ok(value)
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `handle` is valid.
-    pub unsafe fn prop_get_double_n(
-        &self,
-        handle: OfxPropertySetHandle,
-        property: &CStr,
-        values: &mut [f64],
-    ) -> Result<(), OfxStatus> {
-        let prop_get_double_n = self
-            .property_suite
-            .propGetDoubleN
-            .ok_or(kOfxStatErrMissingHostFeature)?;
-
-        if let stat = (unsafe {
-            prop_get_double_n(
-                handle,
-                property.as_ptr(),
-                values.len() as c_int,
-                values.as_mut_ptr(),
-            )
-        }) && stat != kOfxStatOK
-        {
-            Err(stat)
-        } else {
-            Ok(())
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `handle` is valid.
-    ///
-    /// The caller must ensure that `value` remains valid for as long as the
-    /// host retains it, which may be beyond the duration of this call.
-    pub unsafe fn prop_set_pointer(
-        &self,
-        handle: OfxPropertySetHandle,
-        property: &CStr,
-        index: c_int,
-        value: *mut c_void,
-    ) -> Result<(), OfxStatus> {
-        let prop_set_pointer = self
-            .property_suite
-            .propSetPointer
-            .ok_or(kOfxStatErrMissingHostFeature)?;
-
-        if let stat = (unsafe { prop_set_pointer(handle, property.as_ptr(), index, value) })
-            && stat != kOfxStatOK
-        {
-            Err(stat)
-        } else {
-            Ok(())
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `handle` is valid.
-    pub unsafe fn prop_get_pointer(
-        &self,
-        handle: OfxPropertySetHandle,
-        property: &CStr,
-        index: c_int,
-    ) -> Result<*mut c_void, OfxStatus> {
-        let prop_get_pointer = self
-            .property_suite
-            .propGetPointer
-            .ok_or(kOfxStatErrMissingHostFeature)?;
-
-        let mut value_ptr: *mut c_void = std::ptr::null_mut();
-        if let stat =
-            (unsafe { prop_get_pointer(handle, property.as_ptr(), index, &mut value_ptr) })
-            && stat != kOfxStatOK
-        {
-            Err(stat)
-        } else {
-            Ok(value_ptr)
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `handle` is valid.
-    pub unsafe fn prop_get_dimension(
-        &self,
-        handle: OfxPropertySetHandle,
-        property: &CStr,
-    ) -> Result<c_int, OfxStatus> {
-        let prop_get_dimension = self
-            .property_suite
-            .propGetDimension
-            .ok_or(kOfxStatErrMissingHostFeature)?;
-
-        let mut count: c_int = 0;
-        if let stat = (unsafe { prop_get_dimension(handle, property.as_ptr(), &mut count) })
-            && stat != kOfxStatOK
-        {
-            Err(stat)
-        } else {
-            Ok(count)
-        }
-    }
-}
-
-pub struct PropertySetHelper<'data> {
-    property_suite_helper: PropertySuiteHelper<'data>,
-    props: OfxPropertySetHandle,
-}
-
-impl<'data> PropertySetHelper<'data> {
-    pub fn props(&self) -> OfxPropertySetHandle {
-        self.props
-    }
-
-    pub fn prop_set_string(
-        &self,
-        property: &CStr,
-        index: c_int,
-        value: &CStr,
-    ) -> Result<(), OfxStatus> {
-        unsafe {
-            self.property_suite_helper
-                .prop_set_string(self.props, property, index, value)
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the `values` slice contains valid pointers.
-    pub unsafe fn prop_set_string_n_raw(
-        &self,
-        property: &CStr,
-        values: &[*const c_char],
-    ) -> Result<(), OfxStatus> {
-        unsafe {
-            self.property_suite_helper
-                .prop_set_string_n_raw(self.props, property, values)
-        }
-    }
-
-    pub fn prop_get_string(
-        &self,
-        property: &CStr,
-        index: c_int,
-    ) -> Result<Option<&CStr>, OfxStatus> {
-        unsafe {
-            self.property_suite_helper
-                .prop_get_string(self.props, property, index)
-        }
-    }
-
-    pub fn prop_set_int(
-        &self,
-        property: &CStr,
-        index: c_int,
-        value: c_int,
-    ) -> Result<(), OfxStatus> {
-        unsafe {
-            self.property_suite_helper
-                .prop_set_int(self.props, property, index, value)
-        }
-    }
-
-    pub fn prop_get_int(&self, property: &CStr, index: c_int) -> Result<c_int, OfxStatus> {
-        unsafe {
-            self.property_suite_helper
-                .prop_get_int(self.props, property, index)
-        }
-    }
-
-    pub fn prop_get_int_n(&self, property: &CStr, values: &mut [c_int]) -> Result<(), OfxStatus> {
-        unsafe {
-            self.property_suite_helper
-                .prop_get_int_n(self.props, property, values)
-        }
-    }
-
-    pub fn prop_set_double(
-        &self,
-        property: &CStr,
-        index: c_int,
-        value: f64,
-    ) -> Result<(), OfxStatus> {
-        unsafe {
-            self.property_suite_helper
-                .prop_set_double(self.props, property, index, value)
-        }
-    }
-
-    pub fn prop_set_double_n(&self, property: &CStr, values: &[f64]) -> Result<(), OfxStatus> {
-        unsafe {
-            self.property_suite_helper
-                .prop_set_double_n(self.props, property, values)
-        }
-    }
-
-    pub fn prop_get_double(&self, property: &CStr, index: c_int) -> Result<f64, OfxStatus> {
-        unsafe {
-            self.property_suite_helper
-                .prop_get_double(self.props, property, index)
-        }
-    }
-
-    pub fn prop_get_double_n(&self, property: &CStr, values: &mut [f64]) -> Result<(), OfxStatus> {
-        unsafe {
-            self.property_suite_helper
-                .prop_get_double_n(self.props, property, values)
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that `value` remains valid for as long as the
-    /// host retains it, which may be beyond the duration of this call.
-    pub unsafe fn prop_set_pointer(
-        &self,
-        property: &CStr,
-        index: c_int,
-        value: *mut c_void,
-    ) -> Result<(), OfxStatus> {
-        unsafe {
-            self.property_suite_helper
-                .prop_set_pointer(self.props, property, index, value)
-        }
-    }
-
-    pub fn prop_get_pointer(
-        &self,
-        property: &CStr,
-        index: c_int,
-    ) -> Result<*mut c_void, OfxStatus> {
-        unsafe {
-            self.property_suite_helper
-                .prop_get_pointer(self.props, property, index)
-        }
-    }
-
-    pub fn prop_get_dimension(&self, property: &CStr) -> Result<c_int, OfxStatus> {
-        unsafe {
-            self.property_suite_helper
-                .prop_get_dimension(self.props, property)
-        }
     }
 }
 
@@ -848,40 +341,42 @@ impl<'data> ClipImageManaged<'data> {
         shared_data_helper: &SharedDataHelper<'data>,
         image_handle: OfxPropertySetHandle,
     ) -> Result<Option<Self>, OfxStatus> {
-        let s_prop = shared_data_helper.property_suite_helper();
+        let s_prop = shared_data_helper.inner().property_suite;
 
-        let props = unsafe { s_prop.make_property_set_helper(image_handle) };
-
-        let data_ptr = props.prop_get_pointer(kOfxImagePropData, 0)?;
+        let data_ptr = unsafe { get_OfxImagePropData(s_prop, image_handle) }?;
         if data_ptr.is_null() {
             return Ok(None);
         }
 
         let n_comps = {
-            let components = props.prop_get_string(kOfxImageEffectPropComponents, 0)?;
-            match components {
-                Some(c) if c == kOfxImageComponentRGBA => 4,
-                Some(c) if c == kOfxImageComponentRGB => 3,
-                Some(c) if c == kOfxImageComponentAlpha => 1,
-                _ => 0,
+            let components = unsafe { get_OfxImageEffectPropComponents(s_prop, image_handle) }?;
+            if components.is_null() {
+                0
+            } else {
+                match unsafe { CStr::from_ptr(components) } {
+                    c if c == kOfxImageComponentRGBA => 4,
+                    c if c == kOfxImageComponentRGB => 3,
+                    c if c == kOfxImageComponentAlpha => 1,
+                    _ => 0,
+                }
             }
         };
         let pixel_depth = {
-            let pixel_depth = props.prop_get_string(kOfxImageEffectPropPixelDepth, 0)?;
-            match true {
-                _ if pixel_depth == Some(kOfxBitDepthByte) => BitDepth::Byte,
-                _ if pixel_depth == Some(kOfxBitDepthShort) => BitDepth::Short,
-                _ if pixel_depth == Some(kOfxBitDepthFloat) => BitDepth::Float,
+            let pixel_depth = unsafe { get_OfxImageEffectPropPixelDepth(s_prop, image_handle) }?;
+            if pixel_depth.is_null() {
+                return Err(kOfxStatErrUnsupported);
+            }
+            match unsafe { CStr::from_ptr(pixel_depth) } {
+                c if c == kOfxBitDepthByte => BitDepth::Byte,
+                c if c == kOfxBitDepthShort => BitDepth::Short,
+                c if c == kOfxBitDepthFloat => BitDepth::Float,
                 _ => return Err(kOfxStatErrUnsupported),
             }
         };
-        let row_bytes = props.prop_get_int(kOfxImagePropRowBytes, 0)?;
-        let bounds = {
-            let mut bounds: [c_int; 4] = [0; 4];
-            props.prop_get_int_n(kOfxImagePropBounds, &mut bounds)?;
-            rect_i_from_array(&bounds)
-        };
-        let pixel_aspect_ratio = props.prop_get_double(kOfxImagePropPixelAspectRatio, 0)?;
+        let row_bytes = unsafe { get_OfxImagePropRowBytes(s_prop, image_handle) }?;
+        let bounds = unsafe { get_OfxImagePropBounds(s_prop, image_handle) }?;
+        let bounds = rect_i_from_array(&bounds);
+        let pixel_aspect_ratio = unsafe { get_OfxImagePropPixelAspectRatio(s_prop, image_handle) }?;
 
         Ok(Some(Self {
             image_effect_suite_helper: shared_data_helper.image_effect_suite_helper(),
