@@ -1,3 +1,5 @@
+import "./impl-by-llms/additional-tests.ts";
+
 import path from "node:path";
 
 import { assert } from "@std/assert";
@@ -42,4 +44,10 @@ Deno.test("parsing", async (t) => {
 Deno.test("finalResult", (_t) => {
   assert(Object.keys(finalResult.propertyInfos).length > 0);
   FinalResult.parse(finalResult);
+
+  for (const v of Object.values(finalResult.propertyInfos)) {
+    if (v.type instanceof Set) {
+      assert(v.type.size > 1);
+    }
+  }
 });

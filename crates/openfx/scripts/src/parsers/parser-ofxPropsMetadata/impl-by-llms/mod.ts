@@ -22,11 +22,17 @@ import {
   toInt,
 } from "../../common-by-llms/mod.ts";
 import type { LexIssue, ParseIssue } from "../../common-by-llms/mod.ts";
-import { PropType as PropTypeSchema } from "../types.ts";
-import type { FinalResult, PropType, Result, Structure } from "../types.ts";
+import { PropTypeSimple as PropTypeSimpleSchema } from "../types.ts";
+import type {
+  FinalResult,
+  PropType,
+  PropTypeSimple,
+  Result,
+  Structure,
+} from "../types.ts";
 
 /** The canonical PropType set, taken from ../types.ts (single source of truth). */
-const PROP_TYPES = new Set<string>(PropTypeSchema.options);
+const PROP_TYPES = new Set<string>([...PropTypeSimpleSchema.options, "Enum"]);
 
 // ---------------------------------------------------------------------------
 // Tokens
@@ -523,6 +529,14 @@ class OfxPropsMetadataParser extends CstParser {
       if (name in this.propTypeArrays) {
         fail(`duplicate prop_type_arrays entry "${name}"`);
       }
+      for (const t of types) {
+        if (!PROP_TYPES.has(t)) {
+          fail(
+            `prop_type_arrays entry "${name}" has unknown type ` +
+              `"${t}" (expected one of ${JSON.stringify([...PROP_TYPES])})`,
+          );
+        }
+      }
       this.propTypeArrays[name] = new Set(types as PropType[]);
     });
   });
@@ -903,6 +917,17 @@ export function makeFinalResult(result: Result): FinalResult {
     result.propertyInfos;
   const propertyInfos: FinalResult["propertyInfos"] = {};
 
+  // A property whose value can have an enum type must not have any other type.
+  for (const [name, types] of Object.entries(propTypeArrays)) {
+    if (types.has("Enum") && types.size > 1) {
+      fail(
+        `prop_type_arrays entry "${name}" mixes "Enum" with other types ` +
+          `(${JSON.stringify([...types])}); enum-typed properties must have ` +
+          `"Enum" as their only type`,
+      );
+    }
+  }
+
   for (const [name, entries] of Object.entries(propDefsArray)) {
     const entry = entries[0];
     if (entry === undefined) {
@@ -912,18 +937,22 @@ export function makeFinalResult(result: Result): FinalResult {
     if (types === undefined) {
       fail(`missing prop_type_arrays entry for "${name}"`);
     }
-    // Set iteration order is insertion order, i.e. header order; the first
-    // type is the property's primary type (matching DEFINE_PROP_TRAITS).
-    const primary: PropType | undefined = [...types][0];
-    if (primary === undefined) {
+    if (types.size === 0) {
       fail(`empty prop_type_arrays entry for "${name}"`);
     }
+    // Set iteration order is insertion order, i.e. header order.
+    const isEnum = types.has("Enum");
+    const simpleTypes = new Set<PropTypeSimple>(
+      [...types].filter((t): t is PropTypeSimple => t !== "Enum"),
+    );
     propertyInfos[name] = {
-      type: primary === "Enum"
+      type: isEnum
         // The Enum value is the key of this property's entry in
         // `propEnumValues`, which the final result also carries.
         ? { Enum: name }
-        : primary,
+        // A set with a single type collapses to that type; a set with several
+        // types is a multitype property (e.g. OfxParamPropDefault).
+        : simpleTypes.size === 1 ? [...simpleTypes][0] : simpleTypes,
       dimension: entry.dimension,
     };
   }

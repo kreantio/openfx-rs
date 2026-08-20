@@ -43,14 +43,15 @@ export type Structure = z.infer<typeof Structure>;
 export const PropEnumValues = z.record(z.string(), z.set(z.string()));
 export type PropEnumValues = z.infer<typeof PropEnumValues>;
 
-export const PropType = z.enum([
+export const PropTypeSimple = z.enum([
   "Int",
   "Double",
-  "Enum",
   "Bool",
   "String",
   "Pointer",
 ]);
+export type PropTypeSimple = z.infer<typeof PropTypeSimple>;
+export const PropType = z.union([PropTypeSimple, z.literal("Enum")]);
 export type PropType = z.infer<typeof PropType>;
 
 export const PropTypeArrays = z.record(z.string(), z.set(PropType));
@@ -82,7 +83,8 @@ export const FinalResult = z.object({
     z.string(),
     z.object({
       type: z.union([
-        PropType.exclude(["Enum"]),
+        PropTypeSimple,
+        z.set(PropTypeSimple),
         // value: key in `PropEnumValues`
         z.record(z.literal("Enum"), z.string()),
       ]),

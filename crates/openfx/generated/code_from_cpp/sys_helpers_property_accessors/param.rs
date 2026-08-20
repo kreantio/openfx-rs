@@ -300,8 +300,14 @@ make_property_getter!(
     Pointer
 );
 make_property_resetter!(reset_OfxParamPropDataPtr, kOfxParamPropDataPtr);
-make_property_setter!(set_OfxParamPropDefault, kOfxParamPropDefault, crate::generic::sys_helpers::properties::set_ints, ..., Int);
-make_property_getter!(get_OfxParamPropDefault, kOfxParamPropDefault, crate::generic::sys_helpers::properties::get_ints, ..., Int);
+make_property_setter!(set_OfxParamPropDefault_Int, kOfxParamPropDefault, crate::generic::sys_helpers::properties::set_ints, ..., Int);
+make_property_getter!(get_OfxParamPropDefault_Int, kOfxParamPropDefault, crate::generic::sys_helpers::properties::get_ints, ..., Int);
+make_property_setter!(set_OfxParamPropDefault_Double, kOfxParamPropDefault, crate::generic::sys_helpers::properties::set_doubles, ..., Double);
+make_property_getter!(get_OfxParamPropDefault_Double, kOfxParamPropDefault, crate::generic::sys_helpers::properties::get_doubles, ..., Double);
+make_property_setter!(set_OfxParamPropDefault_String, kOfxParamPropDefault, crate::generic::sys_helpers::properties::set_strings, ..., String);
+make_property_getter!(get_OfxParamPropDefault_String, kOfxParamPropDefault, crate::generic::sys_helpers::properties::get_strings, ..., String);
+make_property_setter!(set_OfxParamPropDefault_Pointer, kOfxParamPropDefault, crate::generic::sys_helpers::properties::set_pointers, ..., Pointer);
+make_property_getter!(get_OfxParamPropDefault_Pointer, kOfxParamPropDefault, crate::generic::sys_helpers::properties::get_pointers, ..., Pointer);
 make_property_resetter!(reset_OfxParamPropDefault, kOfxParamPropDefault);
 make_property_dimension_getter!(get_dimension_OfxParamPropDefault, kOfxParamPropDefault);
 make_property_setter!(
@@ -355,15 +361,19 @@ make_property_resetter!(
     reset_OfxParamPropDimensionLabel,
     kOfxParamPropDimensionLabel
 );
-make_property_setter!(set_OfxParamPropDisplayMax, kOfxParamPropDisplayMax, crate::generic::sys_helpers::properties::set_ints, ..., Int);
-make_property_getter!(get_OfxParamPropDisplayMax, kOfxParamPropDisplayMax, crate::generic::sys_helpers::properties::get_ints, ..., Int);
+make_property_setter!(set_OfxParamPropDisplayMax_Int, kOfxParamPropDisplayMax, crate::generic::sys_helpers::properties::set_ints, ..., Int);
+make_property_getter!(get_OfxParamPropDisplayMax_Int, kOfxParamPropDisplayMax, crate::generic::sys_helpers::properties::get_ints, ..., Int);
+make_property_setter!(set_OfxParamPropDisplayMax_Double, kOfxParamPropDisplayMax, crate::generic::sys_helpers::properties::set_doubles, ..., Double);
+make_property_getter!(get_OfxParamPropDisplayMax_Double, kOfxParamPropDisplayMax, crate::generic::sys_helpers::properties::get_doubles, ..., Double);
 make_property_resetter!(reset_OfxParamPropDisplayMax, kOfxParamPropDisplayMax);
 make_property_dimension_getter!(
     get_dimension_OfxParamPropDisplayMax,
     kOfxParamPropDisplayMax
 );
-make_property_setter!(set_OfxParamPropDisplayMin, kOfxParamPropDisplayMin, crate::generic::sys_helpers::properties::set_ints, ..., Int);
-make_property_getter!(get_OfxParamPropDisplayMin, kOfxParamPropDisplayMin, crate::generic::sys_helpers::properties::get_ints, ..., Int);
+make_property_setter!(set_OfxParamPropDisplayMin_Int, kOfxParamPropDisplayMin, crate::generic::sys_helpers::properties::set_ints, ..., Int);
+make_property_getter!(get_OfxParamPropDisplayMin_Int, kOfxParamPropDisplayMin, crate::generic::sys_helpers::properties::get_ints, ..., Int);
+make_property_setter!(set_OfxParamPropDisplayMin_Double, kOfxParamPropDisplayMin, crate::generic::sys_helpers::properties::set_doubles, ..., Double);
+make_property_getter!(get_OfxParamPropDisplayMin_Double, kOfxParamPropDisplayMin, crate::generic::sys_helpers::properties::get_doubles, ..., Double);
 make_property_resetter!(reset_OfxParamPropDisplayMin, kOfxParamPropDisplayMin);
 make_property_dimension_getter!(
     get_dimension_OfxParamPropDisplayMin,
@@ -630,12 +640,16 @@ make_property_getter!(
     Int
 );
 make_property_resetter!(reset_OfxParamPropIsAutoKeying, kOfxParamPropIsAutoKeying);
-make_property_setter!(set_OfxParamPropMax, kOfxParamPropMax, crate::generic::sys_helpers::properties::set_ints, ..., Int);
-make_property_getter!(get_OfxParamPropMax, kOfxParamPropMax, crate::generic::sys_helpers::properties::get_ints, ..., Int);
+make_property_setter!(set_OfxParamPropMax_Int, kOfxParamPropMax, crate::generic::sys_helpers::properties::set_ints, ..., Int);
+make_property_getter!(get_OfxParamPropMax_Int, kOfxParamPropMax, crate::generic::sys_helpers::properties::get_ints, ..., Int);
+make_property_setter!(set_OfxParamPropMax_Double, kOfxParamPropMax, crate::generic::sys_helpers::properties::set_doubles, ..., Double);
+make_property_getter!(get_OfxParamPropMax_Double, kOfxParamPropMax, crate::generic::sys_helpers::properties::get_doubles, ..., Double);
 make_property_resetter!(reset_OfxParamPropMax, kOfxParamPropMax);
 make_property_dimension_getter!(get_dimension_OfxParamPropMax, kOfxParamPropMax);
-make_property_setter!(set_OfxParamPropMin, kOfxParamPropMin, crate::generic::sys_helpers::properties::set_ints, ..., Int);
-make_property_getter!(get_OfxParamPropMin, kOfxParamPropMin, crate::generic::sys_helpers::properties::get_ints, ..., Int);
+make_property_setter!(set_OfxParamPropMin_Int, kOfxParamPropMin, crate::generic::sys_helpers::properties::set_ints, ..., Int);
+make_property_getter!(get_OfxParamPropMin_Int, kOfxParamPropMin, crate::generic::sys_helpers::properties::get_ints, ..., Int);
+make_property_setter!(set_OfxParamPropMin_Double, kOfxParamPropMin, crate::generic::sys_helpers::properties::set_doubles, ..., Double);
+make_property_getter!(get_OfxParamPropMin_Double, kOfxParamPropMin, crate::generic::sys_helpers::properties::get_doubles, ..., Double);
 make_property_resetter!(reset_OfxParamPropMin, kOfxParamPropMin);
 make_property_dimension_getter!(get_dimension_OfxParamPropMin, kOfxParamPropMin);
 make_property_setter!(set_OfxParamPropPageChild, kOfxParamPropPageChild, crate::generic::sys_helpers::properties::set_strings, ..., String);
