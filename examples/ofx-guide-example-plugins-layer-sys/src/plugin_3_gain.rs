@@ -1,17 +1,22 @@
 mod processing;
 
 use std::{
-    ffi::{CStr, c_char, c_int, c_void},
+    ffi::{CStr, c_char, c_void},
     sync::{Mutex, OnceLock},
 };
 
 use openfx::{
-    generic::sys::core::{
-        OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, OfxTime, kOfxActionCreateInstance,
-        kOfxActionDescribe, kOfxActionDestroyInstance, kOfxActionLoad, kOfxActionUnload,
-        kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxPropInstanceData,
-        kOfxPropLabel, kOfxPropName, kOfxPropTime, kOfxStatErrUnsupported, kOfxStatFailed,
-        kOfxStatOK, kOfxStatReplyDefault,
+    generic::{
+        sys::core::{
+            OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, OfxTime, kOfxActionCreateInstance,
+            kOfxActionDescribe, kOfxActionDestroyInstance, kOfxActionLoad, kOfxActionUnload,
+            kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxStatErrUnsupported,
+            kOfxStatFailed, kOfxStatOK, kOfxStatReplyDefault,
+        },
+        sys_helpers::properties::{
+            get_OfxPropInstanceData, get_OfxPropTime, set_OfxPropInstanceData, set_OfxPropLabel,
+            set_OfxPropName,
+        },
     },
     image_effect_v1::{
         sys::{
@@ -20,20 +25,27 @@ use openfx::{
                 kOfxImageComponentRGB, kOfxImageComponentRGBA,
                 kOfxImageEffectActionDescribeInContext, kOfxImageEffectActionIsIdentity,
                 kOfxImageEffectActionRender, kOfxImageEffectContextFilter,
-                kOfxImageEffectPluginPropGrouping, kOfxImageEffectPluginPropHostFrameThreading,
-                kOfxImageEffectPluginRenderThreadSafety, kOfxImageEffectPropComponents,
-                kOfxImageEffectPropContext, kOfxImageEffectPropPixelDepth,
-                kOfxImageEffectPropRenderWindow, kOfxImageEffectPropSupportedComponents,
-                kOfxImageEffectPropSupportedContexts, kOfxImageEffectPropSupportedPixelDepths,
                 kOfxImageEffectRenderFullySafe,
             },
             param::{
-                OfxParamHandle, kOfxParamDoubleTypeScale, kOfxParamPropDefault,
-                kOfxParamPropDisplayMax, kOfxParamPropDisplayMin, kOfxParamPropDoubleType,
-                kOfxParamPropHint, kOfxParamPropMin, kOfxParamTypeBoolean, kOfxParamTypeDouble,
+                OfxParamHandle, kOfxParamDoubleTypeScale, kOfxParamTypeBoolean, kOfxParamTypeDouble,
             },
         },
-        sys_helpers::Plugin,
+        sys_helpers::{
+            Plugin,
+            properties::{
+                get_OfxImageEffectPropComponents, get_OfxImageEffectPropContext,
+                get_OfxImageEffectPropPixelDepth, get_OfxImageEffectPropRenderWindow,
+                set_OfxImageEffectPluginPropGrouping,
+                set_OfxImageEffectPluginPropHostFrameThreading,
+                set_OfxImageEffectPluginRenderThreadSafety,
+                set_OfxImageEffectPropSupportedComponents, set_OfxImageEffectPropSupportedContexts,
+                set_OfxImageEffectPropSupportedPixelDepths, set_OfxParamPropDefault_Double,
+                set_OfxParamPropDefault_Int, set_OfxParamPropDisplayMax_Double,
+                set_OfxParamPropDisplayMin_Double, set_OfxParamPropDoubleType,
+                set_OfxParamPropHint, set_OfxParamPropMin_Double,
+            },
+        },
     },
 };
 
@@ -165,29 +177,34 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> Result<(), OfxStatus> {
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let descriptor = unsafe { data.make_property_set_helper_for_image_effect(descriptor) }?;
+    let s_prop = data.inner().property_suite;
 
-    descriptor.prop_set_string(kOfxPropLabel, 0, PLUGIN_3_GAIN_LABEL)?;
-    descriptor.prop_set_string(kOfxImageEffectPluginPropGrouping, 0, PLUGINS_GROUPING)?;
-    descriptor.prop_set_string(
-        kOfxImageEffectPropSupportedContexts,
-        0,
-        kOfxImageEffectContextFilter,
-    )?;
+    let props = unsafe { data.get_property_set_from_image_effect(descriptor) }?;
 
-    for (i, bp) in [kOfxBitDepthFloat, kOfxBitDepthShort, kOfxBitDepthByte]
-        .iter()
-        .enumerate()
-    {
-        descriptor.prop_set_string(kOfxImageEffectPropSupportedPixelDepths, i as c_int, bp)?;
+    unsafe {
+        set_OfxPropLabel(s_prop, props, PLUGIN_3_GAIN_LABEL.as_ptr())?;
+        set_OfxImageEffectPluginPropGrouping(s_prop, props, PLUGINS_GROUPING.as_ptr())?;
+        set_OfxImageEffectPropSupportedContexts(
+            s_prop,
+            props,
+            &[kOfxImageEffectContextFilter.as_ptr()],
+        )?;
+        set_OfxImageEffectPropSupportedPixelDepths(
+            s_prop,
+            props,
+            &[
+                kOfxBitDepthFloat.as_ptr(),
+                kOfxBitDepthShort.as_ptr(),
+                kOfxBitDepthByte.as_ptr(),
+            ],
+        )?;
+        set_OfxImageEffectPluginRenderThreadSafety(
+            s_prop,
+            props,
+            kOfxImageEffectRenderFullySafe.as_ptr(),
+        )?;
+        set_OfxImageEffectPluginPropHostFrameThreading(s_prop, props, 1)?;
     }
-
-    descriptor.prop_set_string(
-        kOfxImageEffectPluginRenderThreadSafety,
-        0,
-        kOfxImageEffectRenderFullySafe,
-    )?;
-    descriptor.prop_set_int(kOfxImageEffectPluginPropHostFrameThreading, 0, 1)?;
 
     Ok(())
 }
@@ -199,57 +216,61 @@ fn action_describe_in_context(
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let s_prop = data.property_suite_helper();
+    let s_prop = data.inner().property_suite;
     let s_ifx = data.image_effect_suite_helper();
 
-    let in_args = unsafe { s_prop.make_property_set_helper(in_args) };
-
-    let context = in_args.prop_get_string(kOfxImageEffectPropContext, 0)?;
-    if context != Some(kOfxImageEffectContextFilter) {
+    let context = unsafe { get_OfxImageEffectPropContext(s_prop, in_args) }?;
+    if context.is_null() || unsafe { CStr::from_ptr(context) } != kOfxImageEffectContextFilter {
         return Err(kOfxStatErrUnsupported);
     }
 
     for name in [c"Output", c"Source"] {
         let props = unsafe { s_ifx.clip_define(descriptor, name) }?;
-        let props = unsafe { s_prop.make_property_set_helper(props) };
 
-        for (i, comp) in [
-            kOfxImageComponentRGBA,
-            kOfxImageComponentAlpha,
-            kOfxImageComponentRGB,
-        ]
-        .iter()
-        .enumerate()
-        {
-            props.prop_set_string(kOfxImageEffectPropSupportedComponents, i as c_int, comp)?;
-        }
+        (unsafe {
+            set_OfxImageEffectPropSupportedComponents(
+                s_prop,
+                props,
+                &[
+                    kOfxImageComponentRGBA.as_ptr(),
+                    kOfxImageComponentAlpha.as_ptr(),
+                    kOfxImageComponentRGB.as_ptr(),
+                ],
+            )
+        })?;
     }
 
     let param_set = unsafe { data.make_param_set_helper_for_image_effect(descriptor) }?;
 
     {
         let param_props = param_set.param_define(kOfxParamTypeDouble, GAIN_PARAM_NAME)?;
-        let param_props = unsafe { s_prop.make_property_set_helper(param_props) };
-        param_props.prop_set_string(kOfxParamPropDoubleType, 0, kOfxParamDoubleTypeScale)?;
-        param_props.prop_set_double(kOfxParamPropDefault, 0, 1.0)?;
-        param_props.prop_set_double(kOfxParamPropMin, 0, 0.0)?;
-        param_props.prop_set_double(kOfxParamPropDisplayMin, 0, 0.0)?;
-        param_props.prop_set_double(kOfxParamPropDisplayMax, 0, 10.0)?;
-        param_props.prop_set_string(kOfxPropLabel, 0, c"Gain")?;
-        param_props.prop_set_string(kOfxParamPropHint, 0, c"How much to multiply the image by.")?;
+        unsafe {
+            set_OfxParamPropDoubleType(s_prop, param_props, kOfxParamDoubleTypeScale.as_ptr())?;
+            set_OfxParamPropDefault_Double(s_prop, param_props, &[1.0])?;
+            set_OfxParamPropMin_Double(s_prop, param_props, &[0.0])?;
+            set_OfxParamPropDisplayMin_Double(s_prop, param_props, &[0.0])?;
+            set_OfxParamPropDisplayMax_Double(s_prop, param_props, &[10.0])?;
+            set_OfxPropLabel(s_prop, param_props, c"Gain".as_ptr())?;
+            set_OfxParamPropHint(
+                s_prop,
+                param_props,
+                c"How much to multiply the image by.".as_ptr(),
+            )?;
+        }
     }
 
     {
         let param_props =
             param_set.param_define(kOfxParamTypeBoolean, APPLY_TO_ALPHA_PARAM_NAME)?;
-        let param_props = unsafe { s_prop.make_property_set_helper(param_props) };
-        param_props.prop_set_int(kOfxParamPropDefault, 0, 0)?;
-        param_props.prop_set_string(kOfxPropLabel, 0, c"Apply To Alpha")?;
-        param_props.prop_set_string(
-            kOfxParamPropHint,
-            0,
-            c"Whether to apply the gain value to alpha as well.",
-        )?;
+        unsafe {
+            set_OfxParamPropDefault_Int(s_prop, param_props, &[0])?;
+            set_OfxPropLabel(s_prop, param_props, c"Apply To Alpha".as_ptr())?;
+            set_OfxParamPropHint(
+                s_prop,
+                param_props,
+                c"Whether to apply the gain value to alpha as well.".as_ptr(),
+            )?;
+        }
     }
 
     Ok(())
@@ -259,9 +280,10 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> Result<(), OfxStatu
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
+    let s_prop = data.inner().property_suite;
     let s_ifx = data.image_effect_suite_helper();
 
-    let instance_props = unsafe { data.make_property_set_helper_for_image_effect(instance) }?;
+    let instance_props = unsafe { data.get_property_set_from_image_effect(instance) }?;
 
     let source_clip = unsafe { s_ifx.clip_get_handle(instance, c"Source") }?;
     let output_clip = unsafe { s_ifx.clip_get_handle(instance, c"Output") }?;
@@ -280,7 +302,7 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> Result<(), OfxStatu
 
     // SAFETY: the pointee is kept alive by `Box::into_raw` until it is
     // reclaimed with `Box::from_raw` in `action_destroy_instance`.
-    match unsafe { instance_props.prop_set_pointer(kOfxPropInstanceData, 0, my_data_ptr) } {
+    match unsafe { set_OfxPropInstanceData(s_prop, instance_props, my_data_ptr) } {
         Ok(_) => Ok(()),
         Err(err) => {
             drop(unsafe { Box::from_raw(my_data_ptr as *mut MyInstanceData) });
@@ -293,8 +315,10 @@ fn action_destroy_instance(instance: OfxImageEffectHandle) -> Result<(), OfxStat
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let instance_props = unsafe { data.make_property_set_helper_for_image_effect(instance) }?;
-    let my_data_ptr = instance_props.prop_get_pointer(kOfxPropInstanceData, 0)?;
+    let s_prop = data.inner().property_suite;
+
+    let instance_props = unsafe { data.get_property_set_from_image_effect(instance) }?;
+    let my_data_ptr = unsafe { get_OfxPropInstanceData(s_prop, instance_props) }?;
     if my_data_ptr.is_null() {
         return Err(kOfxStatFailed);
     }
@@ -312,24 +336,21 @@ fn action_is_identity(
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let s_prop = data.property_suite_helper();
+    let s_prop = data.inner().property_suite;
     let s_param = data.parameter_suite_helper();
 
-    let instance_props = unsafe { data.make_property_set_helper_for_image_effect(effect) }?;
-    let my_data_ptr = instance_props.prop_get_pointer(kOfxPropInstanceData, 0)?;
+    let instance_props = unsafe { data.get_property_set_from_image_effect(effect) }?;
+    let my_data_ptr = unsafe { get_OfxPropInstanceData(s_prop, instance_props) }?;
     if my_data_ptr.is_null() {
         return Err(kOfxStatFailed);
     }
     let my_data = unsafe { &*(my_data_ptr as *const MyInstanceData) };
 
-    let in_args = unsafe { s_prop.make_property_set_helper(in_args) };
-    let out_args = unsafe { s_prop.make_property_set_helper(out_args) };
-
-    let time = in_args.prop_get_double(kOfxPropTime, 0)?;
+    let time = unsafe { get_OfxPropTime(s_prop, in_args) }?;
     let gain = unsafe { s_param.param_get_value_at_time_double(my_data.gain_param, time) }?;
 
     if (gain - 1.0).abs() < 0.000000001 {
-        out_args.prop_set_string(kOfxPropName, 0, c"Source")?;
+        (unsafe { set_OfxPropName(s_prop, out_args, c"Source".as_ptr()) })?;
         Ok(())
     } else {
         Err(kOfxStatReplyDefault)
@@ -344,20 +365,16 @@ fn action_render(
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let s_prop = data.property_suite_helper();
+    let s_prop = data.inner().property_suite;
     let s_param = data.parameter_suite_helper();
 
-    let in_args = unsafe { s_prop.make_property_set_helper(in_args) };
+    let instance_props = unsafe { data.get_property_set_from_image_effect(instance) }?;
 
-    let time: OfxTime = in_args.prop_get_double(kOfxPropTime, 0)?;
-    let render_window = {
-        let mut render_window: [c_int; 4] = [0; 4];
-        in_args.prop_get_int_n(kOfxImageEffectPropRenderWindow, &mut render_window)?;
-        rect_i_from_array(&render_window)
-    };
+    let time: OfxTime = unsafe { get_OfxPropTime(s_prop, in_args) }?;
+    let render_window = unsafe { get_OfxImageEffectPropRenderWindow(s_prop, in_args) }?;
+    let render_window = rect_i_from_array(&render_window);
 
-    let instance_props = unsafe { data.make_property_set_helper_for_image_effect(instance) }?;
-    let my_data_ptr = instance_props.prop_get_pointer(kOfxPropInstanceData, 0)?;
+    let my_data_ptr = unsafe { get_OfxPropInstanceData(s_prop, instance_props) }?;
     if my_data_ptr.is_null() {
         return Err(kOfxStatFailed);
     }
@@ -387,21 +404,26 @@ fn action_render(
         output_img: OfxPropertySetHandle,
         render_window: OfxRectI,
     ) -> Result<(), OfxStatus> {
-        let s_prop = data.property_suite_helper();
+        let s_prop = data.inner().property_suite;
 
-        let output_img = unsafe { s_prop.make_property_set_helper(output_img) };
-
-        let components = output_img.prop_get_string(kOfxImageEffectPropComponents, 0)?;
-        let n_comps = match components {
-            Some(c) if c == kOfxImageComponentRGBA => 4,
-            Some(c) if c == kOfxImageComponentRGB => 3,
-            Some(c) if c == kOfxImageComponentAlpha => 1,
+        let components = unsafe { get_OfxImageEffectPropComponents(s_prop, output_img) }?;
+        if components.is_null() {
+            return Err(kOfxStatErrUnsupported);
+        }
+        let n_comps = match unsafe { CStr::from_ptr(components) } {
+            c if c == kOfxImageComponentRGBA => 4,
+            c if c == kOfxImageComponentRGB => 3,
+            c if c == kOfxImageComponentAlpha => 1,
             _ => return Err(kOfxStatErrUnsupported),
         };
 
-        let data_type = output_img.prop_get_string(kOfxImageEffectPropPixelDepth, 0)?;
-        match data_type {
-            Some(c) if c == kOfxBitDepthByte => pixel_processing(
+        let data_type = unsafe { get_OfxImageEffectPropPixelDepth(s_prop, output_img) }?;
+        if data_type.is_null() {
+            return Err(kOfxStatErrUnsupported);
+        }
+
+        match unsafe { CStr::from_ptr(data_type) } {
+            c if c == kOfxBitDepthByte => pixel_processing(
                 |f| f as u8,
                 |v| v as f64,
                 255u8,
@@ -410,11 +432,11 @@ fn action_render(
                 data,
                 instance,
                 source_img,
-                output_img.props(),
+                output_img,
                 render_window,
                 n_comps,
             ),
-            Some(c) if c == kOfxBitDepthShort => pixel_processing(
+            c if c == kOfxBitDepthShort => pixel_processing(
                 |f| f as u16,
                 |v| v as f64,
                 65535u16,
@@ -423,11 +445,11 @@ fn action_render(
                 data,
                 instance,
                 source_img,
-                output_img.props(),
+                output_img,
                 render_window,
                 n_comps,
             ),
-            Some(c) if c == kOfxBitDepthFloat => pixel_processing(
+            c if c == kOfxBitDepthFloat => pixel_processing(
                 |f| f as f32,
                 |v| v as f64,
                 1.0f32,
@@ -436,7 +458,7 @@ fn action_render(
                 data,
                 instance,
                 source_img,
-                output_img.props(),
+                output_img,
                 render_window,
                 n_comps,
             ),
