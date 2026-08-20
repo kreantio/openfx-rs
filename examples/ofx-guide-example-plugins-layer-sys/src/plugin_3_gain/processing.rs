@@ -2,8 +2,11 @@ use std::ffi::c_int;
 
 use openfx::{
     generic::sys::core::{OfxPropertySetHandle, OfxRectI, OfxStatus, kOfxStatFailed},
-    image_effect_v1::sys::image_effect::{
-        OfxImageEffectHandle, kOfxImagePropBounds, kOfxImagePropData, kOfxImagePropRowBytes,
+    image_effect_v1::{
+        sys::image_effect::OfxImageEffectHandle,
+        sys_helpers::properties::{
+            get_OfxImagePropBounds, get_OfxImagePropData, get_OfxImagePropRowBytes,
+        },
     },
 };
 
@@ -26,28 +29,20 @@ pub fn pixel_processing<T>(
 where
     T: Copy + Default,
 {
-    let property_suite_helper = data.property_suite_helper();
+    let s_prop = data.inner().property_suite;
 
-    let output_img_helper = unsafe { property_suite_helper.make_property_set_helper(output_img) };
-    let dst_row_bytes = output_img_helper.prop_get_int(kOfxImagePropRowBytes, 0)?;
-    let dst_bounds = {
-        let mut dst_bounds: [c_int; 4] = [0; 4];
-        output_img_helper.prop_get_int_n(kOfxImagePropBounds, &mut dst_bounds)?;
-        rect_i_from_array(&dst_bounds)
-    };
-    let dst_ptr = output_img_helper.prop_get_pointer(kOfxImagePropData, 0)? as *mut T;
+    let dst_row_bytes = unsafe { get_OfxImagePropRowBytes(s_prop, source_img) }?;
+    let dst_bounds = unsafe { get_OfxImagePropBounds(s_prop, output_img) }?;
+    let dst_bounds = rect_i_from_array(&dst_bounds);
+    let dst_ptr = unsafe { get_OfxImagePropData(s_prop, output_img) }? as *mut T;
     if dst_ptr.is_null() {
         return Err(kOfxStatFailed);
     }
 
-    let source_img_helper = unsafe { property_suite_helper.make_property_set_helper(source_img) };
-    let src_row_bytes = source_img_helper.prop_get_int(kOfxImagePropRowBytes, 0)?;
-    let src_bounds = {
-        let mut src_bounds: [c_int; 4] = [0; 4];
-        source_img_helper.prop_get_int_n(kOfxImagePropBounds, &mut src_bounds)?;
-        rect_i_from_array(&src_bounds)
-    };
-    let src_ptr = source_img_helper.prop_get_pointer(kOfxImagePropData, 0)? as *mut T;
+    let src_row_bytes = unsafe { get_OfxImagePropRowBytes(s_prop, source_img) }?;
+    let src_bounds = unsafe { get_OfxImagePropBounds(s_prop, source_img) }?;
+    let src_bounds = rect_i_from_array(&src_bounds);
+    let src_ptr = unsafe { get_OfxImagePropData(s_prop, source_img) }? as *mut T;
     if src_ptr.is_null() {
         return Err(kOfxStatFailed);
     }

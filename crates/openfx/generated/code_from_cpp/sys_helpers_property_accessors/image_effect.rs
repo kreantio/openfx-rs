@@ -1,0 +1,1096 @@
+make_property_setter!(
+    set_OfxImageClipPropConnected,
+    kOfxImageClipPropConnected,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageClipPropConnected,
+    kOfxImageClipPropConnected,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxImageClipPropConnected, kOfxImageClipPropConnected);
+make_property_setter!(
+    set_OfxImageClipPropContinuousSamples,
+    kOfxImageClipPropContinuousSamples,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageClipPropContinuousSamples,
+    kOfxImageClipPropContinuousSamples,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageClipPropContinuousSamples,
+    kOfxImageClipPropContinuousSamples
+);
+make_property_setter!(
+    set_OfxImageClipPropFieldExtraction,
+    kOfxImageClipPropFieldExtraction,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageClipPropFieldExtraction,
+    kOfxImageClipPropFieldExtraction,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageClipPropFieldExtraction,
+    kOfxImageClipPropFieldExtraction
+);
+make_property_setter!(
+    set_OfxImageClipPropFieldOrder,
+    kOfxImageClipPropFieldOrder,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageClipPropFieldOrder,
+    kOfxImageClipPropFieldOrder,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageClipPropFieldOrder,
+    kOfxImageClipPropFieldOrder
+);
+make_property_setter!(
+    set_OfxImageClipPropIsMask,
+    kOfxImageClipPropIsMask,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageClipPropIsMask,
+    kOfxImageClipPropIsMask,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxImageClipPropIsMask, kOfxImageClipPropIsMask);
+make_property_setter!(
+    set_OfxImageClipPropOptional,
+    kOfxImageClipPropOptional,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageClipPropOptional,
+    kOfxImageClipPropOptional,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxImageClipPropOptional, kOfxImageClipPropOptional);
+make_property_setter!(
+    set_OfxImageClipPropUnmappedComponents,
+    kOfxImageClipPropUnmappedComponents,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageClipPropUnmappedComponents,
+    kOfxImageClipPropUnmappedComponents,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageClipPropUnmappedComponents,
+    kOfxImageClipPropUnmappedComponents
+);
+make_property_setter!(
+    set_OfxImageClipPropUnmappedPixelDepth,
+    kOfxImageClipPropUnmappedPixelDepth,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageClipPropUnmappedPixelDepth,
+    kOfxImageClipPropUnmappedPixelDepth,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageClipPropUnmappedPixelDepth,
+    kOfxImageClipPropUnmappedPixelDepth
+);
+make_property_setter!(
+    set_OfxImageEffectFrameVarying,
+    kOfxImageEffectFrameVarying,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectFrameVarying,
+    kOfxImageEffectFrameVarying,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectFrameVarying,
+    kOfxImageEffectFrameVarying
+);
+make_property_setter!(
+    set_OfxImageEffectHostPropIsBackground,
+    kOfxImageEffectHostPropIsBackground,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectHostPropIsBackground,
+    kOfxImageEffectHostPropIsBackground,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectHostPropIsBackground,
+    kOfxImageEffectHostPropIsBackground
+);
+make_property_setter!(
+    set_OfxImageEffectHostPropNativeOrigin,
+    kOfxImageEffectHostPropNativeOrigin,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectHostPropNativeOrigin,
+    kOfxImageEffectHostPropNativeOrigin,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectHostPropNativeOrigin,
+    kOfxImageEffectHostPropNativeOrigin
+);
+make_property_setter!(
+    set_OfxImageEffectInstancePropEffectDuration,
+    kOfxImageEffectInstancePropEffectDuration,
+    crate::generic::sys_helpers::properties::set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectInstancePropEffectDuration,
+    kOfxImageEffectInstancePropEffectDuration,
+    crate::generic::sys_helpers::properties::get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectInstancePropEffectDuration,
+    kOfxImageEffectInstancePropEffectDuration
+);
+make_property_setter!(
+    set_OfxImageEffectInstancePropSequentialRender,
+    kOfxImageEffectInstancePropSequentialRender,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectInstancePropSequentialRender,
+    kOfxImageEffectInstancePropSequentialRender,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectInstancePropSequentialRender,
+    kOfxImageEffectInstancePropSequentialRender
+);
+make_property_setter!(
+    set_OfxImageEffectPluginPropFieldRenderTwiceAlways,
+    kOfxImageEffectPluginPropFieldRenderTwiceAlways,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPluginPropFieldRenderTwiceAlways,
+    kOfxImageEffectPluginPropFieldRenderTwiceAlways,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPluginPropFieldRenderTwiceAlways,
+    kOfxImageEffectPluginPropFieldRenderTwiceAlways
+);
+make_property_setter!(
+    set_OfxImageEffectPluginPropGrouping,
+    kOfxImageEffectPluginPropGrouping,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPluginPropGrouping,
+    kOfxImageEffectPluginPropGrouping,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPluginPropGrouping,
+    kOfxImageEffectPluginPropGrouping
+);
+make_property_setter!(
+    set_OfxImageEffectPluginPropHostFrameThreading,
+    kOfxImageEffectPluginPropHostFrameThreading,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPluginPropHostFrameThreading,
+    kOfxImageEffectPluginPropHostFrameThreading,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPluginPropHostFrameThreading,
+    kOfxImageEffectPluginPropHostFrameThreading
+);
+make_property_setter!(
+    set_OfxImageEffectPluginPropObsolete,
+    kOfxImageEffectPluginPropObsolete,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPluginPropObsolete,
+    kOfxImageEffectPluginPropObsolete,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPluginPropObsolete,
+    kOfxImageEffectPluginPropObsolete
+);
+make_property_setter!(
+    set_OfxImageEffectPluginPropOverlayInteractV1,
+    kOfxImageEffectPluginPropOverlayInteractV1,
+    crate::generic::sys_helpers::properties::set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxImageEffectPluginPropOverlayInteractV1,
+    kOfxImageEffectPluginPropOverlayInteractV1,
+    crate::generic::sys_helpers::properties::get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(
+    reset_OfxImageEffectPluginPropOverlayInteractV1,
+    kOfxImageEffectPluginPropOverlayInteractV1
+);
+make_property_setter!(
+    set_OfxImageEffectPluginPropOverlayInteractV2,
+    kOfxImageEffectPluginPropOverlayInteractV2,
+    crate::generic::sys_helpers::properties::set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxImageEffectPluginPropOverlayInteractV2,
+    kOfxImageEffectPluginPropOverlayInteractV2,
+    crate::generic::sys_helpers::properties::get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(
+    reset_OfxImageEffectPluginPropOverlayInteractV2,
+    kOfxImageEffectPluginPropOverlayInteractV2
+);
+make_property_setter!(
+    set_OfxImageEffectPluginPropSingleInstance,
+    kOfxImageEffectPluginPropSingleInstance,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPluginPropSingleInstance,
+    kOfxImageEffectPluginPropSingleInstance,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPluginPropSingleInstance,
+    kOfxImageEffectPluginPropSingleInstance
+);
+make_property_setter!(
+    set_OfxImageEffectPluginRenderThreadSafety,
+    kOfxImageEffectPluginRenderThreadSafety,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPluginRenderThreadSafety,
+    kOfxImageEffectPluginRenderThreadSafety,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPluginRenderThreadSafety,
+    kOfxImageEffectPluginRenderThreadSafety
+);
+make_property_setter!(set_OfxImageEffectPropClipPreferencesSlaveParam, kOfxImageEffectPropClipPreferencesSlaveParam, crate::generic::sys_helpers::properties::set_strings, ..., String);
+make_property_getter!(get_OfxImageEffectPropClipPreferencesSlaveParam, kOfxImageEffectPropClipPreferencesSlaveParam, crate::generic::sys_helpers::properties::get_strings, ..., String);
+make_property_resetter!(
+    reset_OfxImageEffectPropClipPreferencesSlaveParam,
+    kOfxImageEffectPropClipPreferencesSlaveParam
+);
+make_property_dimension_getter!(
+    get_dimension_OfxImageEffectPropClipPreferencesSlaveParam,
+    kOfxImageEffectPropClipPreferencesSlaveParam
+);
+make_property_setter!(
+    set_OfxImageEffectPropComponents,
+    kOfxImageEffectPropComponents,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropComponents,
+    kOfxImageEffectPropComponents,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropComponents,
+    kOfxImageEffectPropComponents
+);
+make_property_setter!(
+    set_OfxImageEffectPropContext,
+    kOfxImageEffectPropContext,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropContext,
+    kOfxImageEffectPropContext,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxImageEffectPropContext, kOfxImageEffectPropContext);
+make_property_setter!(
+    set_OfxImageEffectPropFieldToRender,
+    kOfxImageEffectPropFieldToRender,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropFieldToRender,
+    kOfxImageEffectPropFieldToRender,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropFieldToRender,
+    kOfxImageEffectPropFieldToRender
+);
+make_property_setter!(
+    set_OfxImageEffectPropFrameRange,
+    kOfxImageEffectPropFrameRange,
+    crate::generic::sys_helpers::properties::set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropFrameRange,
+    kOfxImageEffectPropFrameRange,
+    crate::generic::sys_helpers::properties::get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropFrameRange,
+    kOfxImageEffectPropFrameRange
+);
+make_property_setter!(
+    set_OfxImageEffectPropFrameRate,
+    kOfxImageEffectPropFrameRate,
+    crate::generic::sys_helpers::properties::set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropFrameRate,
+    kOfxImageEffectPropFrameRate,
+    crate::generic::sys_helpers::properties::get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropFrameRate,
+    kOfxImageEffectPropFrameRate
+);
+make_property_setter!(
+    set_OfxImageEffectPropFrameStep,
+    kOfxImageEffectPropFrameStep,
+    crate::generic::sys_helpers::properties::set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropFrameStep,
+    kOfxImageEffectPropFrameStep,
+    crate::generic::sys_helpers::properties::get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropFrameStep,
+    kOfxImageEffectPropFrameStep
+);
+make_property_setter!(
+    set_OfxImageEffectPropInteractiveRenderStatus,
+    kOfxImageEffectPropInteractiveRenderStatus,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropInteractiveRenderStatus,
+    kOfxImageEffectPropInteractiveRenderStatus,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropInteractiveRenderStatus,
+    kOfxImageEffectPropInteractiveRenderStatus
+);
+make_property_setter!(
+    set_OfxImageEffectPropSupportsMultipleClipDepths,
+    kOfxImageEffectPropSupportsMultipleClipDepths,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropSupportsMultipleClipDepths,
+    kOfxImageEffectPropSupportsMultipleClipDepths,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropSupportsMultipleClipDepths,
+    kOfxImageEffectPropSupportsMultipleClipDepths
+);
+make_property_setter!(
+    set_OfxImageEffectPropNoSpatialAwareness,
+    kOfxImageEffectPropNoSpatialAwareness,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropNoSpatialAwareness,
+    kOfxImageEffectPropNoSpatialAwareness,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropNoSpatialAwareness,
+    kOfxImageEffectPropNoSpatialAwareness
+);
+make_property_setter!(
+    set_OfxImageEffectPropProjectPixelAspectRatio,
+    kOfxImageEffectPropProjectPixelAspectRatio,
+    crate::generic::sys_helpers::properties::set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropProjectPixelAspectRatio,
+    kOfxImageEffectPropProjectPixelAspectRatio,
+    crate::generic::sys_helpers::properties::get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropProjectPixelAspectRatio,
+    kOfxImageEffectPropProjectPixelAspectRatio
+);
+make_property_setter!(
+    set_OfxImageEffectPropPixelDepth,
+    kOfxImageEffectPropPixelDepth,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropPixelDepth,
+    kOfxImageEffectPropPixelDepth,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropPixelDepth,
+    kOfxImageEffectPropPixelDepth
+);
+make_property_setter!(
+    set_OfxImageEffectPropPluginHandle,
+    kOfxImageEffectPropPluginHandle,
+    crate::generic::sys_helpers::properties::set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxImageEffectPropPluginHandle,
+    kOfxImageEffectPropPluginHandle,
+    crate::generic::sys_helpers::properties::get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropPluginHandle,
+    kOfxImageEffectPropPluginHandle
+);
+make_property_setter!(
+    set_OfxImageEffectPropPreMultiplication,
+    kOfxImageEffectPropPreMultiplication,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropPreMultiplication,
+    kOfxImageEffectPropPreMultiplication,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropPreMultiplication,
+    kOfxImageEffectPropPreMultiplication
+);
+make_property_setter!(
+    set_OfxImageEffectPropProjectExtent,
+    kOfxImageEffectPropProjectExtent,
+    crate::generic::sys_helpers::properties::set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropProjectExtent,
+    kOfxImageEffectPropProjectExtent,
+    crate::generic::sys_helpers::properties::get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropProjectExtent,
+    kOfxImageEffectPropProjectExtent
+);
+make_property_setter!(
+    set_OfxImageEffectPropProjectOffset,
+    kOfxImageEffectPropProjectOffset,
+    crate::generic::sys_helpers::properties::set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropProjectOffset,
+    kOfxImageEffectPropProjectOffset,
+    crate::generic::sys_helpers::properties::get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropProjectOffset,
+    kOfxImageEffectPropProjectOffset
+);
+make_property_setter!(
+    set_OfxImageEffectPropProjectSize,
+    kOfxImageEffectPropProjectSize,
+    crate::generic::sys_helpers::properties::set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropProjectSize,
+    kOfxImageEffectPropProjectSize,
+    crate::generic::sys_helpers::properties::get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropProjectSize,
+    kOfxImageEffectPropProjectSize
+);
+make_property_setter!(
+    set_OfxImageEffectPropRegionOfDefinition,
+    kOfxImageEffectPropRegionOfDefinition,
+    crate::generic::sys_helpers::properties::set_doubles_4,
+    4,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropRegionOfDefinition,
+    kOfxImageEffectPropRegionOfDefinition,
+    crate::generic::sys_helpers::properties::get_doubles_4,
+    4,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropRegionOfDefinition,
+    kOfxImageEffectPropRegionOfDefinition
+);
+make_property_setter!(
+    set_OfxImageEffectPropRegionOfInterest,
+    kOfxImageEffectPropRegionOfInterest,
+    crate::generic::sys_helpers::properties::set_doubles_4,
+    4,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropRegionOfInterest,
+    kOfxImageEffectPropRegionOfInterest,
+    crate::generic::sys_helpers::properties::get_doubles_4,
+    4,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropRegionOfInterest,
+    kOfxImageEffectPropRegionOfInterest
+);
+make_property_setter!(
+    set_OfxImageEffectPropRenderQualityDraft,
+    kOfxImageEffectPropRenderQualityDraft,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropRenderQualityDraft,
+    kOfxImageEffectPropRenderQualityDraft,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropRenderQualityDraft,
+    kOfxImageEffectPropRenderQualityDraft
+);
+make_property_setter!(
+    set_OfxImageEffectPropRenderScale,
+    kOfxImageEffectPropRenderScale,
+    crate::generic::sys_helpers::properties::set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropRenderScale,
+    kOfxImageEffectPropRenderScale,
+    crate::generic::sys_helpers::properties::get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropRenderScale,
+    kOfxImageEffectPropRenderScale
+);
+make_property_setter!(
+    set_OfxImageEffectPropRenderWindow,
+    kOfxImageEffectPropRenderWindow,
+    crate::generic::sys_helpers::properties::set_ints_4,
+    4,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropRenderWindow,
+    kOfxImageEffectPropRenderWindow,
+    crate::generic::sys_helpers::properties::get_ints_4,
+    4,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropRenderWindow,
+    kOfxImageEffectPropRenderWindow
+);
+make_property_setter!(
+    set_OfxImageEffectPropSequentialRenderStatus,
+    kOfxImageEffectPropSequentialRenderStatus,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropSequentialRenderStatus,
+    kOfxImageEffectPropSequentialRenderStatus,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropSequentialRenderStatus,
+    kOfxImageEffectPropSequentialRenderStatus
+);
+make_property_setter!(
+    set_OfxImageEffectPropSetableFielding,
+    kOfxImageEffectPropSetableFielding,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropSetableFielding,
+    kOfxImageEffectPropSetableFielding,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropSetableFielding,
+    kOfxImageEffectPropSetableFielding
+);
+make_property_setter!(
+    set_OfxImageEffectPropSetableFrameRate,
+    kOfxImageEffectPropSetableFrameRate,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropSetableFrameRate,
+    kOfxImageEffectPropSetableFrameRate,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropSetableFrameRate,
+    kOfxImageEffectPropSetableFrameRate
+);
+make_property_setter!(set_OfxImageEffectPropSupportedComponents, kOfxImageEffectPropSupportedComponents, crate::generic::sys_helpers::properties::set_strings, ..., String);
+make_property_getter!(get_OfxImageEffectPropSupportedComponents, kOfxImageEffectPropSupportedComponents, crate::generic::sys_helpers::properties::get_strings, ..., String);
+make_property_resetter!(
+    reset_OfxImageEffectPropSupportedComponents,
+    kOfxImageEffectPropSupportedComponents
+);
+make_property_dimension_getter!(
+    get_dimension_OfxImageEffectPropSupportedComponents,
+    kOfxImageEffectPropSupportedComponents
+);
+make_property_setter!(set_OfxImageEffectPropSupportedContexts, kOfxImageEffectPropSupportedContexts, crate::generic::sys_helpers::properties::set_strings, ..., String);
+make_property_getter!(get_OfxImageEffectPropSupportedContexts, kOfxImageEffectPropSupportedContexts, crate::generic::sys_helpers::properties::get_strings, ..., String);
+make_property_resetter!(
+    reset_OfxImageEffectPropSupportedContexts,
+    kOfxImageEffectPropSupportedContexts
+);
+make_property_dimension_getter!(
+    get_dimension_OfxImageEffectPropSupportedContexts,
+    kOfxImageEffectPropSupportedContexts
+);
+make_property_setter!(set_OfxImageEffectPropSupportedPixelDepths, kOfxImageEffectPropSupportedPixelDepths, crate::generic::sys_helpers::properties::set_strings, ..., String);
+make_property_getter!(get_OfxImageEffectPropSupportedPixelDepths, kOfxImageEffectPropSupportedPixelDepths, crate::generic::sys_helpers::properties::get_strings, ..., String);
+make_property_resetter!(
+    reset_OfxImageEffectPropSupportedPixelDepths,
+    kOfxImageEffectPropSupportedPixelDepths
+);
+make_property_dimension_getter!(
+    get_dimension_OfxImageEffectPropSupportedPixelDepths,
+    kOfxImageEffectPropSupportedPixelDepths
+);
+make_property_setter!(
+    set_OfxImageEffectPropSupportsMultiResolution,
+    kOfxImageEffectPropSupportsMultiResolution,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropSupportsMultiResolution,
+    kOfxImageEffectPropSupportsMultiResolution,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropSupportsMultiResolution,
+    kOfxImageEffectPropSupportsMultiResolution
+);
+make_property_setter!(
+    set_OfxImageEffectPropSupportsMultipleClipPARs,
+    kOfxImageEffectPropSupportsMultipleClipPARs,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropSupportsMultipleClipPARs,
+    kOfxImageEffectPropSupportsMultipleClipPARs,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropSupportsMultipleClipPARs,
+    kOfxImageEffectPropSupportsMultipleClipPARs
+);
+make_property_setter!(
+    set_OfxImageEffectPropSupportsOverlays,
+    kOfxImageEffectPropSupportsOverlays,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropSupportsOverlays,
+    kOfxImageEffectPropSupportsOverlays,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropSupportsOverlays,
+    kOfxImageEffectPropSupportsOverlays
+);
+make_property_setter!(
+    set_OfxImageEffectPropSupportsTiles,
+    kOfxImageEffectPropSupportsTiles,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropSupportsTiles,
+    kOfxImageEffectPropSupportsTiles,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropSupportsTiles,
+    kOfxImageEffectPropSupportsTiles
+);
+make_property_setter!(
+    set_OfxImageEffectPropTemporalClipAccess,
+    kOfxImageEffectPropTemporalClipAccess,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImageEffectPropTemporalClipAccess,
+    kOfxImageEffectPropTemporalClipAccess,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropTemporalClipAccess,
+    kOfxImageEffectPropTemporalClipAccess
+);
+make_property_setter!(
+    set_OfxImageEffectPropThumbnailRender,
+    kOfxImageEffectPropThumbnailRender,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropThumbnailRender,
+    kOfxImageEffectPropThumbnailRender,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropThumbnailRender,
+    kOfxImageEffectPropThumbnailRender
+);
+make_property_setter!(
+    set_OfxImageEffectPropUnmappedFrameRange,
+    kOfxImageEffectPropUnmappedFrameRange,
+    crate::generic::sys_helpers::properties::set_doubles_2,
+    2,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropUnmappedFrameRange,
+    kOfxImageEffectPropUnmappedFrameRange,
+    crate::generic::sys_helpers::properties::get_doubles_2,
+    2,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropUnmappedFrameRange,
+    kOfxImageEffectPropUnmappedFrameRange
+);
+make_property_setter!(
+    set_OfxImageEffectPropUnmappedFrameRate,
+    kOfxImageEffectPropUnmappedFrameRate,
+    crate::generic::sys_helpers::properties::set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxImageEffectPropUnmappedFrameRate,
+    kOfxImageEffectPropUnmappedFrameRate,
+    crate::generic::sys_helpers::properties::get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropUnmappedFrameRate,
+    kOfxImageEffectPropUnmappedFrameRate
+);
+make_property_setter!(
+    set_OfxImagePropBounds,
+    kOfxImagePropBounds,
+    crate::generic::sys_helpers::properties::set_ints_4,
+    4,
+    Int
+);
+make_property_getter!(
+    get_OfxImagePropBounds,
+    kOfxImagePropBounds,
+    crate::generic::sys_helpers::properties::get_ints_4,
+    4,
+    Int
+);
+make_property_resetter!(reset_OfxImagePropBounds, kOfxImagePropBounds);
+make_property_setter!(
+    set_OfxImagePropData,
+    kOfxImagePropData,
+    crate::generic::sys_helpers::properties::set_pointer,
+    1,
+    Pointer
+);
+make_property_getter!(
+    get_OfxImagePropData,
+    kOfxImagePropData,
+    crate::generic::sys_helpers::properties::get_pointer,
+    1,
+    Pointer
+);
+make_property_resetter!(reset_OfxImagePropData, kOfxImagePropData);
+make_property_setter!(
+    set_OfxImagePropField,
+    kOfxImagePropField,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImagePropField,
+    kOfxImagePropField,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(reset_OfxImagePropField, kOfxImagePropField);
+make_property_setter!(
+    set_OfxImagePropPixelAspectRatio,
+    kOfxImagePropPixelAspectRatio,
+    crate::generic::sys_helpers::properties::set_double,
+    1,
+    Double
+);
+make_property_getter!(
+    get_OfxImagePropPixelAspectRatio,
+    kOfxImagePropPixelAspectRatio,
+    crate::generic::sys_helpers::properties::get_double,
+    1,
+    Double
+);
+make_property_resetter!(
+    reset_OfxImagePropPixelAspectRatio,
+    kOfxImagePropPixelAspectRatio
+);
+make_property_setter!(
+    set_OfxImagePropRegionOfDefinition,
+    kOfxImagePropRegionOfDefinition,
+    crate::generic::sys_helpers::properties::set_ints_4,
+    4,
+    Int
+);
+make_property_getter!(
+    get_OfxImagePropRegionOfDefinition,
+    kOfxImagePropRegionOfDefinition,
+    crate::generic::sys_helpers::properties::get_ints_4,
+    4,
+    Int
+);
+make_property_resetter!(
+    reset_OfxImagePropRegionOfDefinition,
+    kOfxImagePropRegionOfDefinition
+);
+make_property_setter!(
+    set_OfxImagePropRowBytes,
+    kOfxImagePropRowBytes,
+    crate::generic::sys_helpers::properties::set_int,
+    1,
+    Int
+);
+make_property_getter!(
+    get_OfxImagePropRowBytes,
+    kOfxImagePropRowBytes,
+    crate::generic::sys_helpers::properties::get_int,
+    1,
+    Int
+);
+make_property_resetter!(reset_OfxImagePropRowBytes, kOfxImagePropRowBytes);
+make_property_setter!(
+    set_OfxImagePropUniqueIdentifier,
+    kOfxImagePropUniqueIdentifier,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImagePropUniqueIdentifier,
+    kOfxImagePropUniqueIdentifier,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImagePropUniqueIdentifier,
+    kOfxImagePropUniqueIdentifier
+);

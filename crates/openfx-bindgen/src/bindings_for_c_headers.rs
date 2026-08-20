@@ -43,8 +43,11 @@ use crate::utils::algorithms_by_llms::{DependencySortable, sort_by_dependencies}
 pub fn generate_bindings_for_c_headers(
     headers_folder: impl Into<PathBuf>,
     output_folder: impl Into<PathBuf>,
+    output_folder_c: impl Into<PathBuf>,
 ) {
-    if let Err(err) = generate_bindings_for_c_headers_inner(headers_folder, output_folder) {
+    if let Err(err) =
+        generate_bindings_for_c_headers_inner(headers_folder, output_folder, output_folder_c)
+    {
         panic!("Failed to generate bindings for C headers: {}", err);
     }
 }
@@ -54,9 +57,11 @@ const COLORSPACE_HEADER_NAME: &str = "ofx-native-v1.5_aces-v1.3_ocio-v2.3";
 fn generate_bindings_for_c_headers_inner(
     headers_folder: impl Into<PathBuf>,
     output_folder: impl Into<PathBuf>,
+    output_folder_c: impl Into<PathBuf>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let headers_folder = headers_folder.into();
     let output_folder = output_folder.into();
+    let output_folder_c = output_folder_c.into();
 
     let headers = Header::headers_from_folder(&headers_folder)
         .map_err(|err| format!("Failed to collect headers: {}", err))?;
@@ -64,10 +69,36 @@ fn generate_bindings_for_c_headers_inner(
     let DeduplicateOutput {
         deduplicated_syn_files,
         checks_syn_files,
+        root_item_idents_per_header,
     } = deduplicate(&headers).map_err(|err| format!("Failed to deduplicate headers: {}", err))?;
 
     std::fs::create_dir_all(output_folder.join("checks"))?;
+    std::fs::create_dir_all(&output_folder_c)?;
 
+    let mut statuses: HashSet<String> = HashSet::new();
+
+    gen_c_bindings(
+        &output_folder,
+        &headers,
+        &deduplicated_syn_files,
+        &checks_syn_files,
+        &mut statuses,
+    )?;
+
+    gen_low_statuses(&output_folder_c, statuses)?;
+
+    gen_data_root_idents(&output_folder_c, root_item_idents_per_header)?;
+
+    Ok(())
+}
+
+fn gen_c_bindings(
+    output_folder: &Path,
+    headers: &[Header],
+    deduplicated_syn_files: &std::collections::HashMap<String, syn::File>,
+    checks_syn_files: &std::collections::HashMap<String, syn::File>,
+    statuses: &mut HashSet<String>,
+) -> Result<(), Box<dyn std::error::Error>> {
     for header in headers {
         let mod_name = &header.mod_name_snake_case;
         let output_path = output_folder.join(format!("{}.rs", mod_name));
@@ -95,7 +126,74 @@ fn generate_bindings_for_c_headers_inner(
             output_folder.join(format!("checks/{}.rs", mod_name)),
             prettyplease::unparse(checks_syn_file),
         )?;
+
+        if !header.additional_info.statuses.is_empty() {
+            statuses.extend(header.additional_info.statuses.clone());
+        }
     }
+
+    Ok(())
+}
+
+fn gen_low_statuses(
+    output_folder_c: &Path,
+    statuses: HashSet<String>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut statuses: Vec<String> = statuses.into_iter().collect();
+    statuses.sort();
+    let status_sys_ident = statuses
+        .iter()
+        .map(|status| {
+            syn::Ident::new(
+                &format!("kOfxStat{}", status),
+                proc_macro2::Span::call_site(),
+            )
+        })
+        .collect::<Vec<_>>();
+    let statuses = statuses
+        .iter()
+        .map(|status| syn::Ident::new(status, proc_macro2::Span::call_site()))
+        .collect::<Vec<_>>();
+
+    let code = quote! {
+        pub enum OfxStatus {
+            #(#statuses,)*
+            Unknown(crate::generic::sys::core::OfxStatus),
+        }
+        impl From<crate::generic::sys::core::OfxStatus> for OfxStatus {
+            fn from(status: crate::generic::sys::core::OfxStatus) -> Self {
+                match status {
+                    #(crate::generic::sys::core::#status_sys_ident => Self::#statuses,)*
+                    _ => Self::Unknown(status),
+                }
+            }
+        }
+        impl From<OfxStatus> for crate::generic::sys::core::OfxStatus {
+            fn from(status: OfxStatus) -> Self {
+                match status {
+                    #(OfxStatus::#statuses => crate::generic::sys::core::#status_sys_ident,)*
+                    OfxStatus::Unknown(status) => status,
+                }
+            }
+        }
+    };
+    std::fs::write(
+        output_folder_c.join("low_statuses.rs"),
+        prettyplease::unparse(&syn::parse2(code)?),
+    )?;
+
+    Ok(())
+}
+
+fn gen_data_root_idents(
+    output_folder_c: &Path,
+    root_item_idents_per_header: HashMap<String, HashSet<String>>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    std::fs::create_dir_all(output_folder_c.join("data"))?;
+    let path = output_folder_c.join("data/root_item_idents_per_header.json");
+
+    let json = serde_json::to_string_pretty(&root_item_idents_per_header)?;
+    std::fs::write(path, json)?;
 
     Ok(())
 }
@@ -114,6 +212,12 @@ pub(crate) struct Header {
     pub bindgen_generated_rust_code: String,
 
     pub additional_rust_code: Option<String>,
+    pub additional_info: AdditionalInfo,
+}
+
+#[derive(Default)]
+pub(crate) struct AdditionalInfo {
+    pub statuses: HashSet<String>,
 }
 
 impl Header {
@@ -166,6 +270,8 @@ impl Header {
             .unwrap()
             .to_case(convert_case::Case::Snake);
 
+        let mut info: AdditionalInfo = Default::default();
+
         let mut included_headers = HashSet::new();
         for line in c_code.lines() {
             static INCLUDE_PREFIX: &str = "#include \"";
@@ -195,6 +301,7 @@ impl Header {
                 let (name, rest) = rest
                     .split_once(' ')
                     .ok_or_else(|| format!("Failed to split line: {}", line))?;
+                info.statuses.insert(name.to_string());
                 let num = extract_number(rest)
                     .ok_or_else(|| format!("Failed to extract number from line: {}", line))?;
                 additional_lines.push(format!("pub const kOfxStat{}: OfxStatus = {};", name, num));
@@ -219,6 +326,7 @@ impl Header {
                 .generate()?
                 .to_string(),
             additional_rust_code,
+            additional_info: info,
         })
     }
 }
@@ -226,6 +334,7 @@ impl Header {
 struct DeduplicateOutput {
     deduplicated_syn_files: HashMap<String, syn::File>,
     checks_syn_files: HashMap<String, syn::File>,
+    root_item_idents_per_header: HashMap<String, HashSet<String>>,
 }
 
 fn deduplicate(headers: &[Header]) -> Result<DeduplicateOutput, Box<dyn std::error::Error>> {
@@ -234,12 +343,9 @@ fn deduplicate(headers: &[Header]) -> Result<DeduplicateOutput, Box<dyn std::err
 
     let mut deduplicated_syn_files: HashMap<String, syn::File> = HashMap::new();
     let mut checks_syn_files: HashMap<String, syn::File> = HashMap::new();
+    let mut root_item_idents_per_header: HashMap<String, HashSet<String>> = HashMap::new();
 
     for header in headers {
-        // `mod_name_snake_case` -> item names
-        let mut dup_names: HashMap<String, HashSet<String>> = HashMap::new();
-        let mut dedup_items: Vec<syn::Item> = vec![];
-
         let syn_file = syn::parse_file(&header.bindgen_generated_rust_code)?;
 
         // `check_items`: `const _: () = { … };`
@@ -257,7 +363,10 @@ fn deduplicate(headers: &[Header]) -> Result<DeduplicateOutput, Box<dyn std::err
             },
         );
 
-        for (ident, item) in collect_root_item_idents(&items) {
+        // `mod_name_snake_case` -> item names
+        let mut dup_names: HashMap<String, HashSet<String>> = HashMap::new();
+        let mut dedup_items: Vec<syn::Item> = vec![];
+        for (ident, item) in collect_root_item_idents_per_header(&items) {
             let name = ident.to_string();
             if let Some(mod_name) = seen_names.get(&name) {
                 dup_names
@@ -267,6 +376,10 @@ fn deduplicate(headers: &[Header]) -> Result<DeduplicateOutput, Box<dyn std::err
             } else {
                 seen_names.insert(name.clone(), header.mod_name_snake_case.clone());
                 dedup_items.push(item.clone());
+                root_item_idents_per_header
+                    .entry(header.mod_name_snake_case.clone())
+                    .or_default()
+                    .insert(name);
             }
         }
 
@@ -306,10 +419,13 @@ fn deduplicate(headers: &[Header]) -> Result<DeduplicateOutput, Box<dyn std::err
     Ok(DeduplicateOutput {
         deduplicated_syn_files,
         checks_syn_files,
+        root_item_idents_per_header,
     })
 }
 
-fn collect_root_item_idents<'a>(items: &[&'a syn::Item]) -> Vec<(&'a syn::Ident, &'a syn::Item)> {
+fn collect_root_item_idents_per_header<'a>(
+    items: &[&'a syn::Item],
+) -> Vec<(&'a syn::Ident, &'a syn::Item)> {
     items
         .iter()
         .filter_map(|item| {
