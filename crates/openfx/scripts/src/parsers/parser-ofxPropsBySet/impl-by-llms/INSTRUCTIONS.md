@@ -1,5 +1,7 @@
 # Instructions for Implementing the Parser for `ofxPropsBySet.h`
 
+Executed by `GLM 5.3 (harness: Hermes, provider: OpenCode Go, effort: Med)`.
+
 1. Unless otherwise specified, only write code in this folder.
    - Because `deno.json` is outside this folder, do not introduce new
      dependencies.
