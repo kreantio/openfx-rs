@@ -38,13 +38,22 @@ function genAccessorsForTypesWithDimensions(
   };
   for (const v of Object.values(fr.propertyInfos)) {
     let v_type = v.type;
-    if (typeof v_type !== "string") {
-      v_type satisfies { "Enum": unknown };
-      v_type = "String";
-    } else if (v_type === "Bool") {
-      v_type = "Int";
+    if (v_type instanceof Set) {
+      for (let t of v_type) {
+        if (t === "Bool") {
+          t = "Int";
+        }
+        typeToPossibleDimensions[t].add(v.dimension);
+      }
+    } else {
+      if (typeof v_type !== "string") {
+        v_type satisfies { "Enum": unknown };
+        v_type = "String";
+      } else if (v_type === "Bool") {
+        v_type = "Int";
+      }
+      typeToPossibleDimensions[v_type].add(v.dimension);
     }
-    typeToPossibleDimensions[v_type].add(v.dimension);
   }
 
   for (
@@ -104,36 +113,36 @@ async function genAccessors(
       k = fix;
     }
 
-    let v_type = v.type;
-    if (typeof v_type !== "string") {
-      v_type satisfies { "Enum": unknown };
-      v_type = "String";
-    } else if (v_type === "Bool") {
-      v_type = "Int";
-    }
-
     const kName = `k${k}`;
     const mod = findMod(rootItemIdentsPerHeader, kName);
     const parts = (ret[mod] ??= []);
 
-    const fnNameS = getFnName("set", v_type, v.dimension, true);
-    const fnNameG = getFnName("get", v_type, v.dimension, true);
-    if (v.dimension === 0) {
-      parts.push(...[
-        `make_property_setter!(set_${k}, ${kName}, ${fnNameS}, ..., ${v_type});`,
-        `make_property_getter!(get_${k}, ${kName}, ${fnNameG}, ..., ${v_type});`,
-      ]);
-    } else if (v.dimension === 1) {
-      parts.push(...[
-        `make_property_setter!(set_${k}, ${kName}, ${fnNameS}, ${v.dimension}, ${v_type});`,
-        `make_property_getter!(get_${k}, ${kName}, ${fnNameG}, ${v.dimension}, ${v_type});`,
-      ]);
+    let v_type = v.type;
+    if (v_type instanceof Set) {
+      for (let t of v_type) {
+        if (t === "Bool") {
+          t = "Int";
+        }
+        const fnNameS = getFnName("set", t, v.dimension, true);
+        const fnNameG = getFnName("get", t, v.dimension, true);
+
+        const s = `_${t}`;
+        pushAccessorParts(parts, k, kName, fnNameS, fnNameG, t, v.dimension, s);
+      }
     } else {
-      parts.push(...[
-        `make_property_setter!(set_${k}, ${kName}, ${fnNameS}, ${v.dimension}, ${v_type});`,
-        `make_property_getter!(get_${k}, ${kName}, ${fnNameG}, ${v.dimension}, ${v_type});`,
-      ]);
+      if (typeof v_type !== "string") {
+        v_type satisfies { "Enum": unknown };
+        v_type = "String";
+      } else if (v_type === "Bool") {
+        v_type = "Int";
+      }
+
+      const fnNameS = getFnName("set", v_type, v.dimension, true);
+      const fnNameG = getFnName("get", v_type, v.dimension, true);
+
+      pushAccessorParts(parts, k, kName, fnNameS, fnNameG, v_type, v.dimension);
     }
+
     parts.push(`make_property_resetter!(reset_${k}, ${kName});`);
     if (v.dimension === 0) {
       parts.push(
@@ -143,6 +152,34 @@ async function genAccessors(
   }
 
   return ret;
+}
+
+function pushAccessorParts(
+  parts: string[],
+  k: string,
+  kName: string,
+  fnNameS: string,
+  fnNameG: string,
+  v_type: string,
+  v_dimension: number,
+  suffix: string = "",
+) {
+  if (v_dimension === 0) {
+    parts.push(...[
+      `make_property_setter!(set_${k}${suffix}, ${kName}, ${fnNameS}, ..., ${v_type});`,
+      `make_property_getter!(get_${k}${suffix}, ${kName}, ${fnNameG}, ..., ${v_type});`,
+    ]);
+  } else if (v_dimension === 1) {
+    parts.push(...[
+      `make_property_setter!(set_${k}${suffix}, ${kName}, ${fnNameS}, ${v_dimension}, ${v_type});`,
+      `make_property_getter!(get_${k}${suffix}, ${kName}, ${fnNameG}, ${v_dimension}, ${v_type});`,
+    ]);
+  } else {
+    parts.push(...[
+      `make_property_setter!(set_${k}${suffix}, ${kName}, ${fnNameS}, ${v_dimension}, ${v_type});`,
+      `make_property_getter!(get_${k}${suffix}, ${kName}, ${fnNameG}, ${v_dimension}, ${v_type});`,
+    ]);
+  }
 }
 
 function getFnName(

@@ -1,4 +1,21 @@
-# Instructions for Implementing the Parser for `ofxPropsMetadata.h`
+# Instructions for the Parser for `ofxPropsMetadata.h`
+
+## Instructions for update 1
+
+Update the parser so that `prop_type_array` supports multiple types.
+
+Refer to:
+`git diff crates/openfx/scripts/src/parsers/parser-ofxPropsMetadata/types.ts`.
+
+For example, `finalResult.propertyInfos["OfxParamPropDefault"].type` must equal
+`new Set(["Int", "Double", "String", "Pointer"])`.
+
+If a property's value can have an enum type, it must not have any other type.
+Throw an error if this condition is encountered.
+
+## History
+
+### Instructions for Implementing the Parser
 
 Executed by `GLM 5.3 (harness: Hermes, provider: OpenCode Go, effort: Med)`.
 
