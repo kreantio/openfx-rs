@@ -2,20 +2,38 @@
 
 ## Prerequisites
 
-To update the generated code in the crate `openfx`:
+### Building plugins with the crate `openfx`
 
-- you need to ensure that POSIX tools like `rm` and `mkdir` are available in
-  your environment.
-- you will need to install the following tools:
-  - [`just`]
+The crate `openfx` itself is dependency-free, but OpenFX plugins require to be
+packed in a specific way. Therefore, you need to do some additional work after
+the binary is built. See: [OpenFX reference / Packaging OFX Plug-ins]. You can
+also have a look at
+[some of the scripts I use for bundling the example plugins].
 
-To build some of the examples, you will need to install the following tools:
+[OpenFX reference / Packaging OFX Plug-ins]: https://openfx.readthedocs.io/en/latest/Reference/ofxPackaging.html
+[some of the scripts I use for bundling the example plugins]: examples/ofx-guide-example-plugins-layer-sys/scripts/bundle.ts
 
-- [`just`]
-- [`deno`]
+Please don't forget that the `Cargo.toml` of your plugin crates should contain:
+
+```toml
+[lib]
+crate-type = ["cdylib"]
+```
+
+### Development
+
+The following tools are required:
+
+| tool(s)                           | building examples? | updating generated code in crate `openfx`? |
+| --------------------------------- | ------------------ | ------------------------------------------ |
+| POSIX tools (`rm`, `mkdir`, etc.) | yes (I assume)     | yes                                        |
+| [`just`]                          | yes                | yes                                        |
+| [`deno`]                          | yes                | yes                                        |
+| [`clang++`]                       | no                 | yes                                        |
 
 [`just`]: https://github.com/casey/just
 [`deno`]: https://deno.com/
+[`clang++`]: https://clang.llvm.org/
 
 ## crate [`openfx`](./crates/openfx/)
 

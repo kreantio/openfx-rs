@@ -1,0 +1,146 @@
+make_property_setter!(
+    set_OfxImageClipPropColourspace,
+    kOfxImageClipPropColourspace,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageClipPropColourspace,
+    kOfxImageClipPropColourspace,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageClipPropColourspace,
+    kOfxImageClipPropColourspace
+);
+make_property_setter!(set_OfxImageClipPropPreferredColourspaces, kOfxImageClipPropPreferredColourspaces, crate::generic::sys_helpers::properties::set_strings, ..., String);
+make_property_getter!(get_OfxImageClipPropPreferredColourspaces, kOfxImageClipPropPreferredColourspaces, crate::generic::sys_helpers::properties::get_strings, ..., String);
+make_property_resetter!(
+    reset_OfxImageClipPropPreferredColourspaces,
+    kOfxImageClipPropPreferredColourspaces
+);
+make_property_dimension_getter!(
+    get_dimension_OfxImageClipPropPreferredColourspaces,
+    kOfxImageClipPropPreferredColourspaces
+);
+make_property_setter!(set_OfxImageEffectPropColourManagementAvailableConfigs, kOfxImageEffectPropColourManagementAvailableConfigs, crate::generic::sys_helpers::properties::set_strings, ..., String);
+make_property_getter!(get_OfxImageEffectPropColourManagementAvailableConfigs, kOfxImageEffectPropColourManagementAvailableConfigs, crate::generic::sys_helpers::properties::get_strings, ..., String);
+make_property_resetter!(
+    reset_OfxImageEffectPropColourManagementAvailableConfigs,
+    kOfxImageEffectPropColourManagementAvailableConfigs
+);
+make_property_dimension_getter!(
+    get_dimension_OfxImageEffectPropColourManagementAvailableConfigs,
+    kOfxImageEffectPropColourManagementAvailableConfigs
+);
+make_property_setter!(
+    set_OfxImageEffectPropColourManagementConfig,
+    kOfxImageEffectPropColourManagementConfig,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropColourManagementConfig,
+    kOfxImageEffectPropColourManagementConfig,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropColourManagementConfig,
+    kOfxImageEffectPropColourManagementConfig
+);
+make_property_setter!(
+    set_OfxImageEffectPropColourManagementStyle,
+    kOfxImageEffectPropColourManagementStyle,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropColourManagementStyle,
+    kOfxImageEffectPropColourManagementStyle,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropColourManagementStyle,
+    kOfxImageEffectPropColourManagementStyle
+);
+make_property_setter!(
+    set_OfxImageEffectPropDisplayColourspace,
+    kOfxImageEffectPropDisplayColourspace,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropDisplayColourspace,
+    kOfxImageEffectPropDisplayColourspace,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropDisplayColourspace,
+    kOfxImageEffectPropDisplayColourspace
+);
+make_property_setter!(
+    set_OfxImageEffectPropOCIOConfig,
+    kOfxImageEffectPropOCIOConfig,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropOCIOConfig,
+    kOfxImageEffectPropOCIOConfig,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropOCIOConfig,
+    kOfxImageEffectPropOCIOConfig
+);
+make_property_setter!(
+    set_OfxImageEffectPropOCIODisplay,
+    kOfxImageEffectPropOCIODisplay,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropOCIODisplay,
+    kOfxImageEffectPropOCIODisplay,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropOCIODisplay,
+    kOfxImageEffectPropOCIODisplay
+);
+make_property_setter!(
+    set_OfxImageEffectPropOCIOView,
+    kOfxImageEffectPropOCIOView,
+    crate::generic::sys_helpers::properties::set_string,
+    1,
+    String
+);
+make_property_getter!(
+    get_OfxImageEffectPropOCIOView,
+    kOfxImageEffectPropOCIOView,
+    crate::generic::sys_helpers::properties::get_string,
+    1,
+    String
+);
+make_property_resetter!(
+    reset_OfxImageEffectPropOCIOView,
+    kOfxImageEffectPropOCIOView
+);

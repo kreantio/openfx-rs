@@ -1,0 +1,14 @@
+{
+  "imports": {
+    "@std/assert": "jsr:@std/assert@^1.0.19",
+    "@std/cli": "jsr:@std/cli@^1.0.32",
+    "@zod/zod": "jsr:@zod/zod@^4.4.3",
+    "chevrotain": "npm:chevrotain@^13.2.0",
+    "toml": "npm:toml@^5.0.0"
+  },
+  "tasks": {
+    "test": "deno task 'test:*'",
+    "test:parsers:ofxPropsMetadata": "deno test --allow-read=.. ./src/parsers/parser-ofxPropsMetadata/mod.test.ts -- --crate-path=..",
+    "test:parsers:ofxPropsBySet": "deno test --allow-read=.. ./src/parsers/parser-ofxPropsBySet/mod.test.ts -- --crate-path=.."
+  }
+}

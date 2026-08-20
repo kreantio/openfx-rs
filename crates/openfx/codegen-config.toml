@@ -1,0 +1,36 @@
+# A property's macro name is normally derived from its constant key by adding
+# the "k" prefix. Some property macro names, however, do not follow this
+# convention. This mapping allows code generation to reconcile those macro
+# names with their corresponding constant keys.
+#
+# See: https://github.com/AcademySoftwareFoundation/openfx/commit/66f66d98e9d9c7f661dbb5ecc6f60ff6b7cae97d
+#
+# FORMAT: <PROPERTY_CONSTANT_KEY> = "<PROPERTY_MACRO_NAME_K_STRIPPED>"
+[property_value_to_key_exceptions]
+OfxFieldNone = "OfxImageFieldNone"
+OfxFieldLower = "OfxImageFieldLower"
+OfxFieldUpper = "OfxImageFieldUpper"
+OfxFieldBoth = "OfxImageFieldBoth"
+OfxFieldSingle = "OfxImageFieldSingle"
+OfxFieldDoubled = "OfxImageFieldDoubled"
+
+kOfxImageEffectHostPropNativeOriginBottomLeft = "OfxHostNativeOriginBottomLeft"
+kOfxImageEffectHostPropNativeOriginTopLeft = "OfxHostNativeOriginTopLeft"
+kOfxImageEffectHostPropNativeOriginCenter = "OfxHostNativeOriginCenter"
+
+OfxImageEffectPropColourManagementNone = "OfxImageEffectColourManagementNone"
+OfxImageEffectPropColourManagementBasic = "OfxImageEffectColourManagementBasic"
+OfxImageEffectPropColourManagementCore = "OfxImageEffectColourManagementCore"
+OfxImageEffectPropColourManagementFull = "OfxImageEffectColourManagementFull"
+OfxImageEffectPropColourManagementOCIO = "OfxImageEffectColourManagementOCIO"
+
+OfxImageAlphaPremultiplied = "OfxImagePreMultiplied"
+OfxImageAlphaUnPremultiplied = "OfxImageUnPreMultiplied"
+
+OfxImageEffectPropMultipleClipDepths = "OfxImageEffectPropSupportsMultipleClipDepths"
+OfxImageEffectPropPixelAspectRatio = "OfxImageEffectPropProjectPixelAspectRatio"
+OfxInteractPropViewport = "OfxInteractPropViewportSize"
+OfxParamPropCustomCallbackV1 = "OfxParamPropCustomInterpCallbackV1"
+kOfxParamPropUseHostOverlayHandle = "OfxParamPropUseHostOverlayHandle"
+kOfxPropKeyString = "OfxPropKeyString"
+kOfxPropKeySym = "OfxPropKeySym"

@@ -4,26 +4,33 @@ use std::{
 };
 
 use openfx::{
-    generic::sys::{
-        core::{
-            OfxHost, OfxPropertySetHandle, OfxPropertySetStruct, OfxStatus,
-            kOfxActionCreateInstance, kOfxActionDescribe, kOfxActionDestroyInstance,
-            kOfxActionLoad, kOfxActionUnload, kOfxPropInstanceData, kOfxPropLabel, kOfxPropName,
-            kOfxStatErrMissingHostFeature, kOfxStatErrUnsupported, kOfxStatFailed, kOfxStatOK,
-            kOfxStatReplyDefault,
+    generic::{
+        sys::{
+            core::{
+                OfxHost, OfxPropertySetHandle, OfxPropertySetStruct, OfxStatus,
+                kOfxActionCreateInstance, kOfxActionDescribe, kOfxActionDestroyInstance,
+                kOfxActionLoad, kOfxActionUnload, kOfxStatErrMissingHostFeature,
+                kOfxStatErrUnsupported, kOfxStatFailed, kOfxStatOK, kOfxStatReplyDefault,
+            },
+            property::{OfxPropertySuiteV1, kOfxPropertySuite},
         },
-        property::{OfxPropertySuiteV1, kOfxPropertySuite},
+        sys_helpers::properties::{
+            get_OfxPropInstanceData, set_OfxPropInstanceData, set_OfxPropLabel,
+        },
     },
     image_effect_v1::{
         sys::image_effect::{
             OfxImageEffectHandle, OfxImageEffectSuiteV1, kOfxImageComponentAlpha,
             kOfxImageComponentRGBA, kOfxImageEffectActionDescribeInContext,
-            kOfxImageEffectActionIsIdentity, kOfxImageEffectContextFilter,
-            kOfxImageEffectPluginPropGrouping, kOfxImageEffectPropContext,
-            kOfxImageEffectPropSupportedComponents, kOfxImageEffectPropSupportedContexts,
-            kOfxImageEffectSuite,
+            kOfxImageEffectActionIsIdentity, kOfxImageEffectContextFilter, kOfxImageEffectSuite,
         },
-        sys_helpers::Plugin,
+        sys_helpers::{
+            Plugin,
+            properties::{
+                get_OfxImageEffectPropContext, set_OfxImageEffectPluginPropGrouping,
+                set_OfxImageEffectPropSupportedComponents, set_OfxImageEffectPropSupportedContexts,
+            },
+        },
     },
 };
 
@@ -190,39 +197,16 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> Result<(), OfxStatus> {
         return Err(stat);
     }
 
-    let prop_set_string = data
-        .property_suite
-        .propSetString
-        .ok_or(kOfxStatErrMissingHostFeature)?;
+    let s_prop = data.property_suite;
 
     unsafe {
-        if let stat = prop_set_string(
+        set_OfxPropLabel(s_prop, effect_props, PLUGIN_1_BASICS_LABEL.as_ptr())?;
+        set_OfxImageEffectPluginPropGrouping(s_prop, effect_props, PLUGINS_GROUPING.as_ptr())?;
+        set_OfxImageEffectPropSupportedContexts(
+            s_prop,
             effect_props,
-            kOfxPropLabel.as_ptr(),
-            0,
-            PLUGIN_1_BASICS_LABEL.as_ptr(),
-        ) && stat != kOfxStatOK
-        {
-            return Err(stat);
-        }
-        if let stat = prop_set_string(
-            effect_props,
-            kOfxImageEffectPluginPropGrouping.as_ptr(),
-            0,
-            PLUGINS_GROUPING.as_ptr(),
-        ) && stat != kOfxStatOK
-        {
-            return Err(stat);
-        }
-        if let stat = prop_set_string(
-            effect_props,
-            kOfxImageEffectPropSupportedContexts.as_ptr(),
-            0,
-            kOfxImageEffectContextFilter.as_ptr(),
-        ) && stat != kOfxStatOK
-        {
-            return Err(stat);
-        }
+            &[kOfxImageEffectContextFilter.as_ptr()],
+        )?;
     }
 
     Ok(())
@@ -235,31 +219,13 @@ fn action_describe_in_context(
     let data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
     let data = data.as_ref().ok_or(kOfxStatFailed)?;
 
-    let prop_get_string = data
-        .property_suite
-        .propGetString
-        .ok_or(kOfxStatErrMissingHostFeature)?;
-    let prop_set_string = data
-        .property_suite
-        .propSetString
-        .ok_or(kOfxStatErrMissingHostFeature)?;
+    let s_prop = data.property_suite;
     let clip_define = data
         .image_effect_suite
         .clipDefine
         .ok_or(kOfxStatErrMissingHostFeature)?;
 
-    let mut context: *mut c_char = std::ptr::null_mut();
-    unsafe {
-        if let stat = prop_get_string(
-            in_args,
-            kOfxImageEffectPropContext.as_ptr(),
-            0,
-            &mut context,
-        ) && stat != kOfxStatOK
-        {
-            return Err(stat);
-        }
-    }
+    let context = unsafe { get_OfxImageEffectPropContext(s_prop, in_args)? };
     let context = unsafe { CStr::from_ptr(context) };
     if context != kOfxImageEffectContextFilter {
         return Err(kOfxStatErrUnsupported);
@@ -272,24 +238,14 @@ fn action_describe_in_context(
         {
             return Err(stat);
         }
-        if let stat = prop_set_string(
+        set_OfxImageEffectPropSupportedComponents(
+            s_prop,
             props,
-            kOfxImageEffectPropSupportedComponents.as_ptr(),
-            0,
-            kOfxImageComponentRGBA.as_ptr(),
-        ) && stat != kOfxStatOK
-        {
-            return Err(stat);
-        }
-        if let stat = prop_set_string(
-            props,
-            kOfxImageEffectPropSupportedComponents.as_ptr(),
-            1,
-            kOfxImageComponentAlpha.as_ptr(),
-        ) && stat != kOfxStatOK
-        {
-            return Err(stat);
-        }
+            &[
+                kOfxImageComponentRGBA.as_ptr(),
+                kOfxImageComponentAlpha.as_ptr(),
+            ],
+        )?;
     }
 
     let mut props: *mut OfxPropertySetStruct = std::ptr::null_mut();
@@ -299,24 +255,14 @@ fn action_describe_in_context(
         {
             return Err(stat);
         }
-        if let stat = prop_set_string(
+        set_OfxImageEffectPropSupportedComponents(
+            s_prop,
             props,
-            kOfxImageEffectPropSupportedComponents.as_ptr(),
-            0,
-            kOfxImageComponentRGBA.as_ptr(),
-        ) && stat != kOfxStatOK
-        {
-            return Err(stat);
-        }
-        if let stat = prop_set_string(
-            props,
-            kOfxImageEffectPropSupportedComponents.as_ptr(),
-            1,
-            kOfxImageComponentAlpha.as_ptr(),
-        ) && stat != kOfxStatOK
-        {
-            return Err(stat);
-        }
+            &[
+                kOfxImageComponentRGBA.as_ptr(),
+                kOfxImageComponentAlpha.as_ptr(),
+            ],
+        )?;
     }
 
     Ok(())
@@ -330,10 +276,7 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> Result<(), OfxStatu
         .image_effect_suite
         .getPropertySet
         .ok_or(kOfxStatErrMissingHostFeature)?;
-    let prop_set_pointer = data
-        .property_suite
-        .propSetPointer
-        .ok_or(kOfxStatErrMissingHostFeature)?;
+    let s_prop = data.property_suite;
 
     let mut effect_props: *mut OfxPropertySetStruct = std::ptr::null_mut();
     if let stat = (unsafe { get_property_set(instance, &mut effect_props) })
@@ -346,14 +289,7 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> Result<(), OfxStatu
         "This is random instance data that could be anything you want.",
     ));
     let my_string = Box::into_raw(my_string) as *mut c_void;
-    unsafe {
-        if let stat = prop_set_pointer(effect_props, kOfxPropInstanceData.as_ptr(), 0, my_string)
-            && stat != kOfxStatOK
-        {
-            drop(Box::from_raw(my_string.cast::<String>()));
-            return Err(stat);
-        }
-    }
+    unsafe { set_OfxPropInstanceData(s_prop, effect_props, my_string) }?;
 
     Ok(())
 }
@@ -366,10 +302,7 @@ fn action_destroy_instance(instance: OfxImageEffectHandle) -> Result<(), OfxStat
         .image_effect_suite
         .getPropertySet
         .ok_or(kOfxStatErrMissingHostFeature)?;
-    let prop_get_pointer = data
-        .property_suite
-        .propGetPointer
-        .ok_or(kOfxStatErrMissingHostFeature)?;
+    let s_prop = data.property_suite;
 
     let mut effect_props: *mut OfxPropertySetStruct = std::ptr::null_mut();
     if let stat = (unsafe { get_property_set(instance, &mut effect_props) })
@@ -378,18 +311,7 @@ fn action_destroy_instance(instance: OfxImageEffectHandle) -> Result<(), OfxStat
         return Err(stat);
     }
 
-    let mut my_string: *mut c_void = std::ptr::null_mut();
-    if let stat = (unsafe {
-        prop_get_pointer(
-            effect_props,
-            kOfxPropInstanceData.as_ptr(),
-            0,
-            &mut my_string,
-        )
-    }) && stat != kOfxStatOK
-    {
-        return Err(stat);
-    }
+    let my_string = unsafe { get_OfxPropInstanceData(s_prop, effect_props) }?;
 
     // assert!(!my_string.is_null(), "Instance data should not be null!");
 
@@ -406,15 +328,8 @@ fn action_is_identity(
     let data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
     let data = data.as_ref().ok_or(kOfxStatFailed)?;
 
-    let prop_set_string = data
-        .property_suite
-        .propSetString
-        .ok_or(kOfxStatErrMissingHostFeature)?;
-    if let stat = unsafe { prop_set_string(out_args, kOfxPropName.as_ptr(), 0, c"Source".as_ptr()) }
-        && stat != kOfxStatOK
-    {
-        return Err(stat);
-    }
+    let s_prop = data.property_suite;
+    unsafe { set_OfxPropLabel(s_prop, out_args, c"Source".as_ptr()) }?;
 
     Ok(())
 }
