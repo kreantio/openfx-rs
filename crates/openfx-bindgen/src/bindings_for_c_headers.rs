@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, HashMap, HashSet},
     path::{Path, PathBuf},
 };
 
@@ -192,7 +192,14 @@ fn gen_data_root_idents(
     std::fs::create_dir_all(output_folder_c.join("data"))?;
     let path = output_folder_c.join("data/root_item_idents_per_header.json");
 
-    let json = serde_json::to_string_pretty(&root_item_idents_per_header)?;
+    let mut stable_map: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    for (mod_name, idents) in root_item_idents_per_header {
+        let mut idents: Vec<String> = idents.into_iter().collect();
+        idents.sort();
+        stable_map.insert(mod_name, idents);
+    }
+
+    let json = serde_json::to_string_pretty(&stable_map)?;
     std::fs::write(path, json)?;
 
     Ok(())
