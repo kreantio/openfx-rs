@@ -1,12 +1,12 @@
 import {
   FinalResult as FinalResultOfxPropsMetadata,
 } from "../parsers/parser-ofxPropsMetadata/types.ts";
-import { PropertyNameRegulator } from "../utils/name-regulator.ts";
+import { NameRegulator } from "../utils/name-regulator.ts";
 
 export function genLowEnums(
   fr: FinalResultOfxPropsMetadata,
   opts: {
-    propertyNameRegulator: PropertyNameRegulator;
+    propertyNameRegulator: NameRegulator;
   },
 ): string {
   const items: string[] = [];

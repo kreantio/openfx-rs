@@ -64,10 +64,18 @@ export type PropDefsArrayItem = z.infer<typeof PropDefsArrayItem>;
 export const PropDefsArray = z.record(z.string(), z.array(PropDefsArrayItem));
 export type PropDefsArray = z.infer<typeof PropDefsArray>;
 
+/**
+ * key: OpenFX key constant literal value.
+ * value: canonical name (OpenFX key constant identifier) with prefix `k`.
+ */
+export const Assertions = z.record(z.string(), z.string());
+export type Assertions = z.infer<typeof Assertions>;
+
 export const PropertyInfos = z.object({
   propEnumValues: PropEnumValues,
   propTypeArrays: PropTypeArrays,
   propDefsArray: PropDefsArray,
+  assertions: Assertions,
 });
 export type PropertyInfos = z.infer<typeof PropertyInfos>;
 
@@ -91,5 +99,7 @@ export const FinalResult = z.object({
       dimension: z.number().int().nonnegative(),
     }),
   ),
+  // NOTE: no prefix `k` in values.
+  keyConstantToCanonicalNameMap: z.record(z.string(), z.string()),
 });
 export type FinalResult = z.infer<typeof FinalResult>;

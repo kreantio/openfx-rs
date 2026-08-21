@@ -4,12 +4,12 @@ import {
   FinalResult as FinalResultOfxPropsMetadata,
   PropType,
 } from "../parsers/parser-ofxPropsMetadata/types.ts";
-import { PropertyNameRegulator } from "../utils/name-regulator.ts";
+import { NameRegulator } from "../utils/name-regulator.ts";
 
 export async function genSysHelpersPropertyAccessors(
   fr: FinalResultOfxPropsMetadata,
   opts: {
-    propertyNameRegulator: PropertyNameRegulator;
+    propertyNameRegulator: NameRegulator;
     dataFromCPath: string;
   },
 ): Promise<{ generic: string; image_effect_v1: Record<string, string> }> {
@@ -93,7 +93,7 @@ function genAccessorsForTypesWithDimensions(
 async function genAccessors(
   fr: FinalResultOfxPropsMetadata,
   opts: {
-    propertyNameRegulator: PropertyNameRegulator;
+    propertyNameRegulator: NameRegulator;
     dataFromCPath: string;
   },
 ): Promise<Record<string, string[]>> {

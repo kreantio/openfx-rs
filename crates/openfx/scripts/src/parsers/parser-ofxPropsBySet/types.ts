@@ -15,7 +15,7 @@ export const Structure = z.tuple([
       z.literal("static:propSets"),
       z.literal("static:actions"),
       z.literal("static:actionProps"),
-      z.literal("staticAssert[]"),
+      z.literal("staticAssert:actionName[]"),
     ]),
   }),
 ]);
@@ -44,10 +44,18 @@ export const ActionProps = z.record(
 );
 export type ActionProps = z.infer<typeof ActionProps>;
 
+/**
+ * key: OpenFX key constant literal value.
+ * value: canonical name (OpenFX key constant identifier) with prefix `k`.
+ */
+export const Assertions = z.record(z.string(), z.string());
+export type Assertions = z.infer<typeof Assertions>;
+
 export const Infos = z.object({
   propSets: PropSets,
   actions: Actions,
   actionProps: ActionProps,
+  assertions: Assertions,
 });
 export type Infos = z.infer<typeof Infos>;
 
@@ -59,5 +67,7 @@ export type Result = z.infer<typeof Result>;
 
 export const FinalResult = z.object({
   infos: Infos,
+  // NOTE: no prefix `k` in values.
+  keyConstantToCanonicalNameMap: z.record(z.string(), z.string()),
 });
 export type FinalResult = z.infer<typeof FinalResult>;

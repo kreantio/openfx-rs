@@ -131,3 +131,70 @@ Deno.test("update 1: unknown PropType enumerator is rejected", () => {
   assert(mutated !== headerCode, "no single-entry type array found to mutate");
   assertThrows(() => parse(mutated), Error, "unknown type");
 });
+
+Deno.test("update 2: assertions capture value-to-key-constant mappings", () => {
+  const { assertions } = result.propertyInfos;
+  // The header's 283 asserts cover 243 unique values (some repeat verbatim).
+  assertEquals(Object.keys(assertions).length, 243);
+  // Values are the key constants as written, i.e. with their `k` prefix.
+  assertEquals(assertions["OfxParamPropDefault"], "kOfxParamPropDefault");
+  // Mappings that differ beyond the `k` prefix are the point of this record.
+  assertEquals(
+    assertions["OfxImageEffectPropPixelAspectRatio"],
+    "kOfxImageEffectPropProjectPixelAspectRatio",
+  );
+  assertEquals(
+    assertions["kOfxParamPropUseHostOverlayHandle"],
+    "kOfxParamPropUseHostOverlayHandle",
+  );
+});
+
+Deno.test("update 2: keyConstantToCanonicalNameMap strips the k prefix", () => {
+  const { assertions } = result.propertyInfos;
+  const map = finalResult.keyConstantToCanonicalNameMap;
+  assertEquals(Object.keys(map).length, Object.keys(assertions).length);
+  for (const [value, constant] of Object.entries(assertions)) {
+    assertEquals(map[value], constant.slice(1));
+  }
+  // Keys are the constant values; values carry no `k` prefix.
+  assertEquals(map["OfxParamPropDefault"], "OfxParamPropDefault");
+});
+
+Deno.test("update 2: conflicting or overlapping asserts are rejected", () => {
+  // A repeated assert whose constant was altered: same name, new mapping.
+  const repeated =
+    `static_assert(string_view("OfxFieldNone") == string_view(kOfxImageFieldNone));`;
+  const first = headerCode.indexOf(repeated);
+  const second = headerCode.indexOf(repeated, first + 1);
+  assert(first !== -1 && second !== -1, "expected a repeated assert");
+  const conflicting = headerCode.slice(0, second) +
+    repeated.replace("kOfxImageFieldNone", "kOfxImageFieldLower") +
+    headerCode.slice(second + repeated.length);
+  assertThrows(() => parse(conflicting), Error, "conflicting static_assert");
+
+  // One constant claimed by two different names.
+  const single =
+    `static_assert(string_view("OfxFieldSingle") == string_view(kOfxImageFieldSingle));`;
+  assert(headerCode.includes(single), "expected the OfxFieldSingle assert");
+  const reused = headerCode.replace(
+    single,
+    single.replace("kOfxImageFieldSingle", "kOfxImageFieldNone"),
+  );
+  assertThrows(() => parse(reused), Error, "already mapped");
+});
+
+Deno.test("update 2: assert shape is structural", () => {
+  // `std::string_view` instead of the using-declared `string_view`.
+  const qualified = headerCode.replace(
+    `static_assert(string_view("OfxImageClipPropColourspace")`,
+    `static_assert(std::string_view("OfxImageClipPropColourspace")`,
+  );
+  assertThrows(() => parse(qualified), Error);
+
+  // Any operator other than `==`.
+  const negated = headerCode.replace(
+    `"OfxImageClipPropColourspace") == string_view(kOfxImageClipPropColourspace)`,
+    `"OfxImageClipPropColourspace") != string_view(kOfxImageClipPropColourspace)`,
+  );
+  assertThrows(() => parse(negated), Error);
+});
