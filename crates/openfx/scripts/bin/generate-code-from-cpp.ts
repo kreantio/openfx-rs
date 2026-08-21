@@ -12,6 +12,7 @@ import {
 import { CodegenConfig } from "../src/definitions.ts";
 import { genLowEnums } from "../src/generators/gen-low-enums.ts";
 import { genSysHelpersPropertyAccessors } from "../src/generators/gen-sys-helpers-property-accessors.ts";
+import { PropertyNameRegulator } from "../src/utils/name-regulator.ts";
 
 function doParseArgs(args: string[]) {
   const result = parseArgs(args, {
@@ -56,17 +57,18 @@ async function main(args: Args) {
     ),
   ));
 
+  const propertyNameRegulator = new PropertyNameRegulator(codegenConfig);
+
   await Deno.writeTextFile(
     path.join(args["output-code-from-cpp"], "low_enums.rs"),
-    genLowEnums(propsMetadata, codegenConfig),
+    genLowEnums(propsMetadata, { propertyNameRegulator }),
   );
   {
     const { generic, image_effect_v1: codePerMod } =
-      await genSysHelpersPropertyAccessors(
-        propsMetadata,
-        codegenConfig,
-        { dataFromCPath: args["input-data-from-c"] },
-      );
+      await genSysHelpersPropertyAccessors(propsMetadata, {
+        propertyNameRegulator,
+        dataFromCPath: args["input-data-from-c"],
+      });
     await Deno.writeTextFile(
       path.join(
         args["output-code-from-cpp"],
