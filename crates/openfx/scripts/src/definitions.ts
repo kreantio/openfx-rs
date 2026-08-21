@@ -1,3 +1,2 @@
-export interface CodegenConfig {
-  "property_value_to_key_exceptions": Record<string, string>;
-}
+// deno-lint-ignore no-empty-interface
+export interface CodegenConfig {}

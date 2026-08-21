@@ -8,11 +8,15 @@ import {
   makeFinalResult as makeFinalResultOfxPropsMetadata,
   parse as parseOfxPropsMetadata,
 } from "../src/parsers/parser-ofxPropsMetadata/impl-by-llms/mod.ts";
+import {
+  makeFinalResult as makeFinalResultOfxPropsBySet,
+  parse as parseOfxPropsBySet,
+} from "../src/parsers/parser-ofxPropsBySet/impl-by-llms/mod.ts";
 
 import { CodegenConfig } from "../src/definitions.ts";
 import { genLowEnums } from "../src/generators/gen-low-enums.ts";
 import { genSysHelpersPropertyAccessors } from "../src/generators/gen-sys-helpers-property-accessors.ts";
-import { PropertyNameRegulator } from "../src/utils/name-regulator.ts";
+import { NameRegulator } from "../src/utils/name-regulator.ts";
 
 function doParseArgs(args: string[]) {
   const result = parseArgs(args, {
@@ -47,7 +51,7 @@ function parseCodegenConfig(tomlText: string): CodegenConfig {
 }
 
 async function main(args: Args) {
-  const codegenConfig = parseCodegenConfig(
+  const _codegenConfig = parseCodegenConfig(
     await Deno.readTextFile(args["codegen-config"]),
   );
 
@@ -56,8 +60,16 @@ async function main(args: Args) {
       path.join(args["input-cpp-headers"], "ofxPropsMetadata.h"),
     ),
   ));
+  const propsBySet = makeFinalResultOfxPropsBySet(parseOfxPropsBySet(
+    await Deno.readTextFile(
+      path.join(args["input-cpp-headers"], "ofxPropsBySet.h"),
+    ),
+  ));
 
-  const propertyNameRegulator = new PropertyNameRegulator(codegenConfig);
+  const propertyNameRegulator = new NameRegulator({
+    propsMetadata,
+    propsBySet,
+  });
 
   await Deno.writeTextFile(
     path.join(args["output-code-from-cpp"], "low_enums.rs"),

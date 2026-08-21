@@ -222,6 +222,12 @@ class OfxPropsBySetParser extends CstParser {
   /** Index into `actions` past the last static_assert match (order check). */
   private assertCursor = 0;
   private assertedNames = new Set<string>();
+  /**
+   * `static_assert(std::string_view("Value") == std::string_view(kConstant))`
+   * pairs, keyed by the asserted constant value. Values are the key constants
+   * as written, i.e. with their `k` prefix.
+   */
+  readonly assertions: Record<string, string> = {};
 
   constructor() {
     super(parserTokens);
@@ -246,7 +252,7 @@ class OfxPropsBySetParser extends CstParser {
     this.SUBRULE(this.staticActions);
     this.SUBRULE(this.staticActionProps);
     this.AT_LEAST_ONE(() => this.SUBRULE(this.staticAssertDeclaration));
-    this.ACTION(() => this.openfxInner.push("staticAssert[]"));
+    this.ACTION(() => this.openfxInner.push("staticAssert:actionName[]"));
     this.CONSUME(RBrace);
   });
 
@@ -567,18 +573,23 @@ class OfxPropsBySetParser extends CstParser {
     this.CONSUME3(RParen);
     this.CONSUME(Semicolon);
     this.ACTION(() => {
-      const name = parseCppString(nameTok.image);
-      if (identTok.image !== `k${name}`) {
-        fail(`static_assert compares "${name}" with "${identTok.image}"`);
+      // The string literal is the constant's value; the identifier is the
+      // constant's name. `assertions` maps the value to the name as written
+      // (with its `k` prefix); ../types.ts documents this orientation.
+      const value = parseCppString(nameTok.image);
+      const constant = identTok.image;
+      if (constant !== `k${value}`) {
+        fail(`static_assert compares "${value}" with "${constant}"`);
       }
-      if (this.assertedNames.has(name)) {
-        fail(`duplicate static_assert for "${name}"`);
+      if (this.assertedNames.has(value)) {
+        fail(`duplicate static_assert for "${value}"`);
       }
-      this.assertedNames.add(name);
+      this.assertedNames.add(value);
+      this.assertions[value] = constant;
       // Asserts must appear in the same relative order as `actions`.
-      const idx = this.actions.indexOf(name, this.assertCursor);
+      const idx = this.actions.indexOf(value, this.assertCursor);
       if (idx === -1) {
-        fail(`static_assert references "${name}", which is not in actions`);
+        fail(`static_assert references "${value}", which is not in actions`);
       }
       this.assertCursor = idx + 1;
     });
@@ -619,10 +630,25 @@ export function parse(headerCode: string): Result {
       propSets: parser.propSets,
       actions: new Set(parser.actions),
       actionProps: parser.actionProps,
+      assertions: parser.assertions,
     },
   };
 }
 
 export function makeFinalResult(result: Result): FinalResult {
-  return { infos: result.infos };
+  // The assertions map constant value -> key constant name (with its `k`
+  // prefix). `keyConstantToCanonicalNameMap` keeps that orientation but strips
+  // the prefix from the values (per ../types.ts).
+  const keyConstantToCanonicalNameMap: Record<string, string> = {};
+  for (const [value, constant] of Object.entries(result.infos.assertions)) {
+    const canonicalName = constant.slice(1);
+    const previous = keyConstantToCanonicalNameMap[value];
+    if (previous !== undefined) {
+      fail(
+        `constant value "${value}" maps to both "k${previous}" and "${constant}"`,
+      );
+    }
+    keyConstantToCanonicalNameMap[value] = canonicalName;
+  }
+  return { infos: result.infos, keyConstantToCanonicalNameMap };
 }

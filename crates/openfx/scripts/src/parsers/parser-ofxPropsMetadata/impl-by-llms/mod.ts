@@ -5,9 +5,12 @@
 // and the rules appear in exactly the order the structure tuple prescribes.
 // Anything the header adds, removes, or reorders therefore fails the parse.
 // Regions whose contents do not contribute to the result (struct bodies,
-// template parameter lists, static_assert expressions) are consumed through
-// token-category "soup" rules that are still bracket-delimited and strict
-// about the surrounding shape.
+// template parameter lists) are consumed through token-category "soup" rules
+// that are still bracket-delimited and strict about the surrounding shape.
+// The `namespace assertions` static_asserts, by contrast, are parsed
+// structurally: every one must have the exact shape
+// `string_view("Value") == string_view(kConstant)` and contributes a pair
+// (constant value -> constant) to `propertyInfos.assertions`.
 
 import { createToken, CstParser, EOF, Lexer } from "chevrotain";
 import type { TokenType } from "chevrotain";
@@ -53,22 +56,17 @@ const AnyExceptBrace = createToken({
   name: "AnyExceptBrace",
   pattern: Lexer.NA,
 });
-const AnyExceptParenOrSemicolon = createToken({
-  name: "AnyExceptParenOrSemicolon",
-  pattern: Lexer.NA,
-});
 const AnyExceptAngleOrComma = createToken({
   name: "AnyExceptAngleOrComma",
   pattern: Lexer.NA,
 });
 
-const soupEverywhere = [
-  AnyExceptBrace,
-  AnyExceptParenOrSemicolon,
-  AnyExceptAngleOrComma,
-];
-const soupBraceAndParen = [AnyExceptBrace, AnyExceptParenOrSemicolon];
-const soupBraceAndTemplate = [AnyExceptBrace, AnyExceptAngleOrComma];
+// Tokens that may appear inside skipped struct bodies and template parameter
+// lists.
+const soupEverywhere = [AnyExceptBrace, AnyExceptAngleOrComma];
+// Tokens that may appear inside skipped struct bodies only: inside template
+// parameter lists they are structural separators instead.
+const soupBrace = [AnyExceptBrace];
 
 // --- preprocessor -----------------------------------------------------------
 
@@ -91,7 +89,16 @@ const NamespaceKW = createToken({
 const EnumKW = createToken({ name: "EnumKW", pattern: /enum\b/ });
 const ClassKW = createToken({ name: "ClassKW", pattern: /class\b/ });
 const StructKW = createToken({ name: "StructKW", pattern: /struct\b/ });
-const UsingKW = createToken({ name: "UsingKW", pattern: /using\b/ });
+const UsingKW = createToken({
+  name: "UsingKW",
+  pattern: /using\b/,
+  categories: soupEverywhere,
+});
+const StringViewKW = createToken({
+  name: "StringViewKW",
+  pattern: /string_view\b/,
+  categories: soupEverywhere,
+});
 const StaticAssertKW = createToken({
   name: "StaticAssertKW",
   pattern: /static_assert\b/,
@@ -179,12 +186,12 @@ const RBrace = createToken({ name: "RBrace", pattern: /\}/ });
 const LParen = createToken({
   name: "LParen",
   pattern: /\(/,
-  categories: soupBraceAndTemplate,
+  categories: soupEverywhere,
 });
 const RParen = createToken({
   name: "RParen",
   pattern: /\)/,
-  categories: soupBraceAndTemplate,
+  categories: soupEverywhere,
 });
 const LBracket = createToken({
   name: "LBracket",
@@ -199,33 +206,31 @@ const RBracket = createToken({
 const Less = createToken({
   name: "Less",
   pattern: /</,
-  categories: soupBraceAndParen,
+  categories: soupBrace,
 });
 const Greater = createToken({
   name: "Greater",
   pattern: />/,
-  categories: soupBraceAndParen,
+  categories: soupBrace,
 });
 const Semicolon = createToken({
   name: "Semicolon",
   pattern: /;/,
-  categories: soupBraceAndTemplate,
+  categories: soupEverywhere,
 });
 const Comma = createToken({
   name: "Comma",
   pattern: /,/,
-  categories: soupBraceAndParen,
+  categories: soupBrace,
 });
 const Equals = createToken({
   name: "Equals",
   pattern: /=/,
   categories: soupEverywhere,
 });
-const EqEq = createToken({
-  name: "EqEq",
-  pattern: /==/,
-  categories: soupEverywhere,
-});
+// No soup category: `==` only appears in static_assert expressions, which are
+// parsed structurally.
+const EqEq = createToken({ name: "EqEq", pattern: /==/ });
 const Star = createToken({
   name: "Star",
   pattern: /\*/,
@@ -236,11 +241,8 @@ const Amp = createToken({
   pattern: /&/,
   categories: soupEverywhere,
 });
-const Dot = createToken({
-  name: "Dot",
-  pattern: /\./,
-  categories: soupEverywhere,
-});
+// No soup category: a `.` only appears in member accesses of structural rules.
+const Dot = createToken({ name: "Dot", pattern: /\./ });
 const ScopeRes = createToken({
   name: "ScopeRes",
   pattern: /::/,
@@ -268,6 +270,7 @@ const dialectTokens: TokenType[] = [
   // Longer keywords before shorter prefixes and before Identifier.
   StaticAssertKW,
   EqEq,
+  StringViewKW,
   ScopeRes,
   ConstexprKW,
   NamespaceKW,
@@ -313,7 +316,6 @@ const parserTokens = [
   PragmaOnce,
   Include,
   AnyExceptBrace,
-  AnyExceptParenOrSemicolon,
   AnyExceptAngleOrComma,
 ];
 
@@ -344,6 +346,12 @@ class OfxPropsMetadataParser extends CstParser {
   readonly propTraitsCallIds: string[] = [];
   /** Members of the `enum class PropId` (excluding the trailing NProps). */
   readonly propIdNames: string[] = [];
+  /**
+   * `static_assert(string_view("Value") == string_view(kConstant))` pairs from
+   * the `namespace assertions`, keyed by the asserted constant value. Values
+   * are the key constants as written, i.e. with their `k` prefix.
+   */
+  readonly assertions: Record<string, string> = {};
 
   // --- structure markers ------------------------------------------------------
   // Pushed by each section rule, in exactly the order the grammar enforces.
@@ -843,7 +851,11 @@ class OfxPropsMetadataParser extends CstParser {
     this.CONSUME(Identifier);
     this.MANY(() => {
       this.CONSUME(ScopeRes);
-      this.CONSUME2(Identifier);
+      // The last segment may be a keyword-shaped name such as `string_view`.
+      this.OR([
+        { ALT: () => this.CONSUME2(Identifier) },
+        { ALT: () => this.CONSUME(StringViewKW) },
+      ]);
     });
     this.CONSUME(Semicolon);
   });
@@ -851,26 +863,55 @@ class OfxPropsMetadataParser extends CstParser {
   staticAssertDeclaration = this.RULE("staticAssertDeclaration", () => {
     this.CONSUME(StaticAssertKW);
     this.CONSUME(LParen);
-    this.SUBRULE(this.assertExpression);
-    this.CONSUME(RParen);
+    this.CONSUME(StringViewKW);
+    this.CONSUME2(LParen);
+    const nameTok = this.CONSUME(StringLiteral);
+    this.CONSUME2(RParen);
+    this.CONSUME(EqEq);
+    this.CONSUME2(StringViewKW);
+    this.CONSUME3(LParen);
+    const constantTok = this.CONSUME(Identifier);
+    this.CONSUME3(RParen);
+    this.CONSUME4(RParen);
     this.CONSUME(Semicolon);
-  });
-
-  // The assert expression itself is not recorded; only its parenthesized
-  // shape is enforced.
-  assertExpression = this.RULE("assertExpression", () => {
-    this.AT_LEAST_ONE(() => {
-      this.OR([
-        { ALT: () => this.CONSUME(AnyExceptParenOrSemicolon) },
-        { ALT: () => this.SUBRULE(this.parenthesizedExpression) },
-      ]);
+    this.ACTION(() => {
+      // The string literal is the constant's value; the identifier is the
+      // constant's name. `assertions` maps the value to the name as written
+      // (with its `k` prefix); ../types.ts documents this orientation.
+      const value = parseCppString(nameTok.image);
+      const constant = constantTok.image;
+      if (!constant.startsWith("k")) {
+        fail(
+          `static_assert compares "${value}" with non-key constant "${constant}"`,
+        );
+      }
+      // Note: unlike `ofxPropsBySet.h`, the value here need not be `k`-less
+      // relative to the constant -- e.g. "OfxImageEffectPropPixelAspectRatio"
+      // is asserted against kOfxImageEffectPropProjectPixelAspectRatio.
+      // Capturing those mappings is the point of `propertyInfos.assertions`.
+      const previous = this.assertions[value];
+      if (previous !== undefined) {
+        // The header repeats some asserts verbatim; only a conflicting
+        // re-assertion is a structural surprise.
+        if (previous !== constant) {
+          fail(
+            `conflicting static_assert for "${value}": ` +
+              `"${previous}" vs "${constant}"`,
+          );
+        }
+        return;
+      }
+      const takenBy = Object.keys(this.assertions).find(
+        (v) => this.assertions[v] === constant,
+      );
+      if (takenBy !== undefined) {
+        fail(
+          `static_assert maps "${value}" to "${constant}", ` +
+            `but "${constant}" is already mapped to "${takenBy}"`,
+        );
+      }
+      this.assertions[value] = constant;
     });
-  });
-
-  parenthesizedExpression = this.RULE("parenthesizedExpression", () => {
-    this.CONSUME(LParen);
-    this.MANY(() => this.SUBRULE(this.assertExpression));
-    this.CONSUME(RParen);
   });
 }
 
@@ -908,12 +949,13 @@ export function parse(headerCode: string): Result {
       propEnumValues: parser.propEnumValues,
       propTypeArrays: parser.propTypeArrays,
       propDefsArray: parser.propDefsArray,
+      assertions: parser.assertions,
     },
   };
 }
 
 export function makeFinalResult(result: Result): FinalResult {
-  const { propEnumValues, propTypeArrays, propDefsArray } =
+  const { propEnumValues, propTypeArrays, propDefsArray, assertions } =
     result.propertyInfos;
   const propertyInfos: FinalResult["propertyInfos"] = {};
 
@@ -957,5 +999,20 @@ export function makeFinalResult(result: Result): FinalResult {
     };
   }
 
-  return { propEnumValues, propertyInfos };
+  // The assertions map constant value -> key constant name (with its `k`
+  // prefix). `keyConstantToCanonicalNameMap` keeps that orientation but strips
+  // the prefix from the values (per ../types.ts).
+  const keyConstantToCanonicalNameMap: Record<string, string> = {};
+  for (const [value, constant] of Object.entries(assertions)) {
+    const canonicalName = constant.slice(1);
+    const previous = keyConstantToCanonicalNameMap[value];
+    if (previous !== undefined) {
+      fail(
+        `constant value "${value}" maps to both "k${previous}" and "${constant}"`,
+      );
+    }
+    keyConstantToCanonicalNameMap[value] = canonicalName;
+  }
+
+  return { propEnumValues, propertyInfos, keyConstantToCanonicalNameMap };
 }

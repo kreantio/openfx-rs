@@ -1,16 +1,42 @@
-import { CodegenConfig } from "../definitions.ts";
+import {
+  FinalResult as FinalResultOfxPropsMetadata,
+} from "../parsers/parser-ofxPropsMetadata/types.ts";
+import {
+  FinalResult as FinalResultOfxPropsBySet,
+} from "../parsers/parser-ofxPropsBySet/types.ts";
 
-export class PropertyNameRegulator {
+export class NameRegulator {
   #kConstantToCanonicalNameMap: Record<string, string> = {};
 
-  constructor(cfg: CodegenConfig) {
-    for (const [k, v] of Object.entries(cfg.property_value_to_key_exceptions)) {
-      this.#kConstantToCanonicalNameMap[k] = v;
+  constructor(opts: {
+    propsMetadata: FinalResultOfxPropsMetadata;
+    propsBySet: FinalResultOfxPropsBySet;
+  }) {
+    for (
+      const [constant, canonicalName] of Object.entries(
+        opts.propsMetadata.keyConstantToCanonicalNameMap,
+      )
+    ) {
+      this.#kConstantToCanonicalNameMap[constant] = canonicalName;
+    }
+    for (
+      const [constant, canonicalName] of Object.entries(
+        opts.propsBySet.keyConstantToCanonicalNameMap,
+      )
+    ) {
+      if (this.#kConstantToCanonicalNameMap[constant]) {
+        throw new Error(
+          `Duplicate constant ${constant} in propsMetadata and propsBySet`,
+        );
+      }
+      this.#kConstantToCanonicalNameMap[constant] = canonicalName;
     }
   }
 
   keyConstantToCanonicalName(value: string): string {
-    return this.#kConstantToCanonicalNameMap[value] ?? value;
+    const name = this.#kConstantToCanonicalNameMap[value];
+    if (!name) throw new Error(`Unknown constant: ${value}`);
+    return name;
   }
 
   keyConstantToKName(value: string): string {

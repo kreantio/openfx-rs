@@ -95,6 +95,10 @@ Deno.test("parses a minimal header", () => {
       "OfxPropB",
     ]),
   );
+  assertEquals(result.infos.assertions, {
+    OfxActionLoad: "kOfxActionLoad",
+    OfxActionRender: "kOfxActionRender",
+  });
 });
 
 Deno.test("rejects structural mutations", async (t) => {
@@ -349,4 +353,43 @@ Deno.test("parses the real header: data spot checks", async (t) => {
     const finalResult = makeFinalResult(result);
     assertEquals(finalResult.infos, result.infos);
   });
+
+  await t.step("assertions", () => {
+    // Every action is asserted exactly once, in `actions` order. Keys are the
+    // asserted constant values; values are the key constants as written.
+    assertEquals(Object.keys(result.infos.assertions).length, 32);
+    assertEquals(
+      result.infos.assertions["OfxActionLoad"],
+      "kOfxActionLoad",
+    );
+    assertEquals(
+      result.infos.assertions["OfxInteractActionPenUp"],
+      "kOfxInteractActionPenUp",
+    );
+  });
+
+  await t.step("update 2: keyConstantToCanonicalNameMap", () => {
+    const finalResult = makeFinalResult(result);
+    const map = finalResult.keyConstantToCanonicalNameMap;
+    assertEquals(Object.keys(map).length, 32);
+    for (const [value, constant] of Object.entries(result.infos.assertions)) {
+      assertEquals(map[value], constant.slice(1));
+    }
+    // Keys are the constant values; values carry no `k` prefix.
+    assertEquals(map["OfxInteractActionPenUp"], "OfxInteractActionPenUp");
+  });
+});
+
+Deno.test("update 2: rejects a duplicated static_assert", async (t) => {
+  const headerCode = await Deno.readTextFile(realHeaderUrl);
+  const single =
+    `static_assert(std::string_view("OfxInteractActionPenUp") == std::string_view(kOfxInteractActionPenUp));`;
+  assert(headerCode.includes(single), "expected the PenUp assert");
+  // Note: a key constant cannot be reused by a second action here -- the
+  // parser enforces `k${name}`, which pins each constant to its action.
+  const duplicated = headerCode.replace(
+    single,
+    `${single}\n${single}`,
+  );
+  assertThrows(() => parse(duplicated), Error, "duplicate static_assert");
 });
