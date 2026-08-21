@@ -1,21 +1,23 @@
 import path from "node:path";
 
-import { CodegenConfig } from "../definitions.ts";
 import {
   FinalResult as FinalResultOfxPropsMetadata,
   PropType,
 } from "../parsers/parser-ofxPropsMetadata/types.ts";
+import { PropertyNameRegulator } from "../utils/name-regulator.ts";
 
 export async function genSysHelpersPropertyAccessors(
   fr: FinalResultOfxPropsMetadata,
-  cfg: CodegenConfig,
-  opts: { dataFromCPath: string },
+  opts: {
+    propertyNameRegulator: PropertyNameRegulator;
+    dataFromCPath: string;
+  },
 ): Promise<{ generic: string; image_effect_v1: Record<string, string> }> {
   const partsGeneric: string[] = [];
 
   genAccessorsForTypesWithDimensions(partsGeneric, fr);
 
-  const partsPerMod = await genAccessors(fr, cfg, opts);
+  const partsPerMod = await genAccessors(fr, opts);
   const codePerMod: Record<string, string> = {};
   for (const [mod, parts] of Object.entries(partsPerMod)) {
     codePerMod[mod] = parts.join("\n");
@@ -90,8 +92,10 @@ function genAccessorsForTypesWithDimensions(
  */
 async function genAccessors(
   fr: FinalResultOfxPropsMetadata,
-  cfg: CodegenConfig,
-  opts: { dataFromCPath: string },
+  opts: {
+    propertyNameRegulator: PropertyNameRegulator;
+    dataFromCPath: string;
+  },
 ): Promise<Record<string, string[]>> {
   const ret: Record<string, string[]> = {};
 
@@ -104,20 +108,22 @@ async function genAccessors(
     rootItemIdentsPerHeader[k] = new Set(rootItemIdentsPerHeader[k]);
   }
 
-  for (let [k, v] of Object.entries(fr.propertyInfos)) {
-    const fix = cfg.property_value_to_key_exceptions[k];
-    if (fix) {
+  for (const [keyConstant, v] of Object.entries(fr.propertyInfos)) {
+    const name = opts.propertyNameRegulator
+      .keyConstantToCanonicalName(keyConstant);
+    if (name != keyConstant) {
       console.info(
-        `Fix: replacing property name "${k}" with "${fix}"`,
+        `NOTE(gen-sys-helpers-property-accessors): The property with key constant \`${keyConstant}\` has a different canonical name \`${name}\`.`,
       );
-      k = fix;
     }
+    const kName = opts.propertyNameRegulator.keyConstantToKName(keyConstant);
 
-    const kName = `k${k}`;
     const mod = findMod(rootItemIdentsPerHeader, kName);
     const parts = (ret[mod] ??= []);
 
     let v_type = v.type;
+    // just to make `deno fmt` not wrap lines for calling `pushAccessorParts`.
+    const d = v.dimension;
     if (v_type instanceof Set) {
       for (let t of v_type) {
         if (t === "Bool") {
@@ -126,8 +132,7 @@ async function genAccessors(
         const fnNameS = getFnName("set", t, v.dimension, true);
         const fnNameG = getFnName("get", t, v.dimension, true);
 
-        const s = `_${t}`;
-        pushAccessorParts(parts, k, kName, fnNameS, fnNameG, t, v.dimension, s);
+        pushAccessorParts(parts, name, kName, fnNameS, fnNameG, t, d, `_${t}`);
       }
     } else {
       if (typeof v_type !== "string") {
@@ -140,13 +145,13 @@ async function genAccessors(
       const fnNameS = getFnName("set", v_type, v.dimension, true);
       const fnNameG = getFnName("get", v_type, v.dimension, true);
 
-      pushAccessorParts(parts, k, kName, fnNameS, fnNameG, v_type, v.dimension);
+      pushAccessorParts(parts, name, kName, fnNameS, fnNameG, v_type, d);
     }
 
-    parts.push(`make_property_resetter!(reset_${k}, ${kName});`);
+    parts.push(`make_property_resetter!(reset_${name}, ${kName});`);
     if (v.dimension === 0) {
       parts.push(
-        `make_property_dimension_getter!(get_dimension_${k}, ${kName});`,
+        `make_property_dimension_getter!(get_dimension_${name}, ${kName});`,
       );
     }
   }
@@ -156,7 +161,7 @@ async function genAccessors(
 
 function pushAccessorParts(
   parts: string[],
-  k: string,
+  name: string,
   kName: string,
   fnNameS: string,
   fnNameG: string,
@@ -166,18 +171,18 @@ function pushAccessorParts(
 ) {
   if (v_dimension === 0) {
     parts.push(...[
-      `make_property_setter!(set_${k}${suffix}, ${kName}, ${fnNameS}, ..., ${v_type});`,
-      `make_property_getter!(get_${k}${suffix}, ${kName}, ${fnNameG}, ..., ${v_type});`,
+      `make_property_setter!(set_${name}${suffix}, ${kName}, ${fnNameS}, ..., ${v_type});`,
+      `make_property_getter!(get_${name}${suffix}, ${kName}, ${fnNameG}, ..., ${v_type});`,
     ]);
   } else if (v_dimension === 1) {
     parts.push(...[
-      `make_property_setter!(set_${k}${suffix}, ${kName}, ${fnNameS}, ${v_dimension}, ${v_type});`,
-      `make_property_getter!(get_${k}${suffix}, ${kName}, ${fnNameG}, ${v_dimension}, ${v_type});`,
+      `make_property_setter!(set_${name}${suffix}, ${kName}, ${fnNameS}, ${v_dimension}, ${v_type});`,
+      `make_property_getter!(get_${name}${suffix}, ${kName}, ${fnNameG}, ${v_dimension}, ${v_type});`,
     ]);
   } else {
     parts.push(...[
-      `make_property_setter!(set_${k}${suffix}, ${kName}, ${fnNameS}, ${v_dimension}, ${v_type});`,
-      `make_property_getter!(get_${k}${suffix}, ${kName}, ${fnNameG}, ${v_dimension}, ${v_type});`,
+      `make_property_setter!(set_${name}${suffix}, ${kName}, ${fnNameS}, ${v_dimension}, ${v_type});`,
+      `make_property_getter!(get_${name}${suffix}, ${kName}, ${fnNameG}, ${v_dimension}, ${v_type});`,
     ]);
   }
 }
