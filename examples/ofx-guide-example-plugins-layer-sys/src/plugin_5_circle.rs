@@ -195,7 +195,6 @@ fn action_load() -> Result<(), OfxStatus> {
 
             let var_size =
                 unsafe { get_property_dimension(s_prop, host_props, kOfxPropAPIVersion.as_ptr()) }?;
-            // let var_size = host_props.prop_get_dimension(kOfxPropAPIVersion)?;
             let mut api_version = [1, 0];
             if var_size == 1 {
                 let mut my_api_version = [0];
