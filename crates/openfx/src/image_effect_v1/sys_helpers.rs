@@ -47,10 +47,6 @@ pub mod properties {
     //! maintained manually.
 
     use crate::generic::sys_helpers::properties::include_accessors;
-    use crate::internal::sys_helpers_macros::{
-        make_property_dimension_getter, make_property_getter, make_property_resetter,
-        make_property_setter,
-    };
 
     include_accessors!(colour);
     include_accessors!(draw_suite);

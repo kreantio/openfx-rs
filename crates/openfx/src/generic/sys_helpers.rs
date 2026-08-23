@@ -103,8 +103,7 @@ pub mod properties {
     pub(crate) use include_accessors;
 
     use crate::internal::sys_helpers_macros::{
-        make_property_dimension_getter, make_property_getter, make_property_getter_for_type,
-        make_property_resetter, make_property_setter, make_property_setter_for_type,
+        make_property_getter_for_type, make_property_setter_for_type,
     };
 
     include!(concat!(

@@ -1,6 +1,6 @@
 [package]
 name = "openfx"
-version = "0.2.2"
+version.workspace = true
 edition = "2024"
 description = "Rust bindings for the OpenFX API"
 license.workspace = true
@@ -9,3 +9,6 @@ include = ["src/**", "generated/**", "README.md", "LICENSE.md"]
 
 [lints]
 workspace = true
+
+[dependencies]
+openfx-internal-macros.workspace = true

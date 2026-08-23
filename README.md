@@ -4,10 +4,9 @@
 
 ### Building plugins with the crate `openfx`
 
-The crate `openfx` itself is dependency-free, but OpenFX plugins require to be
-packed in a specific way. Therefore, you need to do some additional work after
-the binary is built. See: [OpenFX reference / Packaging OFX Plug-ins]. You can
-also have a look at
+OpenFX plugins require to be packed in a specific way. Therefore, you need to do
+some additional work after the binary is built. See:
+[OpenFX reference / Packaging OFX Plug-ins]. You can also have a look at
 [some of the scripts I use for bundling the example plugins].
 
 [OpenFX reference / Packaging OFX Plug-ins]: https://openfx.readthedocs.io/en/latest/Reference/ofxPackaging.html
