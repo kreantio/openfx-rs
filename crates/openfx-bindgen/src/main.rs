@@ -12,14 +12,20 @@ struct Args {
 
     #[arg(long)]
     output_code_from_c: String,
+
+    #[arg(long)]
+    output_intermediate: String,
 }
 
 pub fn main() {
     let args = Args::parse();
 
     openfx_bindgen::bindings_for_c_headers::generate_bindings_for_c_headers(
-        args.input_c_headers,
-        args.output_c_bindings,
-        args.output_code_from_c,
+        openfx_bindgen::bindings_for_c_headers::Options {
+            headers_folder: args.input_c_headers.into(),
+            output_folder: args.output_c_bindings.into(),
+            output_folder_c: args.output_code_from_c.into(),
+            output_folder_intermediate: args.output_intermediate.into(),
+        },
     );
 }
