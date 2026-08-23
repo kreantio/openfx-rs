@@ -10,7 +10,7 @@ export async function genSysHelpersPropertyAccessors(
   fr: FinalResultOfxPropsMetadata,
   opts: {
     propertyNameRegulator: NameRegulator;
-    dataFromCPath: string;
+    dataIntermediatePath: string;
   },
 ): Promise<{ generic: string; image_effect_v1: Record<string, string> }> {
   const partsGeneric: string[] = [];
@@ -94,14 +94,14 @@ async function genAccessors(
   fr: FinalResultOfxPropsMetadata,
   opts: {
     propertyNameRegulator: NameRegulator;
-    dataFromCPath: string;
+    dataIntermediatePath: string;
   },
 ): Promise<Record<string, string[]>> {
   const ret: Record<string, string[]> = {};
 
   const rootItemIdentsPerHeader = JSON.parse(
     await Deno.readTextFile(
-      path.join(opts.dataFromCPath, "root_item_idents_per_header.json"),
+      path.join(opts.dataIntermediatePath, "root_item_idents_per_header.json"),
     ),
   );
   for (const k in rootItemIdentsPerHeader) {
