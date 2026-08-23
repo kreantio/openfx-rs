@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use proc_macro::TokenStream;
-use quote::quote;
+use quote::{quote, quote_spanned};
 
 pub fn make_property_accessors(tokens: TokenStream) -> TokenStream {
     let input = syn::parse_macro_input!(tokens as MakePropertyAccessorsInput);
@@ -342,10 +342,10 @@ impl MakePropertyAccessorsInputItemContainerType {
 }
 
 struct MakePropertyAccessorsInputItemElementPossibleTypes {
-    int: bool,
-    double: bool,
-    string: bool,
-    pointer: bool,
+    int: Option<syn::Ident>,
+    double: Option<syn::Ident>,
+    string: Option<syn::Ident>,
+    pointer: Option<syn::Ident>,
 }
 
 impl syn::parse::Parse for MakePropertyAccessorsInputItemElementPossibleTypes {
@@ -353,18 +353,18 @@ impl syn::parse::Parse for MakePropertyAccessorsInputItemElementPossibleTypes {
         if input.peek(syn::token::Paren) {
             let content;
             syn::parenthesized!(content in input);
-            let mut int = false;
-            let mut double = false;
-            let mut string = false;
-            let mut pointer = false;
+            let mut int = None;
+            let mut double = None;
+            let mut string = None;
+            let mut pointer = None;
 
             while !content.is_empty() {
                 let ty: syn::Ident = content.parse()?;
                 match ty.to_string().as_str() {
-                    "Int" => int = true,
-                    "Double" => double = true,
-                    "String" => string = true,
-                    "Pointer" => pointer = true,
+                    "Int" => int = Some(ty.clone()),
+                    "Double" => double = Some(ty.clone()),
+                    "String" => string = Some(ty.clone()),
+                    "Pointer" => pointer = Some(ty.clone()),
                     _ => return Err(syn::Error::new(ty.span(), "Unknown type")),
                 }
                 if content.peek(syn::Token![|]) {
@@ -382,28 +382,28 @@ impl syn::parse::Parse for MakePropertyAccessorsInputItemElementPossibleTypes {
             let ty: syn::Ident = input.parse()?;
             match ty.to_string().as_str() {
                 "Int" => Ok(MakePropertyAccessorsInputItemElementPossibleTypes {
-                    int: true,
-                    double: false,
-                    string: false,
-                    pointer: false,
+                    int: Some(ty.clone()),
+                    double: None,
+                    string: None,
+                    pointer: None,
                 }),
                 "Double" => Ok(MakePropertyAccessorsInputItemElementPossibleTypes {
-                    int: false,
-                    double: true,
-                    string: false,
-                    pointer: false,
+                    int: None,
+                    double: Some(ty.clone()),
+                    string: None,
+                    pointer: None,
                 }),
                 "String" => Ok(MakePropertyAccessorsInputItemElementPossibleTypes {
-                    int: false,
-                    double: false,
-                    string: true,
-                    pointer: false,
+                    int: None,
+                    double: None,
+                    string: Some(ty.clone()),
+                    pointer: None,
                 }),
                 "Pointer" => Ok(MakePropertyAccessorsInputItemElementPossibleTypes {
-                    int: false,
-                    double: false,
-                    string: false,
-                    pointer: true,
+                    int: None,
+                    double: None,
+                    string: None,
+                    pointer: Some(ty.clone()),
                 }),
                 _ => Err(syn::Error::new(ty.span(), "Unknown type")),
             }
@@ -414,17 +414,25 @@ impl syn::parse::Parse for MakePropertyAccessorsInputItemElementPossibleTypes {
 impl MakePropertyAccessorsInputItemElementPossibleTypes {
     fn iter(&self) -> MakePropertyAccessorsInputItemElementPossibleTypesIterator {
         let mut types = Vec::new();
-        if self.int {
-            types.push(MakePropertyAccessorsInputItemElementType::Int);
+        if let Some(ident) = &self.int {
+            types.push(MakePropertyAccessorsInputItemElementType::Int(
+                ident.clone(),
+            ));
         }
-        if self.double {
-            types.push(MakePropertyAccessorsInputItemElementType::Double);
+        if let Some(ident) = &self.double {
+            types.push(MakePropertyAccessorsInputItemElementType::Double(
+                ident.clone(),
+            ));
         }
-        if self.string {
-            types.push(MakePropertyAccessorsInputItemElementType::String);
+        if let Some(ident) = &self.string {
+            types.push(MakePropertyAccessorsInputItemElementType::String(
+                ident.clone(),
+            ));
         }
-        if self.pointer {
-            types.push(MakePropertyAccessorsInputItemElementType::Pointer);
+        if let Some(ident) = &self.pointer {
+            types.push(MakePropertyAccessorsInputItemElementType::Pointer(
+                ident.clone(),
+            ));
         }
         MakePropertyAccessorsInputItemElementPossibleTypesIterator(types)
     }
@@ -446,21 +454,23 @@ impl Iterator for MakePropertyAccessorsInputItemElementPossibleTypesIterator {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 enum MakePropertyAccessorsInputItemElementType {
-    Int,
-    Double,
-    String,
-    Pointer,
+    Int(syn::Ident),
+    Double(syn::Ident),
+    String(syn::Ident),
+    Pointer(syn::Ident),
 }
 
 impl Display for MakePropertyAccessorsInputItemElementType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            MakePropertyAccessorsInputItemElementType::Int => write!(f, "Int"),
-            MakePropertyAccessorsInputItemElementType::Double => write!(f, "Double"),
-            MakePropertyAccessorsInputItemElementType::String => write!(f, "String"),
-            MakePropertyAccessorsInputItemElementType::Pointer => write!(f, "Pointer"),
+            MakePropertyAccessorsInputItemElementType::Int(ident)
+            | MakePropertyAccessorsInputItemElementType::Double(ident)
+            | MakePropertyAccessorsInputItemElementType::String(ident)
+            | MakePropertyAccessorsInputItemElementType::Pointer(ident) => {
+                write!(f, "{}", ident)
+            }
         }
     }
 }
@@ -468,25 +478,41 @@ impl Display for MakePropertyAccessorsInputItemElementType {
 impl MakePropertyAccessorsInputItemElementType {
     fn rust_type_quote_for_setter(&self) -> proc_macro2::TokenStream {
         match self {
-            MakePropertyAccessorsInputItemElementType::Int => quote! { std::os::raw::c_int },
-            MakePropertyAccessorsInputItemElementType::Double => quote! { f64 },
-            MakePropertyAccessorsInputItemElementType::String => {
-                quote! { *const std::os::raw::c_char }
+            MakePropertyAccessorsInputItemElementType::Int(ident) => {
+                let c_int = quote_spanned! { ident.span() => c_int };
+                quote! { ::std::os::raw::#c_int }
             }
-            MakePropertyAccessorsInputItemElementType::Pointer => {
-                quote! { *mut std::ffi::c_void }
+            MakePropertyAccessorsInputItemElementType::Double(ident) => {
+                let f64 = quote_spanned! { ident.span() => f64 };
+                quote! { ::core::primitive::#f64 }
+            }
+            MakePropertyAccessorsInputItemElementType::String(ident) => {
+                let c_char = quote_spanned! { ident.span() => c_char };
+                quote! { *const ::std::os::raw::#c_char }
+            }
+            MakePropertyAccessorsInputItemElementType::Pointer(ident) => {
+                let c_void = quote_spanned! { ident.span() => c_void };
+                quote! { *mut ::std::ffi::#c_void }
             }
         }
     }
     fn rust_type_quote_for_getter(&self) -> proc_macro2::TokenStream {
         match self {
-            MakePropertyAccessorsInputItemElementType::Int => quote! { std::os::raw::c_int },
-            MakePropertyAccessorsInputItemElementType::Double => quote! { f64 },
-            MakePropertyAccessorsInputItemElementType::String => {
-                quote! { *mut std::os::raw::c_char }
+            MakePropertyAccessorsInputItemElementType::Int(ident) => {
+                let c_int = quote_spanned! { ident.span() => c_int };
+                quote! { ::std::os::raw::#c_int }
             }
-            MakePropertyAccessorsInputItemElementType::Pointer => {
-                quote! { *mut std::ffi::c_void }
+            MakePropertyAccessorsInputItemElementType::Double(ident) => {
+                let f64 = quote_spanned! { ident.span() => f64 };
+                quote! { ::core::primitive::#f64 }
+            }
+            MakePropertyAccessorsInputItemElementType::String(ident) => {
+                let c_char = quote_spanned! { ident.span() => c_char };
+                quote! { *mut ::std::os::raw::#c_char }
+            }
+            MakePropertyAccessorsInputItemElementType::Pointer(ident) => {
+                let c_void = quote_spanned! { ident.span() => c_void };
+                quote! { *mut ::std::ffi::#c_void }
             }
         }
     }
