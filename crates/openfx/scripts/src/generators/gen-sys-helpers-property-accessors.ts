@@ -121,70 +121,49 @@ async function genAccessors(
     const mod = findMod(rootItemIdentsPerHeader, kName);
     const parts = (ret[mod] ??= []);
 
-    let v_type = v.type;
-    // just to make `deno fmt` not wrap lines for calling `pushAccessorParts`.
-    const d = v.dimension;
-    if (v_type instanceof Set) {
-      for (let t of v_type) {
-        if (t === "Bool") {
-          t = "Int";
-        }
-        const fnNameS = getFnName("set", t, v.dimension, true);
-        const fnNameG = getFnName("get", t, v.dimension, true);
-
-        pushAccessorParts(parts, name, kName, fnNameS, fnNameG, t, d, `_${t}`);
+    const possibleTypes = (() => {
+      if (v.type instanceof Set) {
+        return [...v.type].toSorted();
+      } else if (typeof v.type === "object") {
+        v.type satisfies { "Enum": unknown };
+        return ["String"];
+      } else {
+        return [v.type];
       }
-    } else {
-      if (typeof v_type !== "string") {
-        v_type satisfies { "Enum": unknown };
-        v_type = "String";
-      } else if (v_type === "Bool") {
-        v_type = "Int";
+    })().map((t) => t === "Bool" ? "Int" : t);
+    const ty = possibleTypes.length === 1
+      ? possibleTypes[0]
+      : `(${possibleTypes.join(" | ")})`;
+    const tyContainer = (() => {
+      if (v.dimension === 0) {
+        return `[${ty}]`;
+      } else if (v.dimension === 1) {
+        return ty;
+      } else {
+        return `[${ty}; ${v.dimension}]`;
       }
+    })();
 
-      const fnNameS = getFnName("set", v_type, v.dimension, true);
-      const fnNameG = getFnName("get", v_type, v.dimension, true);
+    const fns = [
+      "set",
+      "get",
+      "reset",
+      ...(v.dimension === 0 ? ["get_dimensions"] : []),
+    ];
 
-      pushAccessorParts(parts, name, kName, fnNameS, fnNameG, v_type, d);
-    }
+    parts.push(`    ${name}: ${tyContainer} { ${fns.join(" ")} };`);
+  }
 
-    parts.push(`make_property_resetter!(reset_${name}, ${kName});`);
-    if (v.dimension === 0) {
-      parts.push(
-        `make_property_dimension_getter!(get_dimension_${name}, ${kName});`,
-      );
-    }
+  for (const mod in ret) {
+    ret[mod].splice(
+      0,
+      0,
+      "openfx_internal_macros::sys_helpers_make_property_accessors! {",
+    );
+    ret[mod].push("}");
   }
 
   return ret;
-}
-
-function pushAccessorParts(
-  parts: string[],
-  name: string,
-  kName: string,
-  fnNameS: string,
-  fnNameG: string,
-  v_type: string,
-  v_dimension: number,
-  suffix: string = "",
-) {
-  if (v_dimension === 0) {
-    parts.push(...[
-      `make_property_setter!(set_${name}${suffix}, ${kName}, ${fnNameS}, ..., ${v_type});`,
-      `make_property_getter!(get_${name}${suffix}, ${kName}, ${fnNameG}, ..., ${v_type});`,
-    ]);
-  } else if (v_dimension === 1) {
-    parts.push(...[
-      `make_property_setter!(set_${name}${suffix}, ${kName}, ${fnNameS}, ${v_dimension}, ${v_type});`,
-      `make_property_getter!(get_${name}${suffix}, ${kName}, ${fnNameG}, ${v_dimension}, ${v_type});`,
-    ]);
-  } else {
-    parts.push(...[
-      `make_property_setter!(set_${name}${suffix}, ${kName}, ${fnNameS}, ${v_dimension}, ${v_type});`,
-      `make_property_getter!(get_${name}${suffix}, ${kName}, ${fnNameG}, ${v_dimension}, ${v_type});`,
-    ]);
-  }
 }
 
 function getFnName(

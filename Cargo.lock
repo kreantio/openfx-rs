@@ -299,10 +299,13 @@ checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
 [[package]]
 name = "openfx"
 version = "0.2.2"
+dependencies = [
+ "openfx-internal-macros",
+]
 
 [[package]]
 name = "openfx-bindgen"
-version = "0.1.0"
+version = "0.2.2"
 dependencies = [
  "bindgen",
  "clap",
@@ -312,6 +315,15 @@ dependencies = [
  "quote",
  "rayon",
  "serde_json",
+ "syn 3.0.3",
+]
+
+[[package]]
+name = "openfx-internal-macros"
+version = "0.2.2"
+dependencies = [
+ "proc-macro2",
+ "quote",
  "syn 3.0.3",
 ]
 
