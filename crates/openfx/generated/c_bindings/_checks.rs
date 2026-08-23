@@ -144,6 +144,166 @@ const _: () = {
 };
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
+    ["Size of OfxDialogSuiteV1"][::std::mem::size_of::<OfxDialogSuiteV1>() - 16usize];
+    [
+        "Alignment of OfxDialogSuiteV1",
+    ][::std::mem::align_of::<OfxDialogSuiteV1>() - 8usize];
+    [
+        "Offset of field: OfxDialogSuiteV1::RequestDialog",
+    ][::std::mem::offset_of!(OfxDialogSuiteV1, RequestDialog) - 0usize];
+    [
+        "Offset of field: OfxDialogSuiteV1::NotifyRedrawPending",
+    ][::std::mem::offset_of!(OfxDialogSuiteV1, NotifyRedrawPending) - 8usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of OfxRGBAColourB"][::std::mem::size_of::<OfxRGBAColourB>() - 4usize];
+    ["Alignment of OfxRGBAColourB"][::std::mem::align_of::<OfxRGBAColourB>() - 1usize];
+    [
+        "Offset of field: OfxRGBAColourB::r",
+    ][::std::mem::offset_of!(OfxRGBAColourB, r) - 0usize];
+    [
+        "Offset of field: OfxRGBAColourB::g",
+    ][::std::mem::offset_of!(OfxRGBAColourB, g) - 1usize];
+    [
+        "Offset of field: OfxRGBAColourB::b",
+    ][::std::mem::offset_of!(OfxRGBAColourB, b) - 2usize];
+    [
+        "Offset of field: OfxRGBAColourB::a",
+    ][::std::mem::offset_of!(OfxRGBAColourB, a) - 3usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of OfxRGBAColourS"][::std::mem::size_of::<OfxRGBAColourS>() - 8usize];
+    ["Alignment of OfxRGBAColourS"][::std::mem::align_of::<OfxRGBAColourS>() - 2usize];
+    [
+        "Offset of field: OfxRGBAColourS::r",
+    ][::std::mem::offset_of!(OfxRGBAColourS, r) - 0usize];
+    [
+        "Offset of field: OfxRGBAColourS::g",
+    ][::std::mem::offset_of!(OfxRGBAColourS, g) - 2usize];
+    [
+        "Offset of field: OfxRGBAColourS::b",
+    ][::std::mem::offset_of!(OfxRGBAColourS, b) - 4usize];
+    [
+        "Offset of field: OfxRGBAColourS::a",
+    ][::std::mem::offset_of!(OfxRGBAColourS, a) - 6usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of OfxRGBAColourF"][::std::mem::size_of::<OfxRGBAColourF>() - 16usize];
+    ["Alignment of OfxRGBAColourF"][::std::mem::align_of::<OfxRGBAColourF>() - 4usize];
+    [
+        "Offset of field: OfxRGBAColourF::r",
+    ][::std::mem::offset_of!(OfxRGBAColourF, r) - 0usize];
+    [
+        "Offset of field: OfxRGBAColourF::g",
+    ][::std::mem::offset_of!(OfxRGBAColourF, g) - 4usize];
+    [
+        "Offset of field: OfxRGBAColourF::b",
+    ][::std::mem::offset_of!(OfxRGBAColourF, b) - 8usize];
+    [
+        "Offset of field: OfxRGBAColourF::a",
+    ][::std::mem::offset_of!(OfxRGBAColourF, a) - 12usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of OfxRGBAColourD"][::std::mem::size_of::<OfxRGBAColourD>() - 32usize];
+    ["Alignment of OfxRGBAColourD"][::std::mem::align_of::<OfxRGBAColourD>() - 8usize];
+    [
+        "Offset of field: OfxRGBAColourD::r",
+    ][::std::mem::offset_of!(OfxRGBAColourD, r) - 0usize];
+    [
+        "Offset of field: OfxRGBAColourD::g",
+    ][::std::mem::offset_of!(OfxRGBAColourD, g) - 8usize];
+    [
+        "Offset of field: OfxRGBAColourD::b",
+    ][::std::mem::offset_of!(OfxRGBAColourD, b) - 16usize];
+    [
+        "Offset of field: OfxRGBAColourD::a",
+    ][::std::mem::offset_of!(OfxRGBAColourD, a) - 24usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of OfxRGBColourB"][::std::mem::size_of::<OfxRGBColourB>() - 3usize];
+    ["Alignment of OfxRGBColourB"][::std::mem::align_of::<OfxRGBColourB>() - 1usize];
+    [
+        "Offset of field: OfxRGBColourB::r",
+    ][::std::mem::offset_of!(OfxRGBColourB, r) - 0usize];
+    [
+        "Offset of field: OfxRGBColourB::g",
+    ][::std::mem::offset_of!(OfxRGBColourB, g) - 1usize];
+    [
+        "Offset of field: OfxRGBColourB::b",
+    ][::std::mem::offset_of!(OfxRGBColourB, b) - 2usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of OfxRGBColourS"][::std::mem::size_of::<OfxRGBColourS>() - 6usize];
+    ["Alignment of OfxRGBColourS"][::std::mem::align_of::<OfxRGBColourS>() - 2usize];
+    [
+        "Offset of field: OfxRGBColourS::r",
+    ][::std::mem::offset_of!(OfxRGBColourS, r) - 0usize];
+    [
+        "Offset of field: OfxRGBColourS::g",
+    ][::std::mem::offset_of!(OfxRGBColourS, g) - 2usize];
+    [
+        "Offset of field: OfxRGBColourS::b",
+    ][::std::mem::offset_of!(OfxRGBColourS, b) - 4usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of OfxRGBColourF"][::std::mem::size_of::<OfxRGBColourF>() - 12usize];
+    ["Alignment of OfxRGBColourF"][::std::mem::align_of::<OfxRGBColourF>() - 4usize];
+    [
+        "Offset of field: OfxRGBColourF::r",
+    ][::std::mem::offset_of!(OfxRGBColourF, r) - 0usize];
+    [
+        "Offset of field: OfxRGBColourF::g",
+    ][::std::mem::offset_of!(OfxRGBColourF, g) - 4usize];
+    [
+        "Offset of field: OfxRGBColourF::b",
+    ][::std::mem::offset_of!(OfxRGBColourF, b) - 8usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of OfxRGBColourD"][::std::mem::size_of::<OfxRGBColourD>() - 24usize];
+    ["Alignment of OfxRGBColourD"][::std::mem::align_of::<OfxRGBColourD>() - 8usize];
+    [
+        "Offset of field: OfxRGBColourD::r",
+    ][::std::mem::offset_of!(OfxRGBColourD, r) - 0usize];
+    [
+        "Offset of field: OfxRGBColourD::g",
+    ][::std::mem::offset_of!(OfxRGBColourD, g) - 8usize];
+    [
+        "Offset of field: OfxRGBColourD::b",
+    ][::std::mem::offset_of!(OfxRGBColourD, b) - 16usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of OfxDrawSuiteV1"][::std::mem::size_of::<OfxDrawSuiteV1>() - 48usize];
+    ["Alignment of OfxDrawSuiteV1"][::std::mem::align_of::<OfxDrawSuiteV1>() - 8usize];
+    [
+        "Offset of field: OfxDrawSuiteV1::getColour",
+    ][::std::mem::offset_of!(OfxDrawSuiteV1, getColour) - 0usize];
+    [
+        "Offset of field: OfxDrawSuiteV1::setColour",
+    ][::std::mem::offset_of!(OfxDrawSuiteV1, setColour) - 8usize];
+    [
+        "Offset of field: OfxDrawSuiteV1::setLineWidth",
+    ][::std::mem::offset_of!(OfxDrawSuiteV1, setLineWidth) - 16usize];
+    [
+        "Offset of field: OfxDrawSuiteV1::setLineStipple",
+    ][::std::mem::offset_of!(OfxDrawSuiteV1, setLineStipple) - 24usize];
+    [
+        "Offset of field: OfxDrawSuiteV1::draw",
+    ][::std::mem::offset_of!(OfxDrawSuiteV1, draw) - 32usize];
+    [
+        "Offset of field: OfxDrawSuiteV1::drawText",
+    ][::std::mem::offset_of!(OfxDrawSuiteV1, drawText) - 40usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
     ["Size of OfxBytes"][::std::mem::size_of::<OfxBytes>() - 16usize];
     ["Alignment of OfxBytes"][::std::mem::align_of::<OfxBytes>() - 8usize];
     ["Offset of field: OfxBytes::data"][::std::mem::offset_of!(OfxBytes, data) - 0usize];
@@ -356,4 +516,185 @@ const _: () = {
     [
         "Offset of field: OfxImageEffectSuiteV1::imageMemoryUnlock",
     ][::std::mem::offset_of!(OfxImageEffectSuiteV1, imageMemoryUnlock) - 96usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    [
+        "Size of OfxImageEffectOpenGLRenderSuiteV1",
+    ][::std::mem::size_of::<OfxImageEffectOpenGLRenderSuiteV1>() - 24usize];
+    [
+        "Alignment of OfxImageEffectOpenGLRenderSuiteV1",
+    ][::std::mem::align_of::<OfxImageEffectOpenGLRenderSuiteV1>() - 8usize];
+    [
+        "Offset of field: OfxImageEffectOpenGLRenderSuiteV1::clipLoadTexture",
+    ][::std::mem::offset_of!(OfxImageEffectOpenGLRenderSuiteV1, clipLoadTexture)
+        - 0usize];
+    [
+        "Offset of field: OfxImageEffectOpenGLRenderSuiteV1::clipFreeTexture",
+    ][::std::mem::offset_of!(OfxImageEffectOpenGLRenderSuiteV1, clipFreeTexture)
+        - 8usize];
+    [
+        "Offset of field: OfxImageEffectOpenGLRenderSuiteV1::flushResources",
+    ][::std::mem::offset_of!(OfxImageEffectOpenGLRenderSuiteV1, flushResources)
+        - 16usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    [
+        "Size of OfxOpenCLProgramSuiteV1",
+    ][::std::mem::size_of::<OfxOpenCLProgramSuiteV1>() - 8usize];
+    [
+        "Alignment of OfxOpenCLProgramSuiteV1",
+    ][::std::mem::align_of::<OfxOpenCLProgramSuiteV1>() - 8usize];
+    [
+        "Offset of field: OfxOpenCLProgramSuiteV1::compileProgram",
+    ][::std::mem::offset_of!(OfxOpenCLProgramSuiteV1, compileProgram) - 0usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of OfxYUVAColourB"][::std::mem::size_of::<OfxYUVAColourB>() - 4usize];
+    ["Alignment of OfxYUVAColourB"][::std::mem::align_of::<OfxYUVAColourB>() - 1usize];
+    [
+        "Offset of field: OfxYUVAColourB::y",
+    ][::std::mem::offset_of!(OfxYUVAColourB, y) - 0usize];
+    [
+        "Offset of field: OfxYUVAColourB::u",
+    ][::std::mem::offset_of!(OfxYUVAColourB, u) - 1usize];
+    [
+        "Offset of field: OfxYUVAColourB::v",
+    ][::std::mem::offset_of!(OfxYUVAColourB, v) - 2usize];
+    [
+        "Offset of field: OfxYUVAColourB::a",
+    ][::std::mem::offset_of!(OfxYUVAColourB, a) - 3usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of OfxYUVAColourS"][::std::mem::size_of::<OfxYUVAColourS>() - 8usize];
+    ["Alignment of OfxYUVAColourS"][::std::mem::align_of::<OfxYUVAColourS>() - 2usize];
+    [
+        "Offset of field: OfxYUVAColourS::y",
+    ][::std::mem::offset_of!(OfxYUVAColourS, y) - 0usize];
+    [
+        "Offset of field: OfxYUVAColourS::u",
+    ][::std::mem::offset_of!(OfxYUVAColourS, u) - 2usize];
+    [
+        "Offset of field: OfxYUVAColourS::v",
+    ][::std::mem::offset_of!(OfxYUVAColourS, v) - 4usize];
+    [
+        "Offset of field: OfxYUVAColourS::a",
+    ][::std::mem::offset_of!(OfxYUVAColourS, a) - 6usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of OfxYUVAColourF"][::std::mem::size_of::<OfxYUVAColourF>() - 16usize];
+    ["Alignment of OfxYUVAColourF"][::std::mem::align_of::<OfxYUVAColourF>() - 4usize];
+    [
+        "Offset of field: OfxYUVAColourF::y",
+    ][::std::mem::offset_of!(OfxYUVAColourF, y) - 0usize];
+    [
+        "Offset of field: OfxYUVAColourF::u",
+    ][::std::mem::offset_of!(OfxYUVAColourF, u) - 4usize];
+    [
+        "Offset of field: OfxYUVAColourF::v",
+    ][::std::mem::offset_of!(OfxYUVAColourF, v) - 8usize];
+    [
+        "Offset of field: OfxYUVAColourF::a",
+    ][::std::mem::offset_of!(OfxYUVAColourF, a) - 12usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    [
+        "Size of OfxParametricParameterSuiteV1",
+    ][::std::mem::size_of::<OfxParametricParameterSuiteV1>() - 56usize];
+    [
+        "Alignment of OfxParametricParameterSuiteV1",
+    ][::std::mem::align_of::<OfxParametricParameterSuiteV1>() - 8usize];
+    [
+        "Offset of field: OfxParametricParameterSuiteV1::parametricParamGetValue",
+    ][::std::mem::offset_of!(OfxParametricParameterSuiteV1, parametricParamGetValue)
+        - 0usize];
+    [
+        "Offset of field: OfxParametricParameterSuiteV1::parametricParamGetNControlPoints",
+    ][::std::mem::offset_of!(
+        OfxParametricParameterSuiteV1, parametricParamGetNControlPoints
+    ) - 8usize];
+    [
+        "Offset of field: OfxParametricParameterSuiteV1::parametricParamGetNthControlPoint",
+    ][::std::mem::offset_of!(
+        OfxParametricParameterSuiteV1, parametricParamGetNthControlPoint
+    ) - 16usize];
+    [
+        "Offset of field: OfxParametricParameterSuiteV1::parametricParamSetNthControlPoint",
+    ][::std::mem::offset_of!(
+        OfxParametricParameterSuiteV1, parametricParamSetNthControlPoint
+    ) - 24usize];
+    [
+        "Offset of field: OfxParametricParameterSuiteV1::parametricParamAddControlPoint",
+    ][::std::mem::offset_of!(
+        OfxParametricParameterSuiteV1, parametricParamAddControlPoint
+    ) - 32usize];
+    [
+        "Offset of field: OfxParametricParameterSuiteV1::parametricParamDeleteControlPoint",
+    ][::std::mem::offset_of!(
+        OfxParametricParameterSuiteV1, parametricParamDeleteControlPoint
+    ) - 40usize];
+    [
+        "Offset of field: OfxParametricParameterSuiteV1::parametricParamDeleteAllControlPoints",
+    ][::std::mem::offset_of!(
+        OfxParametricParameterSuiteV1, parametricParamDeleteAllControlPoints
+    ) - 48usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    [
+        "Size of OfxProgressSuiteV1",
+    ][::std::mem::size_of::<OfxProgressSuiteV1>() - 24usize];
+    [
+        "Alignment of OfxProgressSuiteV1",
+    ][::std::mem::align_of::<OfxProgressSuiteV1>() - 8usize];
+    [
+        "Offset of field: OfxProgressSuiteV1::progressStart",
+    ][::std::mem::offset_of!(OfxProgressSuiteV1, progressStart) - 0usize];
+    [
+        "Offset of field: OfxProgressSuiteV1::progressUpdate",
+    ][::std::mem::offset_of!(OfxProgressSuiteV1, progressUpdate) - 8usize];
+    [
+        "Offset of field: OfxProgressSuiteV1::progressEnd",
+    ][::std::mem::offset_of!(OfxProgressSuiteV1, progressEnd) - 16usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    [
+        "Size of OfxProgressSuiteV2",
+    ][::std::mem::size_of::<OfxProgressSuiteV2>() - 24usize];
+    [
+        "Alignment of OfxProgressSuiteV2",
+    ][::std::mem::align_of::<OfxProgressSuiteV2>() - 8usize];
+    [
+        "Offset of field: OfxProgressSuiteV2::progressStart",
+    ][::std::mem::offset_of!(OfxProgressSuiteV2, progressStart) - 0usize];
+    [
+        "Offset of field: OfxProgressSuiteV2::progressUpdate",
+    ][::std::mem::offset_of!(OfxProgressSuiteV2, progressUpdate) - 8usize];
+    [
+        "Offset of field: OfxProgressSuiteV2::progressEnd",
+    ][::std::mem::offset_of!(OfxProgressSuiteV2, progressEnd) - 16usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    [
+        "Size of OfxTimeLineSuiteV1",
+    ][::std::mem::size_of::<OfxTimeLineSuiteV1>() - 24usize];
+    [
+        "Alignment of OfxTimeLineSuiteV1",
+    ][::std::mem::align_of::<OfxTimeLineSuiteV1>() - 8usize];
+    [
+        "Offset of field: OfxTimeLineSuiteV1::getTime",
+    ][::std::mem::offset_of!(OfxTimeLineSuiteV1, getTime) - 0usize];
+    [
+        "Offset of field: OfxTimeLineSuiteV1::gotoTime",
+    ][::std::mem::offset_of!(OfxTimeLineSuiteV1, gotoTime) - 8usize];
+    [
+        "Offset of field: OfxTimeLineSuiteV1::getTimeBounds",
+    ][::std::mem::offset_of!(OfxTimeLineSuiteV1, getTimeBounds) - 16usize];
 };

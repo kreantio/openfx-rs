@@ -72,7 +72,6 @@ fn generate_bindings_for_c_headers_inner(
         root_item_idents_per_header,
     } = deduplicate(&headers).map_err(|err| format!("Failed to deduplicate headers: {}", err))?;
 
-    std::fs::create_dir_all(output_folder.join("checks"))?;
     std::fs::create_dir_all(&output_folder_c)?;
 
     let mut statuses: HashSet<String> = HashSet::new();
@@ -81,9 +80,9 @@ fn generate_bindings_for_c_headers_inner(
         &output_folder,
         &headers,
         &deduplicated_syn_files,
-        &checks_syn_files,
         &mut statuses,
     )?;
+    gen_c_bindings_checks(&output_folder, &headers, &checks_syn_files)?;
 
     gen_low_statuses(&output_folder_c, statuses)?;
 
@@ -96,7 +95,6 @@ fn gen_c_bindings(
     output_folder: &Path,
     headers: &[Header],
     deduplicated_syn_files: &std::collections::HashMap<String, syn::File>,
-    checks_syn_files: &std::collections::HashMap<String, syn::File>,
     statuses: &mut HashSet<String>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     for header in headers {
@@ -116,21 +114,52 @@ fn gen_c_bindings(
         }
         std::fs::write(&output_path, code)?;
 
+        if !header.additional_info.statuses.is_empty() {
+            statuses.extend(header.additional_info.statuses.clone());
+        }
+    }
+
+    Ok(())
+}
+
+fn gen_c_bindings_checks(
+    output_folder: &Path,
+    headers: &[Header],
+    checks_syn_files: &std::collections::HashMap<String, syn::File>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut headers: Vec<&Header> = headers.iter().collect();
+    headers.sort_by(|a, b| a.name.cmp(&b.name));
+
+    let mut items: Vec<syn::Item> = vec![];
+    let mut seen_item_codes: HashSet<String> = HashSet::new();
+
+    for header in headers {
         let checks_syn_file = checks_syn_files.get(&header.name).ok_or_else(|| {
             format!(
                 "`check_syn_files` should contain the header with name `{}`",
                 header.name
             )
         })?;
-        std::fs::write(
-            output_folder.join(format!("checks/{}.rs", mod_name)),
-            prettyplease::unparse(checks_syn_file),
-        )?;
 
-        if !header.additional_info.statuses.is_empty() {
-            statuses.extend(header.additional_info.statuses.clone());
+        for item in &checks_syn_file.items {
+            let item_code = quote! { #item }.to_string();
+            if seen_item_codes.contains(&item_code) {
+                continue;
+            }
+            seen_item_codes.insert(item_code);
+            items.push(item.clone());
         }
     }
+
+    std::fs::write(
+        output_folder.join("_checks.rs"),
+        prettyplease::unparse(&syn::File {
+            shebang: None,
+            frontmatter: None,
+            attrs: vec![],
+            items,
+        }),
+    )?;
 
     Ok(())
 }
