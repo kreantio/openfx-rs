@@ -67,7 +67,7 @@ fn make_property_setter(
             ty.to_string().to_lowercase(),
             item.ty.dimension_suffix()
         ),
-        set_ident.span(),
+        proc_macro2::Span::call_site(),
     );
     let setter_for_ty_path =
         quote! { crate::generic::sys_helpers::properties::#setter_for_ty_ident };
@@ -120,7 +120,7 @@ fn make_property_getter(
             ty.to_string().to_lowercase(),
             item.ty.dimension_suffix()
         ),
-        get_ident.span(),
+        proc_macro2::Span::call_site(),
     );
     let getter_for_ty_path =
         quote! { crate::generic::sys_helpers::properties::#getter_for_ty_ident };
