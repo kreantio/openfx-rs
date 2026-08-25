@@ -32,6 +32,10 @@ function genAccessorsForTypesWithDimensions(
 ): void {
   type PropTypeX = Exclude<PropType, "Enum" | "Bool">;
 
+  parts.push(
+    "openfx_internal_macros::sys_helpers_make_property_accessors_by_types! {",
+  );
+
   const typeToPossibleDimensions: Record<PropTypeX, Set<number>> = {
     "Int": new Set(),
     "Double": new Set(),
@@ -39,22 +43,22 @@ function genAccessorsForTypesWithDimensions(
     "Pointer": new Set(),
   };
   for (const v of Object.values(fr.propertyInfos)) {
-    let v_type = v.type;
-    if (v_type instanceof Set) {
-      for (let t of v_type) {
+    let vType = v.type;
+    if (vType instanceof Set) {
+      for (let t of vType) {
         if (t === "Bool") {
           t = "Int";
         }
         typeToPossibleDimensions[t].add(v.dimension);
       }
     } else {
-      if (typeof v_type !== "string") {
-        v_type satisfies { "Enum": unknown };
-        v_type = "String";
-      } else if (v_type === "Bool") {
-        v_type = "Int";
+      if (typeof vType !== "string") {
+        vType satisfies { "Enum": unknown };
+        vType = "String";
+      } else if (vType === "Bool") {
+        vType = "Int";
       }
-      typeToPossibleDimensions[v_type].add(v.dimension);
+      typeToPossibleDimensions[vType].add(v.dimension);
     }
   }
 
@@ -65,25 +69,22 @@ function genAccessorsForTypesWithDimensions(
     const ty = ty_ as PropTypeX;
     ds_.add(0);
     ds_.add(1);
-    const ds = [...ds_].toSorted();
-
-    for (const d of ds) {
-      const fnNameS = getFnName("set", ty, d, false);
-      const fnNameG = getFnName("get", ty, d, false);
-      const vis = d > 1 ? "pub(crate)" : "pub";
-      if (d === 0) {
-        parts.push(...[
-          `make_property_setter_for_type!(pub ${fnNameS}, ..., ${ty});`,
-          `make_property_getter_for_type!(pub ${fnNameG}, ..., ${ty});`,
-        ]);
+    const ds = [...ds_].filter((d) => d != 0 && d != 1).toSorted();
+    let part = `    ${ty}: ... pub { set get }, 1 pub { set get }`;
+    if (ds.length > 0) {
+      part += ", ";
+      if (ds.length === 1) {
+        part += `${ds[0]}`;
       } else {
-        parts.push(...[
-          `make_property_setter_for_type!(${vis} ${fnNameS}, ${d}, ${ty});`,
-          `make_property_getter_for_type!(${vis} ${fnNameG}, ${d}, ${ty});`,
-        ]);
+        part += `(${ds.join("|")})`;
       }
+      part += " pub(crate) { set get }";
     }
+    part += ";";
+    parts.push(part);
   }
+
+  parts.push("}");
 }
 
 /**
@@ -164,24 +165,6 @@ async function genAccessors(
   }
 
   return ret;
-}
-
-function getFnName(
-  getOrSet: "get" | "set",
-  ty: string,
-  d: number,
-  withPath: boolean,
-): string {
-  const path = withPath ? "crate::generic::sys_helpers::properties::" : "";
-
-  const tyLower = ty.toLowerCase();
-  if (d === 0) {
-    return `${path}${getOrSet}_${tyLower}s`;
-  } else if (d === 1) {
-    return `${path}${getOrSet}_${tyLower}`;
-  } else {
-    return `${path}${getOrSet}_${tyLower}s_${d}`;
-  }
 }
 
 function findMod(
