@@ -102,10 +102,6 @@ pub mod properties {
     }
     pub(crate) use include_accessors;
 
-    use crate::internal::sys_helpers_macros::{
-        make_property_getter_for_type, make_property_setter_for_type,
-    };
-
     include!(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/generated/code_from_cpp/sys_helpers_property_accessors_generic.rs",

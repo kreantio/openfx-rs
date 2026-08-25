@@ -1,7 +1,7 @@
-use std::fmt::Display;
-
 use proc_macro::TokenStream;
-use quote::{quote, quote_spanned};
+use quote::quote;
+
+use crate::sys_helpers_macros::common::OpenFXTypeIdent;
 
 pub fn make_property_accessors(tokens: TokenStream) -> TokenStream {
     let input = syn::parse_macro_input!(tokens as MakePropertyAccessorsInput);
@@ -55,7 +55,7 @@ pub fn make_property_accessors(tokens: TokenStream) -> TokenStream {
 fn make_property_setter(
     output: &mut Vec<proc_macro2::TokenStream>,
     item: &MakePropertyAccessorsInputItem,
-    ty: &MakePropertyAccessorsInputItemElementType,
+    ty: &OpenFXTypeIdent,
     k_path: &proc_macro2::TokenStream,
     fn_name_suffix: &str,
     set_ident: &syn::Ident,
@@ -108,7 +108,7 @@ fn make_property_setter(
 fn make_property_getter(
     output: &mut Vec<proc_macro2::TokenStream>,
     item: &MakePropertyAccessorsInputItem,
-    ty: &MakePropertyAccessorsInputItemElementType,
+    ty: &OpenFXTypeIdent,
     k_path: &proc_macro2::TokenStream,
     fn_name_suffix: &str,
     get_ident: &syn::Ident,
@@ -415,105 +415,31 @@ impl MakePropertyAccessorsInputItemElementPossibleTypes {
     fn iter(&self) -> MakePropertyAccessorsInputItemElementPossibleTypesIterator {
         let mut types = Vec::new();
         if let Some(ident) = &self.int {
-            types.push(MakePropertyAccessorsInputItemElementType::Int(
-                ident.clone(),
-            ));
+            types.push(OpenFXTypeIdent::Int(ident.clone()));
         }
         if let Some(ident) = &self.double {
-            types.push(MakePropertyAccessorsInputItemElementType::Double(
-                ident.clone(),
-            ));
+            types.push(OpenFXTypeIdent::Double(ident.clone()));
         }
         if let Some(ident) = &self.string {
-            types.push(MakePropertyAccessorsInputItemElementType::String(
-                ident.clone(),
-            ));
+            types.push(OpenFXTypeIdent::String(ident.clone()));
         }
         if let Some(ident) = &self.pointer {
-            types.push(MakePropertyAccessorsInputItemElementType::Pointer(
-                ident.clone(),
-            ));
+            types.push(OpenFXTypeIdent::Pointer(ident.clone()));
         }
         MakePropertyAccessorsInputItemElementPossibleTypesIterator(types)
     }
 }
 
-struct MakePropertyAccessorsInputItemElementPossibleTypesIterator(
-    Vec<MakePropertyAccessorsInputItemElementType>,
-);
+struct MakePropertyAccessorsInputItemElementPossibleTypesIterator(Vec<OpenFXTypeIdent>);
 
 impl Iterator for MakePropertyAccessorsInputItemElementPossibleTypesIterator {
-    type Item = MakePropertyAccessorsInputItemElementType;
+    type Item = OpenFXTypeIdent;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.0.is_empty() {
             None
         } else {
             Some(self.0.remove(0))
-        }
-    }
-}
-
-#[derive(Clone)]
-enum MakePropertyAccessorsInputItemElementType {
-    Int(syn::Ident),
-    Double(syn::Ident),
-    String(syn::Ident),
-    Pointer(syn::Ident),
-}
-
-impl Display for MakePropertyAccessorsInputItemElementType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            MakePropertyAccessorsInputItemElementType::Int(ident)
-            | MakePropertyAccessorsInputItemElementType::Double(ident)
-            | MakePropertyAccessorsInputItemElementType::String(ident)
-            | MakePropertyAccessorsInputItemElementType::Pointer(ident) => {
-                write!(f, "{}", ident)
-            }
-        }
-    }
-}
-
-impl MakePropertyAccessorsInputItemElementType {
-    fn rust_type_quote_for_setter(&self) -> proc_macro2::TokenStream {
-        match self {
-            MakePropertyAccessorsInputItemElementType::Int(ident) => {
-                let c_int = quote_spanned! { ident.span() => c_int };
-                quote! { ::std::os::raw::#c_int }
-            }
-            MakePropertyAccessorsInputItemElementType::Double(ident) => {
-                let f64 = quote_spanned! { ident.span() => f64 };
-                quote! { ::core::primitive::#f64 }
-            }
-            MakePropertyAccessorsInputItemElementType::String(ident) => {
-                let c_char = quote_spanned! { ident.span() => c_char };
-                quote! { *const ::std::os::raw::#c_char }
-            }
-            MakePropertyAccessorsInputItemElementType::Pointer(ident) => {
-                let c_void = quote_spanned! { ident.span() => c_void };
-                quote! { *mut ::std::ffi::#c_void }
-            }
-        }
-    }
-    fn rust_type_quote_for_getter(&self) -> proc_macro2::TokenStream {
-        match self {
-            MakePropertyAccessorsInputItemElementType::Int(ident) => {
-                let c_int = quote_spanned! { ident.span() => c_int };
-                quote! { ::std::os::raw::#c_int }
-            }
-            MakePropertyAccessorsInputItemElementType::Double(ident) => {
-                let f64 = quote_spanned! { ident.span() => f64 };
-                quote! { ::core::primitive::#f64 }
-            }
-            MakePropertyAccessorsInputItemElementType::String(ident) => {
-                let c_char = quote_spanned! { ident.span() => c_char };
-                quote! { *mut ::std::os::raw::#c_char }
-            }
-            MakePropertyAccessorsInputItemElementType::Pointer(ident) => {
-                let c_void = quote_spanned! { ident.span() => c_void };
-                quote! { *mut ::std::ffi::#c_void }
-            }
         }
     }
 }
