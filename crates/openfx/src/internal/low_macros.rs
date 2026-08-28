@@ -1,4 +1,4 @@
-pub macro make_enum_from_idents($name:ident, $($var:ident : $var_cstr:literal),*) {
+pub macro make_enum_from_idents($name:ident, $($var:ident : $var_cstr:literal),*$(,)?) {
     #[derive(Debug, Clone)]
     pub enum $name {
         $($var,)*
@@ -31,7 +31,7 @@ pub macro make_enum_from_idents($name:ident, $($var:ident : $var_cstr:literal),*
     }
 }
 
-pub macro make_enum_from_paths($name:ident, $(#[$meta:meta] $var:ident => $var_path:path),*) {
+pub macro make_enum_from_paths($name:ident, $(#[$meta:meta] $var:ident => $var_path:path),*$(,)?) {
     #[derive(Debug, Clone)]
     pub enum $name {
         $(#[$meta] $var,)*
