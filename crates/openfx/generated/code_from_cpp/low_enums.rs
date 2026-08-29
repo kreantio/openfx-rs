@@ -35,6 +35,10 @@ openfx_internal_macros::sys_helpers_make_property_enums! {
         InstanceSafe => crate::sys_umbrella::kOfxImageEffectRenderInstanceSafe,
         Unsafe => crate::sys_umbrella::kOfxImageEffectRenderUnsafe,
     }
+    ImageEffectPropCPURenderSupported {
+        False : c"false",
+        True : c"true",
+    }
     ImageEffectPropColourManagementStyle {
         Basic => crate::sys_umbrella::kOfxImageEffectColourManagementBasic,
         Core => crate::sys_umbrella::kOfxImageEffectColourManagementCore,
@@ -55,10 +59,6 @@ openfx_internal_macros::sys_helpers_make_property_enums! {
         Paint => crate::sys_umbrella::kOfxImageEffectContextPaint,
         Retimer => crate::sys_umbrella::kOfxImageEffectContextRetimer,
         Transition => crate::sys_umbrella::kOfxImageEffectContextTransition,
-    }
-    ImageEffectPropCPURenderSupported {
-        False : c"false",
-        True : c"true",
     }
     ImageEffectPropCudaRenderSupported {
         False : c"false",

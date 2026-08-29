@@ -63,8 +63,7 @@ function genAccessorsForTypesWithDimensions(
   }
 
   for (
-    const [ty_, ds_] of Object.entries(typeToPossibleDimensions)
-      .toSorted((a, b) => a[0].localeCompare(b[0]))
+    const [ty_, ds_] of Object.entries(typeToPossibleDimensions).toSorted()
   ) {
     const ty = ty_ as PropTypeX;
     ds_.add(0);
