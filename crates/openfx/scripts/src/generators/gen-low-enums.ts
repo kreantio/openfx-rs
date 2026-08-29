@@ -13,10 +13,8 @@ export function genLowEnums(
     "openfx_internal_macros::sys_helpers_make_property_enums! {",
   ];
   for (
-    const [enumNameFull, variantKeyConstantSet] of Object.entries(
-      fr.propEnumValues,
-    )
-      .toSorted((a, b) => a[0].localeCompare(b[0]))
+    const [enumNameFull, variantKeyConstantSet] of Object
+      .entries(fr.propEnumValues).toSorted()
   ) {
     if (!enumNameFull.startsWith("Ofx")) {
       throw new Error(
@@ -24,8 +22,7 @@ export function genLowEnums(
       );
     }
     const enumName = enumNameFull.slice("Ofx".length);
-    const variants = [...variantKeyConstantSet]
-      .toSorted((a, b) => a.localeCompare(b))
+    const variants = [...variantKeyConstantSet].toSorted()
       .map((v) => {
         const kind = getKindOfVariantName(v);
         return {
