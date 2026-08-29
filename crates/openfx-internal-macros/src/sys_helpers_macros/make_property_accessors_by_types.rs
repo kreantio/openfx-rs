@@ -247,16 +247,13 @@ fn make_property_getter_for_type(
 /// }
 /// ```
 struct MakePropertyAccessorsByTypesInput {
-    items: Vec<MakePropertyAccessorsByTypesInputItem>,
+    items: syn::punctuated::Punctuated<MakePropertyAccessorsByTypesInputItem, syn::Token![;]>,
 }
 
 impl syn::parse::Parse for MakePropertyAccessorsByTypesInput {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let mut items = Vec::new();
-        while !input.is_empty() {
-            let item: MakePropertyAccessorsByTypesInputItem = input.parse()?;
-            items.push(item);
-        }
+        let items =
+            input.parse_terminated(MakePropertyAccessorsByTypesInputItem::parse, syn::Token![;])?;
         Ok(MakePropertyAccessorsByTypesInput { items })
     }
 }
@@ -283,7 +280,6 @@ impl syn::parse::Parse for MakePropertyAccessorsByTypesInputItem {
         } else {
             None
         };
-        input.parse::<syn::Token![;]>()?;
         Ok(MakePropertyAccessorsByTypesInputItem {
             ty,
             array,
