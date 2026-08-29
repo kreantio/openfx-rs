@@ -250,12 +250,12 @@ fn make_property_get_dimensions(
 /// ## Examples
 ///
 /// ```rust,ignore
-///     sys_helpers_make_property_accessors! {
-///         OfxImageClipPropConnected: Int { set get reset };
-///         OfxImageEffectPropFrameRange: [Double; 2] { set get reset };
-///         OfxImageEffectPropSupportedPixelDepths: [String] { set get reset get_dimensions };
-///         OfxParamPropDefault: [(Int | Double | String | Pointer)] { set get reset get_dimensions };
-///     }
+/// sys_helpers_make_property_accessors! {
+///     OfxImageClipPropConnected: Int { set get reset };
+///     OfxImageEffectPropFrameRange: [Double; 2] { set get reset };
+///     OfxImageEffectPropSupportedPixelDepths: [String] { set get reset get_dimensions };
+///     OfxParamPropDefault: [(Int | Double | String | Pointer)] { set get reset get_dimensions };
+/// }
 /// ```
 struct MakePropertyAccessorsInput {
     items: Vec<MakePropertyAccessorsInputItem>,
