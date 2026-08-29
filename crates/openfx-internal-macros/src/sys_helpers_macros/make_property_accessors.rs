@@ -258,16 +258,14 @@ fn make_property_get_dimensions(
 /// }
 /// ```
 struct MakePropertyAccessorsInput {
-    items: Vec<MakePropertyAccessorsInputItem>,
+    items: syn::punctuated::Punctuated<MakePropertyAccessorsInputItem, syn::Token![;]>,
 }
 
 impl syn::parse::Parse for MakePropertyAccessorsInput {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let items = syn::punctuated::Punctuated::<MakePropertyAccessorsInputItem, syn::Token![;]>::parse_terminated(input)?;
 
-        Ok(MakePropertyAccessorsInput {
-            items: items.into_iter().collect(),
-        })
+        Ok(MakePropertyAccessorsInput { items })
     }
 }
 
