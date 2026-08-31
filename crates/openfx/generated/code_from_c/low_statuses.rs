@@ -1,4 +1,4 @@
-pub enum OfxStatus {
+pub enum Status {
     ErrBadHandle,
     ErrBadIndex,
     ErrExists,
@@ -17,7 +17,7 @@ pub enum OfxStatus {
     Unlicensed,
     Unknown(crate::generic::sys::core::OfxStatus),
 }
-impl From<crate::generic::sys::core::OfxStatus> for OfxStatus {
+impl From<crate::generic::sys::core::OfxStatus> for Status {
     fn from(status: crate::generic::sys::core::OfxStatus) -> Self {
         match status {
             crate::generic::sys::core::kOfxStatErrBadHandle => Self::ErrBadHandle,
@@ -42,30 +42,28 @@ impl From<crate::generic::sys::core::OfxStatus> for OfxStatus {
         }
     }
 }
-impl From<OfxStatus> for crate::generic::sys::core::OfxStatus {
-    fn from(status: OfxStatus) -> Self {
+impl From<Status> for crate::generic::sys::core::OfxStatus {
+    fn from(status: Status) -> Self {
         match status {
-            OfxStatus::ErrBadHandle => crate::generic::sys::core::kOfxStatErrBadHandle,
-            OfxStatus::ErrBadIndex => crate::generic::sys::core::kOfxStatErrBadIndex,
-            OfxStatus::ErrExists => crate::generic::sys::core::kOfxStatErrExists,
-            OfxStatus::ErrFatal => crate::generic::sys::core::kOfxStatErrFatal,
-            OfxStatus::ErrFormat => crate::generic::sys::core::kOfxStatErrFormat,
-            OfxStatus::ErrMemory => crate::generic::sys::core::kOfxStatErrMemory,
-            OfxStatus::ErrMissingHostFeature => {
+            Status::ErrBadHandle => crate::generic::sys::core::kOfxStatErrBadHandle,
+            Status::ErrBadIndex => crate::generic::sys::core::kOfxStatErrBadIndex,
+            Status::ErrExists => crate::generic::sys::core::kOfxStatErrExists,
+            Status::ErrFatal => crate::generic::sys::core::kOfxStatErrFatal,
+            Status::ErrFormat => crate::generic::sys::core::kOfxStatErrFormat,
+            Status::ErrMemory => crate::generic::sys::core::kOfxStatErrMemory,
+            Status::ErrMissingHostFeature => {
                 crate::generic::sys::core::kOfxStatErrMissingHostFeature
             }
-            OfxStatus::ErrUnknown => crate::generic::sys::core::kOfxStatErrUnknown,
-            OfxStatus::ErrUnsupported => {
-                crate::generic::sys::core::kOfxStatErrUnsupported
-            }
-            OfxStatus::ErrValue => crate::generic::sys::core::kOfxStatErrValue,
-            OfxStatus::Failed => crate::generic::sys::core::kOfxStatFailed,
-            OfxStatus::OK => crate::generic::sys::core::kOfxStatOK,
-            OfxStatus::ReplyDefault => crate::generic::sys::core::kOfxStatReplyDefault,
-            OfxStatus::ReplyNo => crate::generic::sys::core::kOfxStatReplyNo,
-            OfxStatus::ReplyYes => crate::generic::sys::core::kOfxStatReplyYes,
-            OfxStatus::Unlicensed => crate::generic::sys::core::kOfxStatUnlicensed,
-            OfxStatus::Unknown(status) => status,
+            Status::ErrUnknown => crate::generic::sys::core::kOfxStatErrUnknown,
+            Status::ErrUnsupported => crate::generic::sys::core::kOfxStatErrUnsupported,
+            Status::ErrValue => crate::generic::sys::core::kOfxStatErrValue,
+            Status::Failed => crate::generic::sys::core::kOfxStatFailed,
+            Status::OK => crate::generic::sys::core::kOfxStatOK,
+            Status::ReplyDefault => crate::generic::sys::core::kOfxStatReplyDefault,
+            Status::ReplyNo => crate::generic::sys::core::kOfxStatReplyNo,
+            Status::ReplyYes => crate::generic::sys::core::kOfxStatReplyYes,
+            Status::Unlicensed => crate::generic::sys::core::kOfxStatUnlicensed,
+            Status::Unknown(status) => status,
         }
     }
 }

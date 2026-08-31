@@ -6,7 +6,7 @@ import { NameRegulator } from "../utils/name-regulator.ts";
 export function genLowEnums(
   fr: FinalResultOfxPropsMetadata,
   opts: {
-    propertyNameRegulator: NameRegulator;
+    nameRegulator: NameRegulator;
   },
 ): string {
   const parts: string[] = [
@@ -30,8 +30,7 @@ export function genLowEnums(
           kind,
           ...(kind === "key_constant"
             ? {
-              canonicalName: opts.propertyNameRegulator
-                .keyConstantToCanonicalName(v),
+              canonicalName: opts.nameRegulator.keyConstantToCanonicalName(v),
             }
             : {}),
         };
@@ -58,7 +57,7 @@ export function genLowEnums(
           break;
         }
         case "key_constant": {
-          const name = opts.propertyNameRegulator
+          const name = opts.nameRegulator
             .keyConstantToCanonicalName(variant.keyConstant);
           const variantKName = name.slice(commonPrefix!.length);
           if (name != variant.keyConstant) {

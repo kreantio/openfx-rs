@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 use quote::quote;
 
 pub fn make_property_enums(tokens: TokenStream) -> TokenStream {
-    let input = syn::parse_macro_input!(tokens as MakePropertyEnumsInput);
+    let input = syn::parse_macro_input!(tokens as Input);
 
     let mut output = proc_macro2::TokenStream::new();
 
@@ -13,7 +13,7 @@ pub fn make_property_enums(tokens: TokenStream) -> TokenStream {
         {
             let mut inner = proc_macro2::TokenStream::new();
             for variant in &enum_item.variants {
-                if let MakePropertyEnumsInputEnumVariant::WithPath { path, .. } = &variant {
+                if let InputEnumVariant::WithPath { path, .. } = &variant {
                     let path_str = path
                         .segments
                         .iter()
@@ -43,10 +43,10 @@ pub fn make_property_enums(tokens: TokenStream) -> TokenStream {
                 .variants
                 .iter()
                 .map(|v| match v {
-                    MakePropertyEnumsInputEnumVariant::WithPath { path, .. } => {
+                    InputEnumVariant::WithPath { path, .. } => {
                         quote! { #path }
                     }
-                    MakePropertyEnumsInputEnumVariant::WithCStrLiteral { cstr_literal, .. } => {
+                    InputEnumVariant::WithCStrLiteral { cstr_literal, .. } => {
                         quote! { #cstr_literal }
                     }
                 })
@@ -65,6 +65,20 @@ pub fn make_property_enums(tokens: TokenStream) -> TokenStream {
                         match true {
                             #( _ if cstr == #vals => Self::#vars, )*
                             _ => Self::Other(cstr.as_ptr()),
+                        }
+                    }
+
+                    /// ## SAFETY
+                    ///
+                    /// - The pointer must be either null or valid and point to
+                    ///   a null-terminated C string.
+                    /// - The pointer must live at least as long as the returned
+                    ///   [`Self`] value.
+                    pub unsafe fn from_ptr_null_checked(ptr: *const std::os::raw::c_char) -> Self {
+                        if ptr.is_null() {
+                            Self::Other(std::ptr::null())
+                        } else {
+                            Self::from_ptr(ptr)
                         }
                     }
 
@@ -101,38 +115,37 @@ pub fn make_property_enums(tokens: TokenStream) -> TokenStream {
 ///     }
 /// }
 /// ```
-struct MakePropertyEnumsInput {
-    items: Vec<MakePropertyEnumsInputEnumItem>,
+struct Input {
+    items: Vec<InputEnumItem>,
 }
 
-impl syn::parse::Parse for MakePropertyEnumsInput {
+impl syn::parse::Parse for Input {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let mut items = Vec::new();
         while !input.is_empty() {
-            let item = input.parse::<MakePropertyEnumsInputEnumItem>()?;
+            let item = input.parse::<InputEnumItem>()?;
             items.push(item);
         }
-        Ok(MakePropertyEnumsInput { items })
+        Ok(Input { items })
     }
 }
 
-struct MakePropertyEnumsInputEnumItem {
+struct InputEnumItem {
     name: syn::Ident,
-    variants: syn::punctuated::Punctuated<MakePropertyEnumsInputEnumVariant, syn::Token![,]>,
+    variants: syn::punctuated::Punctuated<InputEnumVariant, syn::Token![,]>,
 }
 
-impl syn::parse::Parse for MakePropertyEnumsInputEnumItem {
+impl syn::parse::Parse for InputEnumItem {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let name = input.parse::<syn::Ident>()?;
         let content;
         let _brace_token = syn::braced!(content in input);
-        let variants =
-            content.parse_terminated(MakePropertyEnumsInputEnumVariant::parse, syn::Token![,])?;
-        Ok(MakePropertyEnumsInputEnumItem { name, variants })
+        let variants = content.parse_terminated(InputEnumVariant::parse, syn::Token![,])?;
+        Ok(InputEnumItem { name, variants })
     }
 }
 
-enum MakePropertyEnumsInputEnumVariant {
+enum InputEnumVariant {
     WithPath {
         name: syn::Ident,
         path: syn::Path,
@@ -143,29 +156,29 @@ enum MakePropertyEnumsInputEnumVariant {
     },
 }
 
-impl syn::parse::Parse for MakePropertyEnumsInputEnumVariant {
+impl syn::parse::Parse for InputEnumVariant {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let name = input.parse::<syn::Ident>()?;
         let lookahead = input.lookahead1();
         if lookahead.peek(syn::Token![:]) {
             let _colon_token = input.parse::<syn::Token![:]>()?;
             let cstr_literal = input.parse::<syn::LitCStr>()?;
-            Ok(MakePropertyEnumsInputEnumVariant::WithCStrLiteral { name, cstr_literal })
+            Ok(InputEnumVariant::WithCStrLiteral { name, cstr_literal })
         } else if lookahead.peek(syn::Token![=>]) {
             let _arrow_token = input.parse::<syn::Token![=>]>()?;
             let path = input.parse::<syn::Path>()?;
-            Ok(MakePropertyEnumsInputEnumVariant::WithPath { name, path })
+            Ok(InputEnumVariant::WithPath { name, path })
         } else {
             Err(lookahead.error())
         }
     }
 }
 
-impl MakePropertyEnumsInputEnumVariant {
+impl InputEnumVariant {
     fn name(&self) -> &syn::Ident {
         match self {
-            MakePropertyEnumsInputEnumVariant::WithPath { name, .. } => name,
-            MakePropertyEnumsInputEnumVariant::WithCStrLiteral { name, .. } => name,
+            InputEnumVariant::WithPath { name, .. } => name,
+            InputEnumVariant::WithCStrLiteral { name, .. } => name,
         }
     }
 }

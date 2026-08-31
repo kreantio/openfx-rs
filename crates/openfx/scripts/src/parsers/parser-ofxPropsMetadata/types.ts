@@ -96,6 +96,7 @@ export const FinalResult = z.object({
         // value: key in `PropEnumValues`
         z.record(z.literal("Enum"), z.string()),
       ]),
+      /** FIXME: This should be called `dimensions`. */
       dimension: z.number().int().nonnegative(),
     }),
   ),

@@ -17,6 +17,7 @@ import { CodegenConfig } from "../src/definitions.ts";
 import { genLowEnums } from "../src/generators/gen-low-enums.ts";
 import { genSysHelpersPropertyAccessors } from "../src/generators/gen-sys-helpers-property-accessors.ts";
 import { NameRegulator } from "../src/utils/name-regulator.ts";
+import { genLowActions } from "../src/generators/gen-low-actions.ts";
 
 function doParseArgs(args: string[]) {
   const result = parseArgs(args, {
@@ -51,7 +52,7 @@ function parseCodegenConfig(tomlText: string): CodegenConfig {
 }
 
 async function main(args: Args) {
-  const _codegenConfig = parseCodegenConfig(
+  const codegenConfig = parseCodegenConfig(
     await Deno.readTextFile(args["codegen-config"]),
   );
 
@@ -66,19 +67,20 @@ async function main(args: Args) {
     ),
   ));
 
-  const propertyNameRegulator = new NameRegulator({
+  const nameRegulator = new NameRegulator({
+    cfg: codegenConfig,
     propsMetadata,
     propsBySet,
   });
 
   await Deno.writeTextFile(
     path.join(args["output-code-from-cpp"], "low_enums.rs"),
-    genLowEnums(propsMetadata, { propertyNameRegulator }),
+    genLowEnums(propsMetadata, { nameRegulator }),
   );
   {
     const { generic, image_effect_v1: codePerMod } =
       await genSysHelpersPropertyAccessors(propsMetadata, {
-        propertyNameRegulator,
+        nameRegulator,
         dataIntermediatePath: args["input-intermediate"],
       });
     await Deno.writeTextFile(
@@ -103,6 +105,17 @@ async function main(args: Args) {
       );
     }
   }
+
+  await Deno.writeFile(
+    path.join(args["output-code-from-cpp"], "low_actions_plugin.rs"),
+    new TextEncoder().encode(
+      genLowActions(propsMetadata, propsBySet, {
+        cfg: codegenConfig,
+        nameRegulator,
+        isForPlugin: true,
+      }),
+    ),
+  );
 }
 
 await main(doParseArgs(Deno.args) as Args);

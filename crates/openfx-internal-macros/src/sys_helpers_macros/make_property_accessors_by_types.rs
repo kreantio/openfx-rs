@@ -3,10 +3,10 @@ use std::collections::HashSet;
 use proc_macro::TokenStream;
 use quote::quote;
 
-use crate::sys_helpers_macros::common::OpenFXTypeIdent;
+use crate::common::type_sys::OpenFXTypeSys;
 
 pub fn make_property_accessors_by_types(tokens: TokenStream) -> TokenStream {
-    let input = syn::parse_macro_input!(tokens as MakePropertyAccessorsByTypesInput);
+    let input = syn::parse_macro_input!(tokens as Input);
 
     let mut output: Vec<proc_macro2::TokenStream> = Vec::new();
 
@@ -83,7 +83,7 @@ enum ContainerType {
 }
 
 impl ContainerType {
-    fn name_suffix(&self, ty: &OpenFXTypeIdent) -> String {
+    fn name_suffix(&self, ty: &OpenFXTypeSys) -> String {
         match self {
             ContainerType::Single => ty.to_string().to_lowercase(),
             ContainerType::Array => format!("{}s", ty.to_string().to_lowercase()),
@@ -97,7 +97,7 @@ impl ContainerType {
 fn make_property_setter_for_type(
     output: &mut Vec<proc_macro2::TokenStream>,
     set_ident: &syn::Ident,
-    ty: &OpenFXTypeIdent,
+    ty: &OpenFXTypeSys,
     container_type: ContainerType,
     vis: &syn::Visibility,
 ) {
@@ -151,7 +151,7 @@ fn make_property_setter_for_type(
 fn make_property_getter_for_type(
     output: &mut Vec<proc_macro2::TokenStream>,
     get_ident: &syn::Ident,
-    ty: &OpenFXTypeIdent,
+    ty: &OpenFXTypeSys,
     container_type: ContainerType,
     vis: &syn::Visibility,
 ) {
@@ -246,41 +246,40 @@ fn make_property_getter_for_type(
 ///     String: ... pub { set get }, 1 pub { set get }, 2 pub(crate) { set get };
 /// }
 /// ```
-struct MakePropertyAccessorsByTypesInput {
-    items: syn::punctuated::Punctuated<MakePropertyAccessorsByTypesInputItem, syn::Token![;]>,
+struct Input {
+    items: syn::punctuated::Punctuated<InputItem, syn::Token![;]>,
 }
 
-impl syn::parse::Parse for MakePropertyAccessorsByTypesInput {
+impl syn::parse::Parse for Input {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let items =
-            input.parse_terminated(MakePropertyAccessorsByTypesInputItem::parse, syn::Token![;])?;
-        Ok(MakePropertyAccessorsByTypesInput { items })
+        let items = input.parse_terminated(InputItem::parse, syn::Token![;])?;
+        Ok(Input { items })
     }
 }
 
-struct MakePropertyAccessorsByTypesInputItem {
-    ty: OpenFXTypeIdent,
-    array: MakePropertyAccessorsByTypesInputItemArrayOrSingle,
-    single: MakePropertyAccessorsByTypesInputItemArrayOrSingle,
-    fixed_array: Option<MakePropertyAccessorsByTypesInputItemFixedArray>,
+struct InputItem {
+    ty: OpenFXTypeSys,
+    array: InputContainerTypeArrayOrSingle,
+    single: InputContainerTypeArrayOrSingle,
+    fixed_array: Option<InputContainerTypeFixedArray>,
 }
 
-impl syn::parse::Parse for MakePropertyAccessorsByTypesInputItem {
+impl syn::parse::Parse for InputItem {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let ty: OpenFXTypeIdent = input.parse()?;
+        let ty: OpenFXTypeSys = input.parse()?;
         input.parse::<syn::Token![:]>()?;
         input.parse::<syn::Token![...]>()?;
-        let array: MakePropertyAccessorsByTypesInputItemArrayOrSingle = input.parse()?;
+        let array: InputContainerTypeArrayOrSingle = input.parse()?;
         input.parse::<syn::Token![,]>()?;
         input.parse::<syn::LitInt>()?;
-        let single: MakePropertyAccessorsByTypesInputItemArrayOrSingle = input.parse()?;
+        let single: InputContainerTypeArrayOrSingle = input.parse()?;
         let fixed_array = if input.peek(syn::Token![,]) {
             input.parse::<syn::Token![,]>()?;
-            Some(input.parse::<MakePropertyAccessorsByTypesInputItemFixedArray>()?)
+            Some(input.parse::<InputContainerTypeFixedArray>()?)
         } else {
             None
         };
-        Ok(MakePropertyAccessorsByTypesInputItem {
+        Ok(InputItem {
             ty,
             array,
             single,
@@ -289,20 +288,20 @@ impl syn::parse::Parse for MakePropertyAccessorsByTypesInputItem {
     }
 }
 
-struct MakePropertyAccessorsByTypesInputItemArrayOrSingle {
+struct InputContainerTypeArrayOrSingle {
     vis: syn::Visibility,
     set_ident: syn::Ident,
     get_ident: syn::Ident,
 }
 
-impl syn::parse::Parse for MakePropertyAccessorsByTypesInputItemArrayOrSingle {
+impl syn::parse::Parse for InputContainerTypeArrayOrSingle {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let vis: syn::Visibility = input.parse()?;
         let content;
         syn::braced!(content in input);
         let set_ident: syn::Ident = content.parse()?;
         let get_ident: syn::Ident = content.parse()?;
-        Ok(MakePropertyAccessorsByTypesInputItemArrayOrSingle {
+        Ok(InputContainerTypeArrayOrSingle {
             vis,
             set_ident,
             get_ident,
@@ -310,14 +309,14 @@ impl syn::parse::Parse for MakePropertyAccessorsByTypesInputItemArrayOrSingle {
     }
 }
 
-struct MakePropertyAccessorsByTypesInputItemFixedArray {
+struct InputContainerTypeFixedArray {
     possible_sizes: HashSet<usize>,
     vis: syn::Visibility,
     set_ident: syn::Ident,
     get_ident: syn::Ident,
 }
 
-impl syn::parse::Parse for MakePropertyAccessorsByTypesInputItemFixedArray {
+impl syn::parse::Parse for InputContainerTypeFixedArray {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let mut possible_sizes = HashSet::new();
         if input.peek(syn::token::Paren) {
@@ -341,7 +340,7 @@ impl syn::parse::Parse for MakePropertyAccessorsByTypesInputItemFixedArray {
         syn::braced!(content in input);
         let set_ident: syn::Ident = content.parse()?;
         let get_ident: syn::Ident = content.parse()?;
-        Ok(MakePropertyAccessorsByTypesInputItemFixedArray {
+        Ok(InputContainerTypeFixedArray {
             possible_sizes,
             vis,
             set_ident,

@@ -1,12 +1,12 @@
 use proc_macro::TokenStream;
 use quote::quote;
 
-use crate::sys_helpers_macros::common::OpenFXTypeIdent;
+use crate::common::type_sys::OpenFXTypeSys;
 
 pub fn make_property_accessors(tokens: TokenStream) -> TokenStream {
-    let input = syn::parse_macro_input!(tokens as MakePropertyAccessorsInput);
+    let input = syn::parse_macro_input!(tokens as Input);
 
-    let mut output: Vec<proc_macro2::TokenStream> = Vec::new();
+    let mut output = proc_macro2::TokenStream::new();
 
     for item in input.items {
         let tys: Vec<_> = item.ty.possible_types().iter().collect();
@@ -37,7 +37,7 @@ pub fn make_property_accessors(tokens: TokenStream) -> TokenStream {
             make_property_resetter(&mut output, &k_path, &item.canonical_name, reset_ident);
         }
         if let Some(get_dimensions_ident) = &item.functions.get_dimensions {
-            make_property_get_dimensions(
+            make_property_dimensions_getter(
                 &mut output,
                 &k_path,
                 &item.canonical_name,
@@ -46,16 +46,13 @@ pub fn make_property_accessors(tokens: TokenStream) -> TokenStream {
         }
     }
 
-    quote! {
-        #(#output)*
-    }
-    .into()
+    output.into()
 }
 
 fn make_property_setter(
-    output: &mut Vec<proc_macro2::TokenStream>,
-    item: &MakePropertyAccessorsInputItem,
-    ty: &OpenFXTypeIdent,
+    output: &mut proc_macro2::TokenStream,
+    item: &InputPropertyItem,
+    ty: &OpenFXTypeSys,
     k_path: &proc_macro2::TokenStream,
     fn_name_suffix: &str,
     set_ident: &syn::Ident,
@@ -74,16 +71,16 @@ fn make_property_setter(
 
     let rust_ty = ty.rust_type_quote_for_setter();
     let container_ty = match &item.ty {
-        MakePropertyAccessorsInputItemContainerType::Single(_) => rust_ty.clone(),
-        MakePropertyAccessorsInputItemContainerType::FixedArray(_, size) => {
+        InputContainerType::Single(_) => rust_ty.clone(),
+        InputContainerType::FixedArray(_, size) => {
             quote! { [#rust_ty; #size] }
         }
-        MakePropertyAccessorsInputItemContainerType::Array(_) => {
+        InputContainerType::Array(_) => {
             quote! { &[#rust_ty] }
         }
     };
 
-    output.push(quote! {
+    output.extend(quote! {
         /// ## SAFETY
         ///
         /// - `suite` must be a valid pointer to
@@ -106,9 +103,9 @@ fn make_property_setter(
 }
 
 fn make_property_getter(
-    output: &mut Vec<proc_macro2::TokenStream>,
-    item: &MakePropertyAccessorsInputItem,
-    ty: &OpenFXTypeIdent,
+    output: &mut proc_macro2::TokenStream,
+    item: &InputPropertyItem,
+    ty: &OpenFXTypeSys,
     k_path: &proc_macro2::TokenStream,
     fn_name_suffix: &str,
     get_ident: &syn::Ident,
@@ -127,20 +124,17 @@ fn make_property_getter(
 
     let rust_ty = ty.rust_type_quote_for_getter();
     let container_ty = match &item.ty {
-        MakePropertyAccessorsInputItemContainerType::Single(_) => rust_ty.clone(),
-        MakePropertyAccessorsInputItemContainerType::FixedArray(_, size) => {
+        InputContainerType::Single(_) => rust_ty.clone(),
+        InputContainerType::FixedArray(_, size) => {
             quote! { [#rust_ty; #size] }
         }
-        MakePropertyAccessorsInputItemContainerType::Array(_) => {
+        InputContainerType::Array(_) => {
             quote! { [#rust_ty] }
         }
     };
 
-    if matches!(
-        item.ty,
-        MakePropertyAccessorsInputItemContainerType::Array(_)
-    ) {
-        output.push(quote! {
+    if matches!(item.ty, InputContainerType::Array(_)) {
+        output.extend(quote! {
             /// ## SAFETY
             ///
             /// - `suite` must be a valid pointer to
@@ -161,7 +155,7 @@ fn make_property_getter(
             }
         });
     } else {
-        output.push(quote! {
+        output.extend(quote! {
             /// ## SAFETY
             ///
             /// - `suite` must be a valid pointer to
@@ -184,7 +178,7 @@ fn make_property_getter(
 }
 
 fn make_property_resetter(
-    output: &mut Vec<proc_macro2::TokenStream>,
+    output: &mut proc_macro2::TokenStream,
     k_path: &proc_macro2::TokenStream,
     canonical_name: &syn::Ident,
     reset_ident: &syn::Ident,
@@ -192,7 +186,7 @@ fn make_property_resetter(
     let fn_name = syn::Ident::new(&format!("reset_{}", canonical_name), reset_ident.span());
     let reseter_path = quote! { crate::generic::sys_helpers::properties::reset_property };
 
-    output.push(quote! {
+    output.extend(quote! {
         /// ## SAFETY
         ///
         /// - `suite` must be a valid pointer to
@@ -213,8 +207,8 @@ fn make_property_resetter(
     });
 }
 
-fn make_property_get_dimensions(
-    output: &mut Vec<proc_macro2::TokenStream>,
+fn make_property_dimensions_getter(
+    output: &mut proc_macro2::TokenStream,
     k_path: &proc_macro2::TokenStream,
     canonical_name: &syn::Ident,
     get_dimensions_ident: &syn::Ident,
@@ -226,7 +220,7 @@ fn make_property_get_dimensions(
     let get_dimensions_path =
         quote! { crate::generic::sys_helpers::properties::get_property_dimension };
 
-    output.push(quote! {
+    output.extend(quote! {
         /// ## SAFETY
         ///
         /// - `suite` must be a valid pointer to
@@ -257,31 +251,34 @@ fn make_property_get_dimensions(
 ///     OfxParamPropDefault: [(Int | Double | String | Pointer)] { set get reset get_dimensions };
 /// }
 /// ```
-struct MakePropertyAccessorsInput {
-    items: syn::punctuated::Punctuated<MakePropertyAccessorsInputItem, syn::Token![;]>,
+struct Input {
+    items: syn::punctuated::Punctuated<InputPropertyItem, syn::Token![;]>,
 }
 
-impl syn::parse::Parse for MakePropertyAccessorsInput {
+impl syn::parse::Parse for Input {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let items = syn::punctuated::Punctuated::<MakePropertyAccessorsInputItem, syn::Token![;]>::parse_terminated(input)?;
+        let items =
+            syn::punctuated::Punctuated::<InputPropertyItem, syn::Token![;]>::parse_terminated(
+                input,
+            )?;
 
-        Ok(MakePropertyAccessorsInput { items })
+        Ok(Input { items })
     }
 }
 
-struct MakePropertyAccessorsInputItem {
+struct InputPropertyItem {
     canonical_name: syn::Ident,
-    ty: MakePropertyAccessorsInputItemContainerType,
-    functions: MakePropertyAccessorsInputItemFunctions,
+    ty: InputContainerType,
+    functions: InputAccessorFunctions,
 }
 
-impl syn::parse::Parse for MakePropertyAccessorsInputItem {
+impl syn::parse::Parse for InputPropertyItem {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let canonical_name: syn::Ident = input.parse()?;
         input.parse::<syn::Token![:]>()?;
-        let ty = input.parse::<MakePropertyAccessorsInputItemContainerType>()?;
-        let functions = input.parse::<MakePropertyAccessorsInputItemFunctions>()?;
-        Ok(MakePropertyAccessorsInputItem {
+        let ty = input.parse::<InputContainerType>()?;
+        let functions = input.parse::<InputAccessorFunctions>()?;
+        Ok(InputPropertyItem {
             canonical_name,
             ty,
             functions,
@@ -289,167 +286,153 @@ impl syn::parse::Parse for MakePropertyAccessorsInputItem {
     }
 }
 
-enum MakePropertyAccessorsInputItemContainerType {
-    Single(MakePropertyAccessorsInputItemElementPossibleTypes),
-    FixedArray(MakePropertyAccessorsInputItemElementPossibleTypes, usize),
-    Array(MakePropertyAccessorsInputItemElementPossibleTypes),
+enum InputContainerType {
+    Single(InputPossibleTypes),
+    FixedArray(InputPossibleTypes, usize),
+    Array(InputPossibleTypes),
 }
 
-impl syn::parse::Parse for MakePropertyAccessorsInputItemContainerType {
+impl syn::parse::Parse for InputContainerType {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         if input.peek(syn::token::Bracket) {
             let content;
             syn::bracketed!(content in input);
-            let ty: MakePropertyAccessorsInputItemElementPossibleTypes = content.parse()?;
+            let ty: InputPossibleTypes = content.parse()?;
             if content.peek(syn::Token![;]) {
                 content.parse::<syn::Token![;]>()?;
                 let size: syn::LitInt = content.parse()?;
-                Ok(MakePropertyAccessorsInputItemContainerType::FixedArray(
+                Ok(InputContainerType::FixedArray(
                     ty,
                     size.base10_parse::<usize>()?,
                 ))
             } else {
-                Ok(MakePropertyAccessorsInputItemContainerType::Array(ty))
+                Ok(InputContainerType::Array(ty))
             }
         } else {
-            Ok(MakePropertyAccessorsInputItemContainerType::Single(
-                input.parse()?,
-            ))
+            Ok(InputContainerType::Single(input.parse()?))
         }
     }
 }
 
-impl MakePropertyAccessorsInputItemContainerType {
-    fn possible_types(&self) -> &MakePropertyAccessorsInputItemElementPossibleTypes {
+impl InputContainerType {
+    fn possible_types(&self) -> &InputPossibleTypes {
         match self {
-            MakePropertyAccessorsInputItemContainerType::Single(ty) => ty,
-            MakePropertyAccessorsInputItemContainerType::FixedArray(ty, _) => ty,
-            MakePropertyAccessorsInputItemContainerType::Array(ty) => ty,
+            InputContainerType::Single(ty) => ty,
+            InputContainerType::FixedArray(ty, _) => ty,
+            InputContainerType::Array(ty) => ty,
         }
     }
 
     fn dimension_suffix(&self) -> String {
         match self {
-            MakePropertyAccessorsInputItemContainerType::Single(_) => "".to_string(),
-            MakePropertyAccessorsInputItemContainerType::FixedArray(_, size) => {
+            InputContainerType::Single(_) => "".to_string(),
+            InputContainerType::FixedArray(_, size) => {
                 format!("s_{}", size)
             }
-            MakePropertyAccessorsInputItemContainerType::Array(_) => "s".to_string(),
+            InputContainerType::Array(_) => "s".to_string(),
         }
     }
 }
 
-struct MakePropertyAccessorsInputItemElementPossibleTypes {
+struct InputPossibleTypes {
     int: Option<syn::Ident>,
     double: Option<syn::Ident>,
     string: Option<syn::Ident>,
     pointer: Option<syn::Ident>,
 }
 
-impl syn::parse::Parse for MakePropertyAccessorsInputItemElementPossibleTypes {
+impl syn::parse::Parse for InputPossibleTypes {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let mut int = None;
+        let mut double = None;
+        let mut string = None;
+        let mut pointer = None;
+
+        fn try_set(slot: &mut Option<syn::Ident>, value: syn::Ident) -> syn::Result<()> {
+            if slot.is_some() {
+                return Err(syn::Error::new_spanned(
+                    value,
+                    "Duplicate type in possible types",
+                ));
+            }
+            *slot = Some(value);
+            Ok(())
+        }
+
         if input.peek(syn::token::Paren) {
             let content;
             syn::parenthesized!(content in input);
-            let mut int = None;
-            let mut double = None;
-            let mut string = None;
-            let mut pointer = None;
 
             while !content.is_empty() {
                 let ty: syn::Ident = content.parse()?;
                 match ty.to_string().as_str() {
-                    "Int" => int = Some(ty.clone()),
-                    "Double" => double = Some(ty.clone()),
-                    "String" => string = Some(ty.clone()),
-                    "Pointer" => pointer = Some(ty.clone()),
-                    _ => return Err(syn::Error::new(ty.span(), "Unknown type")),
+                    "Int" => try_set(&mut int, ty.clone())?,
+                    "Double" => try_set(&mut double, ty.clone())?,
+                    "String" => try_set(&mut string, ty.clone())?,
+                    "Pointer" => try_set(&mut pointer, ty.clone())?,
+                    _ => return Err(syn::Error::new_spanned(ty, "Unknown type")),
                 }
                 if content.peek(syn::Token![|]) {
                     content.parse::<syn::Token![|]>()?;
                 }
             }
-
-            Ok(MakePropertyAccessorsInputItemElementPossibleTypes {
-                int,
-                double,
-                string,
-                pointer,
-            })
         } else {
             let ty: syn::Ident = input.parse()?;
             match ty.to_string().as_str() {
-                "Int" => Ok(MakePropertyAccessorsInputItemElementPossibleTypes {
-                    int: Some(ty.clone()),
-                    double: None,
-                    string: None,
-                    pointer: None,
-                }),
-                "Double" => Ok(MakePropertyAccessorsInputItemElementPossibleTypes {
-                    int: None,
-                    double: Some(ty.clone()),
-                    string: None,
-                    pointer: None,
-                }),
-                "String" => Ok(MakePropertyAccessorsInputItemElementPossibleTypes {
-                    int: None,
-                    double: None,
-                    string: Some(ty.clone()),
-                    pointer: None,
-                }),
-                "Pointer" => Ok(MakePropertyAccessorsInputItemElementPossibleTypes {
-                    int: None,
-                    double: None,
-                    string: None,
-                    pointer: Some(ty.clone()),
-                }),
-                _ => Err(syn::Error::new(ty.span(), "Unknown type")),
+                "Int" => int = Some(ty),
+                "Double" => double = Some(ty),
+                "String" => string = Some(ty),
+                "Pointer" => pointer = Some(ty),
+                _ => return Err(syn::Error::new_spanned(ty, "Unknown type")),
             }
         }
+
+        Ok(InputPossibleTypes {
+            int,
+            double,
+            string,
+            pointer,
+        })
     }
 }
 
-impl MakePropertyAccessorsInputItemElementPossibleTypes {
-    fn iter(&self) -> MakePropertyAccessorsInputItemElementPossibleTypesIterator {
+impl InputPossibleTypes {
+    fn iter(&self) -> OpenFXTypeSysIterator {
         let mut types = Vec::new();
         if let Some(ident) = &self.int {
-            types.push(OpenFXTypeIdent::Int(ident.clone()));
+            types.push(OpenFXTypeSys::Int(ident.clone()));
         }
         if let Some(ident) = &self.double {
-            types.push(OpenFXTypeIdent::Double(ident.clone()));
+            types.push(OpenFXTypeSys::Double(ident.clone()));
         }
         if let Some(ident) = &self.string {
-            types.push(OpenFXTypeIdent::String(ident.clone()));
+            types.push(OpenFXTypeSys::String(ident.clone()));
         }
         if let Some(ident) = &self.pointer {
-            types.push(OpenFXTypeIdent::Pointer(ident.clone()));
+            types.push(OpenFXTypeSys::Pointer(ident.clone()));
         }
-        MakePropertyAccessorsInputItemElementPossibleTypesIterator(types)
+        OpenFXTypeSysIterator(types)
     }
 }
 
-struct MakePropertyAccessorsInputItemElementPossibleTypesIterator(Vec<OpenFXTypeIdent>);
+struct OpenFXTypeSysIterator(Vec<OpenFXTypeSys>);
 
-impl Iterator for MakePropertyAccessorsInputItemElementPossibleTypesIterator {
-    type Item = OpenFXTypeIdent;
+impl Iterator for OpenFXTypeSysIterator {
+    type Item = OpenFXTypeSys;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.0.is_empty() {
-            None
-        } else {
-            Some(self.0.remove(0))
-        }
+        self.0.pop()
     }
 }
 
-struct MakePropertyAccessorsInputItemFunctions {
+struct InputAccessorFunctions {
     set: Option<syn::Ident>,
     get: Option<syn::Ident>,
     reset: Option<syn::Ident>,
     get_dimensions: Option<syn::Ident>,
 }
 
-impl syn::parse::Parse for MakePropertyAccessorsInputItemFunctions {
+impl syn::parse::Parse for InputAccessorFunctions {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let content;
         syn::braced!(content in input);
@@ -466,14 +449,14 @@ impl syn::parse::Parse for MakePropertyAccessorsInputItemFunctions {
                 "get" => get = Some(func.clone()),
                 "reset" => reset = Some(func.clone()),
                 "get_dimensions" => get_dimensions = Some(func.clone()),
-                _ => return Err(syn::Error::new(func.span(), "Unknown function")),
+                _ => return Err(syn::Error::new_spanned(func, "Unknown function")),
             }
             if content.peek(syn::Token![,]) {
                 content.parse::<syn::Token![,]>()?;
             }
         }
 
-        Ok(MakePropertyAccessorsInputItemFunctions {
+        Ok(InputAccessorFunctions {
             set,
             get,
             reset,

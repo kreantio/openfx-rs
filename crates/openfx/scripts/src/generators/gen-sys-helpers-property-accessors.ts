@@ -5,11 +5,12 @@ import {
   PropType,
 } from "../parsers/parser-ofxPropsMetadata/types.ts";
 import { NameRegulator } from "../utils/name-regulator.ts";
+import { representTypeWithContainer } from "../utils/representations.ts";
 
 export async function genSysHelpersPropertyAccessors(
   fr: FinalResultOfxPropsMetadata,
   opts: {
-    propertyNameRegulator: NameRegulator;
+    nameRegulator: NameRegulator;
     dataIntermediatePath: string;
   },
 ): Promise<{ generic: string; image_effect_v1: Record<string, string> }> {
@@ -93,7 +94,7 @@ function genAccessorsForTypesWithDimensions(
 async function genAccessors(
   fr: FinalResultOfxPropsMetadata,
   opts: {
-    propertyNameRegulator: NameRegulator;
+    nameRegulator: NameRegulator;
     dataIntermediatePath: string;
   },
 ): Promise<Record<string, string[]>> {
@@ -109,14 +110,14 @@ async function genAccessors(
   }
 
   for (const [keyConstant, v] of Object.entries(fr.propertyInfos)) {
-    const name = opts.propertyNameRegulator
+    const name = opts.nameRegulator
       .keyConstantToCanonicalName(keyConstant);
     if (name != keyConstant) {
       console.info(
         `NOTE(gen-sys-helpers-property-accessors): The property with key constant \`${keyConstant}\` has a different canonical name \`${name}\`.`,
       );
     }
-    const kName = opts.propertyNameRegulator.keyConstantToKName(keyConstant);
+    const kName = opts.nameRegulator.keyConstantToKName(keyConstant);
 
     const mod = findMod(rootItemIdentsPerHeader, kName);
     const parts = (ret[mod] ??= []);
@@ -134,15 +135,7 @@ async function genAccessors(
     const ty = possibleTypes.length === 1
       ? possibleTypes[0]
       : `(${possibleTypes.join(" | ")})`;
-    const tyContainer = (() => {
-      if (v.dimension === 0) {
-        return `[${ty}]`;
-      } else if (v.dimension === 1) {
-        return ty;
-      } else {
-        return `[${ty}; ${v.dimension}]`;
-      }
-    })();
+    const tyContainer = representTypeWithContainer(ty, v.dimension);
 
     const fns = [
       "set",
