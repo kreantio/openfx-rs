@@ -2,7 +2,6 @@
 
 pub mod generic;
 pub mod image_effect_v1;
-pub(crate) mod internal;
 
 /// a workaround for `include_c_bindings`. TODO: remove this.
 #[allow(unused_imports)]
@@ -34,4 +33,10 @@ mod sys_checks {
         env!("CARGO_MANIFEST_DIR"),
         "/generated/c_bindings/_checks.rs",
     ));
+}
+
+#[allow(unused_imports)]
+pub(crate) mod sys_helpers_properties_umbrella {
+    pub use crate::generic::sys_helpers::properties::*;
+    pub use crate::image_effect_v1::sys_helpers::properties::*;
 }

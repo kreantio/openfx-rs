@@ -1,1 +1,45 @@
+[property_names]
+simple_names_regex = "^Ofx.*?Prop(.+)$"
+[property_names.simple_names_special_cases]
+OfxImageEffectFrameVarying = "FrameVarying"
 
+[actions.pseudo]
+members = ["CustomParamInterpFunc"]
+
+[actions.core]
+members_regex = "^OfxAction(.+)$"
+
+[actions.image_effect]
+members_regex = "^OfxImageEffectAction(.+)$"
+# based on: https://openfx.readthedocs.io/en/main/Reference/ofxImageEffectActions.html
+# TODO: parse `ofxImageEffectActions.rst`?
+members_from_core = [
+  "OfxActionLoad",
+  "OfxActionUnload",
+  "OfxActionDescribe",
+  "OfxActionCreateInstance",
+  "OfxActionDestroyInstance",
+  "OfxActionBeginInstanceChanged",
+  "OfxActionEndInstanceChanged",
+  "OfxActionInstanceChanged",
+  "OfxActionPurgeCaches",
+  "OfxActionSyncPrivateData",
+  "OfxActionBeginInstanceEdit",
+  "OfxActionEndInstanceEdit",
+]
+
+[actions.interact]
+members_regex = "^OfxInteractAction(.+)$"
+# based on: https://openfx.readthedocs.io/en/main/Reference/ofxInteractActions.html
+# TODO: parse `ofxInteractActions.rst`?
+members_from_core = [
+  # TODO: use the follwing:
+  # ```
+  # { name = "OfxActionDescribe", key = "kOfxActionDescribeInteract" },
+  # { name = "OfxActionCreateInstance", key = "kOfxActionCreateInstanceInteract" },
+  # { name = "OfxActionDestroyInstance", key = "kOfxActionDestroyInstanceInteract" },
+  # ```
+  "OfxActionDescribe",
+  "OfxActionCreateInstance",
+  "OfxActionDestroyInstance",
+]

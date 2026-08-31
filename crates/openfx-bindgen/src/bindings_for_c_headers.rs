@@ -181,11 +181,11 @@ fn gen_low_statuses(
         .collect::<Vec<_>>();
 
     let code = quote! {
-        pub enum OfxStatus {
+        pub enum Status {
             #(#statuses,)*
             Unknown(crate::generic::sys::core::OfxStatus),
         }
-        impl From<crate::generic::sys::core::OfxStatus> for OfxStatus {
+        impl From<crate::generic::sys::core::OfxStatus> for Status {
             fn from(status: crate::generic::sys::core::OfxStatus) -> Self {
                 match status {
                     #(crate::generic::sys::core::#status_sys_ident => Self::#statuses,)*
@@ -193,11 +193,11 @@ fn gen_low_statuses(
                 }
             }
         }
-        impl From<OfxStatus> for crate::generic::sys::core::OfxStatus {
-            fn from(status: OfxStatus) -> Self {
+        impl From<Status> for crate::generic::sys::core::OfxStatus {
+            fn from(status: Status) -> Self {
                 match status {
-                    #(OfxStatus::#statuses => crate::generic::sys::core::#status_sys_ident,)*
-                    OfxStatus::Unknown(status) => status,
+                    #(Status::#statuses => crate::generic::sys::core::#status_sys_ident,)*
+                    Status::Unknown(status) => status,
                 }
             }
         }
