@@ -1,1 +1,1 @@
-pub mod make_property_set_struct;
+pub mod make_property_set_structs;

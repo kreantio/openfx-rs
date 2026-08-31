@@ -4,14 +4,12 @@ pub mod pseudo {
         in_args: CustomParamInterpFuncIn,
         out_args: CustomParamInterpFuncOut,
     ) -> crate::generic::low::Result<()>;
-    openfx_internal_macros::low_make_property_set_struct! {
+    openfx_internal_macros::low_make_property_set_structs! {
         pub CustomParamInterpFuncIn {
             custom_value(OfxParamPropCustomValue): [String; 2] { read(get) };
             interpolation_amount(OfxParamPropInterpolationAmount): Double { read(get) };
             interpolation_time(OfxParamPropInterpolationTime): [Double; 2] { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub CustomParamInterpFuncOut {
             custom_value(OfxParamPropCustomValue): [String; 2] { write(set, reset) };
             interpolation_time(OfxParamPropInterpolationTime): [Double; 2] { write(set, reset) };
@@ -19,18 +17,14 @@ pub mod pseudo {
     }
 }
 pub mod core {
-    openfx_internal_macros::low_make_property_set_struct! {
+    openfx_internal_macros::low_make_property_set_structs! {
         pub ActionBeginInstanceChangedIn {
             thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
             change_reason(OfxPropChangeReason): Enum(PropChangeReason) { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionEndInstanceChangedIn {
             change_reason(OfxPropChangeReason): Enum(PropChangeReason) { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionInstanceChangedIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
@@ -130,7 +124,7 @@ pub mod image_effect {
             in_args: ActionRenderIn,
         },
     }
-    openfx_internal_macros::low_make_property_set_struct! {
+    openfx_internal_macros::low_make_property_set_structs! {
         pub ActionBeginSequenceRenderIn {
             cuda_enabled(OfxImageEffectPropCudaEnabled): Bool { read(get) };
             cuda_render_supported(OfxImageEffectPropCudaRenderSupported): Enum(ImageEffectPropCudaRenderSupported) { read(get) };
@@ -156,13 +150,9 @@ pub mod image_effect {
             thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
             is_interactive(OfxPropIsInteractive): Bool { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionDescribeInContextIn {
             context(OfxImageEffectPropContext): Enum(ImageEffectPropContext) { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionEndSequenceRenderIn {
             cuda_enabled(OfxImageEffectPropCudaEnabled): Bool { read(get) };
             cuda_render_supported(OfxImageEffectPropCudaRenderSupported): Enum(ImageEffectPropCudaRenderSupported) { read(get) };
@@ -186,8 +176,6 @@ pub mod image_effect {
             sequential_render_status(OfxImageEffectPropSequentialRenderStatus): Bool { read(get) };
             is_interactive(OfxPropIsInteractive): Bool { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionGetClipPreferencesOut {
             continuous_samples(OfxImageClipPropContinuousSamples): Bool { write(set, reset) };
             field_order(OfxImageClipPropFieldOrder): Enum(ImageClipPropFieldOrder) { write(set, reset) };
@@ -195,54 +183,36 @@ pub mod image_effect {
             frame_rate(OfxImageEffectPropFrameRate): Double { write(set, reset) };
             pre_multiplication(OfxImageEffectPropPreMultiplication): Enum(ImageEffectPropPreMultiplication) { write(set, reset) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionGetFramesNeededIn {
             thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionGetFramesNeededOut {
             frame_range(OfxImageEffectPropFrameRange): [Double; 2] { write(set, reset) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionGetOutputColourspaceIn {
             preferred_colourspaces(OfxImageClipPropPreferredColourspaces): [String] { read(get, len) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionGetOutputColourspaceOut {
             colourspace(OfxImageClipPropColourspace): String { write(set, reset) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionGetRegionOfDefinitionIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionGetRegionOfDefinitionOut {
             region_of_definition(OfxImageEffectPropRegionOfDefinition): [Double; 4] { write(set, reset) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionGetRegionsOfInterestIn {
             region_of_interest(OfxImageEffectPropRegionOfInterest): [Double; 4] { read(get) };
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionGetTimeDomainOut {
             frame_range(OfxImageEffectPropFrameRange): [Double; 2] { write(set, reset) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionIsIdentityIn {
             field_to_render(OfxImageEffectPropFieldToRender): Enum(ImageEffectPropFieldToRender) { read(get) };
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
@@ -250,8 +220,6 @@ pub mod image_effect {
             thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionRenderIn {
             cuda_enabled(OfxImageEffectPropCudaEnabled): Bool { read(get) };
             cuda_render_supported(OfxImageEffectPropCudaRenderSupported): Enum(ImageEffectPropCudaRenderSupported) { read(get) };
@@ -325,7 +293,7 @@ pub mod interact {
             in_args: ActionPenUpIn,
         },
     }
-    openfx_internal_macros::low_make_property_set_struct! {
+    openfx_internal_macros::low_make_property_set_structs! {
         pub ActionDrawIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };
@@ -334,8 +302,6 @@ pub mod interact {
             effect_instance(OfxPropEffectInstance): Pointer { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionGainFocusIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };
@@ -343,8 +309,6 @@ pub mod interact {
             effect_instance(OfxPropEffectInstance): Pointer { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionKeyDownIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             effect_instance(OfxPropEffectInstance): Pointer { read(get) };
@@ -352,8 +316,6 @@ pub mod interact {
             key_sym(OfxPropKeySym): Int { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionKeyRepeatIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             effect_instance(OfxPropEffectInstance): Pointer { read(get) };
@@ -361,8 +323,6 @@ pub mod interact {
             key_sym(OfxPropKeySym): Int { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionKeyUpIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             effect_instance(OfxPropEffectInstance): Pointer { read(get) };
@@ -370,8 +330,6 @@ pub mod interact {
             key_sym(OfxPropKeySym): Int { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionLoseFocusIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };
@@ -379,8 +337,6 @@ pub mod interact {
             effect_instance(OfxPropEffectInstance): Pointer { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionPenDownIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };
@@ -391,8 +347,6 @@ pub mod interact {
             effect_instance(OfxPropEffectInstance): Pointer { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionPenMotionIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };
@@ -403,8 +357,6 @@ pub mod interact {
             effect_instance(OfxPropEffectInstance): Pointer { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-    }
-    openfx_internal_macros::low_make_property_set_struct! {
         pub ActionPenUpIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };

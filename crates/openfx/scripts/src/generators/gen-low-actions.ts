@@ -63,6 +63,7 @@ function genLowActionsPseudo(
       }) -> crate::generic::low::Result<()>;`,
     );
 
+    parts.push("openfx_internal_macros::low_make_property_set_structs! {");
     const inArgs = frS.infos.actionProps[m].inArgs;
     if (inArgs) {
       parts.push(
@@ -75,6 +76,7 @@ function genLowActionsPseudo(
         genLowPropertySetStructForArguments("out", frM, outName, outArgs, opts),
       );
     }
+    parts.push("}");
   }
 
   parts.push("}");
@@ -98,6 +100,7 @@ function genLowActionsCore(
 
   const actions = extractActions([...frS.infos.actions], membersRegex, opts);
 
+  parts.push("openfx_internal_macros::low_make_property_set_structs! {");
   for (const action of actions) {
     if (opts.seenActions.has(action.canonicalName)) {
       throw new Error(
@@ -127,6 +130,7 @@ function genLowActionsCore(
       );
     }
   }
+  parts.push("}");
 
   parts.push("}");
 
@@ -191,6 +195,7 @@ function genLowActionsInGroup(
 
   parts.push("    }");
 
+  parts.push("openfx_internal_macros::low_make_property_set_structs! {");
   for (const action of actionsSelf) {
     if (opts.seenActions.has(action.canonicalName)) {
       throw new Error(
@@ -220,6 +225,7 @@ function genLowActionsInGroup(
       );
     }
   }
+  parts.push("}");
 
   parts.push("}");
 
@@ -243,10 +249,7 @@ function genLowPropertySetStructForArguments(
     }))
     .toSorted((a, b) => a.name.localeCompare(b.name));
 
-  const parts: string[] = [
-    "openfx_internal_macros::low_make_property_set_struct! {",
-    `    pub ${name} {`,
-  ];
+  const parts: string[] = [`    pub ${name} {`];
 
   for (const arg of args) {
     parts.push(genPropertySetImplItem(frM, {
@@ -257,7 +260,6 @@ function genLowPropertySetStructForArguments(
   }
 
   parts.push("    }");
-  parts.push("}");
 
   return parts.join("\n");
 }
