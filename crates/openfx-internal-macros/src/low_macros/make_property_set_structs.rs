@@ -3,19 +3,29 @@ use quote::{quote, quote_spanned};
 
 use crate::common::type_sys::OpenFXTypeSys;
 
-pub fn make_property_set_struct(tokens: TokenStream) -> TokenStream {
+pub fn make_property_set_structs(tokens: TokenStream) -> TokenStream {
     let mut output_inner = proc_macro2::TokenStream::new();
 
     let input = syn::parse_macro_input!(tokens as Input);
 
-    for prop in input.items {
-        make_property_accessors(&mut output_inner, &prop);
+    for set in input.items {
+        make_property_set_struct(&mut output_inner, &set);
     }
 
-    let vis = input.vis;
-    let struct_name = input.name;
+    output_inner.into()
+}
 
-    quote! {
+fn make_property_set_struct(output: &mut proc_macro2::TokenStream, set: &InputPropertySet) {
+    let mut output_inner = proc_macro2::TokenStream::new();
+
+    for prop in &set.items {
+        make_property_accessors(&mut output_inner, prop);
+    }
+
+    let vis = &set.vis;
+    let struct_name = &set.name;
+
+    output.extend(quote! {
         #vis struct #struct_name(crate::generic::sys::core::OfxPropertySetHandle);
 
         impl #struct_name {
@@ -33,8 +43,7 @@ pub fn make_property_set_struct(tokens: TokenStream) -> TokenStream {
         impl #struct_name {
             #output_inner
         }
-    }
-    .into()
+    });
 }
 
 fn make_property_accessors(output: &mut proc_macro2::TokenStream, prop: &InputPropertyItem) {
@@ -305,7 +314,7 @@ fn make_property_dimensions_getter(
 /// ## Examples
 ///
 /// ```rust,ignore
-/// openfx_internal_macros::low_make_property_set_struct! {
+/// openfx_internal_macros::low_make_property_set_structs! {
 ///     CustomParamInterpFuncIn {
 ///         custom_value(OfxParamPropCustomValue): [String; 2] { write(set,reset) read(get) };
 ///         interpolation_amount(OfxParamPropInterpolationAmount): Double { read(get) };
@@ -315,29 +324,21 @@ fn make_property_dimensions_getter(
 /// ```
 ///
 /// ```rust,ignore
-/// openfx_internal_macros::low_make_property_set_struct! {
+/// openfx_internal_macros::low_make_property_set_structs! {
 ///     ClipInstance {
 ///         r#type(OfxPropType): String { read(get) };
 ///         // …
 ///         supported_components(OfxImageEffectPropSupportedComponents): [Enum(_)] { read(get, len) };
 ///         temporal_clip_access(OfxImageEffectPropTemporalClipAccess): Bool { read(get) };
 ///     }
-/// }
-/// ```
-///
-/// ```rust,ignore
-/// openfx_internal_macros::low_make_property_set_struct! {
+///     // …
 ///     EffectInstance {
 ///         r#type(OfxPropType): String { read(get) };
 ///         context(OfxImageEffectPropContext): Enum(_) { read(get) };
 ///         instance_data(OfxPropInstanceData): Pointer { read(get) };
 ///         // …
 ///     }
-/// }
-/// ```
-///
-/// ```rust,ignore
-/// openfx_internal_macros::low_make_property_set_struct! {
+///     // …
 ///     ParamDouble1D {
 ///         // …
 ///         default(OfxParamPropDefault): [(Int | Double | String | Pointer)] { write(set, reset) read(get, len) };
@@ -346,19 +347,34 @@ fn make_property_dimensions_getter(
 /// }
 /// ```
 struct Input {
+    items: Vec<InputPropertySet>,
+}
+
+impl syn::parse::Parse for Input {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let mut items = Vec::new();
+        while !input.is_empty() {
+            let item: InputPropertySet = input.parse()?;
+            items.push(item);
+        }
+        Ok(Input { items })
+    }
+}
+
+struct InputPropertySet {
     vis: syn::Visibility,
     name: syn::Ident,
     items: syn::punctuated::Punctuated<InputPropertyItem, syn::Token![;]>,
 }
 
-impl syn::parse::Parse for Input {
+impl syn::parse::Parse for InputPropertySet {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let vis: syn::Visibility = input.parse()?;
         let name: syn::Ident = input.parse()?;
         let content;
         syn::braced!(content in input);
         let items = content.parse_terminated(InputPropertyItem::parse, syn::Token![;])?;
-        Ok(Input { vis, name, items })
+        Ok(InputPropertySet { vis, name, items })
     }
 }
 
