@@ -5,12 +5,12 @@ pub mod pseudo {
         out_args: CustomParamInterpFuncOut,
     ) -> crate::generic::low::Result<()>;
     openfx_internal_macros::low_make_property_set_structs! {
-        pub CustomParamInterpFuncIn {
+        CustomParamInterpFuncIn {
             custom_value(OfxParamPropCustomValue): [String; 2] { read(get) };
             interpolation_amount(OfxParamPropInterpolationAmount): Double { read(get) };
             interpolation_time(OfxParamPropInterpolationTime): [Double; 2] { read(get) };
         }
-        pub CustomParamInterpFuncOut {
+        CustomParamInterpFuncOut {
             custom_value(OfxParamPropCustomValue): [String; 2] { write(set, reset) };
             interpolation_time(OfxParamPropInterpolationTime): [Double; 2] { write(set, reset) };
         }
@@ -18,14 +18,14 @@ pub mod pseudo {
 }
 pub mod core {
     openfx_internal_macros::low_make_property_set_structs! {
-        pub ActionBeginInstanceChangedIn {
+        ActionBeginInstanceChangedIn {
             thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
             change_reason(OfxPropChangeReason): Enum(PropChangeReason) { read(get) };
         }
-        pub ActionEndInstanceChangedIn {
+        ActionEndInstanceChangedIn {
             change_reason(OfxPropChangeReason): Enum(PropChangeReason) { read(get) };
         }
-        pub ActionInstanceChangedIn {
+        ActionInstanceChangedIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
             change_reason(OfxPropChangeReason): Enum(PropChangeReason) { read(get) };
@@ -37,7 +37,7 @@ pub mod core {
 }
 pub mod image_effect {
     openfx_internal_macros::low_make_action_enum! {
-        pub ImageEffectAction {
+        ImageEffectAction {
             __ ___ core::Load,
             __ ___ core::Unload,
             __ ___ core::Describe,
@@ -64,7 +64,7 @@ pub mod image_effect {
         }
     }
     openfx_internal_macros::low_make_property_set_structs! {
-        pub ActionBeginSequenceRenderIn {
+        ActionBeginSequenceRenderIn {
             cuda_enabled(OfxImageEffectPropCudaEnabled): Bool { read(get) };
             cuda_render_supported(OfxImageEffectPropCudaRenderSupported): Enum(ImageEffectPropCudaRenderSupported) { read(get) };
             cuda_stream(OfxImageEffectPropCudaStream): Pointer { read(get) };
@@ -89,10 +89,10 @@ pub mod image_effect {
             thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
             is_interactive(OfxPropIsInteractive): Bool { read(get) };
         }
-        pub ActionDescribeInContextIn {
+        ActionDescribeInContextIn {
             context(OfxImageEffectPropContext): Enum(ImageEffectPropContext) { read(get) };
         }
-        pub ActionEndSequenceRenderIn {
+        ActionEndSequenceRenderIn {
             cuda_enabled(OfxImageEffectPropCudaEnabled): Bool { read(get) };
             cuda_render_supported(OfxImageEffectPropCudaRenderSupported): Enum(ImageEffectPropCudaRenderSupported) { read(get) };
             cuda_stream(OfxImageEffectPropCudaStream): Pointer { read(get) };
@@ -115,51 +115,51 @@ pub mod image_effect {
             sequential_render_status(OfxImageEffectPropSequentialRenderStatus): Bool { read(get) };
             is_interactive(OfxPropIsInteractive): Bool { read(get) };
         }
-        pub ActionGetClipPreferencesOut {
+        ActionGetClipPreferencesOut {
             continuous_samples(OfxImageClipPropContinuousSamples): Bool { write(set, reset) };
             field_order(OfxImageClipPropFieldOrder): Enum(ImageClipPropFieldOrder) { write(set, reset) };
             frame_varying(OfxImageEffectFrameVarying): Bool { write(set, reset) };
             frame_rate(OfxImageEffectPropFrameRate): Double { write(set, reset) };
             pre_multiplication(OfxImageEffectPropPreMultiplication): Enum(ImageEffectPropPreMultiplication) { write(set, reset) };
         }
-        pub ActionGetFramesNeededIn {
+        ActionGetFramesNeededIn {
             thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-        pub ActionGetFramesNeededOut {
+        ActionGetFramesNeededOut {
             frame_range(OfxImageEffectPropFrameRange): [Double; 2] { write(set, reset) };
         }
-        pub ActionGetOutputColourspaceIn {
+        ActionGetOutputColourspaceIn {
             preferred_colourspaces(OfxImageClipPropPreferredColourspaces): [String] { read(get, len) };
         }
-        pub ActionGetOutputColourspaceOut {
+        ActionGetOutputColourspaceOut {
             colourspace(OfxImageClipPropColourspace): String { write(set, reset) };
         }
-        pub ActionGetRegionOfDefinitionIn {
+        ActionGetRegionOfDefinitionIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-        pub ActionGetRegionOfDefinitionOut {
+        ActionGetRegionOfDefinitionOut {
             region_of_definition(OfxImageEffectPropRegionOfDefinition): [Double; 4] { write(set, reset) };
         }
-        pub ActionGetRegionsOfInterestIn {
+        ActionGetRegionsOfInterestIn {
             region_of_interest(OfxImageEffectPropRegionOfInterest): [Double; 4] { read(get) };
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-        pub ActionGetTimeDomainOut {
+        ActionGetTimeDomainOut {
             frame_range(OfxImageEffectPropFrameRange): [Double; 2] { write(set, reset) };
         }
-        pub ActionIsIdentityIn {
+        ActionIsIdentityIn {
             field_to_render(OfxImageEffectPropFieldToRender): Enum(ImageEffectPropFieldToRender) { read(get) };
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             render_window(OfxImageEffectPropRenderWindow): [Int; 4] { read(get) };
             thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-        pub ActionRenderIn {
+        ActionRenderIn {
             cuda_enabled(OfxImageEffectPropCudaEnabled): Bool { read(get) };
             cuda_render_supported(OfxImageEffectPropCudaRenderSupported): Enum(ImageEffectPropCudaRenderSupported) { read(get) };
             cuda_stream(OfxImageEffectPropCudaStream): Pointer { read(get) };
@@ -186,7 +186,7 @@ pub mod image_effect {
 }
 pub mod interact {
     openfx_internal_macros::low_make_action_enum! {
-        pub InteractAction {
+        InteractAction {
             __ ___ core::Describe,
             __ ___ core::CreateInstance,
             __ ___ core::DestroyInstance,
@@ -202,7 +202,7 @@ pub mod interact {
         }
     }
     openfx_internal_macros::low_make_property_set_structs! {
-        pub ActionDrawIn {
+        ActionDrawIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };
             draw_context(OfxInteractPropDrawContext): Pointer { read(get) };
@@ -210,42 +210,42 @@ pub mod interact {
             effect_instance(OfxPropEffectInstance): Pointer { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-        pub ActionGainFocusIn {
+        ActionGainFocusIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };
             pixel_scale(OfxInteractPropPixelScale): [Double; 2] { read(get) };
             effect_instance(OfxPropEffectInstance): Pointer { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-        pub ActionKeyDownIn {
+        ActionKeyDownIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             effect_instance(OfxPropEffectInstance): Pointer { read(get) };
             key_string(OfxPropKeyString): String { read(get) };
             key_sym(OfxPropKeySym): Int { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-        pub ActionKeyRepeatIn {
+        ActionKeyRepeatIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             effect_instance(OfxPropEffectInstance): Pointer { read(get) };
             key_string(OfxPropKeyString): String { read(get) };
             key_sym(OfxPropKeySym): Int { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-        pub ActionKeyUpIn {
+        ActionKeyUpIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             effect_instance(OfxPropEffectInstance): Pointer { read(get) };
             key_string(OfxPropKeyString): String { read(get) };
             key_sym(OfxPropKeySym): Int { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-        pub ActionLoseFocusIn {
+        ActionLoseFocusIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };
             pixel_scale(OfxInteractPropPixelScale): [Double; 2] { read(get) };
             effect_instance(OfxPropEffectInstance): Pointer { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-        pub ActionPenDownIn {
+        ActionPenDownIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };
             pen_position(OfxInteractPropPenPosition): [Double; 2] { read(get) };
@@ -255,7 +255,7 @@ pub mod interact {
             effect_instance(OfxPropEffectInstance): Pointer { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-        pub ActionPenMotionIn {
+        ActionPenMotionIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };
             pen_position(OfxInteractPropPenPosition): [Double; 2] { read(get) };
@@ -265,7 +265,7 @@ pub mod interact {
             effect_instance(OfxPropEffectInstance): Pointer { read(get) };
             time(OfxPropTime): Double { read(get) };
         }
-        pub ActionPenUpIn {
+        ActionPenUpIn {
             render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
             background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };
             pen_position(OfxInteractPropPenPosition): [Double; 2] { read(get) };

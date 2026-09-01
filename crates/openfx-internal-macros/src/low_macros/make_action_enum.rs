@@ -5,7 +5,6 @@ pub fn make_action_enum(tokens: TokenStream) -> TokenStream {
     let mut output_inner = proc_macro2::TokenStream::new();
 
     let input = syn::parse_macro_input!(tokens as Input);
-    let vis = &input.vis;
     let enum_name = &input.name;
 
     for var in &input.items {
@@ -15,7 +14,7 @@ pub fn make_action_enum(tokens: TokenStream) -> TokenStream {
     let from_sys_fn = make_from_sys_fn(enum_name, &input.items);
 
     quote! {
-        #vis enum #enum_name {
+        pub enum #enum_name {
             #output_inner
             Unknown {
                 action: ::std::option::Option<std::ptr::NonNull<::std::os::raw::c_char>>,
@@ -182,14 +181,12 @@ fn make_from_sys_fn(enum_name: &syn::Ident, items: &[InputVariant]) -> proc_macr
 /// }
 /// ```
 struct Input {
-    vis: syn::Visibility,
     name: syn::Ident,
     items: Vec<InputVariant>,
 }
 
 impl syn::parse::Parse for Input {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let vis = input.parse()?;
         let name = input.parse()?;
         let content;
         syn::braced!(content in input);
@@ -197,7 +194,7 @@ impl syn::parse::Parse for Input {
             .parse_terminated(InputVariant::parse, syn::Token![,])?
             .into_iter()
             .collect();
-        Ok(Input { vis, name, items })
+        Ok(Input { name, items })
     }
 }
 

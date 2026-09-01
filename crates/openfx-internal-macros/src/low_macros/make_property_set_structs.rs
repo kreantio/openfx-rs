@@ -22,11 +22,10 @@ fn make_property_set_struct(output: &mut proc_macro2::TokenStream, set: &InputPr
         make_property_accessors(&mut output_inner, prop);
     }
 
-    let vis = &set.vis;
     let struct_name = &set.name;
 
     output.extend(quote! {
-        #vis struct #struct_name(crate::generic::sys::core::OfxPropertySetHandle);
+        pub struct #struct_name(crate::generic::sys::core::OfxPropertySetHandle);
 
         impl #struct_name {
             pub fn sys_handle(&self) -> crate::generic::sys::core::OfxPropertySetHandle {
@@ -362,19 +361,17 @@ impl syn::parse::Parse for Input {
 }
 
 struct InputPropertySet {
-    vis: syn::Visibility,
     name: syn::Ident,
     items: syn::punctuated::Punctuated<InputPropertyItem, syn::Token![;]>,
 }
 
 impl syn::parse::Parse for InputPropertySet {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let vis: syn::Visibility = input.parse()?;
         let name: syn::Ident = input.parse()?;
         let content;
         syn::braced!(content in input);
         let items = content.parse_terminated(InputPropertyItem::parse, syn::Token![;])?;
-        Ok(InputPropertySet { vis, name, items })
+        Ok(InputPropertySet { name, items })
     }
 }
 
