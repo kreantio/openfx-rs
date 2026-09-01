@@ -42,14 +42,9 @@ export function genPropertySetImplItem(
     }
   })();
   const tyContainer = representTypeWithContainer(vTy, def.dimension);
-  const access = [
-    ...(arg.writable ? ["write(set, reset)"] : []),
-    ...(arg.readable
-      ? (def.dimension === 0 ? ["read(get, len)"] : ["read(get)"])
-      : []),
-  ];
+  const access = [arg.readable ? "r" : "_", arg.writable ? "w" : "_"].join("/");
   return "        " +
-    `${nameSnakeSafe}(${arg.name}): ${tyContainer} { ${access.join(" ")} };`;
+    `${access} ${nameSnakeSafe}: ${tyContainer} @${arg.name};`;
 }
 
 const rustKeywords = new Set(["type"]);

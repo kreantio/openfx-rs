@@ -6,274 +6,274 @@ pub mod pseudo {
     ) -> crate::generic::low::Result<()>;
     openfx_internal_macros::low_make_property_set_structs! {
         CustomParamInterpFuncIn {
-            custom_value(OfxParamPropCustomValue): [String; 2] { read(get) };
-            interpolation_amount(OfxParamPropInterpolationAmount): Double { read(get) };
-            interpolation_time(OfxParamPropInterpolationTime): [Double; 2] { read(get) };
+            r/_ custom_value: [String; 2] @OfxParamPropCustomValue;
+            r/_ interpolation_amount: Double @OfxParamPropInterpolationAmount;
+            r/_ interpolation_time: [Double; 2] @OfxParamPropInterpolationTime;
         }
         CustomParamInterpFuncOut {
-            custom_value(OfxParamPropCustomValue): [String; 2] { write(set, reset) };
-            interpolation_time(OfxParamPropInterpolationTime): [Double; 2] { write(set, reset) };
+            _/w custom_value: [String; 2] @OfxParamPropCustomValue;
+            _/w interpolation_time: [Double; 2] @OfxParamPropInterpolationTime;
         }
     }
 }
 pub mod core {
     openfx_internal_macros::low_make_property_set_structs! {
         ActionBeginInstanceChangedIn {
-            thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
-            change_reason(OfxPropChangeReason): Enum(PropChangeReason) { read(get) };
+            r/_ thumbnail_render: Enum(ImageEffectPropThumbnailRender) @OfxImageEffectPropThumbnailRender;
+            r/_ change_reason: Enum(PropChangeReason) @OfxPropChangeReason;
         }
         ActionEndInstanceChangedIn {
-            change_reason(OfxPropChangeReason): Enum(PropChangeReason) { read(get) };
+            r/_ change_reason: Enum(PropChangeReason) @OfxPropChangeReason;
         }
         ActionInstanceChangedIn {
-            render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
-            thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
-            change_reason(OfxPropChangeReason): Enum(PropChangeReason) { read(get) };
-            name(OfxPropName): String { read(get) };
-            time(OfxPropTime): Double { read(get) };
-            r#type(OfxPropType): String { read(get) };
+            r/_ render_scale: [Double; 2] @OfxImageEffectPropRenderScale;
+            r/_ thumbnail_render: Enum(ImageEffectPropThumbnailRender) @OfxImageEffectPropThumbnailRender;
+            r/_ change_reason: Enum(PropChangeReason) @OfxPropChangeReason;
+            r/_ name: String @OfxPropName;
+            r/_ time: Double @OfxPropTime;
+            r/_ r#type: String @OfxPropType;
         }
     }
 }
 pub mod image_effect {
     openfx_internal_macros::low_make_action_enum! {
         ImageEffectAction {
-            __ ___ core::Load,
-            __ ___ core::Unload,
-            __ ___ core::Describe,
-            __ ___ core::CreateInstance,
-            __ ___ core::DestroyInstance,
-            in ___ core::BeginInstanceChanged,
-            in ___ core::EndInstanceChanged,
-            in ___ core::InstanceChanged,
-            __ ___ core::PurgeCaches,
-            __ ___ core::SyncPrivateData,
-            __ ___ core::BeginInstanceEdit,
-            __ ___ core::EndInstanceEdit,
-            in ___ BeginSequenceRender,
-            in ___ DescribeInContext,
-            in ___ EndSequenceRender,
-            __ out GetClipPreferences,
-            in out GetFramesNeeded,
-            in out GetOutputColourspace,
-            in out GetRegionOfDefinition,
-            in ___ GetRegionsOfInterest,
-            __ out GetTimeDomain,
-            in ___ IsIdentity,
-            in ___ Render,
+            _/_ core::Load,
+            _/_ core::Unload,
+            _/_ core::Describe,
+            _/_ core::CreateInstance,
+            _/_ core::DestroyInstance,
+            i/_ core::BeginInstanceChanged,
+            i/_ core::EndInstanceChanged,
+            i/_ core::InstanceChanged,
+            _/_ core::PurgeCaches,
+            _/_ core::SyncPrivateData,
+            _/_ core::BeginInstanceEdit,
+            _/_ core::EndInstanceEdit,
+            i/_ BeginSequenceRender,
+            i/_ DescribeInContext,
+            i/_ EndSequenceRender,
+            _/o GetClipPreferences,
+            i/o GetFramesNeeded,
+            i/o GetOutputColourspace,
+            i/o GetRegionOfDefinition,
+            i/_ GetRegionsOfInterest,
+            _/o GetTimeDomain,
+            i/_ IsIdentity,
+            i/_ Render,
         }
     }
     openfx_internal_macros::low_make_property_set_structs! {
         ActionBeginSequenceRenderIn {
-            cuda_enabled(OfxImageEffectPropCudaEnabled): Bool { read(get) };
-            cuda_render_supported(OfxImageEffectPropCudaRenderSupported): Enum(ImageEffectPropCudaRenderSupported) { read(get) };
-            cuda_stream(OfxImageEffectPropCudaStream): Pointer { read(get) };
-            cuda_stream_supported(OfxImageEffectPropCudaStreamSupported): Enum(ImageEffectPropCudaStreamSupported) { read(get) };
-            frame_range(OfxImageEffectPropFrameRange): [Double; 2] { read(get) };
-            frame_step(OfxImageEffectPropFrameStep): Double { read(get) };
-            interactive_render_status(OfxImageEffectPropInteractiveRenderStatus): Bool { read(get) };
-            metal_command_queue(OfxImageEffectPropMetalCommandQueue): Pointer { read(get) };
-            metal_enabled(OfxImageEffectPropMetalEnabled): Bool { read(get) };
-            metal_render_supported(OfxImageEffectPropMetalRenderSupported): Enum(ImageEffectPropMetalRenderSupported) { read(get) };
-            no_spatial_awareness(OfxImageEffectPropNoSpatialAwareness): Enum(ImageEffectPropNoSpatialAwareness) { read(get) };
-            open_cl_command_queue(OfxImageEffectPropOpenCLCommandQueue): Pointer { read(get) };
-            open_cl_enabled(OfxImageEffectPropOpenCLEnabled): Bool { read(get) };
-            open_cl_image(OfxImageEffectPropOpenCLImage): Pointer { read(get) };
-            open_cl_render_supported(OfxImageEffectPropOpenCLRenderSupported): Enum(ImageEffectPropOpenCLRenderSupported) { read(get) };
-            open_cl_supported(OfxImageEffectPropOpenCLSupported): Enum(ImageEffectPropOpenCLSupported) { read(get) };
-            open_gl_enabled(OfxImageEffectPropOpenGLEnabled): Bool { read(get) };
-            open_gl_texture_index(OfxImageEffectPropOpenGLTextureIndex): Int { read(get) };
-            open_gl_texture_target(OfxImageEffectPropOpenGLTextureTarget): Int { read(get) };
-            render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
-            sequential_render_status(OfxImageEffectPropSequentialRenderStatus): Bool { read(get) };
-            thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
-            is_interactive(OfxPropIsInteractive): Bool { read(get) };
+            r/_ cuda_enabled: Bool @OfxImageEffectPropCudaEnabled;
+            r/_ cuda_render_supported: Enum(ImageEffectPropCudaRenderSupported) @OfxImageEffectPropCudaRenderSupported;
+            r/_ cuda_stream: Pointer @OfxImageEffectPropCudaStream;
+            r/_ cuda_stream_supported: Enum(ImageEffectPropCudaStreamSupported) @OfxImageEffectPropCudaStreamSupported;
+            r/_ frame_range: [Double; 2] @OfxImageEffectPropFrameRange;
+            r/_ frame_step: Double @OfxImageEffectPropFrameStep;
+            r/_ interactive_render_status: Bool @OfxImageEffectPropInteractiveRenderStatus;
+            r/_ metal_command_queue: Pointer @OfxImageEffectPropMetalCommandQueue;
+            r/_ metal_enabled: Bool @OfxImageEffectPropMetalEnabled;
+            r/_ metal_render_supported: Enum(ImageEffectPropMetalRenderSupported) @OfxImageEffectPropMetalRenderSupported;
+            r/_ no_spatial_awareness: Enum(ImageEffectPropNoSpatialAwareness) @OfxImageEffectPropNoSpatialAwareness;
+            r/_ open_cl_command_queue: Pointer @OfxImageEffectPropOpenCLCommandQueue;
+            r/_ open_cl_enabled: Bool @OfxImageEffectPropOpenCLEnabled;
+            r/_ open_cl_image: Pointer @OfxImageEffectPropOpenCLImage;
+            r/_ open_cl_render_supported: Enum(ImageEffectPropOpenCLRenderSupported) @OfxImageEffectPropOpenCLRenderSupported;
+            r/_ open_cl_supported: Enum(ImageEffectPropOpenCLSupported) @OfxImageEffectPropOpenCLSupported;
+            r/_ open_gl_enabled: Bool @OfxImageEffectPropOpenGLEnabled;
+            r/_ open_gl_texture_index: Int @OfxImageEffectPropOpenGLTextureIndex;
+            r/_ open_gl_texture_target: Int @OfxImageEffectPropOpenGLTextureTarget;
+            r/_ render_scale: [Double; 2] @OfxImageEffectPropRenderScale;
+            r/_ sequential_render_status: Bool @OfxImageEffectPropSequentialRenderStatus;
+            r/_ thumbnail_render: Enum(ImageEffectPropThumbnailRender) @OfxImageEffectPropThumbnailRender;
+            r/_ is_interactive: Bool @OfxPropIsInteractive;
         }
         ActionDescribeInContextIn {
-            context(OfxImageEffectPropContext): Enum(ImageEffectPropContext) { read(get) };
+            r/_ context: Enum(ImageEffectPropContext) @OfxImageEffectPropContext;
         }
         ActionEndSequenceRenderIn {
-            cuda_enabled(OfxImageEffectPropCudaEnabled): Bool { read(get) };
-            cuda_render_supported(OfxImageEffectPropCudaRenderSupported): Enum(ImageEffectPropCudaRenderSupported) { read(get) };
-            cuda_stream(OfxImageEffectPropCudaStream): Pointer { read(get) };
-            cuda_stream_supported(OfxImageEffectPropCudaStreamSupported): Enum(ImageEffectPropCudaStreamSupported) { read(get) };
-            frame_range(OfxImageEffectPropFrameRange): [Double; 2] { read(get) };
-            frame_step(OfxImageEffectPropFrameStep): Double { read(get) };
-            interactive_render_status(OfxImageEffectPropInteractiveRenderStatus): Bool { read(get) };
-            metal_command_queue(OfxImageEffectPropMetalCommandQueue): Pointer { read(get) };
-            metal_enabled(OfxImageEffectPropMetalEnabled): Bool { read(get) };
-            metal_render_supported(OfxImageEffectPropMetalRenderSupported): Enum(ImageEffectPropMetalRenderSupported) { read(get) };
-            open_cl_command_queue(OfxImageEffectPropOpenCLCommandQueue): Pointer { read(get) };
-            open_cl_enabled(OfxImageEffectPropOpenCLEnabled): Bool { read(get) };
-            open_cl_image(OfxImageEffectPropOpenCLImage): Pointer { read(get) };
-            open_cl_render_supported(OfxImageEffectPropOpenCLRenderSupported): Enum(ImageEffectPropOpenCLRenderSupported) { read(get) };
-            open_cl_supported(OfxImageEffectPropOpenCLSupported): Enum(ImageEffectPropOpenCLSupported) { read(get) };
-            open_gl_enabled(OfxImageEffectPropOpenGLEnabled): Bool { read(get) };
-            open_gl_texture_index(OfxImageEffectPropOpenGLTextureIndex): Int { read(get) };
-            open_gl_texture_target(OfxImageEffectPropOpenGLTextureTarget): Int { read(get) };
-            render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
-            sequential_render_status(OfxImageEffectPropSequentialRenderStatus): Bool { read(get) };
-            is_interactive(OfxPropIsInteractive): Bool { read(get) };
+            r/_ cuda_enabled: Bool @OfxImageEffectPropCudaEnabled;
+            r/_ cuda_render_supported: Enum(ImageEffectPropCudaRenderSupported) @OfxImageEffectPropCudaRenderSupported;
+            r/_ cuda_stream: Pointer @OfxImageEffectPropCudaStream;
+            r/_ cuda_stream_supported: Enum(ImageEffectPropCudaStreamSupported) @OfxImageEffectPropCudaStreamSupported;
+            r/_ frame_range: [Double; 2] @OfxImageEffectPropFrameRange;
+            r/_ frame_step: Double @OfxImageEffectPropFrameStep;
+            r/_ interactive_render_status: Bool @OfxImageEffectPropInteractiveRenderStatus;
+            r/_ metal_command_queue: Pointer @OfxImageEffectPropMetalCommandQueue;
+            r/_ metal_enabled: Bool @OfxImageEffectPropMetalEnabled;
+            r/_ metal_render_supported: Enum(ImageEffectPropMetalRenderSupported) @OfxImageEffectPropMetalRenderSupported;
+            r/_ open_cl_command_queue: Pointer @OfxImageEffectPropOpenCLCommandQueue;
+            r/_ open_cl_enabled: Bool @OfxImageEffectPropOpenCLEnabled;
+            r/_ open_cl_image: Pointer @OfxImageEffectPropOpenCLImage;
+            r/_ open_cl_render_supported: Enum(ImageEffectPropOpenCLRenderSupported) @OfxImageEffectPropOpenCLRenderSupported;
+            r/_ open_cl_supported: Enum(ImageEffectPropOpenCLSupported) @OfxImageEffectPropOpenCLSupported;
+            r/_ open_gl_enabled: Bool @OfxImageEffectPropOpenGLEnabled;
+            r/_ open_gl_texture_index: Int @OfxImageEffectPropOpenGLTextureIndex;
+            r/_ open_gl_texture_target: Int @OfxImageEffectPropOpenGLTextureTarget;
+            r/_ render_scale: [Double; 2] @OfxImageEffectPropRenderScale;
+            r/_ sequential_render_status: Bool @OfxImageEffectPropSequentialRenderStatus;
+            r/_ is_interactive: Bool @OfxPropIsInteractive;
         }
         ActionGetClipPreferencesOut {
-            continuous_samples(OfxImageClipPropContinuousSamples): Bool { write(set, reset) };
-            field_order(OfxImageClipPropFieldOrder): Enum(ImageClipPropFieldOrder) { write(set, reset) };
-            frame_varying(OfxImageEffectFrameVarying): Bool { write(set, reset) };
-            frame_rate(OfxImageEffectPropFrameRate): Double { write(set, reset) };
-            pre_multiplication(OfxImageEffectPropPreMultiplication): Enum(ImageEffectPropPreMultiplication) { write(set, reset) };
+            _/w continuous_samples: Bool @OfxImageClipPropContinuousSamples;
+            _/w field_order: Enum(ImageClipPropFieldOrder) @OfxImageClipPropFieldOrder;
+            _/w frame_varying: Bool @OfxImageEffectFrameVarying;
+            _/w frame_rate: Double @OfxImageEffectPropFrameRate;
+            _/w pre_multiplication: Enum(ImageEffectPropPreMultiplication) @OfxImageEffectPropPreMultiplication;
         }
         ActionGetFramesNeededIn {
-            thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
-            time(OfxPropTime): Double { read(get) };
+            r/_ thumbnail_render: Enum(ImageEffectPropThumbnailRender) @OfxImageEffectPropThumbnailRender;
+            r/_ time: Double @OfxPropTime;
         }
         ActionGetFramesNeededOut {
-            frame_range(OfxImageEffectPropFrameRange): [Double; 2] { write(set, reset) };
+            _/w frame_range: [Double; 2] @OfxImageEffectPropFrameRange;
         }
         ActionGetOutputColourspaceIn {
-            preferred_colourspaces(OfxImageClipPropPreferredColourspaces): [String] { read(get, len) };
+            r/_ preferred_colourspaces: [String] @OfxImageClipPropPreferredColourspaces;
         }
         ActionGetOutputColourspaceOut {
-            colourspace(OfxImageClipPropColourspace): String { write(set, reset) };
+            _/w colourspace: String @OfxImageClipPropColourspace;
         }
         ActionGetRegionOfDefinitionIn {
-            render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
-            thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
-            time(OfxPropTime): Double { read(get) };
+            r/_ render_scale: [Double; 2] @OfxImageEffectPropRenderScale;
+            r/_ thumbnail_render: Enum(ImageEffectPropThumbnailRender) @OfxImageEffectPropThumbnailRender;
+            r/_ time: Double @OfxPropTime;
         }
         ActionGetRegionOfDefinitionOut {
-            region_of_definition(OfxImageEffectPropRegionOfDefinition): [Double; 4] { write(set, reset) };
+            _/w region_of_definition: [Double; 4] @OfxImageEffectPropRegionOfDefinition;
         }
         ActionGetRegionsOfInterestIn {
-            region_of_interest(OfxImageEffectPropRegionOfInterest): [Double; 4] { read(get) };
-            render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
-            thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
-            time(OfxPropTime): Double { read(get) };
+            r/_ region_of_interest: [Double; 4] @OfxImageEffectPropRegionOfInterest;
+            r/_ render_scale: [Double; 2] @OfxImageEffectPropRenderScale;
+            r/_ thumbnail_render: Enum(ImageEffectPropThumbnailRender) @OfxImageEffectPropThumbnailRender;
+            r/_ time: Double @OfxPropTime;
         }
         ActionGetTimeDomainOut {
-            frame_range(OfxImageEffectPropFrameRange): [Double; 2] { write(set, reset) };
+            _/w frame_range: [Double; 2] @OfxImageEffectPropFrameRange;
         }
         ActionIsIdentityIn {
-            field_to_render(OfxImageEffectPropFieldToRender): Enum(ImageEffectPropFieldToRender) { read(get) };
-            render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
-            render_window(OfxImageEffectPropRenderWindow): [Int; 4] { read(get) };
-            thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
-            time(OfxPropTime): Double { read(get) };
+            r/_ field_to_render: Enum(ImageEffectPropFieldToRender) @OfxImageEffectPropFieldToRender;
+            r/_ render_scale: [Double; 2] @OfxImageEffectPropRenderScale;
+            r/_ render_window: [Int; 4] @OfxImageEffectPropRenderWindow;
+            r/_ thumbnail_render: Enum(ImageEffectPropThumbnailRender) @OfxImageEffectPropThumbnailRender;
+            r/_ time: Double @OfxPropTime;
         }
         ActionRenderIn {
-            cuda_enabled(OfxImageEffectPropCudaEnabled): Bool { read(get) };
-            cuda_render_supported(OfxImageEffectPropCudaRenderSupported): Enum(ImageEffectPropCudaRenderSupported) { read(get) };
-            cuda_stream(OfxImageEffectPropCudaStream): Pointer { read(get) };
-            cuda_stream_supported(OfxImageEffectPropCudaStreamSupported): Enum(ImageEffectPropCudaStreamSupported) { read(get) };
-            interactive_render_status(OfxImageEffectPropInteractiveRenderStatus): Bool { read(get) };
-            metal_command_queue(OfxImageEffectPropMetalCommandQueue): Pointer { read(get) };
-            metal_enabled(OfxImageEffectPropMetalEnabled): Bool { read(get) };
-            metal_render_supported(OfxImageEffectPropMetalRenderSupported): Enum(ImageEffectPropMetalRenderSupported) { read(get) };
-            no_spatial_awareness(OfxImageEffectPropNoSpatialAwareness): Enum(ImageEffectPropNoSpatialAwareness) { read(get) };
-            open_cl_command_queue(OfxImageEffectPropOpenCLCommandQueue): Pointer { read(get) };
-            open_cl_enabled(OfxImageEffectPropOpenCLEnabled): Bool { read(get) };
-            open_cl_image(OfxImageEffectPropOpenCLImage): Pointer { read(get) };
-            open_cl_render_supported(OfxImageEffectPropOpenCLRenderSupported): Enum(ImageEffectPropOpenCLRenderSupported) { read(get) };
-            open_cl_supported(OfxImageEffectPropOpenCLSupported): Enum(ImageEffectPropOpenCLSupported) { read(get) };
-            open_gl_enabled(OfxImageEffectPropOpenGLEnabled): Bool { read(get) };
-            open_gl_texture_index(OfxImageEffectPropOpenGLTextureIndex): Int { read(get) };
-            open_gl_texture_target(OfxImageEffectPropOpenGLTextureTarget): Int { read(get) };
-            render_quality_draft(OfxImageEffectPropRenderQualityDraft): Bool { read(get) };
-            sequential_render_status(OfxImageEffectPropSequentialRenderStatus): Bool { read(get) };
-            thumbnail_render(OfxImageEffectPropThumbnailRender): Enum(ImageEffectPropThumbnailRender) { read(get) };
-            time(OfxPropTime): Double { read(get) };
+            r/_ cuda_enabled: Bool @OfxImageEffectPropCudaEnabled;
+            r/_ cuda_render_supported: Enum(ImageEffectPropCudaRenderSupported) @OfxImageEffectPropCudaRenderSupported;
+            r/_ cuda_stream: Pointer @OfxImageEffectPropCudaStream;
+            r/_ cuda_stream_supported: Enum(ImageEffectPropCudaStreamSupported) @OfxImageEffectPropCudaStreamSupported;
+            r/_ interactive_render_status: Bool @OfxImageEffectPropInteractiveRenderStatus;
+            r/_ metal_command_queue: Pointer @OfxImageEffectPropMetalCommandQueue;
+            r/_ metal_enabled: Bool @OfxImageEffectPropMetalEnabled;
+            r/_ metal_render_supported: Enum(ImageEffectPropMetalRenderSupported) @OfxImageEffectPropMetalRenderSupported;
+            r/_ no_spatial_awareness: Enum(ImageEffectPropNoSpatialAwareness) @OfxImageEffectPropNoSpatialAwareness;
+            r/_ open_cl_command_queue: Pointer @OfxImageEffectPropOpenCLCommandQueue;
+            r/_ open_cl_enabled: Bool @OfxImageEffectPropOpenCLEnabled;
+            r/_ open_cl_image: Pointer @OfxImageEffectPropOpenCLImage;
+            r/_ open_cl_render_supported: Enum(ImageEffectPropOpenCLRenderSupported) @OfxImageEffectPropOpenCLRenderSupported;
+            r/_ open_cl_supported: Enum(ImageEffectPropOpenCLSupported) @OfxImageEffectPropOpenCLSupported;
+            r/_ open_gl_enabled: Bool @OfxImageEffectPropOpenGLEnabled;
+            r/_ open_gl_texture_index: Int @OfxImageEffectPropOpenGLTextureIndex;
+            r/_ open_gl_texture_target: Int @OfxImageEffectPropOpenGLTextureTarget;
+            r/_ render_quality_draft: Bool @OfxImageEffectPropRenderQualityDraft;
+            r/_ sequential_render_status: Bool @OfxImageEffectPropSequentialRenderStatus;
+            r/_ thumbnail_render: Enum(ImageEffectPropThumbnailRender) @OfxImageEffectPropThumbnailRender;
+            r/_ time: Double @OfxPropTime;
         }
     }
 }
 pub mod interact {
     openfx_internal_macros::low_make_action_enum! {
         InteractAction {
-            __ ___ core::Describe,
-            __ ___ core::CreateInstance,
-            __ ___ core::DestroyInstance,
-            in ___ Draw,
-            in ___ GainFocus,
-            in ___ KeyDown,
-            in ___ KeyRepeat,
-            in ___ KeyUp,
-            in ___ LoseFocus,
-            in ___ PenDown,
-            in ___ PenMotion,
-            in ___ PenUp,
+            _/_ core::Describe,
+            _/_ core::CreateInstance,
+            _/_ core::DestroyInstance,
+            i/_ Draw,
+            i/_ GainFocus,
+            i/_ KeyDown,
+            i/_ KeyRepeat,
+            i/_ KeyUp,
+            i/_ LoseFocus,
+            i/_ PenDown,
+            i/_ PenMotion,
+            i/_ PenUp,
         }
     }
     openfx_internal_macros::low_make_property_set_structs! {
         ActionDrawIn {
-            render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
-            background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };
-            draw_context(OfxInteractPropDrawContext): Pointer { read(get) };
-            pixel_scale(OfxInteractPropPixelScale): [Double; 2] { read(get) };
-            effect_instance(OfxPropEffectInstance): Pointer { read(get) };
-            time(OfxPropTime): Double { read(get) };
+            r/_ render_scale: [Double; 2] @OfxImageEffectPropRenderScale;
+            r/_ background_colour: [Double; 3] @OfxInteractPropBackgroundColour;
+            r/_ draw_context: Pointer @OfxInteractPropDrawContext;
+            r/_ pixel_scale: [Double; 2] @OfxInteractPropPixelScale;
+            r/_ effect_instance: Pointer @OfxPropEffectInstance;
+            r/_ time: Double @OfxPropTime;
         }
         ActionGainFocusIn {
-            render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
-            background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };
-            pixel_scale(OfxInteractPropPixelScale): [Double; 2] { read(get) };
-            effect_instance(OfxPropEffectInstance): Pointer { read(get) };
-            time(OfxPropTime): Double { read(get) };
+            r/_ render_scale: [Double; 2] @OfxImageEffectPropRenderScale;
+            r/_ background_colour: [Double; 3] @OfxInteractPropBackgroundColour;
+            r/_ pixel_scale: [Double; 2] @OfxInteractPropPixelScale;
+            r/_ effect_instance: Pointer @OfxPropEffectInstance;
+            r/_ time: Double @OfxPropTime;
         }
         ActionKeyDownIn {
-            render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
-            effect_instance(OfxPropEffectInstance): Pointer { read(get) };
-            key_string(OfxPropKeyString): String { read(get) };
-            key_sym(OfxPropKeySym): Int { read(get) };
-            time(OfxPropTime): Double { read(get) };
+            r/_ render_scale: [Double; 2] @OfxImageEffectPropRenderScale;
+            r/_ effect_instance: Pointer @OfxPropEffectInstance;
+            r/_ key_string: String @OfxPropKeyString;
+            r/_ key_sym: Int @OfxPropKeySym;
+            r/_ time: Double @OfxPropTime;
         }
         ActionKeyRepeatIn {
-            render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
-            effect_instance(OfxPropEffectInstance): Pointer { read(get) };
-            key_string(OfxPropKeyString): String { read(get) };
-            key_sym(OfxPropKeySym): Int { read(get) };
-            time(OfxPropTime): Double { read(get) };
+            r/_ render_scale: [Double; 2] @OfxImageEffectPropRenderScale;
+            r/_ effect_instance: Pointer @OfxPropEffectInstance;
+            r/_ key_string: String @OfxPropKeyString;
+            r/_ key_sym: Int @OfxPropKeySym;
+            r/_ time: Double @OfxPropTime;
         }
         ActionKeyUpIn {
-            render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
-            effect_instance(OfxPropEffectInstance): Pointer { read(get) };
-            key_string(OfxPropKeyString): String { read(get) };
-            key_sym(OfxPropKeySym): Int { read(get) };
-            time(OfxPropTime): Double { read(get) };
+            r/_ render_scale: [Double; 2] @OfxImageEffectPropRenderScale;
+            r/_ effect_instance: Pointer @OfxPropEffectInstance;
+            r/_ key_string: String @OfxPropKeyString;
+            r/_ key_sym: Int @OfxPropKeySym;
+            r/_ time: Double @OfxPropTime;
         }
         ActionLoseFocusIn {
-            render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
-            background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };
-            pixel_scale(OfxInteractPropPixelScale): [Double; 2] { read(get) };
-            effect_instance(OfxPropEffectInstance): Pointer { read(get) };
-            time(OfxPropTime): Double { read(get) };
+            r/_ render_scale: [Double; 2] @OfxImageEffectPropRenderScale;
+            r/_ background_colour: [Double; 3] @OfxInteractPropBackgroundColour;
+            r/_ pixel_scale: [Double; 2] @OfxInteractPropPixelScale;
+            r/_ effect_instance: Pointer @OfxPropEffectInstance;
+            r/_ time: Double @OfxPropTime;
         }
         ActionPenDownIn {
-            render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
-            background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };
-            pen_position(OfxInteractPropPenPosition): [Double; 2] { read(get) };
-            pen_pressure(OfxInteractPropPenPressure): Double { read(get) };
-            pen_viewport_position(OfxInteractPropPenViewportPosition): [Int; 2] { read(get) };
-            pixel_scale(OfxInteractPropPixelScale): [Double; 2] { read(get) };
-            effect_instance(OfxPropEffectInstance): Pointer { read(get) };
-            time(OfxPropTime): Double { read(get) };
+            r/_ render_scale: [Double; 2] @OfxImageEffectPropRenderScale;
+            r/_ background_colour: [Double; 3] @OfxInteractPropBackgroundColour;
+            r/_ pen_position: [Double; 2] @OfxInteractPropPenPosition;
+            r/_ pen_pressure: Double @OfxInteractPropPenPressure;
+            r/_ pen_viewport_position: [Int; 2] @OfxInteractPropPenViewportPosition;
+            r/_ pixel_scale: [Double; 2] @OfxInteractPropPixelScale;
+            r/_ effect_instance: Pointer @OfxPropEffectInstance;
+            r/_ time: Double @OfxPropTime;
         }
         ActionPenMotionIn {
-            render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
-            background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };
-            pen_position(OfxInteractPropPenPosition): [Double; 2] { read(get) };
-            pen_pressure(OfxInteractPropPenPressure): Double { read(get) };
-            pen_viewport_position(OfxInteractPropPenViewportPosition): [Int; 2] { read(get) };
-            pixel_scale(OfxInteractPropPixelScale): [Double; 2] { read(get) };
-            effect_instance(OfxPropEffectInstance): Pointer { read(get) };
-            time(OfxPropTime): Double { read(get) };
+            r/_ render_scale: [Double; 2] @OfxImageEffectPropRenderScale;
+            r/_ background_colour: [Double; 3] @OfxInteractPropBackgroundColour;
+            r/_ pen_position: [Double; 2] @OfxInteractPropPenPosition;
+            r/_ pen_pressure: Double @OfxInteractPropPenPressure;
+            r/_ pen_viewport_position: [Int; 2] @OfxInteractPropPenViewportPosition;
+            r/_ pixel_scale: [Double; 2] @OfxInteractPropPixelScale;
+            r/_ effect_instance: Pointer @OfxPropEffectInstance;
+            r/_ time: Double @OfxPropTime;
         }
         ActionPenUpIn {
-            render_scale(OfxImageEffectPropRenderScale): [Double; 2] { read(get) };
-            background_colour(OfxInteractPropBackgroundColour): [Double; 3] { read(get) };
-            pen_position(OfxInteractPropPenPosition): [Double; 2] { read(get) };
-            pen_pressure(OfxInteractPropPenPressure): Double { read(get) };
-            pen_viewport_position(OfxInteractPropPenViewportPosition): [Int; 2] { read(get) };
-            pixel_scale(OfxInteractPropPixelScale): [Double; 2] { read(get) };
-            effect_instance(OfxPropEffectInstance): Pointer { read(get) };
-            time(OfxPropTime): Double { read(get) };
+            r/_ render_scale: [Double; 2] @OfxImageEffectPropRenderScale;
+            r/_ background_colour: [Double; 3] @OfxInteractPropBackgroundColour;
+            r/_ pen_position: [Double; 2] @OfxInteractPropPenPosition;
+            r/_ pen_pressure: Double @OfxInteractPropPenPressure;
+            r/_ pen_viewport_position: [Int; 2] @OfxInteractPropPenViewportPosition;
+            r/_ pixel_scale: [Double; 2] @OfxInteractPropPixelScale;
+            r/_ effect_instance: Pointer @OfxPropEffectInstance;
+            r/_ time: Double @OfxPropTime;
         }
     }
 }

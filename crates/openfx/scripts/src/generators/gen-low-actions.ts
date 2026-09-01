@@ -175,8 +175,8 @@ function genLowActionsInGroup(
     const hasOutArgs = !!frS.infos.actionProps[action.canonicalName]?.outArgs;
 
     let text = "            ";
-    text += (hasInArgs ? "in" : "__") + " ";
-    text += (hasOutArgs ? "out" : "___") + " ";
+    text += (hasInArgs ? "i" : "_") + "/";
+    text += (hasOutArgs ? "o" : "_") + " ";
     if (action.isFromCore) {
       text += "core::";
     }
