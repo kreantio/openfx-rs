@@ -156,7 +156,7 @@ function genLowActionsInGroup(
   const parts = [
     `pub mod ${groupNameSnake} {`,
     "    openfx_internal_macros::low_make_action_enum! {",
-    `        pub ${pascalCase(groupNameSnake)}Action {`,
+    `        ${pascalCase(groupNameSnake)}Action {`,
   ];
 
   const actionsCore = extractActions(
@@ -247,7 +247,7 @@ function genLowPropertySetStructForArguments(
     }))
     .toSorted((a, b) => a.name.localeCompare(b.name));
 
-  const parts: string[] = [`    pub ${name} {`];
+  const parts: string[] = [`    ${name} {`];
 
   for (const arg of args) {
     parts.push(genPropertySetImplItem(frM, {
