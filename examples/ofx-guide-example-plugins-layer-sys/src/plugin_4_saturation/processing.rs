@@ -1,8 +1,8 @@
 use std::ffi::c_int;
 
-use openfx::{
-    generic::sys::core::{OfxRectI, OfxStatus, kOfxStatFailed},
-    image_effect_v1::sys::image_effect::OfxImageEffectHandle,
+use openfx::sys::{
+    generic::core::{OfxRectI, OfxStatus, kOfxStatFailed},
+    image_effect_v1::image_effect::OfxImageEffectHandle,
 };
 
 use crate::helpers::shared_data_helper::{ClipImageManaged, SharedDataHelper};

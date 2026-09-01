@@ -4,13 +4,13 @@ pub mod shared_data_helper;
 use std::ffi::{c_char, c_int, c_void};
 
 use openfx::{
-    generic::sys::{
+    sys::generic::{
         core::{
             OfxPropertySetHandle, OfxPropertySetStruct, OfxStatus, kOfxStatErrMissingHostFeature,
         },
         property::{OfxPropertySuiteV1, kOfxPropertySuite},
     },
-    image_effect_v1::sys::{
+    sys::image_effect_v1::{
         image_effect::{OfxImageEffectSuiteV1, kOfxImageEffectSuite},
         param::{OfxParameterSuiteV1, kOfxParameterSuite},
     },

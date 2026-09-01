@@ -3,7 +3,7 @@ pub mod pseudo {
         handle: *const std::ffi::c_void,
         in_args: CustomParamInterpFuncIn,
         out_args: CustomParamInterpFuncOut,
-    ) -> crate::generic::low::Result<()>;
+    ) -> crate::low::Result<()>;
     openfx_internal_macros::low_make_property_set_structs! {
         CustomParamInterpFuncIn {
             r/_ custom_value: [String; 2] @OfxParamPropCustomValue;

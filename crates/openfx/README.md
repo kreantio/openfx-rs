@@ -28,8 +28,8 @@ for most use cases.
 use std::ffi::c_int;
 
 use openfx::{
-    generic::sys::core::{OfxHost, OfxPlugin, OfxPropertySetHandle, OfxStatus},
-    image_effect_v1::sys::image_effect::kOfxImageEffectPluginApi,
+    sys::generic::core::{OfxHost, OfxPlugin, OfxPropertySetHandle, OfxStatus},
+    sys::image_effect_v1::image_effect::kOfxImageEffectPluginApi,
 };
 
 // …
@@ -84,11 +84,11 @@ See also:
 
 ```rs
 use openfx::{
-    generic::{
-        sys::{OfxHost, OfxPlugin, OfxPropertySetHandle, OfxStatus},
-        sys_helpers::{Plugins, export_plugins, plugin_struct},
+    sys::generic::{OfxHost, OfxPlugin, OfxPropertySetHandle, OfxStatus},
+    sys_helpers::{
+        generic::{Plugins, export_plugins, plugin_struct},
+        image_effect_v1::Plugin,
     },
-    image_effect_v1::sys_helpers::Plugin,
 };
 
 // …
@@ -130,9 +130,11 @@ impl Plugin for BasicExamplePlugin {
 <details><summary>example code</summary>
 
 ```rs
-use openfx::generic::low_plugin::Status;
-use openfx::generic::sys_helpers::{export_plugins, plugin_struct, PluginStruct, Plugins};
-use openfx::image_effect_v1::low_plugin::{Action, Host, Plugin};
+use openfx::{
+    low::Status,
+    low_plugin::{Action, Host, Plugin},
+    sys_helpers::generic::{PluginStruct, Plugins, export_plugins, plugin_struct},
+};
 
 // …
 
@@ -170,8 +172,10 @@ impl Plugin for BasicExamplePlugin {
 <details><summary>example code</summary>
 
 ```rs
-use openfx::generic::sys_helpers::{PluginStruct, Plugins, export_plugins, plugin_struct};
-use openfx::image_effect_v1::high_plugin::{Context, Plugin, PluginInstance, actions};
+use openfx::{
+    high_plugin::{Context, Plugin, PluginInstance, actions},
+    sys_helpers::generic::{PluginStruct, Plugins, export_plugins, plugin_struct},
+};
 
 // …
 

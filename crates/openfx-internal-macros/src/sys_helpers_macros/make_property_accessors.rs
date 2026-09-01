@@ -67,7 +67,7 @@ fn make_property_setter(
         proc_macro2::Span::call_site(),
     );
     let setter_for_ty_path =
-        quote! { crate::generic::sys_helpers::properties::#setter_for_ty_ident };
+        quote! { crate::sys_helpers::generic::properties::#setter_for_ty_ident };
 
     let rust_ty = ty.rust_type_quote_for_setter();
     let container_ty = match &item.ty {
@@ -120,7 +120,7 @@ fn make_property_getter(
         proc_macro2::Span::call_site(),
     );
     let getter_for_ty_path =
-        quote! { crate::generic::sys_helpers::properties::#getter_for_ty_ident };
+        quote! { crate::sys_helpers::generic::properties::#getter_for_ty_ident };
 
     let rust_ty = ty.rust_type_quote_for_getter();
     let container_ty = match &item.ty {
@@ -184,7 +184,7 @@ fn make_property_resetter(
     reset_ident: &syn::Ident,
 ) {
     let fn_name = syn::Ident::new(&format!("reset_{}", canonical_name), reset_ident.span());
-    let reseter_path = quote! { crate::generic::sys_helpers::properties::reset_property };
+    let reseter_path = quote! { crate::sys_helpers::generic::properties::reset_property };
 
     output.extend(quote! {
         /// ## SAFETY
@@ -218,7 +218,7 @@ fn make_property_dimensions_getter(
         get_dimensions_ident.span(),
     );
     let get_dimensions_path =
-        quote! { crate::generic::sys_helpers::properties::get_property_dimension };
+        quote! { crate::sys_helpers::generic::properties::get_property_dimension };
 
     output.extend(quote! {
         /// ## SAFETY

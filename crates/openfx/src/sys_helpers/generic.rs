@@ -1,6 +1,6 @@
 use std::ffi::{CStr, c_char, c_int, c_uint, c_void};
 
-use crate::generic::sys::core::{OfxHost, OfxPlugin, OfxPropertySetHandle, OfxStatus};
+use crate::sys::generic::core::{OfxHost, OfxPlugin, OfxPropertySetHandle, OfxStatus};
 
 pub trait Plugin {
     const PLUGIN_API: &'static CStr;

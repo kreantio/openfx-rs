@@ -6,25 +6,19 @@ use std::{
 };
 
 use openfx::{
-    generic::{
-        low::Status,
-        sys::core::{
+    low::{Status, enums::ImageEffectPropContext},
+    low_plugin::{
+        Plugin,
+        actions::image_effect::{
+            ActionDescribeInContextIn, ActionIsIdentityIn, ActionRenderIn, ImageEffectAction,
+        },
+    },
+    sys::{
+        generic::core::{
             OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, kOfxBitDepthByte,
             kOfxBitDepthFloat, kOfxBitDepthShort, kOfxStatFailed,
         },
-        sys_helpers::properties::{
-            get_OfxPropInstanceData, set_OfxPropInstanceData, set_OfxPropLabel, set_OfxPropName,
-        },
-    },
-    image_effect_v1::{
-        low::enums::ImageEffectPropContext,
-        low_plugin::{
-            Plugin,
-            actions::image_effect::{
-                ActionDescribeInContextIn, ActionIsIdentityIn, ActionRenderIn, ImageEffectAction,
-            },
-        },
-        sys::{
+        image_effect_v1::{
             image_effect::{
                 OfxImageClipHandle, OfxImageEffectHandle, kOfxImageComponentAlpha,
                 kOfxImageComponentRGB, kOfxImageComponentRGBA, kOfxImageEffectContextFilter,
@@ -34,7 +28,12 @@ use openfx::{
                 OfxParamHandle, kOfxParamDoubleTypeScale, kOfxParamTypeBoolean, kOfxParamTypeDouble,
             },
         },
-        sys_helpers::properties::{
+    },
+    sys_helpers::{
+        generic::properties::{
+            get_OfxPropInstanceData, set_OfxPropInstanceData, set_OfxPropLabel, set_OfxPropName,
+        },
+        image_effect_v1::properties::{
             get_OfxImageEffectPropComponents, get_OfxImageEffectPropPixelDepth,
             get_OfxImageEffectPropRenderWindow, set_OfxImageEffectPluginPropGrouping,
             set_OfxImageEffectPluginPropHostFrameThreading,
@@ -115,7 +114,7 @@ impl Plugin for PluginExampleGain {
         }
     }
 
-    fn main_entry(action: ImageEffectAction) -> openfx::generic::low::Result<()> {
+    fn main_entry(action: ImageEffectAction) -> openfx::low::Result<()> {
         match action {
             ImageEffectAction::Load { .. } => action_load(),
             ImageEffectAction::Unload { .. } => action_unload(),
@@ -148,7 +147,7 @@ impl Plugin for PluginExampleGain {
     }
 }
 
-fn action_load() -> openfx::generic::low::Result<()> {
+fn action_load() -> openfx::low::Result<()> {
     let host_struct = HOST_STRUCT.get().ok_or(kOfxStatFailed)?.clone();
 
     let mut data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
@@ -160,7 +159,7 @@ fn action_load() -> openfx::generic::low::Result<()> {
     }
 }
 
-fn action_unload() -> openfx::generic::low::Result<()> {
+fn action_unload() -> openfx::low::Result<()> {
     let mut data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
     if data.take().is_none() {
         Err(Status::Failed)
@@ -169,7 +168,7 @@ fn action_unload() -> openfx::generic::low::Result<()> {
     }
 }
 
-fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::generic::low::Result<()> {
+fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
@@ -208,7 +207,7 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::generic::low::Re
 fn action_describe_in_context(
     descriptor: OfxImageEffectHandle,
     in_args: ActionDescribeInContextIn,
-) -> openfx::generic::low::Result<()> {
+) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
@@ -272,7 +271,7 @@ fn action_describe_in_context(
     Ok(())
 }
 
-fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::generic::low::Result<()> {
+fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
@@ -307,7 +306,7 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::generic::lo
     }
 }
 
-fn action_destroy_instance(instance: OfxImageEffectHandle) -> openfx::generic::low::Result<()> {
+fn action_destroy_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
@@ -328,7 +327,7 @@ fn action_is_identity(
     effect: OfxImageEffectHandle,
     in_args: ActionIsIdentityIn,
     out_args: OfxPropertySetHandle,
-) -> openfx::generic::low::Result<()> {
+) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
@@ -356,7 +355,7 @@ fn action_is_identity(
 fn action_render(
     instance: OfxImageEffectHandle,
     in_args: ActionRenderIn,
-) -> openfx::generic::low::Result<()> {
+) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
@@ -399,7 +398,7 @@ fn action_render(
         source_img: OfxPropertySetHandle,
         output_img: OfxPropertySetHandle,
         render_window: OfxRectI,
-    ) -> openfx::generic::low::Result<()> {
+    ) -> openfx::low::Result<()> {
         let s_prop = data.inner().property_suite;
 
         let components = unsafe { get_OfxImageEffectPropComponents(s_prop, output_img) }?;

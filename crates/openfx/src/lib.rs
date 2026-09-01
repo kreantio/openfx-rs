@@ -1,30 +1,32 @@
 #![feature(decl_macro)]
 
-pub mod generic;
-pub mod image_effect_v1;
+pub mod low;
+pub mod low_plugin;
+pub mod sys;
+pub mod sys_helpers;
 
 /// a workaround for `include_c_bindings`. TODO: remove this.
 #[allow(unused_imports)]
 pub(crate) mod sys_umbrella {
-    pub use crate::generic::sys::core::*;
-    pub use crate::generic::sys::property::*;
-    pub use crate::image_effect_v1::sys::colour::*;
-    pub use crate::image_effect_v1::sys::dialog::*;
-    pub use crate::image_effect_v1::sys::draw_suite::*;
-    pub use crate::image_effect_v1::sys::gpu_render::*;
-    pub use crate::image_effect_v1::sys::image_effect::*;
-    pub use crate::image_effect_v1::sys::interact::*;
-    pub use crate::image_effect_v1::sys::key_syms::*;
-    pub use crate::image_effect_v1::sys::memory::*;
-    pub use crate::image_effect_v1::sys::message::*;
-    pub use crate::image_effect_v1::sys::multi_thread::*;
-    pub use crate::image_effect_v1::sys::old::*;
-    pub use crate::image_effect_v1::sys::open_gl_render::*;
-    pub use crate::image_effect_v1::sys::param::*;
-    pub use crate::image_effect_v1::sys::parametric_param::*;
-    pub use crate::image_effect_v1::sys::pixels::*;
-    pub use crate::image_effect_v1::sys::progress::*;
-    pub use crate::image_effect_v1::sys::time_line::*;
+    pub use crate::sys::generic::core::*;
+    pub use crate::sys::generic::property::*;
+    pub use crate::sys::image_effect_v1::colour::*;
+    pub use crate::sys::image_effect_v1::dialog::*;
+    pub use crate::sys::image_effect_v1::draw_suite::*;
+    pub use crate::sys::image_effect_v1::gpu_render::*;
+    pub use crate::sys::image_effect_v1::image_effect::*;
+    pub use crate::sys::image_effect_v1::interact::*;
+    pub use crate::sys::image_effect_v1::key_syms::*;
+    pub use crate::sys::image_effect_v1::memory::*;
+    pub use crate::sys::image_effect_v1::message::*;
+    pub use crate::sys::image_effect_v1::multi_thread::*;
+    pub use crate::sys::image_effect_v1::old::*;
+    pub use crate::sys::image_effect_v1::open_gl_render::*;
+    pub use crate::sys::image_effect_v1::param::*;
+    pub use crate::sys::image_effect_v1::parametric_param::*;
+    pub use crate::sys::image_effect_v1::pixels::*;
+    pub use crate::sys::image_effect_v1::progress::*;
+    pub use crate::sys::image_effect_v1::time_line::*;
 }
 
 mod sys_checks {
@@ -37,6 +39,6 @@ mod sys_checks {
 
 #[allow(unused_imports)]
 pub(crate) mod sys_helpers_properties_umbrella {
-    pub use crate::generic::sys_helpers::properties::*;
-    pub use crate::image_effect_v1::sys_helpers::properties::*;
+    pub use crate::sys_helpers::generic::properties::*;
+    pub use crate::sys_helpers::image_effect_v1::properties::*;
 }

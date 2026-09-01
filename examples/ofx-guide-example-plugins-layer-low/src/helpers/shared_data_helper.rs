@@ -1,19 +1,28 @@
 use std::ffi::{CStr, c_int, c_void};
 
-use openfx::generic::sys::core::{
-    OfxPropertySetHandle, OfxPropertySetStruct, OfxRectD, OfxRectI, OfxStatus, OfxTime,
-    kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxStatErrMissingHostFeature,
-    kOfxStatErrUnsupported, kOfxStatFailed, kOfxStatOK,
-};
-use openfx::generic::sys_helpers::properties::get_OfxPropInstanceData;
-use openfx::image_effect_v1::sys::image_effect::{
-    OfxImageClipHandle, OfxImageEffectHandle, OfxImageEffectSuiteV1, kOfxImageComponentAlpha,
-    kOfxImageComponentRGB, kOfxImageComponentRGBA,
-};
-use openfx::image_effect_v1::sys::param::{OfxParamHandle, OfxParamSetHandle, OfxParameterSuiteV1};
-use openfx::image_effect_v1::sys_helpers::properties::{
-    get_OfxImageEffectPropComponents, get_OfxImageEffectPropPixelDepth, get_OfxImagePropBounds,
-    get_OfxImagePropData, get_OfxImagePropPixelAspectRatio, get_OfxImagePropRowBytes,
+use openfx::{
+    sys::{
+        generic::core::{
+            OfxPropertySetHandle, OfxPropertySetStruct, OfxRectD, OfxRectI, OfxStatus, OfxTime,
+            kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxStatErrMissingHostFeature,
+            kOfxStatErrUnsupported, kOfxStatFailed, kOfxStatOK,
+        },
+        image_effect_v1::{
+            image_effect::{
+                OfxImageClipHandle, OfxImageEffectHandle, OfxImageEffectSuiteV1,
+                kOfxImageComponentAlpha, kOfxImageComponentRGB, kOfxImageComponentRGBA,
+            },
+            param::{OfxParamHandle, OfxParamSetHandle, OfxParameterSuiteV1},
+        },
+    },
+    sys_helpers::{
+        generic::properties::get_OfxPropInstanceData,
+        image_effect_v1::properties::{
+            get_OfxImageEffectPropComponents, get_OfxImageEffectPropPixelDepth,
+            get_OfxImagePropBounds, get_OfxImagePropData, get_OfxImagePropPixelAspectRatio,
+            get_OfxImagePropRowBytes,
+        },
+    },
 };
 
 use super::internal_utils::rect_i_from_array;
@@ -535,7 +544,7 @@ impl<'data> ParameterSuiteHelper<'data> {
         &self,
         param_handle: OfxParamHandle,
         time: OfxTime,
-    ) -> openfx::generic::low::Result<T> {
+    ) -> openfx::low::Result<T> {
         let mut value: T = unsafe { std::mem::zeroed() };
         param_get_value_at_time!(self, param_handle, time, &mut value);
         Ok(value)
@@ -548,7 +557,7 @@ impl<'data> ParameterSuiteHelper<'data> {
         &self,
         param_handle: OfxParamHandle,
         time: OfxTime,
-    ) -> openfx::generic::low::Result<f64> {
+    ) -> openfx::low::Result<f64> {
         unsafe { self.param_get_value_at_time(param_handle, time) }
     }
 
@@ -559,7 +568,7 @@ impl<'data> ParameterSuiteHelper<'data> {
         &self,
         param_handle: OfxParamHandle,
         time: OfxTime,
-    ) -> openfx::generic::low::Result<c_int> {
+    ) -> openfx::low::Result<c_int> {
         unsafe { self.param_get_value_at_time(param_handle, time) }
     }
 }
@@ -576,11 +585,11 @@ pub macro param_get_value_at_time(
         let param_get_value_at_time = $parameter_suite_helper
             .inner()
             .paramGetValueAtTime
-            .ok_or(openfx::generic::low::Status::ErrMissingHostFeature)?;
+            .ok_or(openfx::low::Status::ErrMissingHostFeature)?;
         let time = $time;
         #[allow(clippy::macro_metavars_in_unsafe)]
-        if let stat = unsafe { param_get_value_at_time($param_handle, time, $(&mut $value),+) } && stat != ::openfx::generic::sys::core::kOfxStatOK {
-            return Err(openfx::generic::low::Status::from(stat));
+        if let stat = unsafe { param_get_value_at_time($param_handle, time, $(&mut $value),+) } && stat != ::openfx::sys::generic::core::kOfxStatOK {
+            return Err(openfx::low::Status::from(stat));
         }
     }
 }

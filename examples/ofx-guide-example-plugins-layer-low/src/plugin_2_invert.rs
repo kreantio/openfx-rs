@@ -4,25 +4,24 @@ use std::{
 };
 
 use openfx::{
-    generic::{
-        low::Status,
-        sys::core::{
+    low::{Status, enums::ImageEffectPropContext},
+    low_plugin::{
+        Plugin,
+        actions::image_effect::{ActionDescribeInContextIn, ActionRenderIn, ImageEffectAction},
+    },
+    sys::{
+        generic::core::{
             OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, kOfxBitDepthByte,
             kOfxBitDepthFloat, kOfxBitDepthShort, kOfxStatFailed,
         },
-        sys_helpers::properties::set_OfxPropLabel,
-    },
-    image_effect_v1::{
-        low::enums::ImageEffectPropContext,
-        low_plugin::{
-            Plugin,
-            actions::image_effect::{ActionDescribeInContextIn, ActionRenderIn, ImageEffectAction},
-        },
-        sys::image_effect::{
+        image_effect_v1::image_effect::{
             OfxImageEffectHandle, kOfxImageComponentAlpha, kOfxImageComponentRGB,
             kOfxImageComponentRGBA, kOfxImageEffectContextFilter, kOfxImageEffectRenderFullySafe,
         },
-        sys_helpers::properties::{
+    },
+    sys_helpers::{
+        generic::properties::set_OfxPropLabel,
+        image_effect_v1::properties::{
             get_OfxImageEffectPropComponents, get_OfxImageEffectPropPixelDepth,
             get_OfxImageEffectPropRenderWindow, get_OfxImagePropBounds, get_OfxImagePropData,
             get_OfxImagePropRowBytes, set_OfxImageEffectPluginPropGrouping,
@@ -88,7 +87,7 @@ impl Plugin for PluginExampleInvert {
         }
     }
 
-    fn main_entry(action: ImageEffectAction) -> openfx::generic::low::Result<()> {
+    fn main_entry(action: ImageEffectAction) -> openfx::low::Result<()> {
         match action {
             ImageEffectAction::Load { .. } => action_load(),
             ImageEffectAction::Unload { .. } => action_unload(),
@@ -112,7 +111,7 @@ impl Plugin for PluginExampleInvert {
     }
 }
 
-fn action_load() -> openfx::generic::low::Result<()> {
+fn action_load() -> openfx::low::Result<()> {
     let host_struct = HOST_STRUCT.get().ok_or(kOfxStatFailed)?.clone();
 
     let mut data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
@@ -124,7 +123,7 @@ fn action_load() -> openfx::generic::low::Result<()> {
     }
 }
 
-fn action_unload() -> openfx::generic::low::Result<()> {
+fn action_unload() -> openfx::low::Result<()> {
     let mut data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
     if data.take().is_none() {
         Err(Status::Failed)
@@ -133,7 +132,7 @@ fn action_unload() -> openfx::generic::low::Result<()> {
     }
 }
 
-fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::generic::low::Result<()> {
+fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
@@ -172,7 +171,7 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::generic::low::Re
 fn action_describe_in_context(
     descriptor: OfxImageEffectHandle,
     in_args: ActionDescribeInContextIn,
-) -> openfx::generic::low::Result<()> {
+) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
@@ -234,7 +233,7 @@ fn pixel_processing<T>(
     output_img: OfxPropertySetHandle,
     render_window: OfxRectI,
     n_comps: c_int,
-) -> openfx::generic::low::Result<()>
+) -> openfx::low::Result<()>
 where
     T: std::ops::Sub<Output = T> + Copy + Default,
 {
@@ -317,7 +316,7 @@ fn rect_i_from_array(arr: &[c_int; 4]) -> OfxRectI {
 fn action_render(
     instance: OfxImageEffectHandle,
     in_args: ActionRenderIn,
-) -> openfx::generic::low::Result<()> {
+) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
@@ -347,7 +346,7 @@ fn action_render(
         source_img: OfxPropertySetHandle,
         output_img: OfxPropertySetHandle,
         render_window: OfxRectI,
-    ) -> openfx::generic::low::Result<()> {
+    ) -> openfx::low::Result<()> {
         let s_prop = data.inner().property_suite;
 
         let components = unsafe { get_OfxImageEffectPropComponents(s_prop, output_img) }?;

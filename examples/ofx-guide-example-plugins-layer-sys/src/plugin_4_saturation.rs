@@ -6,20 +6,14 @@ use std::{
 };
 
 use openfx::{
-    generic::{
-        sys::core::{
+    sys::{
+        generic::core::{
             OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, OfxTime, kOfxActionCreateInstance,
             kOfxActionDescribe, kOfxActionDestroyInstance, kOfxActionLoad, kOfxActionUnload,
             kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxStatErrUnsupported,
             kOfxStatFailed, kOfxStatOK, kOfxStatReplyDefault,
         },
-        sys_helpers::properties::{
-            get_OfxPropInstanceData, get_OfxPropTime, set_OfxPropInstanceData, set_OfxPropLabel,
-            set_OfxPropName,
-        },
-    },
-    image_effect_v1::{
-        sys::{
+        image_effect_v1::{
             image_effect::{
                 OfxImageClipHandle, OfxImageEffectHandle, kOfxImageComponentAlpha,
                 kOfxImageComponentRGB, kOfxImageComponentRGBA,
@@ -29,7 +23,13 @@ use openfx::{
             },
             param::{OfxParamHandle, kOfxParamDoubleTypeScale, kOfxParamTypeDouble},
         },
-        sys_helpers::{
+    },
+    sys_helpers::{
+        generic::properties::{
+            get_OfxPropInstanceData, get_OfxPropTime, set_OfxPropInstanceData, set_OfxPropLabel,
+            set_OfxPropName,
+        },
+        image_effect_v1::{
             Plugin,
             properties::{
                 get_OfxImageEffectPropContext, get_OfxImageEffectPropRenderWindow,

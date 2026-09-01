@@ -1,19 +1,28 @@
 use std::ffi::{CStr, c_int, c_void};
 
-use openfx::generic::sys::core::{
-    OfxPropertySetHandle, OfxPropertySetStruct, OfxRectD, OfxRectI, OfxStatus, OfxTime,
-    kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxStatErrMissingHostFeature,
-    kOfxStatErrUnsupported, kOfxStatFailed, kOfxStatOK,
-};
-use openfx::generic::sys_helpers::properties::get_OfxPropInstanceData;
-use openfx::image_effect_v1::sys::image_effect::{
-    OfxImageClipHandle, OfxImageEffectHandle, OfxImageEffectSuiteV1, kOfxImageComponentAlpha,
-    kOfxImageComponentRGB, kOfxImageComponentRGBA,
-};
-use openfx::image_effect_v1::sys::param::{OfxParamHandle, OfxParamSetHandle, OfxParameterSuiteV1};
-use openfx::image_effect_v1::sys_helpers::properties::{
-    get_OfxImageEffectPropComponents, get_OfxImageEffectPropPixelDepth, get_OfxImagePropBounds,
-    get_OfxImagePropData, get_OfxImagePropPixelAspectRatio, get_OfxImagePropRowBytes,
+use openfx::{
+    sys::{
+        generic::core::{
+            OfxPropertySetHandle, OfxPropertySetStruct, OfxRectD, OfxRectI, OfxStatus, OfxTime,
+            kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxStatErrMissingHostFeature,
+            kOfxStatErrUnsupported, kOfxStatFailed, kOfxStatOK,
+        },
+        image_effect_v1::{
+            image_effect::{
+                OfxImageClipHandle, OfxImageEffectHandle, OfxImageEffectSuiteV1,
+                kOfxImageComponentAlpha, kOfxImageComponentRGB, kOfxImageComponentRGBA,
+            },
+            param::{OfxParamHandle, OfxParamSetHandle, OfxParameterSuiteV1},
+        },
+    },
+    sys_helpers::{
+        generic::properties::get_OfxPropInstanceData,
+        image_effect_v1::properties::{
+            get_OfxImageEffectPropComponents, get_OfxImageEffectPropPixelDepth,
+            get_OfxImagePropBounds, get_OfxImagePropData, get_OfxImagePropPixelAspectRatio,
+            get_OfxImagePropRowBytes,
+        },
+    },
 };
 
 use super::internal_utils::rect_i_from_array;
@@ -576,10 +585,10 @@ pub macro param_get_value_at_time(
         let param_get_value_at_time = $parameter_suite_helper
             .inner()
             .paramGetValueAtTime
-            .ok_or(::openfx::generic::sys::core::kOfxStatErrMissingHostFeature)?;
+            .ok_or(::openfx::sys::generic::core::kOfxStatErrMissingHostFeature)?;
         let time = $time;
         #[allow(clippy::macro_metavars_in_unsafe)]
-        if let stat = unsafe { param_get_value_at_time($param_handle, time, $(&mut $value),+) } && stat != ::openfx::generic::sys::core::kOfxStatOK {
+        if let stat = unsafe { param_get_value_at_time($param_handle, time, $(&mut $value),+) } && stat != ::openfx::sys::generic::core::kOfxStatOK {
             return Err(stat);
         }
     }

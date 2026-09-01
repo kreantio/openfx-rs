@@ -6,28 +6,20 @@ use std::{
 };
 
 use openfx::{
-    generic::{
-        low::Status,
-        sys::core::{
+    low::{Status, enums::ImageEffectPropContext},
+    low_plugin::{
+        Plugin,
+        actions::image_effect::{
+            ActionDescribeInContextIn, ActionGetRegionOfDefinitionIn,
+            ActionGetRegionOfDefinitionOut, ActionIsIdentityIn, ActionRenderIn, ImageEffectAction,
+        },
+    },
+    sys::{
+        generic::core::{
             OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, kOfxBitDepthByte,
             kOfxBitDepthFloat, kOfxBitDepthShort, kOfxPropAPIVersion, kOfxStatFailed,
         },
-        sys_helpers::properties::{
-            get_OfxPropAPIVersion, get_OfxPropInstanceData, get_property_dimension,
-            set_OfxPropInstanceData, set_OfxPropLabel, set_OfxPropName,
-        },
-    },
-    image_effect_v1::{
-        low::enums::ImageEffectPropContext,
-        low_plugin::{
-            Plugin,
-            actions::image_effect::{
-                ActionDescribeInContextIn, ActionGetRegionOfDefinitionIn,
-                ActionGetRegionOfDefinitionOut, ActionIsIdentityIn, ActionRenderIn,
-                ImageEffectAction,
-            },
-        },
-        sys::{
+        image_effect_v1::{
             image_effect::{
                 OfxImageClipHandle, OfxImageEffectHandle, kOfxImageComponentAlpha,
                 kOfxImageComponentRGB, kOfxImageComponentRGBA, kOfxImageEffectContextFilter,
@@ -39,7 +31,13 @@ use openfx::{
                 kOfxParamTypeDouble2D, kOfxParamTypeRGBA,
             },
         },
-        sys_helpers::properties::{
+    },
+    sys_helpers::{
+        generic::properties::{
+            get_OfxPropAPIVersion, get_OfxPropInstanceData, get_property_dimension,
+            set_OfxPropInstanceData, set_OfxPropLabel, set_OfxPropName,
+        },
+        image_effect_v1::properties::{
             get_OfxImageEffectPropRenderScale, get_OfxImageEffectPropRenderWindow,
             get_OfxImageEffectPropSupportsMultiResolution, set_OfxImageEffectPluginPropGrouping,
             set_OfxImageEffectPluginPropHostFrameThreading,
@@ -136,7 +134,7 @@ impl Plugin for PluginExampleCircle {
         }
     }
 
-    fn main_entry(action: ImageEffectAction) -> openfx::generic::low::Result<()> {
+    fn main_entry(action: ImageEffectAction) -> openfx::low::Result<()> {
         match action {
             ImageEffectAction::Load { .. } => action_load(),
             ImageEffectAction::Unload { .. } => action_unload(),
@@ -178,7 +176,7 @@ impl Plugin for PluginExampleCircle {
     }
 }
 
-fn action_load() -> openfx::generic::low::Result<()> {
+fn action_load() -> openfx::low::Result<()> {
     let host_struct = HOST_STRUCT.get().ok_or(kOfxStatFailed)?.clone();
 
     let mut data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
@@ -228,7 +226,7 @@ fn action_load() -> openfx::generic::low::Result<()> {
     Ok(())
 }
 
-fn action_unload() -> openfx::generic::low::Result<()> {
+fn action_unload() -> openfx::low::Result<()> {
     let mut data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
     if data.take().is_none() {
         Err(Status::Failed)
@@ -237,7 +235,7 @@ fn action_unload() -> openfx::generic::low::Result<()> {
     }
 }
 
-fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::generic::low::Result<()> {
+fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> {
     let (data, _additional) = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
@@ -276,7 +274,7 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::generic::low::Re
 fn action_describe_in_context(
     descriptor: OfxImageEffectHandle,
     in_args: ActionDescribeInContextIn,
-) -> openfx::generic::low::Result<()> {
+) -> openfx::low::Result<()> {
     let (data, additional) = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
@@ -375,7 +373,7 @@ fn action_describe_in_context(
     Ok(())
 }
 
-fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::generic::low::Result<()> {
+fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
     let (data, additional) = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
@@ -418,7 +416,7 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::generic::lo
     }
 }
 
-fn action_destroy_instance(instance: OfxImageEffectHandle) -> openfx::generic::low::Result<()> {
+fn action_destroy_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
     let (data, _additional) = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
@@ -439,7 +437,7 @@ fn action_get_region_of_definition(
     effect: OfxImageEffectHandle,
     in_args: ActionGetRegionOfDefinitionIn,
     out_args: ActionGetRegionOfDefinitionOut,
-) -> openfx::generic::low::Result<()> {
+) -> openfx::low::Result<()> {
     let (data, additional) = shared_data_lockless()?;
 
     if !additional.host_supports_multi_res {
@@ -494,7 +492,7 @@ fn action_is_identity(
     effect: OfxImageEffectHandle,
     in_args: ActionIsIdentityIn,
     out_args: OfxPropertySetHandle,
-) -> openfx::generic::low::Result<()> {
+) -> openfx::low::Result<()> {
     let (data, _additional) = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
@@ -552,7 +550,7 @@ fn action_is_identity(
 fn action_render(
     instance: OfxImageEffectHandle,
     in_args: ActionRenderIn,
-) -> openfx::generic::low::Result<()> {
+) -> openfx::low::Result<()> {
     let (data, _additional) = shared_data_lockless()?;
     let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
@@ -620,7 +618,7 @@ fn action_render(
         source_img: ClipImageManaged,
         output_img: ClipImageManaged,
         render_window: OfxRectI,
-    ) -> openfx::generic::low::Result<()> {
+    ) -> openfx::low::Result<()> {
         match output_img.pixel_depth() {
             BitDepth::Byte => pixel_processing(
                 |f| f as u8,
