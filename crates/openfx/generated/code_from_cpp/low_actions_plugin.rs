@@ -36,93 +36,32 @@ pub mod core {
     }
 }
 pub mod image_effect {
-    pub enum ImageEffectAction {
-        Load {
-            handle: *const std::ffi::c_void,
-        },
-        Unload {
-            handle: *const std::ffi::c_void,
-        },
-        Describe {
-            handle: *const std::ffi::c_void,
-        },
-        CreateInstance {
-            handle: *const std::ffi::c_void,
-        },
-        DestroyInstance {
-            handle: *const std::ffi::c_void,
-        },
-        BeginInstanceChanged {
-            handle: *const std::ffi::c_void,
-            in_args: super::core::ActionBeginInstanceChangedIn,
-        },
-        EndInstanceChanged {
-            handle: *const std::ffi::c_void,
-            in_args: super::core::ActionEndInstanceChangedIn,
-        },
-        InstanceChanged {
-            handle: *const std::ffi::c_void,
-            in_args: super::core::ActionInstanceChangedIn,
-        },
-        PurgeCaches {
-            handle: *const std::ffi::c_void,
-        },
-        SyncPrivateData {
-            handle: *const std::ffi::c_void,
-        },
-        BeginInstanceEdit {
-            handle: *const std::ffi::c_void,
-        },
-        EndInstanceEdit {
-            handle: *const std::ffi::c_void,
-        },
-        BeginSequenceRender {
-            handle: *const std::ffi::c_void,
-            in_args: ActionBeginSequenceRenderIn,
-        },
-        DescribeInContext {
-            handle: *const std::ffi::c_void,
-            in_args: ActionDescribeInContextIn,
-        },
-        EndSequenceRender {
-            handle: *const std::ffi::c_void,
-            in_args: ActionEndSequenceRenderIn,
-        },
-        GetClipPreferences {
-            handle: *const std::ffi::c_void,
-            out_args: ActionGetClipPreferencesOut,
-        },
-        GetFramesNeeded {
-            handle: *const std::ffi::c_void,
-            in_args: ActionGetFramesNeededIn,
-            out_args: ActionGetFramesNeededOut,
-        },
-        GetOutputColourspace {
-            handle: *const std::ffi::c_void,
-            in_args: ActionGetOutputColourspaceIn,
-            out_args: ActionGetOutputColourspaceOut,
-        },
-        GetRegionOfDefinition {
-            handle: *const std::ffi::c_void,
-            in_args: ActionGetRegionOfDefinitionIn,
-            out_args: ActionGetRegionOfDefinitionOut,
-        },
-        GetRegionsOfInterest {
-            handle: *const std::ffi::c_void,
-            in_args: ActionGetRegionsOfInterestIn,
-        },
-        GetTimeDomain {
-            handle: *const std::ffi::c_void,
-            out_args: ActionGetTimeDomainOut,
-        },
-        IsIdentity {
-            handle: *const std::ffi::c_void,
-            in_args: ActionIsIdentityIn,
-        },
-        Render {
-            handle: *const std::ffi::c_void,
-            in_args: ActionRenderIn,
-        },
+    openfx_internal_macros::low_make_action_enum! {
+        pub ImageEffectAction {
+            __ ___ core::Load,
+            __ ___ core::Unload,
+            __ ___ core::Describe,
+            __ ___ core::CreateInstance,
+            __ ___ core::DestroyInstance,
+            in ___ core::BeginInstanceChanged,
+            in ___ core::EndInstanceChanged,
+            in ___ core::InstanceChanged,
+            __ ___ core::PurgeCaches,
+            __ ___ core::SyncPrivateData,
+            __ ___ core::BeginInstanceEdit,
+            __ ___ core::EndInstanceEdit,
+            in ___ BeginSequenceRender,
+            in ___ DescribeInContext,
+            in ___ EndSequenceRender,
+            __ out GetClipPreferences,
+            in out GetFramesNeeded,
+            in out GetOutputColourspace,
+            in out GetRegionOfDefinition,
+            in ___ GetRegionsOfInterest,
+            __ out GetTimeDomain,
+            in ___ IsIdentity,
+            in ___ Render,
+        }
     }
     openfx_internal_macros::low_make_property_set_structs! {
         pub ActionBeginSequenceRenderIn {
@@ -246,52 +185,21 @@ pub mod image_effect {
     }
 }
 pub mod interact {
-    pub enum InteractAction {
-        Describe {
-            handle: *const std::ffi::c_void,
-        },
-        CreateInstance {
-            handle: *const std::ffi::c_void,
-        },
-        DestroyInstance {
-            handle: *const std::ffi::c_void,
-        },
-        Draw {
-            handle: *const std::ffi::c_void,
-            in_args: ActionDrawIn,
-        },
-        GainFocus {
-            handle: *const std::ffi::c_void,
-            in_args: ActionGainFocusIn,
-        },
-        KeyDown {
-            handle: *const std::ffi::c_void,
-            in_args: ActionKeyDownIn,
-        },
-        KeyRepeat {
-            handle: *const std::ffi::c_void,
-            in_args: ActionKeyRepeatIn,
-        },
-        KeyUp {
-            handle: *const std::ffi::c_void,
-            in_args: ActionKeyUpIn,
-        },
-        LoseFocus {
-            handle: *const std::ffi::c_void,
-            in_args: ActionLoseFocusIn,
-        },
-        PenDown {
-            handle: *const std::ffi::c_void,
-            in_args: ActionPenDownIn,
-        },
-        PenMotion {
-            handle: *const std::ffi::c_void,
-            in_args: ActionPenMotionIn,
-        },
-        PenUp {
-            handle: *const std::ffi::c_void,
-            in_args: ActionPenUpIn,
-        },
+    openfx_internal_macros::low_make_action_enum! {
+        pub InteractAction {
+            __ ___ core::Describe,
+            __ ___ core::CreateInstance,
+            __ ___ core::DestroyInstance,
+            in ___ Draw,
+            in ___ GainFocus,
+            in ___ KeyDown,
+            in ___ KeyRepeat,
+            in ___ KeyUp,
+            in ___ LoseFocus,
+            in ___ PenDown,
+            in ___ PenMotion,
+            in ___ PenUp,
+        }
     }
     openfx_internal_macros::low_make_property_set_structs! {
         pub ActionDrawIn {

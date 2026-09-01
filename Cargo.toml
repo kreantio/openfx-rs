@@ -5,6 +5,7 @@ members = [
   "crates/openfx-bindgen",
   "crates/openfx-internal-macros",
   "examples/ofx-guide-example-plugins-layer-sys",
+  "examples/ofx-guide-example-plugins-layer-low",
 ]
 
 [workspace.package]

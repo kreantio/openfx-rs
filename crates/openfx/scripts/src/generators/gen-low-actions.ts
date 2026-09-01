@@ -155,7 +155,8 @@ function genLowActionsInGroup(
 
   const parts = [
     `pub mod ${groupNameSnake} {`,
-    `pub enum ${pascalCase(groupNameSnake)}Action {`,
+    "    openfx_internal_macros::low_make_action_enum! {",
+    `        pub ${pascalCase(groupNameSnake)}Action {`,
   ];
 
   const actionsCore = extractActions(
@@ -173,26 +174,23 @@ function genLowActionsInGroup(
     const hasInArgs = !!frS.infos.actionProps[action.canonicalName]?.inArgs;
     const hasOutArgs = !!frS.infos.actionProps[action.canonicalName]?.outArgs;
 
-    let text = "        ";
-    text += `${action.variantName}{ handle: *const std::ffi::c_void`;
-    if (hasInArgs) {
-      const inName = opts.nameRegulator
-        .actionCanonicalNameToInArgsName(action.canonicalName, false);
-      text += `, in_args: ${
-        (action.isFromCore ? "super::core::" : "") + inName
-      }`;
+    let text = "            ";
+    text += (hasInArgs ? "in" : "__") + " ";
+    text += (hasOutArgs ? "out" : "___") + " ";
+    if (action.isFromCore) {
+      text += "core::";
     }
-    if (hasOutArgs) {
-      const outName = opts.nameRegulator
-        .actionCanonicalNameToOutArgsName(action.canonicalName, false);
-      text += `, out_args: ${
-        (action.isFromCore ? "super::core::" : "") + outName
-      }`;
-    }
-    text += " },";
+    text += action.variantName;
+
+    // text += ": ";
+    // text += "*const std::ffi::c_void";
+
+    text += ",";
+
     parts.push(text);
   }
 
+  parts.push("        }");
   parts.push("    }");
 
   parts.push("openfx_internal_macros::low_make_property_set_structs! {");

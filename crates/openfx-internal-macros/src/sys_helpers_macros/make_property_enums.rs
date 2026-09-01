@@ -28,7 +28,7 @@ pub fn make_property_enums(tokens: TokenStream) -> TokenStream {
             }
             inner.extend(quote! { Other(*const std::os::raw::c_char), });
             output.extend(quote! {
-                #[derive(Debug, Clone)] pub enum #name { #inner }
+                #[derive(Debug, Clone, PartialEq, Eq)] pub enum #name { #inner }
             });
         }
 
