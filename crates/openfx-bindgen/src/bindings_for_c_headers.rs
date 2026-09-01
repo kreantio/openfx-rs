@@ -183,20 +183,20 @@ fn gen_low_statuses(
     let code = quote! {
         pub enum Status {
             #(#statuses,)*
-            Unknown(crate::generic::sys::core::OfxStatus),
+            Unknown(crate::sys::generic::core::OfxStatus),
         }
-        impl From<crate::generic::sys::core::OfxStatus> for Status {
-            fn from(status: crate::generic::sys::core::OfxStatus) -> Self {
+        impl From<crate::sys::generic::core::OfxStatus> for Status {
+            fn from(status: crate::sys::generic::core::OfxStatus) -> Self {
                 match status {
-                    #(crate::generic::sys::core::#status_sys_ident => Self::#statuses,)*
+                    #(crate::sys::generic::core::#status_sys_ident => Self::#statuses,)*
                     _ => Self::Unknown(status),
                 }
             }
         }
-        impl From<Status> for crate::generic::sys::core::OfxStatus {
+        impl From<Status> for crate::sys::generic::core::OfxStatus {
             fn from(status: Status) -> Self {
                 match status {
-                    #(Status::#statuses => crate::generic::sys::core::#status_sys_ident,)*
+                    #(Status::#statuses => crate::sys::generic::core::#status_sys_ident,)*
                     Status::Unknown(status) => status,
                 }
             }

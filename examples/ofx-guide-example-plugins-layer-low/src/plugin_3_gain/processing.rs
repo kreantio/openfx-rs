@@ -1,12 +1,12 @@
 use std::ffi::c_int;
 
 use openfx::{
-    generic::sys::core::{OfxPropertySetHandle, OfxRectI, OfxStatus, kOfxStatFailed},
-    image_effect_v1::{
-        sys::image_effect::OfxImageEffectHandle,
-        sys_helpers::properties::{
-            get_OfxImagePropBounds, get_OfxImagePropData, get_OfxImagePropRowBytes,
-        },
+    sys::{
+        generic::core::{OfxPropertySetHandle, OfxRectI, OfxStatus, kOfxStatFailed},
+        image_effect_v1::image_effect::OfxImageEffectHandle,
+    },
+    sys_helpers::image_effect_v1::properties::{
+        get_OfxImagePropBounds, get_OfxImagePropData, get_OfxImagePropRowBytes,
     },
 };
 

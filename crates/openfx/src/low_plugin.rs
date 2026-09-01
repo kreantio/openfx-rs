@@ -14,12 +14,10 @@ pub trait Plugin {
     const PLUGIN_VERSION_MAJOR: c_uint;
     const PLUGIN_VERSION_MINOR: c_uint;
     fn set_host(host: *mut OfxHost);
-    fn main_entry(
-        action: actions::image_effect::ImageEffectAction,
-    ) -> crate::generic::low::Result<()>;
+    fn main_entry(action: actions::image_effect::ImageEffectAction) -> crate::low::Result<()>;
 }
 
-impl<T: Plugin> crate::image_effect_v1::sys_helpers::Plugin for T {
+impl<T: Plugin> crate::sys_helpers::image_effect_v1::Plugin for T {
     const PLUGIN_IDENTIFIER: &'static CStr = T::PLUGIN_IDENTIFIER;
     const PLUGIN_VERSION_MAJOR: c_uint = T::PLUGIN_VERSION_MAJOR;
     const PLUGIN_VERSION_MINOR: c_uint = T::PLUGIN_VERSION_MINOR;

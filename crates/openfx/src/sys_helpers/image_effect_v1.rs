@@ -1,11 +1,9 @@
 use std::ffi::{CStr, c_char, c_int, c_uint, c_void};
 
 use crate::{
-    generic::{
-        self,
-        sys::core::{OfxHost, OfxPropertySetHandle, OfxStatus},
-    },
-    image_effect_v1::sys::image_effect::kOfxImageEffectPluginApi,
+    sys::generic::core::{OfxHost, OfxPropertySetHandle, OfxStatus},
+    sys::image_effect_v1::image_effect::kOfxImageEffectPluginApi,
+    sys_helpers,
 };
 
 pub trait Plugin {
@@ -21,7 +19,7 @@ pub trait Plugin {
     ) -> OfxStatus;
 }
 
-impl<T: Plugin> generic::sys_helpers::Plugin for T {
+impl<T: Plugin> sys_helpers::generic::Plugin for T {
     const PLUGIN_API: &'static CStr = kOfxImageEffectPluginApi;
     const API_VERSION: c_int = 1;
     const PLUGIN_IDENTIFIER: &'static CStr = T::PLUGIN_IDENTIFIER;
@@ -46,7 +44,7 @@ pub mod properties {
     //! The list of headers for properties included in this module is currently
     //! maintained manually.
 
-    use crate::generic::sys_helpers::properties::include_accessors;
+    use crate::sys_helpers::generic::properties::include_accessors;
 
     include_accessors!(colour);
     include_accessors!(draw_suite);

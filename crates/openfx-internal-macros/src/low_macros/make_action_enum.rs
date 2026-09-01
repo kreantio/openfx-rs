@@ -19,8 +19,8 @@ pub fn make_action_enum(tokens: TokenStream) -> TokenStream {
             Unknown {
                 action: ::std::option::Option<std::ptr::NonNull<::std::os::raw::c_char>>,
                 handle: *const ::std::ffi::c_void,
-                in_args: crate::generic::sys::core::OfxPropertySetHandle,
-                out_args: crate::generic::sys::core::OfxPropertySetHandle,
+                in_args: crate::sys::generic::core::OfxPropertySetHandle,
+                out_args: crate::sys::generic::core::OfxPropertySetHandle,
             }
         }
         impl #enum_name {
@@ -48,7 +48,7 @@ fn make_variant(output: &mut proc_macro2::TokenStream, var: &InputVariant) {
         };
         quote! { #in_args: #path #name }
     } else {
-        quote! { sys_in_args: crate::generic::sys::core::OfxPropertySetHandle }
+        quote! { sys_in_args: crate::sys::generic::core::OfxPropertySetHandle }
     };
     let out_args_field = if let Some(out_args) = &var.out_args {
         let name = syn::Ident::new(&format!("Action{}Out", name), out_args.span());
@@ -60,7 +60,7 @@ fn make_variant(output: &mut proc_macro2::TokenStream, var: &InputVariant) {
         };
         quote! { #out_args: #path #name }
     } else {
-        quote! { sys_out_args: crate::generic::sys::core::OfxPropertySetHandle }
+        quote! { sys_out_args: crate::sys::generic::core::OfxPropertySetHandle }
     };
 
     output.extend(quote! {
@@ -122,8 +122,8 @@ fn make_from_sys_fn(enum_name: &syn::Ident, items: &[InputVariant]) -> proc_macr
         pub unsafe fn from_sys(
             action: *const ::std::os::raw::c_char,
             handle: *const ::std::ffi::c_void,
-            in_args: crate::generic::sys::core::OfxPropertySetHandle,
-            out_args: crate::generic::sys::core::OfxPropertySetHandle,
+            in_args: crate::sys::generic::core::OfxPropertySetHandle,
+            out_args: crate::sys::generic::core::OfxPropertySetHandle,
         ) -> Self {
             let action = if action.is_null() {
                 return Self::Unknown {

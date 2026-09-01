@@ -25,16 +25,16 @@ fn make_property_set_struct(output: &mut proc_macro2::TokenStream, set: &InputPr
     let struct_name = &set.name;
 
     output.extend(quote! {
-        pub struct #struct_name(crate::generic::sys::core::OfxPropertySetHandle);
+        pub struct #struct_name(crate::sys::generic::core::OfxPropertySetHandle);
 
         impl #struct_name {
-            pub fn sys_handle(&self) -> crate::generic::sys::core::OfxPropertySetHandle {
+            pub fn sys_handle(&self) -> crate::sys::generic::core::OfxPropertySetHandle {
                 self.0
             }
         }
 
-        impl From<crate::generic::sys::core::OfxPropertySetHandle> for #struct_name {
-            fn from(handle: crate::generic::sys::core::OfxPropertySetHandle) -> Self {
+        impl From<crate::sys::generic::core::OfxPropertySetHandle> for #struct_name {
+            fn from(handle: crate::sys::generic::core::OfxPropertySetHandle) -> Self {
                 Self(handle)
             }
         }
@@ -148,10 +148,10 @@ fn make_property_setter(
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
             /// - `suite` must be a valid pointer to
             ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
-            pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1, value: #container_ty) -> crate::generic::low::Result<()> {
+            pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1, value: #container_ty) -> crate::low::Result<()> {
                 let value_sys = #value_as_sys_quote;
-                let status = crate::image_effect_v1::sys_helpers::properties::#fn_name_sys(suite, self.sys_handle(), #setter_value_quote);
-                status.map_err(crate::generic::low::Status::from)
+                let status = crate::sys_helpers::image_effect_v1::properties::#fn_name_sys(suite, self.sys_handle(), #setter_value_quote);
+                status.map_err(crate::low::Status::from)
             }
         }
     );
@@ -203,9 +203,9 @@ fn make_property_getter(
         InputContainerType::Single(_) => output.extend(
             quote! {
                 #docs
-                pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1) -> crate::generic::low::Result<#rust_ty> {
+                pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1) -> crate::low::Result<#rust_ty> {
                     let value_sys = crate::sys_helpers_properties_umbrella::#fn_name_sys(suite, self.sys_handle())
-                        .map_err(crate::generic::low::Status::from)?;
+                        .map_err(crate::low::Status::from)?;
                     Ok(#value_from_sys_quote)
                 }
             },
@@ -213,9 +213,9 @@ fn make_property_getter(
         InputContainerType::FixedArray(_, size) => output.extend(
             quote! {
                 #docs
-                pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1) -> crate::generic::low::Result<[#rust_ty; #size]> {
+                pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1) -> crate::low::Result<[#rust_ty; #size]> {
                     let value_sys = crate::sys_helpers_properties_umbrella::#fn_name_sys(suite, self.sys_handle())
-                        .map_err(crate::generic::low::Status::from)?;
+                        .map_err(crate::low::Status::from)?;
                     Ok(#value_from_sys_quote)
                 }
             },
@@ -230,11 +230,11 @@ fn make_property_getter(
             output.extend(
                 quote! {
                     #docs
-                    pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1) -> crate::generic::low::Result<::std::vec::Vec<#rust_ty>> {
+                    pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1) -> crate::low::Result<::std::vec::Vec<#rust_ty>> {
                         let dimensions = self.#fn_name_dimensions(suite)?;
                         let mut value_sys = ::std::vec![unsafe { ::std::mem::zeroed::<#sys_ty>() }; dimensions as usize];
                         crate::sys_helpers_properties_umbrella::#fn_name_sys(suite, self.sys_handle(), &mut value_sys)
-                            .map_err(crate::generic::low::Status::from)?;
+                            .map_err(crate::low::Status::from)?;
                         Ok(#value_from_sys_quote)
                     }
                 },
@@ -262,15 +262,15 @@ fn make_property_resetter(
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
             /// - `suite` must be a valid pointer to
             ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
-            pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1) -> crate::generic::low::Result<()> {
+            pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1) -> crate::low::Result<()> {
                 let status = unsafe {
-                    crate::generic::sys_helpers::properties::reset_property(
+                    crate::sys_helpers::generic::properties::reset_property(
                         suite,
                         self.sys_handle(),
                         crate::sys_umbrella::#property_name.as_ptr(),
                     )
                 };
-                status.map_err(crate::generic::low::Status::from)
+                status.map_err(crate::low::Status::from)
             }
         }
     );
@@ -295,15 +295,15 @@ fn make_property_dimensions_getter(
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
             /// - `suite` must be a valid pointer to
             ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
-            pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1) -> crate::generic::low::Result<::std::os::raw::c_int> {
+            pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1) -> crate::low::Result<::std::os::raw::c_int> {
                 let status = unsafe {
-                    crate::generic::sys_helpers::properties::get_property_dimension(
+                    crate::sys_helpers::generic::properties::get_property_dimension(
                         suite,
                         self.sys_handle(),
                         crate::sys_umbrella::#property_name.as_ptr(),
                     )
                 };
-                status.map_err(crate::generic::low::Status::from)
+                status.map_err(crate::low::Status::from)
             }
         }
     );
@@ -658,7 +658,7 @@ impl OpenFXTypeLow {
                 quote! { ::core::primitive::#f64 }
             }
             OpenFXTypeLow::Enum(ident, name) => {
-                quote_spanned! { ident.span() => crate::image_effect_v1::low::enums::#name }
+                quote_spanned! { ident.span() => crate::low::enums::#name }
             }
             OpenFXTypeLow::Bool(ident) => {
                 let bool = quote_spanned! { ident.span() => bool };
@@ -686,7 +686,7 @@ impl OpenFXTypeLow {
                 quote! { ::core::primitive::#f64 }
             }
             OpenFXTypeLow::Enum(ident, name) => {
-                quote_spanned! { ident.span() => crate::image_effect_v1::low::enums::#name }
+                quote_spanned! { ident.span() => crate::low::enums::#name }
             }
             OpenFXTypeLow::Bool(ident) => {
                 let bool = quote_spanned! { ident.span() => bool };
@@ -734,7 +734,7 @@ impl OpenFXTypeLow {
                 quote! { #sys_val }
             }
             OpenFXTypeLow::Enum(_, name) => {
-                quote! { unsafe { crate::image_effect_v1::low::enums::#name::from_ptr_null_checked(#sys_val) } }
+                quote! { unsafe { crate::low::enums::#name::from_ptr_null_checked(#sys_val) } }
             }
             OpenFXTypeLow::Bool(_) => {
                 quote! { #sys_val != 0 }

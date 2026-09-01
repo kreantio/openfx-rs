@@ -58,9 +58,7 @@ function genLowActionsPseudo(
     ];
 
     parts.push(
-      `pub type ${m} = fn(${
-        argParts.join(", ")
-      }) -> crate::generic::low::Result<()>;`,
+      `pub type ${m} = fn(${argParts.join(", ")}) -> crate::low::Result<()>;`,
     );
 
     parts.push("openfx_internal_macros::low_make_property_set_structs! {");

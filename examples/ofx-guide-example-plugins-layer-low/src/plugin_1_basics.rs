@@ -4,30 +4,27 @@ use std::{
 };
 
 use openfx::{
-    generic::{
-        low::Status,
-        sys::{
+    low::{Status, enums::ImageEffectPropContext},
+    low_plugin::{
+        Plugin,
+        actions::image_effect::{ActionDescribeInContextIn, ImageEffectAction},
+    },
+    sys::{
+        generic::{
             core::{
                 OfxHost, OfxPropertySetHandle, OfxPropertySetStruct, kOfxStatErrMissingHostFeature,
                 kOfxStatFailed, kOfxStatOK,
             },
             property::{OfxPropertySuiteV1, kOfxPropertySuite},
         },
-        sys_helpers::properties::{
-            get_OfxPropInstanceData, set_OfxPropInstanceData, set_OfxPropLabel,
-        },
-    },
-    image_effect_v1::{
-        low::enums::ImageEffectPropContext,
-        low_plugin::{
-            Plugin,
-            actions::image_effect::{ActionDescribeInContextIn, ImageEffectAction},
-        },
-        sys::image_effect::{
+        image_effect_v1::image_effect::{
             OfxImageEffectHandle, OfxImageEffectSuiteV1, kOfxImageComponentAlpha,
             kOfxImageComponentRGBA, kOfxImageEffectContextFilter, kOfxImageEffectSuite,
         },
-        sys_helpers::properties::{
+    },
+    sys_helpers::{
+        generic::properties::{get_OfxPropInstanceData, set_OfxPropInstanceData, set_OfxPropLabel},
+        image_effect_v1::properties::{
             set_OfxImageEffectPluginPropGrouping, set_OfxImageEffectPropSupportedComponents,
             set_OfxImageEffectPropSupportedContexts,
         },
@@ -95,7 +92,7 @@ impl Plugin for PluginExampleBasic {
         }
     }
 
-    fn main_entry(action: ImageEffectAction) -> openfx::generic::low::Result<()> {
+    fn main_entry(action: ImageEffectAction) -> openfx::low::Result<()> {
         match action {
             ImageEffectAction::Load { .. } => action_load(),
             ImageEffectAction::Unload { .. } => action_unload(),
@@ -119,7 +116,7 @@ impl Plugin for PluginExampleBasic {
     }
 }
 
-fn action_load() -> openfx::generic::low::Result<()> {
+fn action_load() -> openfx::low::Result<()> {
     let host_struct = HOST_STRUCT.get().ok_or(kOfxStatFailed)?.clone();
 
     let property_suite = unsafe {
@@ -161,7 +158,7 @@ fn action_load() -> openfx::generic::low::Result<()> {
     }
 }
 
-fn action_unload() -> openfx::generic::low::Result<()> {
+fn action_unload() -> openfx::low::Result<()> {
     let mut shared_data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
     if shared_data.take().is_none() {
         Err(Status::Failed)
@@ -170,7 +167,7 @@ fn action_unload() -> openfx::generic::low::Result<()> {
     }
 }
 
-fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::generic::low::Result<()> {
+fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> {
     let data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
     let data = data.as_ref().ok_or(kOfxStatFailed)?;
 
@@ -204,7 +201,7 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::generic::low::Re
 fn action_describe_in_context(
     descriptor: OfxImageEffectHandle,
     in_args: ActionDescribeInContextIn,
-) -> openfx::generic::low::Result<()> {
+) -> openfx::low::Result<()> {
     let data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
     let data = data.as_ref().ok_or(kOfxStatFailed)?;
 
@@ -256,7 +253,7 @@ fn action_describe_in_context(
     Ok(())
 }
 
-fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::generic::low::Result<()> {
+fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
     let data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
     let data = data.as_ref().ok_or(kOfxStatFailed)?;
 
@@ -282,7 +279,7 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::generic::lo
     Ok(())
 }
 
-fn action_destroy_instance(instance: OfxImageEffectHandle) -> openfx::generic::low::Result<()> {
+fn action_destroy_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
     let data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
     let data = data.as_ref().ok_or(kOfxStatFailed)?;
 
@@ -308,7 +305,7 @@ fn action_destroy_instance(instance: OfxImageEffectHandle) -> openfx::generic::l
     Ok(())
 }
 
-fn action_is_identity(out_args: OfxPropertySetHandle) -> openfx::generic::low::Result<()> {
+fn action_is_identity(out_args: OfxPropertySetHandle) -> openfx::low::Result<()> {
     let data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
     let data = data.as_ref().ok_or(kOfxStatFailed)?;
 

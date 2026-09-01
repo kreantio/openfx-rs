@@ -1,6 +1,6 @@
 use std::ffi::c_int;
 
-use openfx::generic::sys::core::OfxRectI;
+use openfx::sys::generic::core::OfxRectI;
 
 pub fn rect_i_from_array(arr: &[c_int; 4]) -> OfxRectI {
     OfxRectI {
