@@ -10,7 +10,7 @@ export function genLowEnums(
   },
 ): string {
   const parts: string[] = [
-    "openfx_internal_macros::sys_helpers_make_property_enums! {",
+    "openfx_internal_macros::low_make_property_enums! {",
   ];
   for (
     const [enumNameFull, variantKeyConstantSet] of Object

@@ -16,8 +16,8 @@ pub fn sys_helpers_make_property_accessors_by_types(tokens: TokenStream) -> Toke
 }
 
 #[proc_macro]
-pub fn sys_helpers_make_property_enums(tokens: TokenStream) -> TokenStream {
-    sys_helpers_macros::make_property_enums::make_property_enums(tokens)
+pub fn low_make_property_enums(tokens: TokenStream) -> TokenStream {
+    low_macros::make_property_enums::make_property_enums(tokens)
 }
 
 #[proc_macro]
