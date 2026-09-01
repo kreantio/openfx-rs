@@ -66,33 +66,35 @@ fn make_property_accessors(output: &mut proc_macro2::TokenStream, prop: &InputPr
             prop.canonical_name.clone()
         };
 
-        if let Some(set_ident) = &prop.accessors.write_set {
+        if let Some(write_ident) = &prop.accessors.write {
             make_property_setter(
                 output,
                 prop,
                 &ty,
                 &fn_name_suffix,
                 &fn_name_suffix_sys,
-                set_ident,
+                write_ident,
             );
         }
-        if let Some(get_ident) = &prop.accessors.read_get {
+        if let Some(read_ident) = &prop.accessors.read {
             make_property_getter(
                 output,
                 prop,
                 &ty,
                 &fn_name_suffix,
                 &fn_name_suffix_sys,
-                get_ident,
+                read_ident,
             );
         }
     }
 
-    if let Some(reset_ident) = &prop.accessors.write_reset {
-        make_property_resetter(output, prop, reset_ident);
+    if let Some(write_ident) = &prop.accessors.write {
+        make_property_resetter(output, prop, write_ident);
     }
-    if let Some(len_ident) = &prop.accessors.read_len {
-        make_property_dimensions_getter(output, prop, len_ident);
+    if let Some(read_ident) = &prop.accessors.read
+        && matches!(prop.ty, InputContainerType::Array(_))
+    {
+        make_property_dimensions_getter(output, prop, read_ident);
     }
 }
 
@@ -102,9 +104,9 @@ fn make_property_setter(
     ty: &OpenFXTypeLow,
     fn_name_suffix: &str,
     fn_name_suffix_sys: &syn::Ident,
-    set_ident: &syn::Ident,
+    write_ident: &syn::Ident,
 ) {
-    let fn_name = syn::Ident::new(&format!("set_{}", fn_name_suffix), set_ident.span());
+    let fn_name = syn::Ident::new(&format!("set_{}", fn_name_suffix), write_ident.span());
     let fn_name_sys = syn::Ident::new(
         &format!("set_{}", fn_name_suffix_sys),
         fn_name_suffix_sys.span(),
@@ -161,11 +163,11 @@ fn make_property_getter(
     ty: &OpenFXTypeLow,
     fn_name_suffix: &str,
     fn_name_suffix_sys: &syn::Ident,
-    get_ident: &syn::Ident,
+    read_ident: &syn::Ident,
 ) {
     let fn_name = syn::Ident::new(
         &format!("get_{}", fn_name_suffix.trim_start_matches("r#")),
-        get_ident.span(),
+        read_ident.span(),
     );
     let fn_name_sys = syn::Ident::new(
         &format!("get_{}", fn_name_suffix_sys),
@@ -220,8 +222,8 @@ fn make_property_getter(
         ),
         InputContainerType::Array(_) => {
             let fn_name_dimensions = syn::Ident::new(
-                &format!("get_dimensions_{}", prop.simple_name),
-                prop.simple_name.span(),
+                &format!("len_{}", prop.simple_name),
+                proc_macro2::Span::call_site(),
             );
             let sys_ty = ty.sys().rust_type_quote_for_getter();
 
@@ -244,9 +246,9 @@ fn make_property_getter(
 fn make_property_resetter(
     output: &mut proc_macro2::TokenStream,
     prop: &InputPropertyItem,
-    reset_ident: &syn::Ident,
+    write_ident: &syn::Ident,
 ) {
-    let fn_name = syn::Ident::new(&format!("reset_{}", prop.simple_name), reset_ident.span());
+    let fn_name = syn::Ident::new(&format!("reset_{}", prop.simple_name), write_ident.span());
     let property_name = syn::Ident::new(
         &format!("k{}", prop.canonical_name),
         prop.canonical_name.span(),
@@ -277,12 +279,9 @@ fn make_property_resetter(
 fn make_property_dimensions_getter(
     output: &mut proc_macro2::TokenStream,
     prop: &InputPropertyItem,
-    len_ident: &syn::Ident,
+    read_ident: &syn::Ident,
 ) {
-    let fn_name = syn::Ident::new(
-        &format!("get_dimensions_{}", prop.simple_name),
-        len_ident.span(),
-    );
+    let fn_name = syn::Ident::new(&format!("len_{}", prop.simple_name), read_ident.span());
     let property_name = syn::Ident::new(
         &format!("k{}", prop.canonical_name),
         prop.canonical_name.span(),
@@ -315,9 +314,9 @@ fn make_property_dimensions_getter(
 /// ```rust,ignore
 /// openfx_internal_macros::low_make_property_set_structs! {
 ///     CustomParamInterpFuncIn {
-///         custom_value(OfxParamPropCustomValue): [String; 2] { write(set,reset) read(get) };
-///         interpolation_amount(OfxParamPropInterpolationAmount): Double { read(get) };
-///         interpolation_time(OfxParamPropInterpolationTime): [Double; 2] { write(set, reset) read(get) };
+///         r/_ custom_value: [String; 2] @OfxParamPropCustomValue;
+///         r/_ interpolation_amount: Double @OfxParamPropInterpolationAmount;
+///         r/w interpolation_time: [Double; 2] @OfxParamPropInterpolationTime;
 ///     }
 /// }
 /// ```
@@ -325,22 +324,22 @@ fn make_property_dimensions_getter(
 /// ```rust,ignore
 /// openfx_internal_macros::low_make_property_set_structs! {
 ///     ClipInstance {
-///         r#type(OfxPropType): String { read(get) };
+///         r/_ r#type: String @OfxPropType;
 ///         // …
-///         supported_components(OfxImageEffectPropSupportedComponents): [Enum(_)] { read(get, len) };
-///         temporal_clip_access(OfxImageEffectPropTemporalClipAccess): Bool { read(get) };
+///         r/_ supported_components: [Enum(ImageEffectPropSupportedComponents)] @OfxImageEffectPropSupportedComponents;
+///         r/_ temporal_clip_access: Bool @OfxImageEffectPropTemporalClipAccess;
 ///     }
 ///     // …
 ///     EffectInstance {
-///         r#type(OfxPropType): String { read(get) };
-///         context(OfxImageEffectPropContext): Enum(_) { read(get) };
-///         instance_data(OfxPropInstanceData): Pointer { read(get) };
+///         r/_ r#type: String @OfxPropType;
+///         r/_ context: Enum(ImageEffectPropContext) @OfxImageEffectPropContext;
+///         r/_ instance_data: Pointer @OfxPropInstanceData;
 ///         // …
 ///     }
 ///     // …
 ///     ParamDouble1D {
 ///         // …
-///         default(OfxParamPropDefault): [(Int | Double | String | Pointer)] { write(set, reset) read(get, len) };
+///         r/_ default: [(Int | Double | String | Pointer)] @OfxParamPropDefault;
 ///         // …
 ///     }
 /// }
@@ -376,28 +375,25 @@ impl syn::parse::Parse for InputPropertySet {
 }
 
 struct InputPropertyItem {
-    simple_name: syn::Ident,
-    canonical_name: syn::Ident,
-    ty: InputContainerType,
     accessors: InputAccessorsFunctions,
+    simple_name: syn::Ident,
+    ty: InputContainerType,
+    canonical_name: syn::Ident,
 }
 
 impl syn::parse::Parse for InputPropertyItem {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let accessors: InputAccessorsFunctions = input.parse()?;
         let simple_name: syn::Ident = input.parse()?;
-        let content;
-        syn::parenthesized!(content in input);
-        let canonical_name: syn::Ident = content.parse()?;
         input.parse::<syn::Token![:]>()?;
         let ty: InputContainerType = input.parse()?;
-        let content;
-        syn::braced!(content in input);
-        let accessors: InputAccessorsFunctions = content.parse()?;
+        input.parse::<syn::Token![@]>()?;
+        let canonical_name: syn::Ident = input.parse()?;
         Ok(InputPropertyItem {
-            simple_name,
-            canonical_name,
-            ty,
             accessors,
+            simple_name,
+            ty,
+            canonical_name,
         })
     }
 }
@@ -594,89 +590,37 @@ impl Iterator for OpenFXTypeLowIterator {
 }
 
 struct InputAccessorsFunctions {
-    write_set: Option<syn::Ident>,
-    write_reset: Option<syn::Ident>,
-    read_get: Option<syn::Ident>,
-    read_len: Option<syn::Ident>,
+    read: Option<syn::Ident>,
+    write: Option<syn::Ident>,
 }
 
 impl syn::parse::Parse for InputAccessorsFunctions {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let mut write_set = None;
-        let mut write_reset = None;
-        let mut read_get = None;
-        let mut read_len = None;
-
-        fn try_set(slot: &mut Option<syn::Ident>, value: syn::Ident) -> syn::Result<()> {
-            if slot.is_some() {
-                return Err(syn::Error::new_spanned(
-                    value,
-                    "duplicate property accessor",
-                ));
+        let read = if input.peek(syn::Token![_]) {
+            input.parse::<syn::Token![_]>()?;
+            None
+        } else {
+            let marker: syn::Ident = input.parse()?;
+            match marker.to_string().as_str() {
+                "r" => Some(marker),
+                _ => return Err(syn::Error::new(marker.span(), "expected `r` or `_`")),
             }
-            *slot = Some(value);
-            Ok(())
-        }
+        };
 
-        while !input.is_empty() {
-            let accessor: syn::Ident = input.parse()?;
-            let content;
-            syn::parenthesized!(content in input);
+        input.parse::<syn::Token![/]>()?;
 
-            match accessor.to_string().as_str() {
-                "write" => {
-                    while !content.is_empty() {
-                        let function: syn::Ident = content.parse()?;
-                        match function.to_string().as_str() {
-                            "set" => try_set(&mut write_set, function)?,
-                            "reset" => try_set(&mut write_reset, function)?,
-                            _ => {
-                                return Err(syn::Error::new_spanned(
-                                    function,
-                                    "expected write accessor `set` or `reset`",
-                                ));
-                            }
-                        }
-
-                        if content.peek(syn::Token![,]) {
-                            content.parse::<syn::Token![,]>()?;
-                        }
-                    }
-                }
-                "read" => {
-                    while !content.is_empty() {
-                        let function: syn::Ident = content.parse()?;
-                        match function.to_string().as_str() {
-                            "get" => try_set(&mut read_get, function)?,
-                            "len" => try_set(&mut read_len, function)?,
-                            _ => {
-                                return Err(syn::Error::new_spanned(
-                                    function,
-                                    "expected read accessor `get` or `len`",
-                                ));
-                            }
-                        }
-
-                        if content.peek(syn::Token![,]) {
-                            content.parse::<syn::Token![,]>()?;
-                        }
-                    }
-                }
-                _ => {
-                    return Err(syn::Error::new_spanned(
-                        accessor,
-                        "expected property accessor group `write` or `read`",
-                    ));
-                }
+        let write = if input.peek(syn::Token![_]) {
+            input.parse::<syn::Token![_]>()?;
+            None
+        } else {
+            let marker: syn::Ident = input.parse()?;
+            match marker.to_string().as_str() {
+                "w" => Some(marker),
+                _ => return Err(syn::Error::new(marker.span(), "expected `w` or `_`")),
             }
-        }
+        };
 
-        Ok(Self {
-            write_set,
-            write_reset,
-            read_get,
-            read_len,
-        })
+        Ok(InputAccessorsFunctions { read, write })
     }
 }
 

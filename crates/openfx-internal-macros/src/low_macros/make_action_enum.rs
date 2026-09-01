@@ -154,29 +154,29 @@ fn make_from_sys_fn(enum_name: &syn::Ident, items: &[InputVariant]) -> proc_macr
 /// ```rust,ignore
 /// make_action_enum! {
 ///     pub ImageEffectAction {
-///         __ ___ core::Load,
-///         __ ___ core::Unload,
-///         __ ___ core::Describe,
-///         __ ___ core::CreateInstance,
-///         __ ___ core::DestroyInstance,
-///         in ___ core::BeginInstanceChanged,
-///         in ___ core::EndInstanceChanged,
-///         in ___ core::InstanceChanged,
-///         __ ___ core::PurgeCaches,
-///         __ ___ core::SyncPrivateData,
-///         __ ___ core::BeginInstanceEdit,
-///         __ ___ core::EndInstanceEdit,
-///         in ___ BeginSequenceRender,
-///         in ___ DescribeInContext,
-///         in ___ EndSequenceRender,
-///         __ out GetClipPreferences,
-///         in out GetFramesNeeded,
-///         in out GetOutputColourspace,
-///         in out GetRegionOfDefinition,
-///         in ___ GetRegionsOfInterest,
-///         __ out GetTimeDomain,
-///         in ___ IsIdentity,
-///         in ___ Render,
+///         _/_ core::Load,
+///         _/_ core::Unload,
+///         _/_ core::Describe,
+///         _/_ core::CreateInstance,
+///         _/_ core::DestroyInstance,
+///         i/_ core::BeginInstanceChanged,
+///         i/_ core::EndInstanceChanged,
+///         i/_ core::InstanceChanged,
+///         _/_ core::PurgeCaches,
+///         _/_ core::SyncPrivateData,
+///         _/_ core::BeginInstanceEdit,
+///         _/_ core::EndInstanceEdit,
+///         i/_ BeginSequenceRender,
+///         i/_ DescribeInContext,
+///         i/_ EndSequenceRender,
+///         _/o GetClipPreferences,
+///         i/o GetFramesNeeded,
+///         i/o GetOutputColourspace,
+///         i/o GetRegionOfDefinition,
+///         i/_ GetRegionsOfInterest,
+///         _/o GetTimeDomain,
+///         i/_ IsIdentity,
+///         i/_ Render,
 ///     }
 /// }
 /// ```
@@ -208,23 +208,29 @@ struct InputVariant {
 
 impl syn::parse::Parse for InputVariant {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let mut in_args = None;
-        let mut out_args = None;
-
-        for _ in 0..2 {
-            let marker: syn::Ident = input.call(syn::ext::IdentExt::parse_any)?;
+        let in_args = if input.peek(syn::Token![_]) {
+            input.parse::<syn::Token![_]>()?;
+            None
+        } else {
+            let marker: syn::Ident = input.parse()?;
             match marker.to_string().as_str() {
-                "in" => in_args = Some(syn::Ident::new("in_args", marker.span())),
-                "out" => out_args = Some(syn::Ident::new("out_args", marker.span())),
-                "__" | "___" => {}
-                _ => {
-                    return Err(syn::Error::new(
-                        marker.span(),
-                        "expected `in`, `out`, `__`, or `___`",
-                    ));
-                }
+                "i" => Some(syn::Ident::new("in_args", marker.span())),
+                _ => return Err(syn::Error::new(marker.span(), "expected `i` or `_`")),
             }
-        }
+        };
+
+        input.parse::<syn::Token![/]>()?;
+
+        let out_args = if input.peek(syn::Token![_]) {
+            input.parse::<syn::Token![_]>()?;
+            None
+        } else {
+            let marker: syn::Ident = input.parse()?;
+            match marker.to_string().as_str() {
+                "o" => Some(syn::Ident::new("out_args", marker.span())),
+                _ => return Err(syn::Error::new(marker.span(), "expected `o` or `_`")),
+            }
+        };
 
         let from_core: Option<syn::Ident>;
         let name: syn::Ident;
