@@ -6,7 +6,7 @@ import {
 } from "../parsers/parser-ofxPropsBySet/types.ts";
 import { NameRegulator } from "../utils/name-regulator.ts";
 import { CodegenConfig } from "../definitions.ts";
-import { genPropertySetImplItem } from "./gen-low-property-sets.ts";
+import { genPropertySetPropertyItem } from "./gen-low-property-sets.ts";
 import { pascalCase } from "es-toolkit/string";
 
 export function genLowActions(
@@ -104,11 +104,13 @@ function genLowActionsCore(
 ) {
   const membersRegex = new RegExp(opts.cfg.actions.core.members_regex);
 
-  const parts: string[] = ["pub mod core {"];
+  const parts: string[] = [
+    "pub mod core {",
+    "openfx_internal_macros::low_make_property_set_structs! {",
+  ];
 
   const actions = extractActions([...frS.infos.actions], membersRegex, opts);
 
-  parts.push("openfx_internal_macros::low_make_property_set_structs! {");
   for (const action of actions) {
     if (opts.seenActions.has(action.canonicalName)) {
       throw new Error(
@@ -258,7 +260,7 @@ function genLowPropertySetStructForArguments(
   const parts: string[] = [`    ${name} {`];
 
   for (const arg of args) {
-    parts.push(genPropertySetImplItem(frM, {
+    parts.push(genPropertySetPropertyItem(frM, {
       ...arg,
       readable: inout === "in",
       writable: inout === "out",

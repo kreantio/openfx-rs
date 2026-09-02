@@ -6,13 +6,13 @@ pub mod pseudo {
     ) -> crate::low::Result<()>;
     openfx_internal_macros::low_make_property_set_structs! {
         CustomParamInterpFuncIn {
-            r/_ custom_value: [String; 2] @OfxParamPropCustomValue;
-            r/_ interpolation_amount: Double @OfxParamPropInterpolationAmount;
-            r/_ interpolation_time: [Double; 2] @OfxParamPropInterpolationTime;
+            r/_ param_custom_value: [String; 2] @OfxParamPropCustomValue;
+            r/_ param_interpolation_amount: Double @OfxParamPropInterpolationAmount;
+            r/_ param_interpolation_time: [Double; 2] @OfxParamPropInterpolationTime;
         }
         CustomParamInterpFuncOut {
-            _/w custom_value: [String; 2] @OfxParamPropCustomValue;
-            _/w interpolation_time: [Double; 2] @OfxParamPropInterpolationTime;
+            _/w param_custom_value: [String; 2] @OfxParamPropCustomValue;
+            _/w param_interpolation_time: [Double; 2] @OfxParamPropInterpolationTime;
         }
     }
 }
@@ -116,8 +116,8 @@ pub mod image_effect {
             r/_ is_interactive: Bool @OfxPropIsInteractive;
         }
         ActionGetClipPreferencesOut {
-            _/w continuous_samples: Bool @OfxImageClipPropContinuousSamples;
-            _/w field_order: Enum(ImageClipPropFieldOrder) @OfxImageClipPropFieldOrder;
+            _/w image_clip_continuous_samples: Bool @OfxImageClipPropContinuousSamples;
+            _/w image_clip_field_order: Enum(ImageClipPropFieldOrder) @OfxImageClipPropFieldOrder;
             _/w frame_varying: Bool @OfxImageEffectFrameVarying;
             _/w frame_rate: Double @OfxImageEffectPropFrameRate;
             _/w pre_multiplication: Enum(ImageEffectPropPreMultiplication) @OfxImageEffectPropPreMultiplication;
@@ -130,10 +130,10 @@ pub mod image_effect {
             _/w frame_range: [Double; 2] @OfxImageEffectPropFrameRange;
         }
         ActionGetOutputColourspaceIn {
-            r/_ preferred_colourspaces: [String] @OfxImageClipPropPreferredColourspaces;
+            r/_ image_clip_preferred_colourspaces: [String] @OfxImageClipPropPreferredColourspaces;
         }
         ActionGetOutputColourspaceOut {
-            _/w colourspace: String @OfxImageClipPropColourspace;
+            _/w image_clip_colourspace: String @OfxImageClipPropColourspace;
         }
         ActionGetRegionOfDefinitionIn {
             r/_ render_scale: [Double; 2] @OfxImageEffectPropRenderScale;

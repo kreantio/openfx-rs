@@ -9,6 +9,13 @@ pub mod actions {
     ));
 }
 
+pub mod property_sets {
+    include!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/generated/code_from_cpp/low_property_sets_plugin.rs",
+    ));
+}
+
 pub trait Plugin {
     const PLUGIN_IDENTIFIER: &'static CStr;
     const PLUGIN_VERSION_MAJOR: c_uint;

@@ -1,7 +1,9 @@
 [property_names]
-simple_names_regex = "^Ofx.*?Prop(.+)$"
+simple_names_regex = "^Ofx(?:ImageEffect|Interact)?(.*?)(?:Prop)(.+)$"
 [property_names.simple_names_special_cases]
 OfxImageEffectFrameVarying = "FrameVarying"
+
+OfxImageEffectPluginRenderThreadSafety = "PluginRenderThreadSafety"
 
 [actions.pseudo]
 members = ["CustomParamInterpFunc"]

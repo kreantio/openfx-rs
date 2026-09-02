@@ -52,9 +52,16 @@ fn make_property_accessors(output: &mut proc_macro2::TokenStream, prop: &InputPr
     for ty in prop.ty.possible_types().iter() {
         let sys_ty = ty.sys();
         let fn_name_suffix = if is_ambiguous {
-            format!("{}_{}", prop.simple_name, sys_ty)
+            format!(
+                "{}_{}",
+                prop.simple_name.to_string().trim_start_matches("r#"),
+                sys_ty.to_string().to_lowercase()
+            )
         } else {
-            prop.simple_name.to_string()
+            prop.simple_name
+                .to_string()
+                .trim_start_matches("r#")
+                .to_owned()
         };
         let fn_name_suffix_sys = if is_ambiguous {
             // format!("{}_{}", prop.canonical_name, sys_ty)
@@ -132,7 +139,7 @@ fn make_property_setter(
             quote! { value_sys },
         ),
         InputContainerType::Array(_) if ty.is_as_sys_identity() => {
-            (quote! { value }, quote! { value_sys.as_ptr() })
+            (quote! { value }, quote! { value_sys })
         }
         InputContainerType::Array(_) => (
             quote! { value.iter().map(|value| #as_sys_quote).collect::<Vec<_>>() },
@@ -150,7 +157,7 @@ fn make_property_setter(
             ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
             pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1, value: #container_ty) -> crate::low::Result<()> {
                 let value_sys = #value_as_sys_quote;
-                let status = crate::sys_helpers::image_effect_v1::properties::#fn_name_sys(suite, self.sys_handle(), #setter_value_quote);
+                let status = crate::sys_helpers_properties_umbrella::#fn_name_sys(suite, self.sys_handle(), #setter_value_quote);
                 status.map_err(crate::low::Status::from)
             }
         }
@@ -165,10 +172,7 @@ fn make_property_getter(
     fn_name_suffix_sys: &syn::Ident,
     read_ident: &syn::Ident,
 ) {
-    let fn_name = syn::Ident::new(
-        &format!("get_{}", fn_name_suffix.trim_start_matches("r#")),
-        read_ident.span(),
-    );
+    let fn_name = syn::Ident::new(&format!("get_{}", fn_name_suffix), read_ident.span());
     let fn_name_sys = syn::Ident::new(
         &format!("get_{}", fn_name_suffix_sys),
         fn_name_suffix_sys.span(),
@@ -248,7 +252,13 @@ fn make_property_resetter(
     prop: &InputPropertyItem,
     write_ident: &syn::Ident,
 ) {
-    let fn_name = syn::Ident::new(&format!("reset_{}", prop.simple_name), write_ident.span());
+    let fn_name = syn::Ident::new(
+        &format!(
+            "reset_{}",
+            prop.simple_name.to_string().trim_start_matches("r#")
+        ),
+        write_ident.span(),
+    );
     let property_name = syn::Ident::new(
         &format!("k{}", prop.canonical_name),
         prop.canonical_name.span(),
@@ -281,7 +291,13 @@ fn make_property_dimensions_getter(
     prop: &InputPropertyItem,
     read_ident: &syn::Ident,
 ) {
-    let fn_name = syn::Ident::new(&format!("len_{}", prop.simple_name), read_ident.span());
+    let fn_name = syn::Ident::new(
+        &format!(
+            "len_{}",
+            prop.simple_name.to_string().trim_start_matches("r#")
+        ),
+        read_ident.span(),
+    );
     let property_name = syn::Ident::new(
         &format!("k{}", prop.canonical_name),
         prop.canonical_name.span(),
@@ -640,10 +656,10 @@ impl OpenFXTypeLow {
                 OpenFXTypeSys::Int(ident.clone())
             }
             OpenFXTypeLow::Double(ident) => OpenFXTypeSys::Double(ident.clone()),
-            OpenFXTypeLow::String(ident) => OpenFXTypeSys::String(ident.clone()),
-            OpenFXTypeLow::Pointer(ident) | OpenFXTypeLow::Enum(ident, _) => {
-                OpenFXTypeSys::Pointer(ident.clone())
+            OpenFXTypeLow::String(ident) | OpenFXTypeLow::Enum(ident, _) => {
+                OpenFXTypeSys::String(ident.clone())
             }
+            OpenFXTypeLow::Pointer(ident) => OpenFXTypeSys::Pointer(ident.clone()),
         }
     }
 
@@ -705,8 +721,11 @@ impl OpenFXTypeLow {
 
     fn as_sys_quote(&self, low_val: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
         match self {
-            OpenFXTypeLow::Int(_) | OpenFXTypeLow::Double(_) | OpenFXTypeLow::Pointer(_) => {
+            OpenFXTypeLow::Int(_) | OpenFXTypeLow::Double(_) => {
                 quote! { #low_val }
+            }
+            OpenFXTypeLow::Pointer(_) => {
+                quote! { #low_val.map_or(::std::ptr::null_mut(), ::std::ptr::NonNull::as_ptr) }
             }
             OpenFXTypeLow::Bool(_) => {
                 quote! { #low_val as ::std::os::raw::c_int }
@@ -722,8 +741,11 @@ impl OpenFXTypeLow {
 
     fn is_as_sys_identity(&self) -> bool {
         match self {
-            OpenFXTypeLow::Int(_) | OpenFXTypeLow::Double(_) | OpenFXTypeLow::Pointer(_) => true,
-            OpenFXTypeLow::Bool(_) | OpenFXTypeLow::Enum(_, _) | OpenFXTypeLow::String(_) => false,
+            OpenFXTypeLow::Int(_) | OpenFXTypeLow::Double(_) => true,
+            OpenFXTypeLow::Bool(_)
+            | OpenFXTypeLow::Enum(_, _)
+            | OpenFXTypeLow::String(_)
+            | OpenFXTypeLow::Pointer(_) => false,
         }
     }
 
