@@ -18,6 +18,7 @@ import { genLowEnums } from "../src/generators/gen-low-enums.ts";
 import { genSysHelpersPropertyAccessors } from "../src/generators/gen-sys-helpers-property-accessors.ts";
 import { NameRegulator } from "../src/utils/name-regulator.ts";
 import { genLowActions } from "../src/generators/gen-low-actions.ts";
+import { genLowPropertySets } from "../src/generators/gen-low-property-sets.ts";
 
 function doParseArgs(args: string[]) {
   const result = parseArgs(args, {
@@ -110,6 +111,17 @@ async function main(args: Args) {
     path.join(args["output-code-from-cpp"], "low_actions_plugin.rs"),
     new TextEncoder().encode(
       genLowActions(propsMetadata, propsBySet, {
+        cfg: codegenConfig,
+        nameRegulator,
+        isForPlugin: true,
+      }),
+    ),
+  );
+
+  await Deno.writeFile(
+    path.join(args["output-code-from-cpp"], "low_property_sets_plugin.rs"),
+    new TextEncoder().encode(
+      genLowPropertySets(propsMetadata, propsBySet, {
         cfg: codegenConfig,
         nameRegulator,
         isForPlugin: true,

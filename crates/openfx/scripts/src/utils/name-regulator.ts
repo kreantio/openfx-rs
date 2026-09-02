@@ -131,6 +131,6 @@ export class NameRegulator {
         `Property name does not match regex. name=\`${name}\` regex=\`${this.#propertyCanonicalNameToSimpleNameRegex}\``,
       );
     }
-    return m[1];
+    return m.slice(1).join("");
   }
 }
