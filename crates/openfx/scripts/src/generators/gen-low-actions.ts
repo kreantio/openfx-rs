@@ -255,7 +255,7 @@ function genLowPropertySetStructForArguments(
       keyConstant,
       name: opts.nameRegulator.keyConstantToCanonicalName(keyConstant),
     }))
-    .toSorted((a, b) => a.name.localeCompare(b.name));
+    .toSorted((a, b) => a.name.localeCompare(b.name, "en"));
 
   const parts: string[] = [`    ${name} {`];
 
