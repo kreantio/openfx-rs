@@ -2,6 +2,7 @@
 name = "openfx-internal-macros"
 version.workspace = true
 edition = "2024"
+description = "Internal macros for the crate openfx. No compatibility guarantees."
 license.workspace = true
 repository.workspace = true
 
