@@ -1,5 +1,17 @@
 # crate `openfx`
 
+> [!CAUTION]
+>
+> This crate is in the early stages of development:
+>
+> - Its API is expected to change significantly.
+> - At present, only `openfx::{sys, sys_helpers}` is fully implemented.
+>   `openfx::{low, low_plugin}` is still under development, and the remaining
+>   layers have not yet been implemented.
+>
+> Although `openfx::{low, low_plugin}` already provides some functionality, it
+> is not currently recommended for use.
+
 This crate provides bindings for the OpenFX API in 3 abstraction layers:
 
 - layer `sys` (`openfx::*::sys`): raw low-level bindings generated from the
