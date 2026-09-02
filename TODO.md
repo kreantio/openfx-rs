@@ -21,6 +21,7 @@
   - [x] layer `sys`
   - [ ] layer `low`: WIP
   - [ ] layer `high`
+- [ ] a simple OpenGL plugin (using `glow`)
 - [ ] a port of [`learn-wgpu`] (Metal on macOS in supported hosts?)
 - [ ] a simple host that supports OpenGL rendering (using `glow`?)
 - [ ] [`ntsc-rs`] + layer `high`
