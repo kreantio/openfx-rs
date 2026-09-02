@@ -16,9 +16,9 @@ repository = "https://github.com/kreantio/openfx-rs"
 [workspace.lints]
 
 [workspace.dependencies]
-openfx = { path = "crates/openfx" }
-openfx-bindgen = { path = "crates/openfx-bindgen" }
-openfx-internal-macros = { path = "crates/openfx-internal-macros" }
+openfx = { path = "crates/openfx", version = "0.3.0" }
+openfx-bindgen = { path = "crates/openfx-bindgen", version = "0.3.0" }
+openfx-internal-macros = { path = "crates/openfx-internal-macros", version = "0.3.0" }
 
 bindgen = "0.72.1"
 clap = "4.6.6"
