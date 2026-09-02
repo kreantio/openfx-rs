@@ -1,17 +1,25 @@
 # Instructions for the Parser for `ofxPropsMetadata.h`
 
-## Instructions for update 1
+## Instructions for update 2
 
-Update the parser so that `prop_type_array` supports multiple types.
+Executed by
+`Ox Alpha Free (harness: Hermes, provider: OpenCode Go, effort: Med)`.
 
-Refer to:
-`git diff crates/openfx/scripts/src/parsers/parser-ofxPropsMetadata/types.ts`.
+These instructions apply to both:
 
-For example, `finalResult.propertyInfos["OfxParamPropDefault"].type` must equal
-`new Set(["Int", "Double", "String", "Pointer"])`.
+- `crates/openfx/scripts/src/parsers/parser-ofxPropsMetadata`, and
+- `crates/openfx/scripts/src/parsers/parser-ofxPropsBySet`.
 
-If a property's value can have an enum type, it must not have any other type.
-Throw an error if this condition is encountered.
+Incorporate the changes from:
+
+- `crates/openfx/scripts/src/parsers/parser-ofxPropsMetadata/types.ts` and
+- `crates/openfx/scripts/src/parsers/parser-ofxPropsBySet/types.ts`.
+
+The changes are unstaged. Use `git diff` to inspect them.
+
+As usual, only write code in `*-by-llms` folders, unless an issue in a
+`types.ts` file makes the goal impossible to achieve. In that case, you may edit
+the relevant `types.ts` file.
 
 ## History
 
@@ -31,3 +39,18 @@ Executed by `GLM 5.3 (harness: Hermes, provider: OpenCode Go, effort: Med)`.
    structural changes in the header file. This strictness applies to parsing,
    not to the implementation: keep the parser easy to adapt to future changes.
 5. Acceptance criterion: `just test`, run in this folder, must pass all tests.
+
+### Instructions for update 1
+
+Executed by `GLM 5.3 (harness: Hermes, provider: OpenCode Go, effort: Med)`.
+
+Update the parser so that `prop_type_array` supports multiple types.
+
+Refer to:
+`git diff crates/openfx/scripts/src/parsers/parser-ofxPropsMetadata/types.ts`.
+
+For example, `finalResult.propertyInfos["OfxParamPropDefault"].type` must equal
+`new Set(["Int", "Double", "String", "Pointer"])`.
+
+If a property's value can have an enum type, it must not have any other type.
+Throw an error if this condition is encountered.

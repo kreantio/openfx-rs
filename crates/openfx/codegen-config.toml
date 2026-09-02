@@ -1,36 +1,45 @@
-# A property's macro name is normally derived from its constant key by adding
-# the "k" prefix. Some property macro names, however, do not follow this
-# convention. This mapping allows code generation to reconcile those macro
-# names with their corresponding constant keys.
-#
-# See: https://github.com/AcademySoftwareFoundation/openfx/commit/66f66d98e9d9c7f661dbb5ecc6f60ff6b7cae97d
-#
-# FORMAT: <PROPERTY_CONSTANT_KEY> = "<PROPERTY_MACRO_NAME_K_STRIPPED>"
-[property_value_to_key_exceptions]
-OfxFieldNone = "OfxImageFieldNone"
-OfxFieldLower = "OfxImageFieldLower"
-OfxFieldUpper = "OfxImageFieldUpper"
-OfxFieldBoth = "OfxImageFieldBoth"
-OfxFieldSingle = "OfxImageFieldSingle"
-OfxFieldDoubled = "OfxImageFieldDoubled"
+[property_names]
+simple_names_regex = "^Ofx.*?Prop(.+)$"
+[property_names.simple_names_special_cases]
+OfxImageEffectFrameVarying = "FrameVarying"
 
-kOfxImageEffectHostPropNativeOriginBottomLeft = "OfxHostNativeOriginBottomLeft"
-kOfxImageEffectHostPropNativeOriginTopLeft = "OfxHostNativeOriginTopLeft"
-kOfxImageEffectHostPropNativeOriginCenter = "OfxHostNativeOriginCenter"
+[actions.pseudo]
+members = ["CustomParamInterpFunc"]
 
-OfxImageEffectPropColourManagementNone = "OfxImageEffectColourManagementNone"
-OfxImageEffectPropColourManagementBasic = "OfxImageEffectColourManagementBasic"
-OfxImageEffectPropColourManagementCore = "OfxImageEffectColourManagementCore"
-OfxImageEffectPropColourManagementFull = "OfxImageEffectColourManagementFull"
-OfxImageEffectPropColourManagementOCIO = "OfxImageEffectColourManagementOCIO"
+[actions.core]
+members_regex = "^OfxAction(.+)$"
 
-OfxImageAlphaPremultiplied = "OfxImagePreMultiplied"
-OfxImageAlphaUnPremultiplied = "OfxImageUnPreMultiplied"
+[actions.image_effect]
+members_regex = "^OfxImageEffectAction(.+)$"
+# based on: https://openfx.readthedocs.io/en/main/Reference/ofxImageEffectActions.html
+# TODO: parse `ofxImageEffectActions.rst`?
+members_from_core = [
+  "OfxActionLoad",
+  "OfxActionUnload",
+  "OfxActionDescribe",
+  "OfxActionCreateInstance",
+  "OfxActionDestroyInstance",
+  "OfxActionBeginInstanceChanged",
+  "OfxActionEndInstanceChanged",
+  "OfxActionInstanceChanged",
+  "OfxActionPurgeCaches",
+  "OfxActionSyncPrivateData",
+  "OfxActionBeginInstanceEdit",
+  "OfxActionEndInstanceEdit",
+]
 
-OfxImageEffectPropMultipleClipDepths = "OfxImageEffectPropSupportsMultipleClipDepths"
-OfxImageEffectPropPixelAspectRatio = "OfxImageEffectPropProjectPixelAspectRatio"
-OfxInteractPropViewport = "OfxInteractPropViewportSize"
-OfxParamPropCustomCallbackV1 = "OfxParamPropCustomInterpCallbackV1"
-kOfxParamPropUseHostOverlayHandle = "OfxParamPropUseHostOverlayHandle"
-kOfxPropKeyString = "OfxPropKeyString"
-kOfxPropKeySym = "OfxPropKeySym"
+[actions.interact]
+members_regex = "^OfxInteractAction(.+)$"
+# based on: https://openfx.readthedocs.io/en/main/Reference/ofxInteractActions.html
+# TODO: parse `ofxInteractActions.rst`?
+members_from_core = [
+  # TODO: use the follwing:
+  # ```
+  # { name = "OfxActionDescribe", key = "kOfxActionDescribeInteract" },
+  # { name = "OfxActionCreateInstance", key = "kOfxActionCreateInstanceInteract" },
+  # { name = "OfxActionDestroyInstance", key = "kOfxActionDestroyInstanceInteract" },
+  # ```
+  "OfxActionDescribe",
+  "OfxActionCreateInstance",
+  "OfxActionDestroyInstance",
+]

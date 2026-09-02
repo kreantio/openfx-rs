@@ -1,26 +1,11 @@
 # OpenFX bindings and tools for Rust
 
+See Also:
+
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
+- [TODO.md](./TODO.md)
+
 ## Prerequisites
-
-### Building plugins with the crate `openfx`
-
-The crate `openfx` itself is dependency-free, but OpenFX plugins require to be
-packed in a specific way. Therefore, you need to do some additional work after
-the binary is built. See: [OpenFX reference / Packaging OFX Plug-ins]. You can
-also have a look at
-[some of the scripts I use for bundling the example plugins].
-
-[OpenFX reference / Packaging OFX Plug-ins]: https://openfx.readthedocs.io/en/latest/Reference/ofxPackaging.html
-[some of the scripts I use for bundling the example plugins]: examples/ofx-guide-example-plugins-layer-sys/scripts/bundle.ts
-
-Please don't forget that the `Cargo.toml` of your plugin crates should contain:
-
-```toml
-[lib]
-crate-type = ["cdylib"]
-```
-
-### Development
 
 The following tools are required:
 
@@ -35,6 +20,8 @@ The following tools are required:
 [`deno`]: https://deno.com/
 [`clang++`]: https://clang.llvm.org/
 
-## crate [`openfx`](./crates/openfx/)
+## crate `openfx`
+
+[README.md](./crates/openfx/README.md)
 
 Bindings for the OpenFX API in different abstraction layers.

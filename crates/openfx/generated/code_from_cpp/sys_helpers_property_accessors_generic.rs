@@ -1,28 +1,6 @@
-make_property_setter_for_type!(pub set_doubles, ..., Double);
-make_property_getter_for_type!(pub get_doubles, ..., Double);
-make_property_setter_for_type!(pub set_double, 1, Double);
-make_property_getter_for_type!(pub get_double, 1, Double);
-make_property_setter_for_type!(pub(crate) set_doubles_2, 2, Double);
-make_property_getter_for_type!(pub(crate) get_doubles_2, 2, Double);
-make_property_setter_for_type!(pub(crate) set_doubles_3, 3, Double);
-make_property_getter_for_type!(pub(crate) get_doubles_3, 3, Double);
-make_property_setter_for_type!(pub(crate) set_doubles_4, 4, Double);
-make_property_getter_for_type!(pub(crate) get_doubles_4, 4, Double);
-make_property_setter_for_type!(pub set_ints, ..., Int);
-make_property_getter_for_type!(pub get_ints, ..., Int);
-make_property_setter_for_type!(pub set_int, 1, Int);
-make_property_getter_for_type!(pub get_int, 1, Int);
-make_property_setter_for_type!(pub(crate) set_ints_2, 2, Int);
-make_property_getter_for_type!(pub(crate) get_ints_2, 2, Int);
-make_property_setter_for_type!(pub(crate) set_ints_4, 4, Int);
-make_property_getter_for_type!(pub(crate) get_ints_4, 4, Int);
-make_property_setter_for_type!(pub set_pointers, ..., Pointer);
-make_property_getter_for_type!(pub get_pointers, ..., Pointer);
-make_property_setter_for_type!(pub set_pointer, 1, Pointer);
-make_property_getter_for_type!(pub get_pointer, 1, Pointer);
-make_property_setter_for_type!(pub set_strings, ..., String);
-make_property_getter_for_type!(pub get_strings, ..., String);
-make_property_setter_for_type!(pub set_string, 1, String);
-make_property_getter_for_type!(pub get_string, 1, String);
-make_property_setter_for_type!(pub(crate) set_strings_2, 2, String);
-make_property_getter_for_type!(pub(crate) get_strings_2, 2, String);
+openfx_internal_macros::sys_helpers_make_property_accessors_by_types! {
+    Double: ... pub { set get }, 1 pub { set get }, (2|3|4) pub(crate) { set get };
+    Int: ... pub { set get }, 1 pub { set get }, (2|4) pub(crate) { set get };
+    Pointer: ... pub { set get }, 1 pub { set get };
+    String: ... pub { set get }, 1 pub { set get }, 2 pub(crate) { set get };
+}

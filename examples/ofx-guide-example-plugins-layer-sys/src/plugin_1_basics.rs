@@ -4,8 +4,8 @@ use std::{
 };
 
 use openfx::{
-    generic::{
-        sys::{
+    sys::{
+        generic::{
             core::{
                 OfxHost, OfxPropertySetHandle, OfxPropertySetStruct, OfxStatus,
                 kOfxActionCreateInstance, kOfxActionDescribe, kOfxActionDestroyInstance,
@@ -14,17 +14,15 @@ use openfx::{
             },
             property::{OfxPropertySuiteV1, kOfxPropertySuite},
         },
-        sys_helpers::properties::{
-            get_OfxPropInstanceData, set_OfxPropInstanceData, set_OfxPropLabel,
-        },
-    },
-    image_effect_v1::{
-        sys::image_effect::{
+        image_effect_v1::image_effect::{
             OfxImageEffectHandle, OfxImageEffectSuiteV1, kOfxImageComponentAlpha,
             kOfxImageComponentRGBA, kOfxImageEffectActionDescribeInContext,
             kOfxImageEffectActionIsIdentity, kOfxImageEffectContextFilter, kOfxImageEffectSuite,
         },
-        sys_helpers::{
+    },
+    sys_helpers::{
+        generic::properties::{get_OfxPropInstanceData, set_OfxPropInstanceData, set_OfxPropLabel},
+        image_effect_v1::{
             Plugin,
             properties::{
                 get_OfxImageEffectPropContext, set_OfxImageEffectPluginPropGrouping,

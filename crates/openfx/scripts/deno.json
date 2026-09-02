@@ -4,6 +4,7 @@
     "@std/cli": "jsr:@std/cli@^1.0.32",
     "@zod/zod": "jsr:@zod/zod@^4.4.3",
     "chevrotain": "npm:chevrotain@^13.2.0",
+    "es-toolkit": "npm:es-toolkit@^1.51.0",
     "toml": "npm:toml@^5.0.0"
   },
   "tasks": {
