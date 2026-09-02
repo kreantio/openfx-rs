@@ -1,7 +1,8 @@
 vendor-c-path := "vendor/openfx/include"
+generated-path := "generated"
 generated-c-bindings-path := "generated/c_bindings"
 generated-code-from-c-path := "generated/code_from_c"
-generated-data-from-c-path := "generated/code_from_c/data"
+generated-intermediate-path := "generated-intermediate"
 vendor-cpp-path := "vendor/openfx/openfx-cpp/include/openfx"
 generated-code-from-cpp-path := "generated/code_from_cpp"
 codegen-config-path := "codegen-config.toml"
@@ -13,24 +14,25 @@ generate:
     just generate-code-from-cpp
 
 generate-c-bindings:
-    rm -rf "{{ generated-c-bindings-path }}"
-    mkdir -p "{{ generated-c-bindings-path }}"
+    rm -rf "{{ generated-path }}" "{{ generated-intermediate-path }}"
+    mkdir -p "{{ generated-c-bindings-path }}" "{{ generated-code-from-c-path }}" "{{ generated-intermediate-path }}"
     cargo run --release --package openfx-bindgen --bin openfx-bindgen -- \
       --input-c-headers "{{ vendor-c-path }}" \
       --output-c-bindings "{{ generated-c-bindings-path }}" \
-      --output-code-from-c "{{ generated-code-from-c-path }}"
+      --output-code-from-c "{{ generated-code-from-c-path }}" \
+      --output-intermediate "{{ generated-intermediate-path }}"
 
 generate-code-from-cpp:
     rm -rf "{{ generated-code-from-cpp-path }}"
     mkdir -p "{{ generated-code-from-cpp-path }}"
     deno run --allow-read="{{ vendor-cpp-path }}" \
       --allow-read="{{ codegen-config-path }}" \
-      --allow-read="{{ generated-data-from-c-path }}" \
+      --allow-read="{{ generated-intermediate-path }}" \
       --allow-write="{{ generated-code-from-cpp-path }}" \
       scripts/bin/generate-code-from-cpp.ts \
       --codegen-config="{{ codegen-config-path }}" \
       --input-cpp-headers="{{ vendor-cpp-path }}" \
-      --input-data-from-c="{{ generated-data-from-c-path }}" \
+      --input-intermediate="{{ generated-intermediate-path }}" \
       --output-code-from-cpp="{{ generated-code-from-cpp-path }}"
     find "{{ generated-code-from-cpp-path }}" -name "*.rs" | xargs rustfmt
 

@@ -8,17 +8,23 @@ import {
   makeFinalResult as makeFinalResultOfxPropsMetadata,
   parse as parseOfxPropsMetadata,
 } from "../src/parsers/parser-ofxPropsMetadata/impl-by-llms/mod.ts";
+import {
+  makeFinalResult as makeFinalResultOfxPropsBySet,
+  parse as parseOfxPropsBySet,
+} from "../src/parsers/parser-ofxPropsBySet/impl-by-llms/mod.ts";
 
 import { CodegenConfig } from "../src/definitions.ts";
 import { genLowEnums } from "../src/generators/gen-low-enums.ts";
 import { genSysHelpersPropertyAccessors } from "../src/generators/gen-sys-helpers-property-accessors.ts";
+import { NameRegulator } from "../src/utils/name-regulator.ts";
+import { genLowActions } from "../src/generators/gen-low-actions.ts";
 
 function doParseArgs(args: string[]) {
   const result = parseArgs(args, {
     string: [
       "codegen-config",
       "input-cpp-headers",
-      "input-data-from-c",
+      "input-intermediate",
       "output-code-from-cpp",
     ],
   });
@@ -32,8 +38,8 @@ function doParseArgs(args: string[]) {
   if (!result["output-code-from-cpp"]) {
     throw new Error("Missing `--output-code-from-cpp`");
   }
-  if (!result["input-data-from-c"]) {
-    throw new Error("Missing `--input-data-from-c`");
+  if (!result["input-intermediate"]) {
+    throw new Error("Missing `--input-intermediate`");
   }
 
   return result;
@@ -55,18 +61,28 @@ async function main(args: Args) {
       path.join(args["input-cpp-headers"], "ofxPropsMetadata.h"),
     ),
   ));
+  const propsBySet = makeFinalResultOfxPropsBySet(parseOfxPropsBySet(
+    await Deno.readTextFile(
+      path.join(args["input-cpp-headers"], "ofxPropsBySet.h"),
+    ),
+  ));
+
+  const nameRegulator = new NameRegulator({
+    cfg: codegenConfig,
+    propsMetadata,
+    propsBySet,
+  });
 
   await Deno.writeTextFile(
     path.join(args["output-code-from-cpp"], "low_enums.rs"),
-    genLowEnums(propsMetadata, codegenConfig),
+    genLowEnums(propsMetadata, { nameRegulator }),
   );
   {
     const { generic, image_effect_v1: codePerMod } =
-      await genSysHelpersPropertyAccessors(
-        propsMetadata,
-        codegenConfig,
-        { dataFromCPath: args["input-data-from-c"] },
-      );
+      await genSysHelpersPropertyAccessors(propsMetadata, {
+        nameRegulator,
+        dataIntermediatePath: args["input-intermediate"],
+      });
     await Deno.writeTextFile(
       path.join(
         args["output-code-from-cpp"],
@@ -89,6 +105,17 @@ async function main(args: Args) {
       );
     }
   }
+
+  await Deno.writeFile(
+    path.join(args["output-code-from-cpp"], "low_actions_plugin.rs"),
+    new TextEncoder().encode(
+      genLowActions(propsMetadata, propsBySet, {
+        cfg: codegenConfig,
+        nameRegulator,
+        isForPlugin: true,
+      }),
+    ),
+  );
 }
 
 await main(doParseArgs(Deno.args) as Args);

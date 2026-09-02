@@ -1,21 +1,24 @@
 import path from "node:path";
 
-import { CodegenConfig } from "../definitions.ts";
 import {
   FinalResult as FinalResultOfxPropsMetadata,
   PropType,
 } from "../parsers/parser-ofxPropsMetadata/types.ts";
+import { NameRegulator } from "../utils/name-regulator.ts";
+import { representTypeWithContainer } from "../utils/representations.ts";
 
 export async function genSysHelpersPropertyAccessors(
   fr: FinalResultOfxPropsMetadata,
-  cfg: CodegenConfig,
-  opts: { dataFromCPath: string },
+  opts: {
+    nameRegulator: NameRegulator;
+    dataIntermediatePath: string;
+  },
 ): Promise<{ generic: string; image_effect_v1: Record<string, string> }> {
   const partsGeneric: string[] = [];
 
   genAccessorsForTypesWithDimensions(partsGeneric, fr);
 
-  const partsPerMod = await genAccessors(fr, cfg, opts);
+  const partsPerMod = await genAccessors(fr, opts);
   const codePerMod: Record<string, string> = {};
   for (const [mod, parts] of Object.entries(partsPerMod)) {
     codePerMod[mod] = parts.join("\n");
@@ -30,6 +33,10 @@ function genAccessorsForTypesWithDimensions(
 ): void {
   type PropTypeX = Exclude<PropType, "Enum" | "Bool">;
 
+  parts.push(
+    "openfx_internal_macros::sys_helpers_make_property_accessors_by_types! {",
+  );
+
   const typeToPossibleDimensions: Record<PropTypeX, Set<number>> = {
     "Int": new Set(),
     "Double": new Set(),
@@ -37,51 +44,47 @@ function genAccessorsForTypesWithDimensions(
     "Pointer": new Set(),
   };
   for (const v of Object.values(fr.propertyInfos)) {
-    let v_type = v.type;
-    if (v_type instanceof Set) {
-      for (let t of v_type) {
+    let vType = v.type;
+    if (vType instanceof Set) {
+      for (let t of vType) {
         if (t === "Bool") {
           t = "Int";
         }
         typeToPossibleDimensions[t].add(v.dimension);
       }
     } else {
-      if (typeof v_type !== "string") {
-        v_type satisfies { "Enum": unknown };
-        v_type = "String";
-      } else if (v_type === "Bool") {
-        v_type = "Int";
+      if (typeof vType !== "string") {
+        vType satisfies { "Enum": unknown };
+        vType = "String";
+      } else if (vType === "Bool") {
+        vType = "Int";
       }
-      typeToPossibleDimensions[v_type].add(v.dimension);
+      typeToPossibleDimensions[vType].add(v.dimension);
     }
   }
 
   for (
-    const [ty_, ds_] of Object.entries(typeToPossibleDimensions)
-      .toSorted((a, b) => a[0].localeCompare(b[0]))
+    const [ty_, ds_] of Object.entries(typeToPossibleDimensions).toSorted()
   ) {
     const ty = ty_ as PropTypeX;
     ds_.add(0);
     ds_.add(1);
-    const ds = [...ds_].toSorted();
-
-    for (const d of ds) {
-      const fnNameS = getFnName("set", ty, d, false);
-      const fnNameG = getFnName("get", ty, d, false);
-      const vis = d > 1 ? "pub(crate)" : "pub";
-      if (d === 0) {
-        parts.push(...[
-          `make_property_setter_for_type!(pub ${fnNameS}, ..., ${ty});`,
-          `make_property_getter_for_type!(pub ${fnNameG}, ..., ${ty});`,
-        ]);
+    const ds = [...ds_].filter((d) => d != 0 && d != 1).toSorted();
+    let part = `    ${ty}: ... pub { set get }, 1 pub { set get }`;
+    if (ds.length > 0) {
+      part += ", ";
+      if (ds.length === 1) {
+        part += `${ds[0]}`;
       } else {
-        parts.push(...[
-          `make_property_setter_for_type!(${vis} ${fnNameS}, ${d}, ${ty});`,
-          `make_property_getter_for_type!(${vis} ${fnNameG}, ${d}, ${ty});`,
-        ]);
+        part += `(${ds.join("|")})`;
       }
+      part += " pub(crate) { set get }";
     }
+    part += ";";
+    parts.push(part);
   }
+
+  parts.push("}");
 }
 
 /**
@@ -90,114 +93,70 @@ function genAccessorsForTypesWithDimensions(
  */
 async function genAccessors(
   fr: FinalResultOfxPropsMetadata,
-  cfg: CodegenConfig,
-  opts: { dataFromCPath: string },
+  opts: {
+    nameRegulator: NameRegulator;
+    dataIntermediatePath: string;
+  },
 ): Promise<Record<string, string[]>> {
   const ret: Record<string, string[]> = {};
 
   const rootItemIdentsPerHeader = JSON.parse(
     await Deno.readTextFile(
-      path.join(opts.dataFromCPath, "root_item_idents_per_header.json"),
+      path.join(opts.dataIntermediatePath, "root_item_idents_per_header.json"),
     ),
   );
   for (const k in rootItemIdentsPerHeader) {
     rootItemIdentsPerHeader[k] = new Set(rootItemIdentsPerHeader[k]);
   }
 
-  for (let [k, v] of Object.entries(fr.propertyInfos)) {
-    const fix = cfg.property_value_to_key_exceptions[k];
-    if (fix) {
+  for (const [keyConstant, v] of Object.entries(fr.propertyInfos)) {
+    const name = opts.nameRegulator
+      .keyConstantToCanonicalName(keyConstant);
+    if (name != keyConstant) {
       console.info(
-        `Fix: replacing property name "${k}" with "${fix}"`,
+        `NOTE(gen-sys-helpers-property-accessors): The property with key constant \`${keyConstant}\` has a different canonical name \`${name}\`.`,
       );
-      k = fix;
     }
+    const kName = opts.nameRegulator.keyConstantToKName(keyConstant);
 
-    const kName = `k${k}`;
     const mod = findMod(rootItemIdentsPerHeader, kName);
     const parts = (ret[mod] ??= []);
 
-    let v_type = v.type;
-    if (v_type instanceof Set) {
-      for (let t of v_type) {
-        if (t === "Bool") {
-          t = "Int";
-        }
-        const fnNameS = getFnName("set", t, v.dimension, true);
-        const fnNameG = getFnName("get", t, v.dimension, true);
-
-        const s = `_${t}`;
-        pushAccessorParts(parts, k, kName, fnNameS, fnNameG, t, v.dimension, s);
+    const possibleTypes = (() => {
+      if (v.type instanceof Set) {
+        return [...v.type].toSorted();
+      } else if (typeof v.type === "object") {
+        v.type satisfies { "Enum": unknown };
+        return ["String"];
+      } else {
+        return [v.type];
       }
-    } else {
-      if (typeof v_type !== "string") {
-        v_type satisfies { "Enum": unknown };
-        v_type = "String";
-      } else if (v_type === "Bool") {
-        v_type = "Int";
-      }
+    })().map((t) => t === "Bool" ? "Int" : t);
+    const ty = possibleTypes.length === 1
+      ? possibleTypes[0]
+      : `(${possibleTypes.join(" | ")})`;
+    const tyContainer = representTypeWithContainer(ty, v.dimension);
 
-      const fnNameS = getFnName("set", v_type, v.dimension, true);
-      const fnNameG = getFnName("get", v_type, v.dimension, true);
+    const fns = [
+      "set",
+      "get",
+      "reset",
+      ...(v.dimension === 0 ? ["get_dimensions"] : []),
+    ];
 
-      pushAccessorParts(parts, k, kName, fnNameS, fnNameG, v_type, v.dimension);
-    }
+    parts.push(`    ${name}: ${tyContainer} { ${fns.join(" ")} };`);
+  }
 
-    parts.push(`make_property_resetter!(reset_${k}, ${kName});`);
-    if (v.dimension === 0) {
-      parts.push(
-        `make_property_dimension_getter!(get_dimension_${k}, ${kName});`,
-      );
-    }
+  for (const mod in ret) {
+    ret[mod].splice(
+      0,
+      0,
+      "openfx_internal_macros::sys_helpers_make_property_accessors! {",
+    );
+    ret[mod].push("}");
   }
 
   return ret;
-}
-
-function pushAccessorParts(
-  parts: string[],
-  k: string,
-  kName: string,
-  fnNameS: string,
-  fnNameG: string,
-  v_type: string,
-  v_dimension: number,
-  suffix: string = "",
-) {
-  if (v_dimension === 0) {
-    parts.push(...[
-      `make_property_setter!(set_${k}${suffix}, ${kName}, ${fnNameS}, ..., ${v_type});`,
-      `make_property_getter!(get_${k}${suffix}, ${kName}, ${fnNameG}, ..., ${v_type});`,
-    ]);
-  } else if (v_dimension === 1) {
-    parts.push(...[
-      `make_property_setter!(set_${k}${suffix}, ${kName}, ${fnNameS}, ${v_dimension}, ${v_type});`,
-      `make_property_getter!(get_${k}${suffix}, ${kName}, ${fnNameG}, ${v_dimension}, ${v_type});`,
-    ]);
-  } else {
-    parts.push(...[
-      `make_property_setter!(set_${k}${suffix}, ${kName}, ${fnNameS}, ${v_dimension}, ${v_type});`,
-      `make_property_getter!(get_${k}${suffix}, ${kName}, ${fnNameG}, ${v_dimension}, ${v_type});`,
-    ]);
-  }
-}
-
-function getFnName(
-  getOrSet: "get" | "set",
-  ty: string,
-  d: number,
-  withPath: boolean,
-): string {
-  const path = withPath ? "crate::generic::sys_helpers::properties::" : "";
-
-  const tyLower = ty.toLowerCase();
-  if (d === 0) {
-    return `${path}${getOrSet}_${tyLower}s`;
-  } else if (d === 1) {
-    return `${path}${getOrSet}_${tyLower}`;
-  } else {
-    return `${path}${getOrSet}_${tyLower}s_${d}`;
-  }
 }
 
 function findMod(

@@ -1,36 +1,4 @@
-make_property_setter!(
-    set_OfxImageEffectPropInAnalysis,
-    kOfxImageEffectPropInAnalysis,
-    crate::generic::sys_helpers::properties::set_int,
-    1,
-    Int
-);
-make_property_getter!(
-    get_OfxImageEffectPropInAnalysis,
-    kOfxImageEffectPropInAnalysis,
-    crate::generic::sys_helpers::properties::get_int,
-    1,
-    Int
-);
-make_property_resetter!(
-    reset_OfxImageEffectPropInAnalysis,
-    kOfxImageEffectPropInAnalysis
-);
-make_property_setter!(
-    set_OfxInteractPropViewportSize,
-    kOfxInteractPropViewportSize,
-    crate::generic::sys_helpers::properties::set_ints_2,
-    2,
-    Int
-);
-make_property_getter!(
-    get_OfxInteractPropViewportSize,
-    kOfxInteractPropViewportSize,
-    crate::generic::sys_helpers::properties::get_ints_2,
-    2,
-    Int
-);
-make_property_resetter!(
-    reset_OfxInteractPropViewportSize,
-    kOfxInteractPropViewportSize
-);
+openfx_internal_macros::sys_helpers_make_property_accessors! {
+    OfxImageEffectPropInAnalysis: Int { set get reset };
+    OfxInteractPropViewportSize: [Int; 2] { set get reset };
+}

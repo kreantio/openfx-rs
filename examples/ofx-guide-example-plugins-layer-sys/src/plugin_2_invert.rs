@@ -4,23 +4,23 @@ use std::{
 };
 
 use openfx::{
-    generic::{
-        sys::core::{
+    sys::{
+        generic::core::{
             OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, OfxTime, kOfxActionCreateInstance,
             kOfxActionDescribe, kOfxActionDestroyInstance, kOfxActionLoad, kOfxActionUnload,
             kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxStatErrUnsupported,
             kOfxStatFailed, kOfxStatOK, kOfxStatReplyDefault,
         },
-        sys_helpers::properties::{get_OfxPropTime, set_OfxPropLabel},
-    },
-    image_effect_v1::{
-        sys::image_effect::{
+        image_effect_v1::image_effect::{
             OfxImageEffectHandle, kOfxImageComponentAlpha, kOfxImageComponentRGB,
             kOfxImageComponentRGBA, kOfxImageEffectActionDescribeInContext,
             kOfxImageEffectActionRender, kOfxImageEffectContextFilter,
             kOfxImageEffectRenderFullySafe,
         },
-        sys_helpers::{
+    },
+    sys_helpers::{
+        generic::properties::{get_OfxPropTime, set_OfxPropLabel},
+        image_effect_v1::{
             Plugin,
             properties::{
                 get_OfxImageEffectPropComponents, get_OfxImageEffectPropContext,

@@ -9,6 +9,13 @@ use rayon::iter::{IntoParallelRefIterator, ParallelIterator as _};
 
 use crate::utils::algorithms_by_llms::{DependencySortable, sort_by_dependencies};
 
+pub struct Options {
+    pub headers_folder: PathBuf,
+    pub output_folder: PathBuf,
+    pub output_folder_c: PathBuf,
+    pub output_folder_intermediate: PathBuf,
+}
+
 /// generates Rust bindings from the C (not C++) headers.
 ///
 /// ## Parameters
@@ -40,30 +47,16 @@ use crate::utils::algorithms_by_llms::{DependencySortable, sort_by_dependencies}
 /// - I don't want to waste development time here.
 /// - `bindgen` is battle-tested, while rolling a custom parser definitely will
 ///   shoot myself in the foot.
-pub fn generate_bindings_for_c_headers(
-    headers_folder: impl Into<PathBuf>,
-    output_folder: impl Into<PathBuf>,
-    output_folder_c: impl Into<PathBuf>,
-) {
-    if let Err(err) =
-        generate_bindings_for_c_headers_inner(headers_folder, output_folder, output_folder_c)
-    {
+pub fn generate_bindings_for_c_headers(opts: Options) {
+    if let Err(err) = generate_bindings_for_c_headers_inner(opts) {
         panic!("Failed to generate bindings for C headers: {}", err);
     }
 }
 
 const COLORSPACE_HEADER_NAME: &str = "ofx-native-v1.5_aces-v1.3_ocio-v2.3";
 
-fn generate_bindings_for_c_headers_inner(
-    headers_folder: impl Into<PathBuf>,
-    output_folder: impl Into<PathBuf>,
-    output_folder_c: impl Into<PathBuf>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let headers_folder = headers_folder.into();
-    let output_folder = output_folder.into();
-    let output_folder_c = output_folder_c.into();
-
-    let headers = Header::headers_from_folder(&headers_folder)
+fn generate_bindings_for_c_headers_inner(opts: Options) -> Result<(), Box<dyn std::error::Error>> {
+    let headers = Header::headers_from_folder(&opts.headers_folder)
         .map_err(|err| format!("Failed to collect headers: {}", err))?;
     let headers = sort_by_dependencies(headers);
     let DeduplicateOutput {
@@ -72,22 +65,24 @@ fn generate_bindings_for_c_headers_inner(
         root_item_idents_per_header,
     } = deduplicate(&headers).map_err(|err| format!("Failed to deduplicate headers: {}", err))?;
 
-    std::fs::create_dir_all(output_folder.join("checks"))?;
-    std::fs::create_dir_all(&output_folder_c)?;
+    std::fs::create_dir_all(&opts.output_folder_c)?;
 
     let mut statuses: HashSet<String> = HashSet::new();
 
     gen_c_bindings(
-        &output_folder,
+        &opts.output_folder,
         &headers,
         &deduplicated_syn_files,
-        &checks_syn_files,
         &mut statuses,
     )?;
+    gen_c_bindings_checks(&opts.output_folder, &headers, &checks_syn_files)?;
 
-    gen_low_statuses(&output_folder_c, statuses)?;
+    gen_low_statuses(&opts.output_folder_c, statuses)?;
 
-    gen_data_root_idents(&output_folder_c, root_item_idents_per_header)?;
+    gen_data_root_idents(
+        &opts.output_folder_intermediate,
+        root_item_idents_per_header,
+    )?;
 
     Ok(())
 }
@@ -96,7 +91,6 @@ fn gen_c_bindings(
     output_folder: &Path,
     headers: &[Header],
     deduplicated_syn_files: &std::collections::HashMap<String, syn::File>,
-    checks_syn_files: &std::collections::HashMap<String, syn::File>,
     statuses: &mut HashSet<String>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     for header in headers {
@@ -116,21 +110,52 @@ fn gen_c_bindings(
         }
         std::fs::write(&output_path, code)?;
 
+        if !header.additional_info.statuses.is_empty() {
+            statuses.extend(header.additional_info.statuses.clone());
+        }
+    }
+
+    Ok(())
+}
+
+fn gen_c_bindings_checks(
+    output_folder: &Path,
+    headers: &[Header],
+    checks_syn_files: &std::collections::HashMap<String, syn::File>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut headers: Vec<&Header> = headers.iter().collect();
+    headers.sort_by(|a, b| a.name.cmp(&b.name));
+
+    let mut items: Vec<syn::Item> = vec![];
+    let mut seen_item_codes: HashSet<String> = HashSet::new();
+
+    for header in headers {
         let checks_syn_file = checks_syn_files.get(&header.name).ok_or_else(|| {
             format!(
                 "`check_syn_files` should contain the header with name `{}`",
                 header.name
             )
         })?;
-        std::fs::write(
-            output_folder.join(format!("checks/{}.rs", mod_name)),
-            prettyplease::unparse(checks_syn_file),
-        )?;
 
-        if !header.additional_info.statuses.is_empty() {
-            statuses.extend(header.additional_info.statuses.clone());
+        for item in &checks_syn_file.items {
+            let item_code = quote! { #item }.to_string();
+            if seen_item_codes.contains(&item_code) {
+                continue;
+            }
+            seen_item_codes.insert(item_code);
+            items.push(item.clone());
         }
     }
+
+    std::fs::write(
+        output_folder.join("_checks.rs"),
+        prettyplease::unparse(&syn::File {
+            shebang: None,
+            frontmatter: None,
+            attrs: vec![],
+            items,
+        }),
+    )?;
 
     Ok(())
 }
@@ -156,23 +181,23 @@ fn gen_low_statuses(
         .collect::<Vec<_>>();
 
     let code = quote! {
-        pub enum OfxStatus {
+        pub enum Status {
             #(#statuses,)*
-            Unknown(crate::generic::sys::core::OfxStatus),
+            Unknown(crate::sys::generic::core::OfxStatus),
         }
-        impl From<crate::generic::sys::core::OfxStatus> for OfxStatus {
-            fn from(status: crate::generic::sys::core::OfxStatus) -> Self {
+        impl From<crate::sys::generic::core::OfxStatus> for Status {
+            fn from(status: crate::sys::generic::core::OfxStatus) -> Self {
                 match status {
-                    #(crate::generic::sys::core::#status_sys_ident => Self::#statuses,)*
+                    #(crate::sys::generic::core::#status_sys_ident => Self::#statuses,)*
                     _ => Self::Unknown(status),
                 }
             }
         }
-        impl From<OfxStatus> for crate::generic::sys::core::OfxStatus {
-            fn from(status: OfxStatus) -> Self {
+        impl From<Status> for crate::sys::generic::core::OfxStatus {
+            fn from(status: Status) -> Self {
                 match status {
-                    #(OfxStatus::#statuses => crate::generic::sys::core::#status_sys_ident,)*
-                    OfxStatus::Unknown(status) => status,
+                    #(Status::#statuses => crate::sys::generic::core::#status_sys_ident,)*
+                    Status::Unknown(status) => status,
                 }
             }
         }
@@ -186,11 +211,10 @@ fn gen_low_statuses(
 }
 
 fn gen_data_root_idents(
-    output_folder_c: &Path,
+    output_folder_im: &Path,
     root_item_idents_per_header: HashMap<String, HashSet<String>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    std::fs::create_dir_all(output_folder_c.join("data"))?;
-    let path = output_folder_c.join("data/root_item_idents_per_header.json");
+    let path = output_folder_im.join("root_item_idents_per_header.json");
 
     let mut stable_map: BTreeMap<String, Vec<String>> = BTreeMap::new();
     for (mod_name, idents) in root_item_idents_per_header {

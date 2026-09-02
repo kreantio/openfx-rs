@@ -6,21 +6,15 @@ use std::{
 };
 
 use openfx::{
-    generic::{
-        sys::core::{
+    sys::{
+        generic::core::{
             OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, OfxTime, kOfxActionCreateInstance,
             kOfxActionDescribe, kOfxActionDestroyInstance, kOfxActionLoad, kOfxActionUnload,
             kOfxBitDepthByte, kOfxBitDepthFloat, kOfxBitDepthShort, kOfxPropAPIVersion,
             kOfxStatErrMissingHostFeature, kOfxStatErrUnsupported, kOfxStatFailed, kOfxStatOK,
             kOfxStatReplyDefault,
         },
-        sys_helpers::properties::{
-            get_OfxPropAPIVersion, get_OfxPropInstanceData, get_OfxPropTime,
-            get_property_dimension, set_OfxPropInstanceData, set_OfxPropLabel, set_OfxPropName,
-        },
-    },
-    image_effect_v1::{
-        sys::{
+        image_effect_v1::{
             image_effect::{
                 OfxImageClipHandle, OfxImageEffectHandle, kOfxImageComponentAlpha,
                 kOfxImageComponentRGB, kOfxImageComponentRGBA,
@@ -34,7 +28,13 @@ use openfx::{
                 kOfxParamTypeDouble2D, kOfxParamTypeRGBA,
             },
         },
-        sys_helpers::{
+    },
+    sys_helpers::{
+        generic::properties::{
+            get_OfxPropAPIVersion, get_OfxPropInstanceData, get_OfxPropTime,
+            get_property_dimension, set_OfxPropInstanceData, set_OfxPropLabel, set_OfxPropName,
+        },
+        image_effect_v1::{
             Plugin,
             properties::{
                 get_OfxImageEffectPropContext, get_OfxImageEffectPropRenderScale,
@@ -195,7 +195,6 @@ fn action_load() -> Result<(), OfxStatus> {
 
             let var_size =
                 unsafe { get_property_dimension(s_prop, host_props, kOfxPropAPIVersion.as_ptr()) }?;
-            // let var_size = host_props.prop_get_dimension(kOfxPropAPIVersion)?;
             let mut api_version = [1, 0];
             if var_size == 1 {
                 let mut my_api_version = [0];
