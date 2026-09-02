@@ -18,18 +18,37 @@ for most use cases.
 
 ## for Plugin Development
 
+### Building Plugins
+
+OpenFX plugins require to be packed in a specific way. Therefore, you need to do
+some additional work after the binary is built. See:
+[OpenFX reference / Packaging OFX Plug-ins]. You can also have a look at
+[some of the scripts I use for bundling the example plugins].
+
+[OpenFX reference / Packaging OFX Plug-ins]: https://openfx.readthedocs.io/en/latest/Reference/ofxPackaging.html
+[some of the scripts I use for bundling the example plugins]: examples/ofx-guide-example-plugins-layer-sys/scripts/bundle.ts
+
+Please don't forget that the `Cargo.toml` of your plugin crates should contain:
+
+```toml
+[lib]
+crate-type = ["cdylib"]
+```
+
 ### Examples
 
 #### writing plugins in layer `sys`
 
-<details><summary>The barest way</summary>
+##### The barest way
+
+<details><summary>example code</summary>
 
 ```rs
 use std::ffi::c_int;
 
-use openfx::{
-    sys::generic::core::{OfxHost, OfxPlugin, OfxPropertySetHandle, OfxStatus},
-    sys::image_effect_v1::image_effect::kOfxImageEffectPluginApi,
+use openfx::sys::{
+    generic::core::{OfxHost, OfxPlugin, OfxPropertySetHandle, OfxStatus},
+    image_effect_v1::image_effect::kOfxImageEffectPluginApi,
 };
 
 // …
@@ -77,10 +96,12 @@ unsafe extern "C" fn main_entry(
 
 </details>
 
-<details><summary>The <code>sys_helpers</code> way</summary>
+##### The `sys_helpers` way
 
 See also:
 [$REPO_ROOT/examples/ofx-guide-example-plugins-layer-sys/src/lib.rs](../../examples/ofx-guide-example-plugins-layer-sys/src/lib.rs)
+
+<details><summary>example code</summary>
 
 ```rs
 use openfx::{
@@ -125,7 +146,10 @@ impl Plugin for BasicExamplePlugin {
 
 </details>
 
-#### TODO: writing plugins in layer `low_plugin`
+#### WIP: writing plugins in layer `low_plugin`
+
+See also:
+[$REPO_ROOT/examples/ofx-guide-example-plugins-layer-low/src/lib.rs](../../examples/ofx-guide-example-plugins-layer-low/src/lib.rs)
 
 <details><summary>example code</summary>
 
@@ -169,7 +193,7 @@ impl Plugin for BasicExamplePlugin {
 
 #### TODO: writing plugins in layer `high_plugin`
 
-<details><summary>example code</summary>
+<details open><summary>example code</summary>
 
 ```rs
 use openfx::{
@@ -202,7 +226,10 @@ impl Plugin for BasicExamplePlugin {
     ) -> actions::describe::Result {
         todo!()
     }
-    fn create_instance(&self, ctx: &Context) -> actions::create_instance::Result<Self::Instance> {
+    fn create_instance(
+        &self,
+        ctx: actions::create_instance::Context,
+    ) -> actions::create_instance::Result<Self::Instance> {
         todo!()
     }
     // …
@@ -214,7 +241,7 @@ struct BasicExamplePluginInstance {}
 impl PluginInstance for BasicExamplePluginInstance {
     fn get_region_of_definition(
         &self,
-        ctx: &Context,
+        ctx: &actions::get_region_of_definition::Context,
         in_args: &actions::get_region_of_definition::InArgs,
     ) -> actions::get_region_of_definition::Result {
         todo!()
@@ -227,6 +254,4 @@ impl PluginInstance for BasicExamplePluginInstance {
 
 </details>
 
-## for Host Development
-
-- [ ] TODO
+## TODO: for Host Development
