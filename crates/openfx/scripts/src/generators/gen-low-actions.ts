@@ -22,13 +22,23 @@ export function genLowActions(
 
   const optsEx = { ...opts, seenActions };
 
-  return [
+  const parts = [
     genLowActionsPseudo(frM, frS, optsEx),
     genLowActionsCore(frM, frS, optsEx),
     ...(["image_effect", "interact"] as const).map((groupNameSnakeCase) =>
       genLowActionsInGroup(frM, frS, groupNameSnakeCase, optsEx)
     ),
-  ].join("\n");
+  ];
+
+  if (seenActions.size < frS.infos.actions.size) {
+    throw new Error(
+      `Some actions were not seen: ${[
+        ...frS.infos.actions.difference(seenActions),
+      ]}`,
+    );
+  }
+
+  return parts.join("\n");
 }
 
 function genLowActionsPseudo(
