@@ -219,7 +219,7 @@ fn action_describe_in_context(
     let s_prop = data.inner().property_suite;
     let s_ifx = data.image_effect_suite_helper();
 
-    let context = unsafe { in_args.get_context(s_prop) }?;
+    let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
     if context != ImageEffectPropContext::Filter && context != ImageEffectPropContext::General {
         return Err(Status::ErrUnsupported);
     }

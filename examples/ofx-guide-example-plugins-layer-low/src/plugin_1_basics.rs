@@ -211,7 +211,7 @@ fn action_describe_in_context(
         .clipDefine
         .ok_or(kOfxStatErrMissingHostFeature)?;
 
-    let context = unsafe { in_args.get_context(s_prop) }?;
+    let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
     if context != ImageEffectPropContext::Filter {
         return Err(Status::ErrUnsupported);
     }
