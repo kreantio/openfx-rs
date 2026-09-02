@@ -281,7 +281,7 @@ fn action_describe_in_context(
     let s_prop = data.inner().property_suite;
     let s_ifx = data.image_effect_suite_helper();
 
-    let context = unsafe { in_args.get_context(s_prop) }?;
+    let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
     if context != ImageEffectPropContext::Filter {
         return Err(Status::ErrUnsupported);
     }
@@ -483,7 +483,7 @@ fn action_get_region_of_definition(
     rod.x2 = f64::max(rod.x2, centre_x + radius);
     rod.y2 = f64::max(rod.y2, centre_y + radius);
 
-    unsafe { out_args.set_region_of_definition(s_prop, rect_d_to_array(&rod)) }?;
+    unsafe { out_args.set_image_effect_region_of_definition(s_prop, rect_d_to_array(&rod)) }?;
 
     Ok(())
 }
