@@ -37,4 +37,5 @@ generate-code-from-cpp:
     find "{{ generated-code-from-cpp-path }}" -name "*.rs" | xargs rustfmt
 
 publish: generate
+    cargo publish -p openfx-internal-macros
     cargo publish
