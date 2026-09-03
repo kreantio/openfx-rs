@@ -2,13 +2,13 @@ mod processing;
 
 use std::{
     ffi::{CStr, c_int, c_void},
-    sync::{Arc, Mutex, OnceLock},
+    sync::{Arc, Mutex},
 };
 
 use openfx::{
     low::{Status, enums::ImageEffectPropContext},
     low_plugin::{
-        Plugin,
+        Host, Plugin,
         actions::image_effect::{
             ActionDescribeInContextIn, ActionGetRegionOfDefinitionIn,
             ActionGetRegionOfDefinitionOut, ActionIsIdentityIn, ActionRenderIn, ImageEffectAction,
@@ -16,8 +16,8 @@ use openfx::{
     },
     sys::{
         generic::core::{
-            OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, kOfxBitDepthByte,
-            kOfxBitDepthFloat, kOfxBitDepthShort, kOfxPropAPIVersion, kOfxStatFailed,
+            OfxPropertySetHandle, OfxRectI, OfxStatus, kOfxBitDepthByte, kOfxBitDepthFloat,
+            kOfxBitDepthShort, kOfxStatFailed,
         },
         image_effect_v1::{
             image_effect::{
@@ -34,13 +34,11 @@ use openfx::{
     },
     sys_helpers::{
         generic::properties::{
-            get_OfxPropAPIVersion, get_OfxPropInstanceData, get_property_dimension,
-            set_OfxPropInstanceData, set_OfxPropLabel, set_OfxPropName,
+            get_OfxPropInstanceData, set_OfxPropInstanceData, set_OfxPropLabel, set_OfxPropName,
         },
         image_effect_v1::properties::{
             get_OfxImageEffectPropRenderScale, get_OfxImageEffectPropRenderWindow,
-            get_OfxImageEffectPropSupportsMultiResolution, set_OfxImageEffectPluginPropGrouping,
-            set_OfxImageEffectPluginPropHostFrameThreading,
+            set_OfxImageEffectPluginPropGrouping, set_OfxImageEffectPluginPropHostFrameThreading,
             set_OfxImageEffectPluginRenderThreadSafety, set_OfxImageEffectPropSupportedComponents,
             set_OfxImageEffectPropSupportedContexts, set_OfxImageEffectPropSupportedPixelDepths,
             set_OfxParamPropDefault_Double, set_OfxParamPropDefault_Int,
@@ -55,15 +53,14 @@ use processing::{pixel_processing, rect_d_to_array, rect_i_from_array};
 use crate::{
     definitions::{PLUGIN_5_CIRCLE_IDENTIFIER, PLUGIN_5_CIRCLE_LABEL, PLUGINS_GROUPING},
     helpers::{
-        SaferHostStruct, SharedData,
+        GuaranteeSend, SharedData,
         shared_data_helper::{
             BitDepth, ClipImageManaged, SharedDataHelper, param_get_value_at_time,
         },
     },
 };
 
-static HOST_STRUCT: OnceLock<SaferHostStruct<'static>> = OnceLock::new();
-
+static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(None);
 static SHARED_DATA: Mutex<Option<(SharedData<'static>, Arc<AdditionalSharedData>)>> =
     Mutex::new(None);
 
@@ -100,38 +97,14 @@ impl Plugin for PluginExampleCircle {
     const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
     const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
 
-    fn set_host(host_struct: *mut OfxHost) {
-        fn inner(host_struct: *mut OfxHost) -> Result<(), &'static str> {
-            let host_struct = unsafe {
-                host_struct
-                    .as_mut()
-                    .ok_or("`host_struct` should not be null.")?
-            };
-            let host = unsafe {
-                host_struct
-                    .host
-                    .as_mut()
-                    .ok_or("`host_struct.host` should not be null.")?
-            };
-            let fetch_suite = host_struct
-                .fetchSuite
-                .ok_or("`host_struct.fetchSuite` should not be null.")?;
-
-            if HOST_STRUCT
-                .set(SaferHostStruct { host, fetch_suite })
-                .is_err()
-            {
-                return Err("`HOST_STRUCT` has already been initialized before.");
-            }
-            Ok(())
+    fn set_host(host: Host) {
+        let mut lock = HOST_BEFORE_ACTION_LOAD
+            .lock()
+            .expect("Failed to lock HOST_BEFORE_ACTION_LOAD.");
+        if lock.is_some() {
+            panic!("HOST_BEFORE_ACTION_LOAD has already been set.");
         }
-
-        match inner(host_struct) {
-            Ok(_) => {}
-            Err(err) => {
-                tracing::error!("Failed to set host: {}", err);
-            }
-        }
+        lock.replace(GuaranteeSend(host));
     }
 
     fn main_entry(action: ImageEffectAction) -> openfx::low::Result<()> {
@@ -177,7 +150,11 @@ impl Plugin for PluginExampleCircle {
 }
 
 fn action_load() -> openfx::low::Result<()> {
-    let host_struct = HOST_STRUCT.get().ok_or(kOfxStatFailed)?.clone();
+    let host = HOST_BEFORE_ACTION_LOAD
+        .lock()
+        .map_err(|_| kOfxStatFailed)?
+        .take()
+        .ok_or(kOfxStatFailed)?;
 
     let mut data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
     if data.is_some() {
@@ -185,37 +162,25 @@ fn action_load() -> openfx::low::Result<()> {
     }
 
     *data = Some({
-        let data = SharedData::try_new(host_struct)?;
-
-        let s_prop = data.property_suite;
+        let data = SharedData::try_new(host)?;
 
         let additional = {
-            let data = unsafe { SharedDataHelper::try_new(&data) }?;
-
-            let host_props = data.inner().host_struct.host;
-            let host_props = std::ptr::from_ref(host_props).cast_mut();
-
-            let var_size =
-                unsafe { get_property_dimension(s_prop, host_props, kOfxPropAPIVersion.as_ptr()) }?;
-            let mut api_version = [1, 0];
-            if var_size == 1 {
-                let mut my_api_version = [0];
-                (unsafe { get_OfxPropAPIVersion(s_prop, host_props, &mut my_api_version) })?;
-                api_version[0] = my_api_version[0];
-            } else {
-                (unsafe { get_OfxPropAPIVersion(s_prop, host_props, &mut api_version) })?;
-            }
+            let api_version = unsafe { data.host.0.host().get_api_version(data.property_suite) }?;
 
             // we only support 1.2 and above
             if api_version[0] == 1 && api_version[1] < 2 {
                 return Err(Status::ErrMissingHostFeature);
             }
 
-            let host_supports_multi_res =
-                unsafe { get_OfxImageEffectPropSupportsMultiResolution(s_prop, host_props) }? == 1;
+            let host_supports_multi_res = unsafe {
+                data.host
+                    .0
+                    .host()
+                    .get_image_effect_supports_multi_resolution(data.property_suite)
+            }?;
 
             AdditionalSharedData {
-                api_version,
+                api_version: [api_version[0], api_version[1]],
                 host_supports_multi_res,
             }
         };

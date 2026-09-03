@@ -2,21 +2,21 @@ mod processing;
 
 use std::{
     ffi::{CStr, c_void},
-    sync::{Mutex, OnceLock},
+    sync::Mutex,
 };
 
 use openfx::{
     low::{Status, enums::ImageEffectPropContext},
     low_plugin::{
-        Plugin,
+        Host, Plugin,
         actions::image_effect::{
             ActionDescribeInContextIn, ActionIsIdentityIn, ActionRenderIn, ImageEffectAction,
         },
     },
     sys::{
         generic::core::{
-            OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, kOfxBitDepthByte,
-            kOfxBitDepthFloat, kOfxBitDepthShort, kOfxStatFailed,
+            OfxPropertySetHandle, OfxRectI, OfxStatus, kOfxBitDepthByte, kOfxBitDepthFloat,
+            kOfxBitDepthShort, kOfxStatFailed,
         },
         image_effect_v1::{
             image_effect::{
@@ -48,13 +48,12 @@ use processing::{pixel_processing, rect_i_from_array};
 use crate::{
     definitions::{PLUGIN_4_SATURATION_IDENTIFIER, PLUGIN_4_SATURATION_LABEL, PLUGINS_GROUPING},
     helpers::{
-        SaferHostStruct, SharedData,
+        GuaranteeSend, SharedData,
         shared_data_helper::{BitDepth, ClipImageManaged, SharedDataHelper},
     },
 };
 
-static HOST_STRUCT: OnceLock<SaferHostStruct<'static>> = OnceLock::new();
-
+static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(None);
 static SHARED_DATA: Mutex<Option<SharedData<'static>>> = Mutex::new(None);
 
 struct MyInstanceData {
@@ -82,38 +81,14 @@ impl Plugin for PluginExampleSaturation {
     const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
     const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
 
-    fn set_host(host_struct: *mut OfxHost) {
-        fn inner(host_struct: *mut OfxHost) -> Result<(), &'static str> {
-            let host_struct = unsafe {
-                host_struct
-                    .as_mut()
-                    .ok_or("`host_struct` should not be null.")?
-            };
-            let host = unsafe {
-                host_struct
-                    .host
-                    .as_mut()
-                    .ok_or("`host_struct.host` should not be null.")?
-            };
-            let fetch_suite = host_struct
-                .fetchSuite
-                .ok_or("`host_struct.fetchSuite` should not be null.")?;
-
-            if HOST_STRUCT
-                .set(SaferHostStruct { host, fetch_suite })
-                .is_err()
-            {
-                return Err("`HOST_STRUCT` has already been initialized before.");
-            }
-            Ok(())
+    fn set_host(host: Host) {
+        let mut lock = HOST_BEFORE_ACTION_LOAD
+            .lock()
+            .expect("Failed to lock HOST_BEFORE_ACTION_LOAD.");
+        if lock.is_some() {
+            panic!("HOST_BEFORE_ACTION_LOAD has already been set.");
         }
-
-        match inner(host_struct) {
-            Ok(_) => {}
-            Err(err) => {
-                tracing::error!("Failed to set host: {}", err);
-            }
-        }
+        lock.replace(GuaranteeSend(host));
     }
 
     fn main_entry(action: ImageEffectAction) -> openfx::low::Result<()> {
@@ -150,13 +125,17 @@ impl Plugin for PluginExampleSaturation {
 }
 
 fn action_load() -> openfx::low::Result<()> {
-    let host_struct = HOST_STRUCT.get().ok_or(kOfxStatFailed)?.clone();
+    let host = HOST_BEFORE_ACTION_LOAD
+        .lock()
+        .map_err(|_| kOfxStatFailed)?
+        .take()
+        .ok_or(kOfxStatFailed)?;
 
     let mut data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
     if data.is_some() {
         Err(Status::Failed)
     } else {
-        *data = Some(SharedData::try_new(host_struct)?);
+        *data = Some(SharedData::try_new(host)?);
         Ok(())
     }
 }

@@ -1,18 +1,18 @@
 use std::{
-    ffi::{CStr, c_char, c_int, c_void},
-    sync::{Mutex, OnceLock},
+    ffi::{CStr, c_void},
+    sync::Mutex,
 };
 
 use openfx::{
     low::{Status, enums::ImageEffectPropContext},
     low_plugin::{
-        Plugin,
+        Host, HostOwned, Plugin,
         actions::image_effect::{ActionDescribeInContextIn, ImageEffectAction},
     },
     sys::{
         generic::{
             core::{
-                OfxHost, OfxPropertySetHandle, OfxPropertySetStruct, kOfxStatErrMissingHostFeature,
+                OfxPropertySetHandle, OfxPropertySetStruct, kOfxStatErrMissingHostFeature,
                 kOfxStatFailed, kOfxStatOK,
             },
             property::{OfxPropertySuiteV1, kOfxPropertySuite},
@@ -33,21 +33,18 @@ use openfx::{
 
 use crate::definitions::{PLUGIN_1_BASICS_IDENTIFIER, PLUGIN_1_BASICS_LABEL, PLUGINS_GROUPING};
 
-static HOST_STRUCT: OnceLock<SaferHostStruct<'static>> = OnceLock::new();
-#[derive(Clone)]
-struct SaferHostStruct<'a> {
-    host: &'a OfxPropertySetStruct,
-    fetch_suite: unsafe extern "C" fn(
-        host: OfxPropertySetHandle,
-        suite_name: *const c_char,
-        suite_version: c_int,
-    ) -> *const c_void,
-}
+struct GuaranteeSend<T: HostOwned>(T);
+/// ## Safety
+///
+/// This plugin does not spawn threads, so the host exclusively controls its
+/// lifecycle.
+unsafe impl<T: HostOwned> Send for GuaranteeSend<T> {}
 
+static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(None);
 static SHARED_DATA: Mutex<Option<SharedData<'static>>> = Mutex::new(None);
 struct SharedData<'a> {
     #[expect(unused)]
-    host_struct: SaferHostStruct<'a>,
+    host: GuaranteeSend<Host>,
     property_suite: &'a OfxPropertySuiteV1,
     image_effect_suite: &'a OfxImageEffectSuiteV1,
 }
@@ -58,38 +55,14 @@ impl Plugin for PluginExampleBasic {
     const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
     const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
 
-    fn set_host(host_struct: *mut OfxHost) {
-        fn inner(host_struct: *mut OfxHost) -> Result<(), &'static str> {
-            let host_struct = unsafe {
-                host_struct
-                    .as_mut()
-                    .ok_or("`host_struct` should not be null.")?
-            };
-            let host = unsafe {
-                host_struct
-                    .host
-                    .as_mut()
-                    .ok_or("`host_struct.host` should not be null.")?
-            };
-            let fetch_suite = host_struct
-                .fetchSuite
-                .ok_or("`host_struct.fetchSuite` should not be null.")?;
-
-            if HOST_STRUCT
-                .set(SaferHostStruct { host, fetch_suite })
-                .is_err()
-            {
-                return Err("`HOST_STRUCT` has already been initialized before.");
-            }
-            Ok(())
+    fn set_host(host: Host) {
+        let mut lock = HOST_BEFORE_ACTION_LOAD
+            .lock()
+            .expect("Failed to lock HOST_BEFORE_ACTION_LOAD.");
+        if lock.is_some() {
+            panic!("HOST_BEFORE_ACTION_LOAD has already been set.");
         }
-
-        match inner(host_struct) {
-            Ok(_) => {}
-            Err(err) => {
-                tracing::error!("Failed to set host: {}", err);
-            }
-        }
+        lock.replace(GuaranteeSend(host));
     }
 
     fn main_entry(action: ImageEffectAction) -> openfx::low::Result<()> {
@@ -117,28 +90,22 @@ impl Plugin for PluginExampleBasic {
 }
 
 fn action_load() -> openfx::low::Result<()> {
-    let host_struct = HOST_STRUCT.get().ok_or(kOfxStatFailed)?.clone();
+    let host = HOST_BEFORE_ACTION_LOAD
+        .lock()
+        .map_err(|_| kOfxStatFailed)?
+        .take()
+        .ok_or(kOfxStatFailed)?;
 
-    let property_suite = unsafe {
-        (host_struct.fetch_suite)(
-            host_struct.host as *const _ as OfxPropertySetHandle,
-            kOfxPropertySuite.as_ptr(),
-            1,
-        )
-    } as *const OfxPropertySuiteV1;
+    let property_suite =
+        unsafe { host.0.fetch_suite(kOfxPropertySuite, 1) } as *const OfxPropertySuiteV1;
     let property_suite = unsafe {
         property_suite
             .as_ref()
             .ok_or(kOfxStatErrMissingHostFeature)?
     };
 
-    let image_effect_suite = unsafe {
-        (host_struct.fetch_suite)(
-            host_struct.host as *const _ as OfxPropertySetHandle,
-            kOfxImageEffectSuite.as_ptr(),
-            1,
-        )
-    } as *const OfxImageEffectSuiteV1;
+    let image_effect_suite =
+        unsafe { host.0.fetch_suite(kOfxImageEffectSuite, 1) } as *const OfxImageEffectSuiteV1;
     let image_effect_suite = unsafe {
         image_effect_suite
             .as_ref()
@@ -150,7 +117,7 @@ fn action_load() -> openfx::low::Result<()> {
         Err(Status::Failed)
     } else {
         *shared_data = Some(SharedData {
-            host_struct,
+            host,
             property_suite,
             image_effect_suite,
         });
