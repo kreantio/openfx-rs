@@ -2,8 +2,8 @@
 resolver = "3"
 members = [
   "crates/openfx",
-  "crates/openfx-codegen",
   "crates/openfx-internal-macros",
+  "crates/private/openfx-codegen",
   "examples/ofx-guide-example-plugins-layer-sys",
   "examples/ofx-guide-example-plugins-layer-low",
 ]
