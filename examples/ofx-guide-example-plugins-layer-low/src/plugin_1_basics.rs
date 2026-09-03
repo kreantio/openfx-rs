@@ -6,20 +6,17 @@ use std::{
 use openfx::{
     low::{Status, enums::ImageEffectPropContext},
     low_plugin::{
-        Host, HostOwned, Plugin,
+        Host, Plugin,
         actions::image_effect::{ActionDescribeInContextIn, ImageEffectAction},
     },
     sys::{
-        generic::{
-            core::{
-                OfxPropertySetHandle, OfxPropertySetStruct, kOfxStatErrMissingHostFeature,
-                kOfxStatFailed, kOfxStatOK,
-            },
-            property::{OfxPropertySuiteV1, kOfxPropertySuite},
+        generic::core::{
+            OfxPropertySetHandle, OfxPropertySetStruct, kOfxStatErrMissingHostFeature,
+            kOfxStatFailed, kOfxStatOK,
         },
         image_effect_v1::image_effect::{
-            OfxImageEffectHandle, OfxImageEffectSuiteV1, kOfxImageComponentAlpha,
-            kOfxImageComponentRGBA, kOfxImageEffectContextFilter, kOfxImageEffectSuite,
+            OfxImageEffectHandle, kOfxImageComponentAlpha, kOfxImageComponentRGBA,
+            kOfxImageEffectContextFilter,
         },
     },
     sys_helpers::{
@@ -31,23 +28,13 @@ use openfx::{
     },
 };
 
-use crate::definitions::{PLUGIN_1_BASICS_IDENTIFIER, PLUGIN_1_BASICS_LABEL, PLUGINS_GROUPING};
-
-struct GuaranteeSend<T: HostOwned>(T);
-/// ## Safety
-///
-/// This plugin does not spawn threads, so the host exclusively controls its
-/// lifecycle.
-unsafe impl<T: HostOwned> Send for GuaranteeSend<T> {}
+use crate::{
+    definitions::{PLUGIN_1_BASICS_IDENTIFIER, PLUGIN_1_BASICS_LABEL, PLUGINS_GROUPING},
+    helpers::{GuaranteeSend, SharedData},
+};
 
 static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(None);
 static SHARED_DATA: Mutex<Option<SharedData<'static>>> = Mutex::new(None);
-struct SharedData<'a> {
-    #[expect(unused)]
-    host: GuaranteeSend<Host>,
-    property_suite: &'a OfxPropertySuiteV1,
-    image_effect_suite: &'a OfxImageEffectSuiteV1,
-}
 
 pub struct PluginExampleBasic;
 impl Plugin for PluginExampleBasic {
@@ -96,31 +83,11 @@ fn action_load() -> openfx::low::Result<()> {
         .take()
         .ok_or(kOfxStatFailed)?;
 
-    let property_suite =
-        unsafe { host.0.fetch_suite(kOfxPropertySuite, 1) } as *const OfxPropertySuiteV1;
-    let property_suite = unsafe {
-        property_suite
-            .as_ref()
-            .ok_or(kOfxStatErrMissingHostFeature)?
-    };
-
-    let image_effect_suite =
-        unsafe { host.0.fetch_suite(kOfxImageEffectSuite, 1) } as *const OfxImageEffectSuiteV1;
-    let image_effect_suite = unsafe {
-        image_effect_suite
-            .as_ref()
-            .ok_or(kOfxStatErrMissingHostFeature)?
-    };
-
-    let mut shared_data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
-    if shared_data.is_some() {
+    let mut data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
+    if data.is_some() {
         Err(Status::Failed)
     } else {
-        *shared_data = Some(SharedData {
-            host,
-            property_suite,
-            image_effect_suite,
-        });
+        *data = Some(SharedData::try_new(host)?);
         Ok(())
     }
 }
