@@ -1,5 +1,5 @@
 [package]
-name = "openfx-bindgen"
+name = "openfx-codegen"
 publish = false
 version.workspace = true
 edition = "2024"

@@ -20,8 +20,8 @@ struct Args {
 pub fn main() {
     let args = Args::parse();
 
-    openfx_bindgen::bindings_for_c_headers::generate_bindings_for_c_headers(
-        openfx_bindgen::bindings_for_c_headers::Options {
+    openfx_codegen::bindings_for_c_headers::generate_bindings_for_c_headers(
+        openfx_codegen::bindings_for_c_headers::Options {
             headers_folder: args.input_c_headers.into(),
             output_folder: args.output_c_bindings.into(),
             output_folder_c: args.output_code_from_c.into(),

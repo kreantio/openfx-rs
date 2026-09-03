@@ -2,7 +2,7 @@
 resolver = "3"
 members = [
   "crates/openfx",
-  "crates/openfx-bindgen",
+  "crates/openfx-codegen",
   "crates/openfx-internal-macros",
   "examples/ofx-guide-example-plugins-layer-sys",
   "examples/ofx-guide-example-plugins-layer-low",
@@ -17,7 +17,7 @@ repository = "https://github.com/kreantio/openfx-rs"
 
 [workspace.dependencies]
 openfx = { path = "crates/openfx", version = "0.3.0" }
-openfx-bindgen = { path = "crates/openfx-bindgen", version = "0.3.0" }
+openfx-codegen = { path = "crates/openfx-codegen", version = "0.3.0" }
 openfx-internal-macros = { path = "crates/openfx-internal-macros", version = "0.3.0" }
 
 bindgen = "0.72.1"
