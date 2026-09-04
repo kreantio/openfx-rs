@@ -13,6 +13,8 @@
         (`OfxRectI`) instead of `[c_int; 4]`, etc.)
   - [ ] improve DX of Go to Definition: move `generated/` to `src/generated/`,
         generate `mod.rs` files, and replace `include!` with `pub use`?
+  - [ ] make grammars of macros that do similar things more consistent.
+    - [ ] between `low_make_property_enums` and `low_make_property_enums_from_c`
 - [ ] `high`
 
 ## Examples

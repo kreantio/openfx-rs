@@ -26,6 +26,11 @@ pub fn low_make_property_set_structs(tokens: TokenStream) -> TokenStream {
 }
 
 #[proc_macro]
+pub fn low_make_property_enums_from_c(tokens: TokenStream) -> TokenStream {
+    low_macros::make_property_enums_from_c::make_property_enums_from_c(tokens)
+}
+
+#[proc_macro]
 pub fn low_make_action_enum(tokens: TokenStream) -> TokenStream {
     low_macros::make_action_enum::make_action_enum(tokens)
 }

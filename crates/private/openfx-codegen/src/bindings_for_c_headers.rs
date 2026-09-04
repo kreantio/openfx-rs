@@ -4,10 +4,12 @@ use std::{
 };
 
 use convert_case::Casing as _;
-use quote::quote;
+use quote::{ToTokens as _, quote};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator as _};
 
-use crate::utils::algorithms_by_llms::{DependencySortable, sort_by_dependencies};
+use crate::utils::algorithms_by_llms::{
+    DependencySortable, sort_by_dependencies, strip_common_prefix,
+};
 
 pub struct Options {
     pub headers_folder: PathBuf,
@@ -59,25 +61,21 @@ fn generate_bindings_for_c_headers_inner(opts: Options) -> Result<(), Box<dyn st
     let headers = Header::headers_from_folder(&opts.headers_folder)
         .map_err(|err| format!("Failed to collect headers: {}", err))?;
     let headers = sort_by_dependencies(headers);
-    let DeduplicateOutput {
+    let ProcessOutput {
         deduplicated_syn_files,
         checks_syn_files,
         root_item_idents_per_header,
-    } = deduplicate(&headers).map_err(|err| format!("Failed to deduplicate headers: {}", err))?;
+        c_enums,
+    } = process(&headers).map_err(|err| format!("Failed to process headers: {}", err))?;
 
     std::fs::create_dir_all(&opts.output_folder_c)?;
 
-    let mut statuses: HashSet<String> = HashSet::new();
-
-    gen_c_bindings(
-        &opts.output_folder,
-        &headers,
-        &deduplicated_syn_files,
-        &mut statuses,
-    )?;
+    let GenCBindingsOutput { statuses } =
+        gen_c_bindings(&opts.output_folder, &headers, &deduplicated_syn_files)?;
     gen_c_bindings_checks(&opts.output_folder, &headers, &checks_syn_files)?;
 
     gen_low_statuses(&opts.output_folder_c, statuses)?;
+    gen_low_enums_from_c(&opts.output_folder_c, c_enums)?;
 
     gen_data_root_idents(
         &opts.output_folder_intermediate,
@@ -87,12 +85,17 @@ fn generate_bindings_for_c_headers_inner(opts: Options) -> Result<(), Box<dyn st
     Ok(())
 }
 
+struct GenCBindingsOutput {
+    statuses: HashSet<String>,
+}
+
 fn gen_c_bindings(
     output_folder: &Path,
     headers: &[Header],
     deduplicated_syn_files: &std::collections::HashMap<String, syn::File>,
-    statuses: &mut HashSet<String>,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<GenCBindingsOutput, Box<dyn std::error::Error>> {
+    let mut statuses: HashSet<String> = HashSet::new();
+
     for header in headers {
         let mod_name = &header.mod_name_snake_case;
         let output_path = output_folder.join(format!("{}.rs", mod_name));
@@ -115,7 +118,7 @@ fn gen_c_bindings(
         }
     }
 
-    Ok(())
+    Ok(GenCBindingsOutput { statuses })
 }
 
 fn gen_c_bindings_checks(
@@ -205,6 +208,66 @@ fn gen_low_statuses(
     std::fs::write(
         output_folder_c.join("low_statuses.rs"),
         prettyplease::unparse(&syn::parse2(code)?),
+    )?;
+
+    Ok(())
+}
+
+fn gen_low_enums_from_c(
+    output_folder_c: &Path,
+    c_enums: HashMap<String, HashSet<String>>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut output_inner = proc_macro2::TokenStream::new();
+
+    let mut c_enums = c_enums.into_iter().collect::<Vec<_>>();
+    c_enums.sort_by(|a, b| a.0.cmp(&b.0));
+
+    for (enum_name, vars) in c_enums {
+        let simple_enum_name = enum_name
+            .strip_prefix("Ofx")
+            .ok_or("Enum name should start with \"Ofx\".")?;
+
+        let enum_name = syn::Ident::new(&enum_name, proc_macro2::Span::call_site());
+        let simple_enum_name = syn::Ident::new(simple_enum_name, proc_macro2::Span::call_site());
+
+        let mut vars = vars.into_iter().collect::<Vec<_>>();
+        vars.sort();
+
+        let simple_vars = strip_common_prefix(&vars);
+
+        let vars: Vec<syn::Ident> = vars
+            .iter()
+            .map(|v| syn::Ident::new(v, proc_macro2::Span::call_site()))
+            .collect();
+        let simple_vars: Vec<syn::Ident> = simple_vars
+            .iter()
+            .map(|v| syn::Ident::new(v, proc_macro2::Span::call_site()))
+            .collect();
+
+        output_inner.extend(quote! {
+            #[sys(#enum_name)]
+            enum #simple_enum_name {
+                #(
+                    #[sys(#vars)]
+                    #simple_vars,
+                )*
+            }
+        });
+    }
+
+    let output_inner = prettyplease::unparse(&syn::parse2(output_inner)?)
+        .lines()
+        .map(|l| format!("    {}", l))
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    std::fs::write(
+        output_folder_c.join("low_enums_from_c.rs"),
+        format!(
+            "openfx_internal_macros::low_make_property_enums_from_c! {{
+{output_inner}
+}}"
+        ),
     )?;
 
     Ok(())
@@ -321,23 +384,9 @@ impl Header {
 
         let mut additional_rust_code: Option<String> = None;
         if name == "ofxCore" {
-            let mut additional_lines: Vec<String> = vec![];
-
-            for line in c_code.lines() {
-                const PREFIX: &str = "#define kOfxStat";
-                if !line.starts_with(PREFIX) {
-                    continue;
-                }
-                let rest = line[PREFIX.len()..].trim();
-                let (name, rest) = rest
-                    .split_once(' ')
-                    .ok_or_else(|| format!("Failed to split line: {}", line))?;
-                info.statuses.insert(name.to_string());
-                let num = extract_number(rest)
-                    .ok_or_else(|| format!("Failed to extract number from line: {}", line))?;
-                additional_lines.push(format!("pub const kOfxStat{}: OfxStatus = {};", name, num));
-            }
-            additional_rust_code = Some(additional_lines.join("\n"));
+            additional_rust_code = Some(SpecialCasingForStatuses::gen_additional_code(
+                &mut info, c_code,
+            )?);
         } else {
             included_headers.insert("ofxCore".to_string());
         }
@@ -362,19 +411,21 @@ impl Header {
     }
 }
 
-struct DeduplicateOutput {
+struct ProcessOutput {
     deduplicated_syn_files: HashMap<String, syn::File>,
     checks_syn_files: HashMap<String, syn::File>,
     root_item_idents_per_header: HashMap<String, HashSet<String>>,
+    c_enums: HashMap<String, HashSet<String>>,
 }
 
-fn deduplicate(headers: &[Header]) -> Result<DeduplicateOutput, Box<dyn std::error::Error>> {
+fn process(headers: &[Header]) -> Result<ProcessOutput, Box<dyn std::error::Error>> {
     // item name -> `mod_name_snake_case` of the header file that defines it
     let mut seen_names: HashMap<String, String> = HashMap::new();
 
     let mut deduplicated_syn_files: HashMap<String, syn::File> = HashMap::new();
     let mut checks_syn_files: HashMap<String, syn::File> = HashMap::new();
     let mut root_item_idents_per_header: HashMap<String, HashSet<String>> = HashMap::new();
+    let mut c_enums: HashMap<String, HashSet<String>> = HashMap::new();
 
     for header in headers {
         let syn_file = syn::parse_file(&header.bindgen_generated_rust_code)?;
@@ -406,7 +457,9 @@ fn deduplicate(headers: &[Header]) -> Result<DeduplicateOutput, Box<dyn std::err
                     .insert(name.clone());
             } else {
                 seen_names.insert(name.clone(), header.mod_name_snake_case.clone());
-                dedup_items.push(item.clone());
+                let mut item = item.clone();
+                SpecialCasingForCEnums::process_relevant_item(&mut item, &mut c_enums)?;
+                dedup_items.push(item);
                 root_item_idents_per_header
                     .entry(header.mod_name_snake_case.clone())
                     .or_default()
@@ -447,10 +500,11 @@ fn deduplicate(headers: &[Header]) -> Result<DeduplicateOutput, Box<dyn std::err
         deduplicated_syn_files.insert(header.name.clone(), syn_files);
     }
 
-    Ok(DeduplicateOutput {
+    Ok(ProcessOutput {
         deduplicated_syn_files,
         checks_syn_files,
         root_item_idents_per_header,
+        c_enums,
     })
 }
 
@@ -482,8 +536,7 @@ fn collect_root_item_idents_per_header<'a>(
                 _ => panic!("unexpected unknown item: {}", quote! { #item }),
             };
 
-            if ident == "kOfxStatOK" {
-                // included in `additional_rust_code`.
+            if SpecialCasingForStatuses::should_skip_ident(ident) {
                 None
             } else {
                 Some((ident, *item))
@@ -536,6 +589,75 @@ fn make_use_item(mod_name: &str, names: &[&String]) -> syn::ItemUse {
             })),
         }),
         semi_token: Default::default(),
+    }
+}
+
+struct SpecialCasingForStatuses;
+impl SpecialCasingForStatuses {
+    fn gen_additional_code(
+        info: &mut AdditionalInfo,
+        c_code: &str,
+    ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+        let mut additional_lines: Vec<String> = vec![];
+
+        for line in c_code.lines() {
+            const PREFIX: &str = "#define kOfxStat";
+            if !line.starts_with(PREFIX) {
+                continue;
+            }
+            let rest = line[PREFIX.len()..].trim();
+            let (name, rest) = rest
+                .split_once(' ')
+                .ok_or_else(|| format!("Failed to split line: {}", line))?;
+            info.statuses.insert(name.to_string());
+            let num = extract_number(rest)
+                .ok_or_else(|| format!("Failed to extract number from line: {}", line))?;
+            additional_lines.push(format!("pub const kOfxStat{}: OfxStatus = {};", name, num));
+        }
+
+        Ok(additional_lines.join("\n"))
+    }
+
+    fn should_skip_ident(ident: &syn::Ident) -> bool {
+        // included in `additional_rust_code`.
+        ident == "kOfxStatOK"
+    }
+}
+
+struct SpecialCasingForCEnums;
+impl SpecialCasingForCEnums {
+    fn process_relevant_item(
+        item: &mut syn::Item,
+        c_enums: &mut HashMap<String, HashSet<String>>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let syn::Item::Const(item) = item else {
+            return Ok(());
+        };
+        let ident_str = item.ident.to_string();
+        let Some(underscore_index) = ident_str.rfind('_') else {
+            return Ok(());
+        };
+        let k_name = &ident_str[underscore_index + 1..];
+        if !ident_str.starts_with("Ofx") {
+            if ident_str.starts_with("kOfxKey_") {
+                return Ok(());
+            }
+            return Err(format!("unrecognized constant key name format: {}", ident_str).into());
+        }
+        if !k_name.starts_with("kOfx") {
+            return Err(format!("unrecognized constant key name format: {}", ident_str).into());
+        }
+        let ty_str = item.ty.to_token_stream().to_string();
+        if !ty_str.starts_with("Ofx") {
+            return Err(format!("not an enum?: {:?}", item.to_token_stream()).into());
+        }
+        item.ident = syn::Ident::new(k_name, item.ident.span());
+        c_enums
+            .entry(ty_str)
+            .or_default()
+            .insert(k_name.to_string());
+
+        Ok(())
     }
 }
 
