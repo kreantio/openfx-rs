@@ -7,7 +7,7 @@ use convert_case::Casing as _;
 use quote::{ToTokens as _, quote};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator as _};
 
-use crate::utils::algorithms_by_llms::{
+use crate::vibe_zone::utils::algorithms_by_llms::{
     DependencySortable, sort_by_dependencies, strip_common_prefix,
 };
 

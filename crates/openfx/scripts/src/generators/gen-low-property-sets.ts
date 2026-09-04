@@ -2,10 +2,10 @@ import { snakeCase } from "es-toolkit/string";
 
 import {
   FinalResult as FinalResultOfxPropsMetadata,
-} from "../parsers/parser-ofxPropsMetadata/types.ts";
+} from "../vibe-zone/parsers/parser-ofxPropsMetadata/types.ts";
 import {
   FinalResult as FinalResultOfxPropsBySet,
-} from "../parsers/parser-ofxPropsBySet/types.ts";
+} from "../vibe-zone/parsers/parser-ofxPropsBySet/types.ts";
 import { representTypeWithContainer } from "../utils/representations.ts";
 import { NameRegulator } from "../utils/name-regulator.ts";
 import { CodegenConfig } from "../definitions.ts";

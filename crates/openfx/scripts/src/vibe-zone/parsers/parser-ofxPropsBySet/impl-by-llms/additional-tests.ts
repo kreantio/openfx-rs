@@ -12,7 +12,7 @@ import { makeFinalResult, parse } from "./mod.ts";
 
 /** The vendored header, resolved relative to this file (cwd-independent). */
 const realHeaderUrl = new URL(
-  "../../../../../vendor/openfx/openfx-cpp/include/openfx/ofxPropsBySet.h",
+  "../../../../../../vendor/openfx/openfx-cpp/include/openfx/ofxPropsBySet.h",
   import.meta.url,
 );
 
