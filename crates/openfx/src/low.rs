@@ -12,4 +12,9 @@ pub mod enums {
         env!("CARGO_MANIFEST_DIR"),
         "/generated/code_from_cpp/low_enums.rs",
     ));
+
+    include!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/generated/code_from_c/low_enums_from_c.rs",
+    ));
 }
