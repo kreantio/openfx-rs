@@ -24,7 +24,7 @@ export function genLowPropertySets(
   ];
 
   for (const [name, set] of Object.entries(frS.infos.propSets)) {
-    parts.push(`    ${name} {`);
+    parts.push(`    ${name}PropertySet {`);
 
     const props = Object.entries(set)
       .map(([propName, prop]): PropertyItem => {
