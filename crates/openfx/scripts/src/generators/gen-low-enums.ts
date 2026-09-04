@@ -1,6 +1,6 @@
 import {
   FinalResult as FinalResultOfxPropsMetadata,
-} from "../parsers/parser-ofxPropsMetadata/types.ts";
+} from "../vibe-zone/parsers/parser-ofxPropsMetadata/types.ts";
 import { NameRegulator } from "../utils/name-regulator.ts";
 
 export function genLowEnums(

@@ -7,11 +7,11 @@ import * as toml from "toml";
 import {
   makeFinalResult as makeFinalResultOfxPropsMetadata,
   parse as parseOfxPropsMetadata,
-} from "../src/parsers/parser-ofxPropsMetadata/impl-by-llms/mod.ts";
+} from "../src/vibe-zone/parsers/parser-ofxPropsMetadata/impl-by-llms/mod.ts";
 import {
   makeFinalResult as makeFinalResultOfxPropsBySet,
   parse as parseOfxPropsBySet,
-} from "../src/parsers/parser-ofxPropsBySet/impl-by-llms/mod.ts";
+} from "../src/vibe-zone/parsers/parser-ofxPropsBySet/impl-by-llms/mod.ts";
 
 import { CodegenConfig } from "../src/definitions.ts";
 import { genLowEnums } from "../src/generators/gen-low-enums.ts";
