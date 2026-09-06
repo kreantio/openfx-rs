@@ -306,7 +306,7 @@ fn gen_suites(
 
         for (name, simple_ident) in suite_names.iter().zip(simple_idents.iter()) {
             let full_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
-            let fns: Vec<syn::Ident> = suites[name]
+            let mut fns: Vec<syn::Ident> = suites[name]
                 .iter()
                 .map(|v| {
                     syn::Ident::new(
@@ -315,6 +315,7 @@ fn gen_suites(
                     )
                 })
                 .collect();
+            fns.sort();
 
             output.extend(quote! {
                 openfx_internal_macros::low_make_suite_struct!(#simple_ident:#full_ident: #(#fns,)*);
