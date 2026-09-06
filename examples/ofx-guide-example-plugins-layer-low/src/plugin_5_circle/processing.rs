@@ -41,9 +41,7 @@ where
     for y in render_window.y1..render_window.y2 {
         if y % 20 == 0
             && unsafe {
-                data.0
-                    .image_effect_suite
-                    .0
+                data.image_effect_suite
                     .sys_ref()
                     .abort
                     .is_some_and(|abort| abort(instance) != 0)

@@ -1,5 +1,6 @@
 use std::{
     ffi::{CStr, c_int, c_void},
+    ops::Deref,
     ptr::NonNull,
     sync::Arc,
 };
@@ -32,6 +33,13 @@ pub struct GuaranteeSend<T: HostOwned>(pub T);
 /// This plugin does not spawn threads, so the host exclusively controls its
 /// lifecycle.
 unsafe impl<T: HostOwned> Send for GuaranteeSend<T> {}
+impl<T: HostOwned> Deref for GuaranteeSend<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 #[derive(Clone)]
 pub struct SharedData(pub Arc<SharedDataInner>);
@@ -46,11 +54,11 @@ pub struct SharedDataInner {
 impl SharedData {
     pub fn try_new(host: GuaranteeSend<Host>) -> openfx::low::Result<Self> {
         let property_suite =
-            unsafe { host.0.fetch_property_suite_v1() }.ok_or(Status::ErrMissingHostFeature)?;
+            unsafe { host.fetch_property_suite_v1() }.ok_or(Status::ErrMissingHostFeature)?;
         let image_effect_suite =
-            unsafe { host.0.fetch_image_effect_suite_v1() }.ok_or(Status::ErrMissingHostFeature)?;
+            unsafe { host.fetch_image_effect_suite_v1() }.ok_or(Status::ErrMissingHostFeature)?;
         let parameter_suite =
-            unsafe { host.0.fetch_parameter_suite_v1() }.ok_or(Status::ErrMissingHostFeature)?;
+            unsafe { host.fetch_parameter_suite_v1() }.ok_or(Status::ErrMissingHostFeature)?;
 
         Ok(SharedData(Arc::new(SharedDataInner {
             host,
@@ -61,15 +69,23 @@ impl SharedData {
     }
 }
 
+impl Deref for SharedData {
+    type Target = SharedDataInner;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 impl SharedData {
     pub fn image_effect_suite_helper(&self) -> ImageEffectSuiteHelper {
         ImageEffectSuiteHelper {
-            image_effect_suite: self.0.image_effect_suite,
+            image_effect_suite: self.image_effect_suite,
         }
     }
     pub fn parameter_suite_helper(&self) -> ParameterSuiteHelper {
         ParameterSuiteHelper {
-            parameter_suite: self.0.parameter_suite,
+            parameter_suite: self.parameter_suite,
         }
     }
 
@@ -81,7 +97,7 @@ impl SharedData {
     pub unsafe fn get_instance_data<T>(&self, effect: OfxImageEffectHandle) -> low::Result<&T> {
         let props = unsafe { self.image_effect_suite_helper().get_property_set(effect) }?;
         let props = EffectInstancePropertySet::from(props);
-        let Some(instance_data_ptr) = unsafe { props.get_instance_data(&self.0.property_suite.0) }?
+        let Some(instance_data_ptr) = unsafe { props.get_instance_data(&self.property_suite.0) }?
         else {
             return Err(Status::Failed);
         };
@@ -111,9 +127,7 @@ impl SharedData {
     ) -> low::Result<OfxPropertySetHandle> {
         let mut props: *mut OfxPropertySetStruct = std::ptr::null_mut();
         let stat = unsafe {
-            self.0
-                .image_effect_suite
-                .0
+            self.image_effect_suite
                 .sys_ref()
                 .getPropertySet
                 .ok_or(kOfxStatErrMissingHostFeature)?(handle, &mut props)
@@ -167,7 +181,6 @@ impl ImageEffectSuiteHelper {
     ) -> low::Result<OfxPropertySetHandle> {
         let get_property_set = unsafe {
             self.image_effect_suite
-                .0
                 .sys_ref()
                 .getPropertySet
                 .ok_or(kOfxStatErrMissingHostFeature)?
@@ -193,7 +206,6 @@ impl ImageEffectSuiteHelper {
     ) -> low::Result<ClipDescriptorPropertySet> {
         let clip_define = unsafe {
             self.image_effect_suite
-                .0
                 .sys_ref()
                 .clipDefine
                 .ok_or(kOfxStatErrMissingHostFeature)?
@@ -219,7 +231,6 @@ impl ImageEffectSuiteHelper {
     ) -> low::Result<OfxImageClipHandle> {
         let clip_get_handle = unsafe {
             self.image_effect_suite
-                .0
                 .sys_ref()
                 .clipGetHandle
                 .ok_or(kOfxStatErrMissingHostFeature)?
@@ -249,7 +260,6 @@ impl ImageEffectSuiteHelper {
     ) -> low::Result<ImagePropertySet> {
         let clip_get_image = unsafe {
             self.image_effect_suite
-                .0
                 .sys_ref()
                 .clipGetImage
                 .ok_or(kOfxStatErrMissingHostFeature)?
@@ -282,7 +292,6 @@ impl ImageEffectSuiteHelper {
     pub unsafe fn clip_release_image(&self, image_handle: OfxPropertySetHandle) -> low::Result<()> {
         let clip_release_image = unsafe {
             self.image_effect_suite
-                .0
                 .sys_ref()
                 .clipReleaseImage
                 .ok_or(kOfxStatErrMissingHostFeature)?
@@ -306,7 +315,6 @@ impl ImageEffectSuiteHelper {
     ) -> low::Result<OfxParamSetHandle> {
         let get_param_set = unsafe {
             self.image_effect_suite
-                .0
                 .sys_ref()
                 .getParamSet
                 .ok_or(kOfxStatErrMissingHostFeature)?
@@ -332,7 +340,6 @@ impl ImageEffectSuiteHelper {
     ) -> low::Result<OfxRectD> {
         let clip_get_region_of_definition = unsafe {
             self.image_effect_suite
-                .0
                 .sys_ref()
                 .clipGetRegionOfDefinition
                 .ok_or(kOfxStatErrMissingHostFeature)?
@@ -382,7 +389,7 @@ impl ClipImageManaged {
         shared_data: &SharedData,
         props: ImagePropertySet,
     ) -> low::Result<Option<Self>> {
-        let s_prop = &shared_data.0.property_suite.0;
+        let s_prop = &shared_data.property_suite.0;
 
         let Some(data_ptr) = (unsafe { props.get_image_data(s_prop)? }) else {
             return Ok(None);
@@ -506,7 +513,6 @@ impl ParameterSuiteHelper {
     ) -> low::Result<OfxPropertySetHandle> {
         let param_define = unsafe {
             self.parameter_suite
-                .0
                 .sys_ref()
                 .paramDefine
                 .ok_or(kOfxStatErrMissingHostFeature)?
@@ -533,7 +539,6 @@ impl ParameterSuiteHelper {
     ) -> low::Result<OfxParamHandle> {
         let param_get_handle = unsafe {
             self.parameter_suite
-                .0
                 .sys_ref()
                 .paramGetHandle
                 .ok_or(kOfxStatErrMissingHostFeature)?
@@ -598,7 +603,6 @@ pub macro param_get_value_at_time(
         let param_get_value_at_time = unsafe {
             $parameter_suite_helper
                 .inner()
-                .0
                 .sys_ref()
                 .paramGetValueAtTime
                 .ok_or(openfx::low::Status::ErrMissingHostFeature)?
