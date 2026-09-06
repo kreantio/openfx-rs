@@ -1,3 +1,6 @@
+[suites.key_name_special_cases]
+ImageEffectOpenGLRenderSuiteV1 = "kOfxOpenGLRenderSuite"
+
 [property_names]
 simple_names_regex = "^Ofx(.*?)(?:Prop)(.+)$"
 [property_names.simple_names_special_cases]

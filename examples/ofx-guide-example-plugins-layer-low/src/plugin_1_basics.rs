@@ -4,37 +4,32 @@ use std::{
 };
 
 use openfx::{
-    low::{Status, enums::ImageEffectPropContext},
+    low::{
+        Status,
+        enums::{
+            ImageEffectPropContext, ImageEffectPropSupportedComponents,
+            ImageEffectPropSupportedContexts,
+        },
+    },
     low_plugin::{
         Host, Plugin,
         actions::image_effect::{ActionDescribeInContextIn, ImageEffectAction},
+        property_sets::{EffectDescriptorPropertySet, EffectInstancePropertySet},
     },
     sys::{
-        generic::core::{
-            OfxPropertySetHandle, OfxPropertySetStruct, kOfxStatErrMissingHostFeature,
-            kOfxStatFailed, kOfxStatOK,
-        },
-        image_effect_v1::image_effect::{
-            OfxImageEffectHandle, kOfxImageComponentAlpha, kOfxImageComponentRGBA,
-            kOfxImageEffectContextFilter,
-        },
+        generic::core::{OfxPropertySetHandle, kOfxStatOK},
+        image_effect_v1::image_effect::OfxImageEffectHandle,
     },
-    sys_helpers::{
-        generic::properties::{get_OfxPropInstanceData, set_OfxPropInstanceData, set_OfxPropLabel},
-        image_effect_v1::properties::{
-            set_OfxImageEffectPluginPropGrouping, set_OfxImageEffectPropSupportedComponents,
-            set_OfxImageEffectPropSupportedContexts,
-        },
-    },
+    sys_helpers::generic::properties::{set_OfxPropInstanceData, set_OfxPropLabel},
 };
 
 use crate::{
     definitions::{PLUGIN_1_BASICS_IDENTIFIER, PLUGIN_1_BASICS_LABEL, PLUGINS_GROUPING},
-    helpers::{GuaranteeSend, SharedData},
+    helpers::shared_data::{GuaranteeSend, SharedData},
 };
 
 static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(None);
-static SHARED_DATA: Mutex<Option<SharedData<'static>>> = Mutex::new(None);
+static SHARED_DATA: Mutex<Option<SharedData>> = Mutex::new(None);
 
 pub struct PluginExampleBasic;
 impl Plugin for PluginExampleBasic {
@@ -79,11 +74,11 @@ impl Plugin for PluginExampleBasic {
 fn action_load() -> openfx::low::Result<()> {
     let host = HOST_BEFORE_ACTION_LOAD
         .lock()
-        .map_err(|_| kOfxStatFailed)?
+        .map_err(|_| Status::Failed)?
         .take()
-        .ok_or(kOfxStatFailed)?;
+        .ok_or(Status::Failed)?;
 
-    let mut data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
+    let mut data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
     if data.is_some() {
         Err(Status::Failed)
     } else {
@@ -93,7 +88,7 @@ fn action_load() -> openfx::low::Result<()> {
 }
 
 fn action_unload() -> openfx::low::Result<()> {
-    let mut shared_data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
+    let mut shared_data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
     if shared_data.take().is_none() {
         Err(Status::Failed)
     } else {
@@ -102,30 +97,23 @@ fn action_unload() -> openfx::low::Result<()> {
 }
 
 fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> {
-    let data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
-    let data = data.as_ref().ok_or(kOfxStatFailed)?;
+    let data = {
+        let data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
+        let data = data.as_ref().ok_or(Status::Failed)?;
+        data.clone()
+    };
 
-    let get_property_set = data
-        .image_effect_suite
-        .getPropertySet
-        .ok_or(kOfxStatErrMissingHostFeature)?;
+    let s_prop = &data.0.property_suite.0;
 
-    let mut effect_props = std::ptr::null_mut();
-    if let stat = (unsafe { get_property_set(descriptor, &mut effect_props) })
-        && stat != kOfxStatOK
-    {
-        return Err(Status::from(stat));
-    }
-
-    let s_prop = data.property_suite;
+    let props = unsafe { data.get_property_set_from_image_effect(descriptor) }?;
+    let props = EffectDescriptorPropertySet::from(props);
 
     unsafe {
-        set_OfxPropLabel(s_prop, effect_props, PLUGIN_1_BASICS_LABEL.as_ptr())?;
-        set_OfxImageEffectPluginPropGrouping(s_prop, effect_props, PLUGINS_GROUPING.as_ptr())?;
-        set_OfxImageEffectPropSupportedContexts(
-            s_prop,
-            effect_props,
-            &[kOfxImageEffectContextFilter.as_ptr()],
+        props.set_label(s_prop.sys_ptr(), Some(PLUGIN_1_BASICS_LABEL))?;
+        props.set_image_effect_plugin_grouping(s_prop.sys_ptr(), Some(PLUGINS_GROUPING))?;
+        props.set_image_effect_supported_contexts(
+            s_prop.sys_ptr(),
+            &[ImageEffectPropSupportedContexts::Filter],
         )?;
     }
 
@@ -136,115 +124,102 @@ fn action_describe_in_context(
     descriptor: OfxImageEffectHandle,
     in_args: ActionDescribeInContextIn,
 ) -> openfx::low::Result<()> {
-    let data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
-    let data = data.as_ref().ok_or(kOfxStatFailed)?;
+    let data = {
+        let data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
+        let data = data.as_ref().ok_or(Status::Failed)?;
+        data.clone()
+    };
 
-    let s_prop = data.property_suite;
-    let clip_define = data
-        .image_effect_suite
-        .clipDefine
-        .ok_or(kOfxStatErrMissingHostFeature)?;
+    let s_prop = &data.0.property_suite.0;
+    let s_ifx = data.image_effect_suite_helper();
 
-    let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
+    let context = unsafe { in_args.get_image_effect_context(s_prop.sys_ptr()) }?;
     if context != ImageEffectPropContext::Filter {
         return Err(Status::ErrUnsupported);
     }
 
-    let mut props: *mut OfxPropertySetStruct = std::ptr::null_mut();
-    unsafe {
-        if let stat = clip_define(descriptor, c"Output".as_ptr(), &mut props)
-            && stat != kOfxStatOK
-        {
-            return Err(Status::from(stat));
-        }
-        set_OfxImageEffectPropSupportedComponents(
-            s_prop,
-            props,
+    let props = unsafe { s_ifx.clip_define(descriptor, c"Output") }?;
+    (unsafe {
+        props.set_image_effect_supported_components(
+            s_prop.sys_ptr(),
             &[
-                kOfxImageComponentRGBA.as_ptr(),
-                kOfxImageComponentAlpha.as_ptr(),
+                ImageEffectPropSupportedComponents::RGBA,
+                ImageEffectPropSupportedComponents::Alpha,
             ],
-        )?;
-    }
+        )
+    })?;
 
-    let mut props: *mut OfxPropertySetStruct = std::ptr::null_mut();
-    unsafe {
-        if let stat = clip_define(descriptor, c"Source".as_ptr(), &mut props)
-            && stat != kOfxStatOK
-        {
-            return Err(Status::from(stat));
-        }
-        set_OfxImageEffectPropSupportedComponents(
-            s_prop,
-            props,
+    let props = unsafe { s_ifx.clip_define(descriptor, c"Source") }?;
+    (unsafe {
+        props.set_image_effect_supported_components(
+            s_prop.sys_ptr(),
             &[
-                kOfxImageComponentRGBA.as_ptr(),
-                kOfxImageComponentAlpha.as_ptr(),
+                ImageEffectPropSupportedComponents::RGBA,
+                ImageEffectPropSupportedComponents::Alpha,
             ],
-        )?;
-    }
+        )
+    })?;
 
     Ok(())
 }
 
 fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
-    let data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
-    let data = data.as_ref().ok_or(kOfxStatFailed)?;
+    let data = {
+        let data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
+        let data = data.as_ref().ok_or(Status::Failed)?;
+        data.clone()
+    };
 
-    let get_property_set = data
-        .image_effect_suite
-        .getPropertySet
-        .ok_or(kOfxStatErrMissingHostFeature)?;
-    let s_prop = data.property_suite;
+    let s_prop = &data.0.property_suite.0;
 
-    let mut effect_props: *mut OfxPropertySetStruct = std::ptr::null_mut();
-    if let stat = (unsafe { get_property_set(instance, &mut effect_props) })
-        && stat != kOfxStatOK
-    {
-        return Err(Status::from(stat));
-    }
+    let props = unsafe { data.get_property_set_from_image_effect(instance) }?;
+    let props = EffectInstancePropertySet::from(props);
 
     let my_string = Box::new(String::from(
         "This is random instance data that could be anything you want.",
     ));
     let my_string = Box::into_raw(my_string) as *mut c_void;
-    unsafe { set_OfxPropInstanceData(s_prop, effect_props, my_string) }?;
+    if let Some(stat) =
+        unsafe { set_OfxPropInstanceData(s_prop.sys_ptr(), props.sys_handle(), my_string) }.err()
+        && stat != kOfxStatOK
+    {
+        drop(unsafe { Box::from_raw(my_string.cast::<String>()) });
+        return Err(Status::from(stat));
+    }
 
     Ok(())
 }
 
 fn action_destroy_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
-    let data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
-    let data = data.as_ref().ok_or(kOfxStatFailed)?;
+    let data = {
+        let data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
+        let data = data.as_ref().ok_or(Status::Failed)?;
+        data.clone()
+    };
 
-    let get_property_set = data
-        .image_effect_suite
-        .getPropertySet
-        .ok_or(kOfxStatErrMissingHostFeature)?;
-    let s_prop = data.property_suite;
+    let s_prop = &data.0.property_suite.0;
 
-    let mut effect_props: *mut OfxPropertySetStruct = std::ptr::null_mut();
-    if let stat = (unsafe { get_property_set(instance, &mut effect_props) })
-        && stat != kOfxStatOK
-    {
-        return Err(Status::from(stat));
-    }
+    let props = unsafe { data.get_property_set_from_image_effect(instance) }?;
+    let props = EffectInstancePropertySet::from(props);
 
-    let my_string = unsafe { get_OfxPropInstanceData(s_prop, effect_props) }?;
+    let my_string = unsafe { props.get_instance_data(s_prop.sys_ptr()) }?
+        .expect("Instance data should not be null");
 
-    // assert!(!my_string.is_null(), "Instance data should not be null!");
-
-    drop(unsafe { Box::from_raw(my_string.cast::<String>()) });
+    drop(unsafe { Box::from_raw(my_string.as_ptr().cast::<String>()) });
 
     Ok(())
 }
 
 fn action_is_identity(out_args: OfxPropertySetHandle) -> openfx::low::Result<()> {
-    let data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
-    let data = data.as_ref().ok_or(kOfxStatFailed)?;
+    let data = {
+        let data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
+        let data = data.as_ref().ok_or(Status::Failed)?;
+        data.clone()
+    };
 
-    let s_prop = data.property_suite;
-    unsafe { set_OfxPropLabel(s_prop, out_args, c"Source".as_ptr()) }?;
+    let s_prop = &data.0.property_suite.0;
+
+    unsafe { set_OfxPropLabel(s_prop.sys_ptr(), out_args, c"Source".as_ptr()) }?;
 
     Ok(())
 }

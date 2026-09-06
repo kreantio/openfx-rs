@@ -7,11 +7,15 @@ use convert_case::Casing as _;
 use quote::{ToTokens as _, quote};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator as _};
 
-use crate::vibe_zone::utils::algorithms_by_llms::{
-    DependencySortable, sort_by_dependencies, strip_common_prefix,
+use crate::{
+    CodegenConfig,
+    vibe_zone::utils::algorithms_by_llms::{
+        DependencySortable, sort_by_dependencies, strip_common_prefix,
+    },
 };
 
 pub struct Options {
+    pub config: CodegenConfig,
     pub headers_folder: PathBuf,
     pub output_folder: PathBuf,
     pub output_folder_c: PathBuf,
@@ -66,6 +70,7 @@ fn generate_bindings_for_c_headers_inner(opts: Options) -> Result<(), Box<dyn st
         checks_syn_files,
         root_item_idents_per_header,
         c_enums,
+        suites,
     } = process(&headers).map_err(|err| format!("Failed to process headers: {}", err))?;
 
     std::fs::create_dir_all(&opts.output_folder_c)?;
@@ -76,6 +81,7 @@ fn generate_bindings_for_c_headers_inner(opts: Options) -> Result<(), Box<dyn st
 
     gen_low_statuses(&opts.output_folder_c, statuses)?;
     gen_low_enums_from_c(&opts.output_folder_c, c_enums)?;
+    gen_suites(&opts.config, &opts.output_folder_c, suites)?;
 
     gen_data_root_idents(
         &opts.output_folder_intermediate,
@@ -273,6 +279,85 @@ fn gen_low_enums_from_c(
     Ok(())
 }
 
+fn gen_suites(
+    confg: &CodegenConfig,
+    output_folder_c: &Path,
+    suites: HashMap<String, HashSet<String>>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut suite_names: Vec<String> = suites.keys().cloned().collect();
+    suite_names.sort();
+    let simple_names: Vec<String> = suite_names
+        .iter()
+        .map(|name| {
+            name.strip_prefix("Ofx")
+                .ok_or("Suite name should start with \"Ofx\".")
+                .map(str::to_owned)
+        })
+        .collect::<Result<_, _>>()?;
+
+    let simple_idents: Vec<syn::Ident> = simple_names
+        .iter()
+        .map(|name| syn::Ident::new(name, proc_macro2::Span::call_site()))
+        .collect();
+
+    // low_suites_plugin
+    {
+        let mut output = proc_macro2::TokenStream::new();
+
+        for (name, simple_ident) in suite_names.iter().zip(simple_idents.iter()) {
+            let full_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
+            let fns: Vec<syn::Ident> = suites[name]
+                .iter()
+                .map(|v| {
+                    syn::Ident::new(
+                        &v.to_case(convert_case::Case::Snake),
+                        proc_macro2::Span::call_site(),
+                    )
+                })
+                .collect();
+
+            output.extend(quote! {
+                openfx_internal_macros::low_make_suite_struct!(#simple_ident:#full_ident: #(#fns,)*);
+            });
+        }
+
+        std::fs::write(
+            output_folder_c.join("low_suites_plugin.rs"),
+            prettyplease::unparse(&syn::parse2(output)?),
+        )?;
+    }
+
+    // low_plugin_impl_host_for_fetch_suites
+    {
+        let mut output = proc_macro2::TokenStream::new();
+
+        for simple_ident in &simple_idents {
+            if let Some(corrected_k_name) = &confg
+                .suites
+                .key_name_special_cases
+                .get(&simple_ident.to_string())
+            {
+                let corrected_k_ident =
+                    syn::Ident::new(corrected_k_name, proc_macro2::Span::call_site());
+                output.extend(quote! {
+                    openfx_internal_macros::low_plugin_impl_host_for_fetch_suite!(#simple_ident @ #corrected_k_ident);
+                });
+            } else {
+                output.extend(quote! {
+                    openfx_internal_macros::low_plugin_impl_host_for_fetch_suite!(#simple_ident);
+                });
+            }
+        }
+
+        std::fs::write(
+            output_folder_c.join("low_plugin_impl_host_for_fetch_suites.rs"),
+            prettyplease::unparse(&syn::parse2(output)?),
+        )?;
+    }
+
+    Ok(())
+}
+
 fn gen_data_root_idents(
     output_folder_im: &Path,
     root_item_idents_per_header: HashMap<String, HashSet<String>>,
@@ -416,6 +501,7 @@ struct ProcessOutput {
     checks_syn_files: HashMap<String, syn::File>,
     root_item_idents_per_header: HashMap<String, HashSet<String>>,
     c_enums: HashMap<String, HashSet<String>>,
+    suites: HashMap<String, HashSet<String>>,
 }
 
 fn process(headers: &[Header]) -> Result<ProcessOutput, Box<dyn std::error::Error>> {
@@ -426,6 +512,7 @@ fn process(headers: &[Header]) -> Result<ProcessOutput, Box<dyn std::error::Erro
     let mut checks_syn_files: HashMap<String, syn::File> = HashMap::new();
     let mut root_item_idents_per_header: HashMap<String, HashSet<String>> = HashMap::new();
     let mut c_enums: HashMap<String, HashSet<String>> = HashMap::new();
+    let mut suites: HashMap<String, HashSet<String>> = HashMap::new();
 
     for header in headers {
         let syn_file = syn::parse_file(&header.bindgen_generated_rust_code)?;
@@ -459,6 +546,7 @@ fn process(headers: &[Header]) -> Result<ProcessOutput, Box<dyn std::error::Erro
                 seen_names.insert(name.clone(), header.mod_name_snake_case.clone());
                 let mut item = item.clone();
                 SpecialCasingForCEnums::process_relevant_item(&mut item, &mut c_enums)?;
+                SpecialCasingForSuites::record_relevant_item(&item, &mut suites)?;
                 dedup_items.push(item);
                 root_item_idents_per_header
                     .entry(header.mod_name_snake_case.clone())
@@ -505,6 +593,7 @@ fn process(headers: &[Header]) -> Result<ProcessOutput, Box<dyn std::error::Erro
         checks_syn_files,
         root_item_idents_per_header,
         c_enums,
+        suites,
     })
 }
 
@@ -656,6 +745,31 @@ impl SpecialCasingForCEnums {
             .entry(ty_str)
             .or_default()
             .insert(k_name.to_string());
+
+        Ok(())
+    }
+}
+
+struct SpecialCasingForSuites;
+impl SpecialCasingForSuites {
+    fn record_relevant_item(
+        item: &syn::Item,
+        suites: &mut HashMap<String, HashSet<String>>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let syn::Item::Struct(item) = item else {
+            return Ok(());
+        };
+        let ident_str = item.ident.to_string();
+        if !ident_str.rfind("SuiteV").is_some() {
+            return Ok(());
+        }
+        let fns: HashSet<String> = item
+            .fields
+            .iter()
+            .filter_map(|field| field.ident.as_ref().map(|ident| ident.to_string()))
+            .collect();
+
+        suites.entry(ident_str).or_default().extend(fns);
 
         Ok(())
     }

@@ -1,16 +1,11 @@
 use std::ffi::c_int;
 
 use openfx::{
-    sys::{
-        generic::core::{OfxPropertySetHandle, OfxRectI, OfxStatus, kOfxStatFailed},
-        image_effect_v1::image_effect::OfxImageEffectHandle,
-    },
-    sys_helpers::image_effect_v1::properties::{
-        get_OfxImagePropBounds, get_OfxImagePropData, get_OfxImagePropRowBytes,
-    },
+    low::Status,
+    sys::{generic::core::OfxRectI, image_effect_v1::image_effect::OfxImageEffectHandle},
 };
 
-use crate::helpers::shared_data_helper::SharedDataHelper;
+use crate::helpers::shared_data::{ClipImageManaged, SharedData};
 
 #[allow(clippy::too_many_arguments)]
 pub fn pixel_processing<T>(
@@ -19,41 +14,37 @@ pub fn pixel_processing<T>(
     max: T,
     gain: f64,
     apply_to_alpha: bool,
-    data: &SharedDataHelper,
+    data: &SharedData,
     instance: OfxImageEffectHandle,
-    source_img: OfxPropertySetHandle,
-    output_img: OfxPropertySetHandle,
+    source_img: ClipImageManaged,
+    output_img: ClipImageManaged,
     render_window: OfxRectI,
-    n_comps: c_int,
-) -> Result<(), OfxStatus>
+) -> openfx::low::Result<()>
 where
     T: Copy + Default,
 {
-    let s_prop = data.inner().property_suite;
+    let n_comps = output_img.n_comps();
 
-    let dst_row_bytes = unsafe { get_OfxImagePropRowBytes(s_prop, source_img) }?;
-    let dst_bounds = unsafe { get_OfxImagePropBounds(s_prop, output_img) }?;
-    let dst_bounds = rect_i_from_array(&dst_bounds);
-    let dst_ptr = unsafe { get_OfxImagePropData(s_prop, output_img) }? as *mut T;
-    if dst_ptr.is_null() {
-        return Err(kOfxStatFailed);
-    }
+    let dst_row_bytes = output_img.row_bytes();
+    let dst_bounds = output_img.bounds();
+    let dst_ptr = output_img.data_ptr();
+    let dst_ptr = dst_ptr.as_ptr() as *mut T;
 
-    let src_row_bytes = unsafe { get_OfxImagePropRowBytes(s_prop, source_img) }?;
-    let src_bounds = unsafe { get_OfxImagePropBounds(s_prop, source_img) }?;
-    let src_bounds = rect_i_from_array(&src_bounds);
-    let src_ptr = unsafe { get_OfxImagePropData(s_prop, source_img) }? as *mut T;
-    if src_ptr.is_null() {
-        return Err(kOfxStatFailed);
-    }
+    let src_row_bytes = source_img.row_bytes();
+    let src_bounds = source_img.bounds();
+    let src_ptr = source_img.data_ptr();
+    let src_ptr = src_ptr.as_ptr() as *mut T;
 
     for y in render_window.y1..render_window.y2 {
         if y % 20 == 0
-            && data
-                .inner()
-                .image_effect_suite
-                .abort
-                .is_some_and(|abort| unsafe { abort(instance) } != 0)
+            && unsafe {
+                data.0
+                    .image_effect_suite
+                    .0
+                    .sys_ref()
+                    .abort
+                    .is_some_and(|abort| abort(instance) != 0)
+            }
         {
             return Ok(());
         }
@@ -66,7 +57,7 @@ where
             dst_row_bytes,
             n_comps,
         ) else {
-            return Err(kOfxStatFailed);
+            return Err(Status::Failed);
         };
         let mut dst_pix = dst_pix;
 

@@ -16,6 +16,13 @@ pub mod property_sets {
     ));
 }
 
+pub mod suites {
+    include!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/generated/code_from_c/low_suites_plugin.rs",
+    ));
+}
+
 pub trait Plugin {
     const PLUGIN_IDENTIFIER: &'static CStr;
     const PLUGIN_VERSION_MAJOR: c_uint;
@@ -115,7 +122,7 @@ impl Host {
     /// ## Safety
     ///
     /// The `fetchSuite` function pointer in `self.sys` must be valid.
-    pub unsafe fn fetch_suite(
+    pub unsafe fn sys_fetch_suite(
         &self,
         suite_name: &CStr,
         suite_version: c_int,
@@ -126,3 +133,8 @@ impl Host {
         }
     }
 }
+
+include!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/generated/code_from_c/low_plugin_impl_host_for_fetch_suites.rs",
+));

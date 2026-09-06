@@ -17,6 +17,7 @@ generate-code-from-c:
     rm -rf "{{ generated-path }}" "{{ generated-intermediate-path }}"
     mkdir -p "{{ generated-c-bindings-path }}" "{{ generated-code-from-c-path }}" "{{ generated-intermediate-path }}"
     cargo run --release --package openfx-codegen --bin openfx-codegen -- \
+      --codegen-config="{{ codegen-config-path }}" \
       --input-c-headers "{{ vendor-c-path }}" \
       --output-c-bindings "{{ generated-c-bindings-path }}" \
       --output-code-from-c "{{ generated-code-from-c-path }}" \
