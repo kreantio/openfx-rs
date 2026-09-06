@@ -1,5 +1,15 @@
-[suites.key_name_special_cases]
-ImageEffectOpenGLRenderSuiteV1 = "kOfxOpenGLRenderSuite"
+[suites.special_cases]
+ImageEffectOpenGLRenderSuiteV1 = { key_name = "kOfxOpenGLRenderSuite" }
+# MessageSuiteV1 = { omit_functions = ["message"] }
+# MessageSuiteV2 = { omit_functions = ["message", "setPersistentMessage"] }
+ParameterSuiteV1 = { omit_functions = [
+  "paramGetValue",
+  "paramGetValueAtTime",
+  "paramGetDerivative",
+  "paramGetIntegral",
+  "paramSetValue",
+  "paramSetValueAtTime",
+] }
 
 [property_names]
 simple_names_regex = "^Ofx(.*?)(?:Prop)(.+)$"
