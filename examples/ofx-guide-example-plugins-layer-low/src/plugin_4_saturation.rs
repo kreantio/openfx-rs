@@ -142,7 +142,7 @@ fn action_unload() -> openfx::low::Result<()> {
 fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
 
-    let s_prop = &data.0.property_suite.0;
+    let s_prop = &data.property_suite.0;
 
     let props = unsafe { data.get_property_set_from_image_effect(descriptor) }?;
     let props = EffectDescriptorPropertySet::from(props);
@@ -181,7 +181,7 @@ fn action_describe_in_context(
 ) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
 
-    let s_prop = &data.0.property_suite.0;
+    let s_prop = &data.property_suite.0;
     let s_ifx = data.image_effect_suite_helper();
 
     let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
@@ -237,7 +237,7 @@ fn action_describe_in_context(
 fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
 
-    let s_prop = &data.0.property_suite.0;
+    let s_prop = &data.property_suite.0;
     let s_ifx = data.image_effect_suite_helper();
 
     let instance_props = unsafe { data.get_property_set_from_image_effect(instance) }?;
@@ -282,7 +282,7 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result
 fn action_destroy_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
 
-    let s_prop = &data.0.property_suite.0;
+    let s_prop = &data.property_suite.0;
 
     let props = unsafe { data.get_property_set_from_image_effect(instance) }?;
     let props = EffectInstancePropertySet::from(props);
@@ -303,7 +303,7 @@ fn action_is_identity(
 ) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
 
-    let s_prop = &data.0.property_suite.0;
+    let s_prop = &data.property_suite.0;
     let s_param = data.parameter_suite_helper();
 
     let instance_props = unsafe { data.get_property_set_from_image_effect(effect) }?;
@@ -332,7 +332,7 @@ fn action_render(
 ) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
 
-    let s_prop = &data.0.property_suite.0;
+    let s_prop = &data.property_suite.0;
     let s_param = data.parameter_suite_helper();
 
     let instance_props = unsafe { data.get_property_set_from_image_effect(instance) }?;
