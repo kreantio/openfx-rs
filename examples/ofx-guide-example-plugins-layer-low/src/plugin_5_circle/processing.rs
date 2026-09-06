@@ -1,11 +1,14 @@
 use std::ffi::c_int;
 
-use openfx::sys::{
-    generic::core::{OfxRectD, OfxRectI, OfxStatus, kOfxStatFailed},
-    image_effect_v1::image_effect::OfxImageEffectHandle,
+use openfx::{
+    low::Status,
+    sys::{
+        generic::core::{OfxRectD, OfxRectI},
+        image_effect_v1::image_effect::OfxImageEffectHandle,
+    },
 };
 
-use crate::helpers::shared_data_helper::{ClipImageManaged, SharedDataHelper};
+use crate::helpers::shared_data::{ClipImageManaged, SharedData};
 
 #[allow(clippy::too_many_arguments)]
 pub fn pixel_processing<T>(
@@ -17,12 +20,12 @@ pub fn pixel_processing<T>(
     radius: f64,
     colour: [f64; 4],
     render_scale: [f64; 2],
-    data: &SharedDataHelper,
+    data: &SharedData,
     instance: OfxImageEffectHandle,
     source_img: ClipImageManaged,
     output_img: ClipImageManaged,
     render_window: OfxRectI,
-) -> Result<(), OfxStatus>
+) -> openfx::low::Result<()>
 where
     T: Copy + Default + std::ops::Add<Output = T>,
 {
@@ -37,11 +40,14 @@ where
 
     for y in render_window.y1..render_window.y2 {
         if y % 20 == 0
-            && data
-                .inner()
-                .image_effect_suite
-                .abort
-                .is_some_and(|abort| unsafe { abort(instance) } != 0)
+            && unsafe {
+                data.0
+                    .image_effect_suite
+                    .0
+                    .sys_ref()
+                    .abort
+                    .is_some_and(|abort| abort(instance) != 0)
+            }
         {
             return Ok(());
         }
@@ -50,7 +56,7 @@ where
         let dy = y_canonical - centre[1];
 
         let Some(dst_pix) = output_img.raw_address(render_window.x1, y) else {
-            return Err(kOfxStatFailed);
+            return Err(Status::Failed);
         };
         let mut dst_pix = dst_pix as *mut T;
 
