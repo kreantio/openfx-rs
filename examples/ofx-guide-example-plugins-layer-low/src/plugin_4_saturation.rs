@@ -148,17 +148,17 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> 
     let props = EffectDescriptorPropertySet::from(props);
 
     unsafe {
-        props.set_label(s_prop.sys_ptr(), Some(PLUGIN_4_SATURATION_LABEL))?;
-        props.set_image_effect_plugin_grouping(s_prop.sys_ptr(), Some(PLUGINS_GROUPING))?;
+        props.set_label(s_prop, Some(PLUGIN_4_SATURATION_LABEL))?;
+        props.set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?;
         props.set_image_effect_supported_contexts(
-            s_prop.sys_ptr(),
+            s_prop,
             &[
                 ImageEffectPropSupportedContexts::Filter,
                 ImageEffectPropSupportedContexts::General,
             ],
         )?;
         props.set_image_effect_supported_pixel_depths(
-            s_prop.sys_ptr(),
+            s_prop,
             &[
                 ImageEffectPropSupportedPixelDepths::Byte,
                 ImageEffectPropSupportedPixelDepths::Short,
@@ -166,10 +166,10 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> 
             ],
         )?;
         props.set_image_effect_plugin_render_thread_safety(
-            s_prop.sys_ptr(),
+            s_prop,
             ImageEffectPluginRenderThreadSafety::FullySafe,
         )?;
-        props.set_image_effect_plugin_host_frame_threading(s_prop.sys_ptr(), true)?;
+        props.set_image_effect_plugin_host_frame_threading(s_prop, true)?;
     }
 
     Ok(())
@@ -184,7 +184,7 @@ fn action_describe_in_context(
     let s_prop = &data.0.property_suite.0;
     let s_ifx = data.image_effect_suite_helper();
 
-    let context = unsafe { in_args.get_image_effect_context(s_prop.sys_ptr()) }?;
+    let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
     if context != ImageEffectPropContext::Filter && context != ImageEffectPropContext::General {
         return Err(Status::ErrUnsupported);
     }
@@ -194,7 +194,7 @@ fn action_describe_in_context(
 
         (unsafe {
             props.set_image_effect_supported_components(
-                s_prop.sys_ptr(),
+                s_prop,
                 &[
                     ImageEffectPropSupportedComponents::RGBA,
                     ImageEffectPropSupportedComponents::RGB,
@@ -207,11 +207,11 @@ fn action_describe_in_context(
 
         unsafe {
             props.set_image_effect_supported_components(
-                s_prop.sys_ptr(),
+                s_prop,
                 &[ImageEffectPropSupportedComponents::Alpha],
             )?;
-            props.set_image_clip_optional(s_prop.sys_ptr(), true)?;
-            props.set_image_clip_is_mask(s_prop.sys_ptr(), true)?;
+            props.set_image_clip_optional(s_prop, true)?;
+            props.set_image_clip_is_mask(s_prop, true)?;
         }
     }
 
@@ -222,15 +222,12 @@ fn action_describe_in_context(
         let param_props = ParamDouble1DPropertySet::from(param_props);
 
         unsafe {
-            param_props.set_param_double_type(s_prop.sys_ptr(), ParamPropDoubleType::Scale)?;
-            param_props.set_param_default_double(s_prop.sys_ptr(), &[1.0])?;
-            param_props.set_param_display_min_double(s_prop.sys_ptr(), &[-2.0])?;
-            param_props.set_param_display_max_double(s_prop.sys_ptr(), &[2.0])?;
-            param_props.set_label(s_prop.sys_ptr(), Some(c"Saturation"))?;
-            param_props.set_param_hint(
-                s_prop.sys_ptr(),
-                Some(c"How saturated the image should be."),
-            )?;
+            param_props.set_param_double_type(s_prop, ParamPropDoubleType::Scale)?;
+            param_props.set_param_default_double(s_prop, &[1.0])?;
+            param_props.set_param_display_min_double(s_prop, &[-2.0])?;
+            param_props.set_param_display_max_double(s_prop, &[2.0])?;
+            param_props.set_label(s_prop, Some(c"Saturation"))?;
+            param_props.set_param_hint(s_prop, Some(c"How saturated the image should be."))?;
         }
     }
 
@@ -246,7 +243,7 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result
     let instance_props = unsafe { data.get_property_set_from_image_effect(instance) }?;
     let instance_props = EffectInstancePropertySet::from(instance_props);
 
-    let context = unsafe { instance_props.get_image_effect_context(s_prop.sys_ptr()) }?;
+    let context = unsafe { instance_props.get_image_effect_context(s_prop) }?;
     let is_general_context = context == ImageEffectPropContext::General;
 
     let source_clip = unsafe { s_ifx.clip_get_handle(instance, c"Source") }?;
@@ -290,7 +287,7 @@ fn action_destroy_instance(instance: OfxImageEffectHandle) -> openfx::low::Resul
     let props = unsafe { data.get_property_set_from_image_effect(instance) }?;
     let props = EffectInstancePropertySet::from(props);
 
-    let Some(my_data_ptr) = (unsafe { props.get_instance_data(s_prop.sys_ptr())? }) else {
+    let Some(my_data_ptr) = (unsafe { props.get_instance_data(s_prop)? }) else {
         return Err(Status::Failed);
     };
 
@@ -312,12 +309,12 @@ fn action_is_identity(
     let instance_props = unsafe { data.get_property_set_from_image_effect(effect) }?;
     let instance_props = EffectInstancePropertySet::from(instance_props);
 
-    let Some(my_data_ptr) = (unsafe { instance_props.get_instance_data(s_prop.sys_ptr())? }) else {
+    let Some(my_data_ptr) = (unsafe { instance_props.get_instance_data(s_prop)? }) else {
         return Err(Status::Failed);
     };
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
-    let time = unsafe { in_args.get_time(s_prop.sys_ptr()) }?;
+    let time = unsafe { in_args.get_time(s_prop) }?;
     let saturation =
         unsafe { s_param.param_get_value_at_time_double(my_data.saturation_param, time) }?;
 
@@ -341,12 +338,12 @@ fn action_render(
     let instance_props = unsafe { data.get_property_set_from_image_effect(instance) }?;
     let instance_props = EffectInstancePropertySet::from(instance_props);
 
-    let time = unsafe { in_args.get_time(s_prop.sys_ptr()) }?;
+    let time = unsafe { in_args.get_time(s_prop) }?;
     let render_window =
         unsafe { get_OfxImageEffectPropRenderWindow(s_prop.sys_ptr(), in_args.sys_handle()) }?;
     let render_window = rect_i_from_array(&render_window);
 
-    let Some(my_data_ptr) = (unsafe { instance_props.get_instance_data(s_prop.sys_ptr())? }) else {
+    let Some(my_data_ptr) = (unsafe { instance_props.get_instance_data(s_prop)? }) else {
         return Err(Status::Failed);
     };
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
