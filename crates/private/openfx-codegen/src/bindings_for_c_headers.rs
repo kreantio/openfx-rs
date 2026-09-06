@@ -305,9 +305,13 @@ fn gen_suites(
         let mut output = proc_macro2::TokenStream::new();
 
         for (name, simple_ident) in suite_names.iter().zip(simple_idents.iter()) {
+            let special_case = &confg.suites.special_cases.get(&simple_ident.to_string());
+            let fns_to_omit = special_case.and_then(|sc| sc.omit_functions.as_ref());
+
             let full_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
             let mut fns: Vec<syn::Ident> = suites[name]
                 .iter()
+                .filter(|v| fns_to_omit.is_none_or(|o| !o.contains(*v)))
                 .map(|v| {
                     syn::Ident::new(
                         &v.to_case(convert_case::Case::Snake),
@@ -333,11 +337,9 @@ fn gen_suites(
         let mut output = proc_macro2::TokenStream::new();
 
         for simple_ident in &simple_idents {
-            if let Some(corrected_k_name) = &confg
-                .suites
-                .key_name_special_cases
-                .get(&simple_ident.to_string())
-            {
+            let special_case = &confg.suites.special_cases.get(&simple_ident.to_string());
+
+            if let Some(corrected_k_name) = special_case.and_then(|sc| sc.key_name.as_deref()) {
                 let corrected_k_ident =
                     syn::Ident::new(corrected_k_name, proc_macro2::Span::call_site());
                 output.extend(quote! {

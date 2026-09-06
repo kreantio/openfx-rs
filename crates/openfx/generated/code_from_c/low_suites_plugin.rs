@@ -40,10 +40,8 @@ openfx_internal_macros::low_make_suite_struct!(
 openfx_internal_macros::low_make_suite_struct!(
     ParameterSuiteV1 : OfxParameterSuiteV1 : param_copy, param_define,
     param_delete_all_keys, param_delete_key, param_edit_begin, param_edit_end,
-    param_get_derivative, param_get_handle, param_get_integral, param_get_key_index,
-    param_get_key_time, param_get_num_keys, param_get_property_set, param_get_value,
-    param_get_value_at_time, param_set_get_property_set, param_set_value,
-    param_set_value_at_time,
+    param_get_handle, param_get_key_index, param_get_key_time, param_get_num_keys,
+    param_get_property_set, param_set_get_property_set,
 );
 openfx_internal_macros::low_make_suite_struct!(
     ParametricParameterSuiteV1 : OfxParametricParameterSuiteV1 :

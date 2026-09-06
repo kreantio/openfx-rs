@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 pub mod bindings_for_c_headers;
 
 mod vibe_zone;
@@ -15,5 +17,11 @@ impl CodegenConfig {
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigSuites {
-    pub key_name_special_cases: std::collections::HashMap<String, String>,
+    pub special_cases: std::collections::HashMap<String, CodegenConfigSuiteSpecialCase>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct CodegenConfigSuiteSpecialCase {
+    pub key_name: Option<String>,
+    pub omit_functions: Option<HashSet<String>>,
 }
