@@ -155,9 +155,9 @@ fn make_property_setter(
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
             /// - `suite` must be a valid pointer to
             ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
-            pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1, value: #container_ty) -> crate::low::Result<()> {
+            pub unsafe fn #fn_name(&self, suite: impl Into<*const crate::sys_umbrella::OfxPropertySuiteV1>, value: #container_ty) -> crate::low::Result<()> {
                 let value_sys = #value_as_sys_quote;
-                let status = crate::sys_helpers_properties_umbrella::#fn_name_sys(suite, self.sys_handle(), #setter_value_quote);
+                let status = crate::sys_helpers_properties_umbrella::#fn_name_sys(suite.into(), self.sys_handle(), #setter_value_quote);
                 status.map_err(crate::low::Status::from)
             }
         }
@@ -207,8 +207,8 @@ fn make_property_getter(
         InputContainerType::Single(_) => output.extend(
             quote! {
                 #docs
-                pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1) -> crate::low::Result<#rust_ty> {
-                    let value_sys = crate::sys_helpers_properties_umbrella::#fn_name_sys(suite, self.sys_handle())
+                pub unsafe fn #fn_name(&self, suite: impl Into<*const crate::sys_umbrella::OfxPropertySuiteV1>) -> crate::low::Result<#rust_ty> {
+                    let value_sys = crate::sys_helpers_properties_umbrella::#fn_name_sys(suite.into(), self.sys_handle())
                         .map_err(crate::low::Status::from)?;
                     Ok(#value_from_sys_quote)
                 }
@@ -217,8 +217,8 @@ fn make_property_getter(
         InputContainerType::FixedArray(_, size) => output.extend(
             quote! {
                 #docs
-                pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1) -> crate::low::Result<[#rust_ty; #size]> {
-                    let value_sys = crate::sys_helpers_properties_umbrella::#fn_name_sys(suite, self.sys_handle())
+                pub unsafe fn #fn_name(&self, suite: impl Into<*const crate::sys_umbrella::OfxPropertySuiteV1>) -> crate::low::Result<[#rust_ty; #size]> {
+                    let value_sys = crate::sys_helpers_properties_umbrella::#fn_name_sys(suite.into(), self.sys_handle())
                         .map_err(crate::low::Status::from)?;
                     Ok(#value_from_sys_quote)
                 }
@@ -234,7 +234,8 @@ fn make_property_getter(
             output.extend(
                 quote! {
                     #docs
-                    pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1) -> crate::low::Result<::std::vec::Vec<#rust_ty>> {
+                    pub unsafe fn #fn_name(&self, suite: impl Into<*const crate::sys_umbrella::OfxPropertySuiteV1>) -> crate::low::Result<::std::vec::Vec<#rust_ty>> {
+                        let suite = suite.into();
                         let dimensions = self.#fn_name_dimensions(suite)?;
                         let mut value_sys = ::std::vec![unsafe { ::std::mem::zeroed::<#sys_ty>() }; dimensions as usize];
                         crate::sys_helpers_properties_umbrella::#fn_name_sys(suite, self.sys_handle(), &mut value_sys)
@@ -272,10 +273,10 @@ fn make_property_resetter(
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
             /// - `suite` must be a valid pointer to
             ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
-            pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1) -> crate::low::Result<()> {
+            pub unsafe fn #fn_name(&self, suite: impl Into<*const crate::sys_umbrella::OfxPropertySuiteV1>) -> crate::low::Result<()> {
                 let status = unsafe {
                     crate::sys_helpers::generic::properties::reset_property(
-                        suite,
+                        suite.into(),
                         self.sys_handle(),
                         crate::sys_umbrella::#property_name.as_ptr(),
                     )
@@ -311,10 +312,10 @@ fn make_property_dimensions_getter(
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
             /// - `suite` must be a valid pointer to
             ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
-            pub unsafe fn #fn_name(&self, suite: *const crate::sys_umbrella::OfxPropertySuiteV1) -> crate::low::Result<::std::os::raw::c_int> {
+            pub unsafe fn #fn_name(&self, suite: impl Into<*const crate::sys_umbrella::OfxPropertySuiteV1>) -> crate::low::Result<::std::os::raw::c_int> {
                 let status = unsafe {
                     crate::sys_helpers::generic::properties::get_property_dimension(
-                        suite,
+                        suite.into(),
                         self.sys_handle(),
                         crate::sys_umbrella::#property_name.as_ptr(),
                     )

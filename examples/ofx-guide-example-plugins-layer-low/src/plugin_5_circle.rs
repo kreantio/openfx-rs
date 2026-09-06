@@ -159,7 +159,7 @@ fn action_load() -> openfx::low::Result<()> {
                     .host
                     .0
                     .host()
-                    .get_api_version(data.0.property_suite.0.sys_ptr())
+                    .get_api_version(&data.0.property_suite.0)
             }?;
 
             // we only support 1.2 and above
@@ -172,7 +172,7 @@ fn action_load() -> openfx::low::Result<()> {
                     .host
                     .0
                     .host()
-                    .get_image_effect_supports_multi_resolution(data.0.property_suite.0.sys_ptr())
+                    .get_image_effect_supports_multi_resolution(&data.0.property_suite.0)
             }?;
 
             AdditionalSharedData {
@@ -205,14 +205,14 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> 
     let props = EffectDescriptorPropertySet::from(props);
 
     unsafe {
-        props.set_label(s_prop.sys_ptr(), Some(PLUGIN_5_CIRCLE_LABEL))?;
-        props.set_image_effect_plugin_grouping(s_prop.sys_ptr(), Some(PLUGINS_GROUPING))?;
+        props.set_label(s_prop, Some(PLUGIN_5_CIRCLE_LABEL))?;
+        props.set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?;
         props.set_image_effect_supported_contexts(
-            s_prop.sys_ptr(),
+            s_prop,
             &[ImageEffectPropSupportedContexts::Filter],
         )?;
         props.set_image_effect_supported_pixel_depths(
-            s_prop.sys_ptr(),
+            s_prop,
             &[
                 ImageEffectPropSupportedPixelDepths::Float,
                 ImageEffectPropSupportedPixelDepths::Short,
@@ -220,10 +220,10 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> 
             ],
         )?;
         props.set_image_effect_plugin_render_thread_safety(
-            s_prop.sys_ptr(),
+            s_prop,
             ImageEffectPluginRenderThreadSafety::FullySafe,
         )?;
-        props.set_image_effect_plugin_host_frame_threading(s_prop.sys_ptr(), true)?;
+        props.set_image_effect_plugin_host_frame_threading(s_prop, true)?;
     }
 
     Ok(())
@@ -238,7 +238,7 @@ fn action_describe_in_context(
     let s_prop = &data.0.property_suite.0;
     let s_ifx = data.image_effect_suite_helper();
 
-    let context = unsafe { in_args.get_image_effect_context(s_prop.sys_ptr()) }?;
+    let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
     if context != ImageEffectPropContext::Filter {
         return Err(Status::ErrUnsupported);
     }
@@ -248,7 +248,7 @@ fn action_describe_in_context(
 
         (unsafe {
             props.set_image_effect_supported_components(
-                s_prop.sys_ptr(),
+                s_prop,
                 &[
                     ImageEffectPropSupportedComponents::RGBA,
                     ImageEffectPropSupportedComponents::Alpha,
@@ -266,22 +266,22 @@ fn action_describe_in_context(
         let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
 
         unsafe {
-            param_props_d.set_param_double_type(s_prop.sys_ptr(), ParamPropDoubleType::X)?;
+            param_props_d.set_param_double_type(s_prop, ParamPropDoubleType::X)?;
             // Not supported by DaVinci Resolve. To make the plugin work there,
             // we ignore the return value here. TODO: Calculate the default value
             // in canonical coordinate if this fails.
             param_props_ns
                 .set_param_default_coordinate_system(
-                    s_prop.sys_ptr(),
+                    s_prop,
                     ParamPropDefaultCoordinateSystem::Normalised,
                 )
                 .ok();
-            param_props_d.set_param_default_double(s_prop.sys_ptr(), &[0.25])?;
-            param_props_d.set_param_min_double(s_prop.sys_ptr(), &[0.0])?;
-            param_props_d.set_param_display_min_double(s_prop.sys_ptr(), &[0.0])?;
-            param_props_d.set_param_display_max_double(s_prop.sys_ptr(), &[2.0])?;
-            param_props_d.set_label(s_prop.sys_ptr(), Some(c"Radius"))?;
-            param_props_d.set_param_hint(s_prop.sys_ptr(), Some(c"The radius of the circle."))?;
+            param_props_d.set_param_default_double(s_prop, &[0.25])?;
+            param_props_d.set_param_min_double(s_prop, &[0.0])?;
+            param_props_d.set_param_display_min_double(s_prop, &[0.0])?;
+            param_props_d.set_param_display_max_double(s_prop, &[2.0])?;
+            param_props_d.set_label(s_prop, Some(c"Radius"))?;
+            param_props_d.set_param_hint(s_prop, Some(c"The radius of the circle."))?;
         }
     }
 
@@ -291,17 +291,16 @@ fn action_describe_in_context(
         let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
 
         unsafe {
-            param_props_d
-                .set_param_double_type(s_prop.sys_ptr(), ParamPropDoubleType::XYAbsolute)?;
+            param_props_d.set_param_double_type(s_prop, ParamPropDoubleType::XYAbsolute)?;
             param_props_ns
                 .set_param_default_coordinate_system(
-                    s_prop.sys_ptr(),
+                    s_prop,
                     ParamPropDefaultCoordinateSystem::Normalised,
                 )
                 .ok();
-            param_props_d.set_param_default_double(s_prop.sys_ptr(), &[0.5, 0.5])?;
-            param_props_d.set_label(s_prop.sys_ptr(), Some(c"Centre"))?;
-            param_props_d.set_param_hint(s_prop.sys_ptr(), Some(c"The centre of the circle."))?;
+            param_props_d.set_param_default_double(s_prop, &[0.5, 0.5])?;
+            param_props_d.set_label(s_prop, Some(c"Centre"))?;
+            param_props_d.set_param_hint(s_prop, Some(c"The centre of the circle."))?;
         }
     }
 
@@ -310,9 +309,9 @@ fn action_describe_in_context(
         let param_props_d = ParamsDouble2D3DPropertySet::from(param_props);
 
         unsafe {
-            param_props_d.set_param_default_double(s_prop.sys_ptr(), &[1.0, 1.0, 1.0, 0.5])?;
-            param_props_d.set_label(s_prop.sys_ptr(), Some(c"Colour"))?;
-            param_props_d.set_param_hint(s_prop.sys_ptr(), Some(c"The colour of the circle."))?;
+            param_props_d.set_param_default_double(s_prop, &[1.0, 1.0, 1.0, 0.5])?;
+            param_props_d.set_label(s_prop, Some(c"Colour"))?;
+            param_props_d.set_param_hint(s_prop, Some(c"The colour of the circle."))?;
         }
     }
 
@@ -321,10 +320,10 @@ fn action_describe_in_context(
         let param_props = ParamsBytePropertySet::from(param_props);
 
         unsafe {
-            param_props.set_param_default_int(s_prop.sys_ptr(), &[0])?;
-            param_props.set_label(s_prop.sys_ptr(), Some(c"Grow RoD"))?;
+            param_props.set_param_default_int(s_prop, &[0])?;
+            param_props.set_label(s_prop, Some(c"Grow RoD"))?;
             param_props.set_param_hint(
-                s_prop.sys_ptr(),
+                s_prop,
                 Some(c"Whether to grow the output's Region of Definition to include the circle."),
             )?;
         }
@@ -383,7 +382,7 @@ fn action_destroy_instance(instance: OfxImageEffectHandle) -> openfx::low::Resul
     let props = unsafe { data.get_property_set_from_image_effect(instance) }?;
     let props = EffectInstancePropertySet::from(props);
 
-    let Some(my_data_ptr) = (unsafe { props.get_instance_data(s_prop.sys_ptr())? }) else {
+    let Some(my_data_ptr) = (unsafe { props.get_instance_data(s_prop)? }) else {
         return Err(Status::Failed);
     };
 
@@ -409,7 +408,7 @@ fn action_get_region_of_definition(
     let s_ifx = data.image_effect_suite_helper();
     let s_param = data.parameter_suite_helper();
 
-    let time = unsafe { in_args.get_time(s_prop.sys_ptr()) }?;
+    let time = unsafe { in_args.get_time(s_prop) }?;
 
     let growing_rod = if let Some(grow_rod_param) = instance_data.grow_rod_param {
         (unsafe { s_param.param_get_value_at_time_int(grow_rod_param, time) })? != 0
@@ -440,9 +439,7 @@ fn action_get_region_of_definition(
     rod.x2 = f64::max(rod.x2, centre_x + radius);
     rod.y2 = f64::max(rod.y2, centre_y + radius);
 
-    unsafe {
-        out_args.set_image_effect_region_of_definition(s_prop.sys_ptr(), rect_d_to_array(&rod))
-    }?;
+    unsafe { out_args.set_image_effect_region_of_definition(s_prop, rect_d_to_array(&rod)) }?;
 
     Ok(())
 }
@@ -460,7 +457,7 @@ fn action_is_identity(
 
     let instance_data = unsafe { data.get_instance_data::<InstanceData>(effect)? };
 
-    let time = unsafe { in_args.get_time(s_prop.sys_ptr()) }?;
+    let time = unsafe { in_args.get_time(s_prop) }?;
 
     let radius =
         unsafe { s_param.param_get_value_at_time_double(instance_data.radius_param, time) }?;
@@ -514,7 +511,7 @@ fn action_render(
     let s_prop = &data.0.property_suite.0;
     let s_param = data.parameter_suite_helper();
 
-    let time = unsafe { in_args.get_time(s_prop.sys_ptr()) }?;
+    let time = unsafe { in_args.get_time(s_prop) }?;
     let render_window =
         unsafe { get_OfxImageEffectPropRenderWindow(s_prop.sys_ptr(), in_args.sys_handle()) }?;
     let render_window = rect_i_from_array(&render_window);

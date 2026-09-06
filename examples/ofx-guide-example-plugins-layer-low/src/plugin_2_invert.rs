@@ -112,14 +112,14 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> 
     let props = EffectDescriptorPropertySet::from(props);
 
     unsafe {
-        props.set_label(s_prop.sys_ptr(), Some(PLUGIN_2_INVERT_LABEL))?;
-        props.set_image_effect_plugin_grouping(s_prop.sys_ptr(), Some(PLUGINS_GROUPING))?;
+        props.set_label(s_prop, Some(PLUGIN_2_INVERT_LABEL))?;
+        props.set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?;
         props.set_image_effect_supported_contexts(
-            s_prop.sys_ptr(),
+            s_prop,
             &[ImageEffectPropSupportedContexts::Filter],
         )?;
         props.set_image_effect_supported_pixel_depths(
-            s_prop.sys_ptr(),
+            s_prop,
             &[
                 ImageEffectPropSupportedPixelDepths::Float,
                 ImageEffectPropSupportedPixelDepths::Short,
@@ -127,10 +127,10 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> 
             ],
         )?;
         props.set_image_effect_plugin_render_thread_safety(
-            s_prop.sys_ptr(),
+            s_prop,
             ImageEffectPluginRenderThreadSafety::FullySafe,
         )?;
-        props.set_image_effect_plugin_host_frame_threading(s_prop.sys_ptr(), true)?;
+        props.set_image_effect_plugin_host_frame_threading(s_prop, true)?;
     }
 
     Ok(())
@@ -145,7 +145,7 @@ fn action_describe_in_context(
     let s_prop = &data.0.property_suite.0;
     let s_ifx = data.image_effect_suite_helper();
 
-    let context = unsafe { in_args.get_image_effect_context(s_prop.sys_ptr()) }?;
+    let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
     if context != ImageEffectPropContext::Filter {
         return Err(Status::ErrUnsupported);
     }
@@ -155,7 +155,7 @@ fn action_describe_in_context(
 
         (unsafe {
             props.set_image_effect_supported_components(
-                s_prop.sys_ptr(),
+                s_prop,
                 &[
                     ImageEffectPropSupportedComponents::RGBA,
                     ImageEffectPropSupportedComponents::Alpha,
@@ -284,7 +284,7 @@ fn action_render(
     let s_prop = &data.0.property_suite.0;
     let image_effect_suite_helper = data.image_effect_suite_helper();
 
-    let time = unsafe { in_args.get_time(s_prop.sys_ptr()) }?;
+    let time = unsafe { in_args.get_time(s_prop) }?;
     let render_window =
         unsafe { get_OfxImageEffectPropRenderWindow(s_prop.sys_ptr(), in_args.sys_handle()) }?;
     let render_window = rect_i_from_array(&render_window);

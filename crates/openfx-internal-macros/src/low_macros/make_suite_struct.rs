@@ -39,6 +39,11 @@ pub fn make_suite_struct(tokens: TokenStream) -> TokenStream {
                 unsafe { self.0.as_ref() }
             }
         }
+        impl From<&#simple_ident> for *const crate::sys_umbrella::#full_ident {
+            fn from(value: &#simple_ident) -> Self {
+                value.sys_ptr()
+            }
+        }
 
         // const _: () = {
         //     #(

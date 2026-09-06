@@ -81,8 +81,7 @@ impl SharedData {
     pub unsafe fn get_instance_data<T>(&self, effect: OfxImageEffectHandle) -> low::Result<&T> {
         let props = unsafe { self.image_effect_suite_helper().get_property_set(effect) }?;
         let props = EffectInstancePropertySet::from(props);
-        let Some(instance_data_ptr) =
-            unsafe { props.get_instance_data(self.0.property_suite.0.sys_ptr()) }?
+        let Some(instance_data_ptr) = unsafe { props.get_instance_data(&self.0.property_suite.0) }?
         else {
             return Err(Status::Failed);
         };
@@ -385,26 +384,26 @@ impl ClipImageManaged {
     ) -> low::Result<Option<Self>> {
         let s_prop = &shared_data.0.property_suite.0;
 
-        let Some(data_ptr) = (unsafe { props.get_image_data(s_prop.sys_ptr())? }) else {
+        let Some(data_ptr) = (unsafe { props.get_image_data(s_prop)? }) else {
             return Ok(None);
         };
 
-        let n_comps = match unsafe { props.get_image_effect_components(s_prop.sys_ptr())? } {
+        let n_comps = match unsafe { props.get_image_effect_components(s_prop)? } {
             low::enums::ImageEffectPropComponents::Alpha => 1,
             low::enums::ImageEffectPropComponents::RGB => 3,
             low::enums::ImageEffectPropComponents::RGBA => 4,
             _ => 0,
         };
-        let pixel_depth = match unsafe { props.get_image_effect_pixel_depth(s_prop.sys_ptr())? } {
+        let pixel_depth = match unsafe { props.get_image_effect_pixel_depth(s_prop)? } {
             low::enums::ImageEffectPropPixelDepth::Byte => BitDepth::Byte,
             low::enums::ImageEffectPropPixelDepth::Short => BitDepth::Short,
             low::enums::ImageEffectPropPixelDepth::Float => BitDepth::Float,
             _ => return Err(Status::ErrUnsupported),
         };
-        let row_bytes = unsafe { props.get_image_row_bytes(s_prop.sys_ptr())? };
-        let bounds = unsafe { props.get_image_bounds(s_prop.sys_ptr())? };
+        let row_bytes = unsafe { props.get_image_row_bytes(s_prop)? };
+        let bounds = unsafe { props.get_image_bounds(s_prop)? };
         let bounds = rect_i_from_array(&bounds);
-        let pixel_aspect_ratio = unsafe { props.get_image_pixel_aspect_ratio(s_prop.sys_ptr())? };
+        let pixel_aspect_ratio = unsafe { props.get_image_pixel_aspect_ratio(s_prop)? };
 
         Ok(Some(Self {
             image_effect_suite_helper: shared_data.image_effect_suite_helper(),
