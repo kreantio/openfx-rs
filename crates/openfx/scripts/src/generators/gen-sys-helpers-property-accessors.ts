@@ -3,7 +3,7 @@ import path from "node:path";
 import {
   FinalResult as FinalResultOfxPropsMetadata,
   PropType,
-} from "../parsers/parser-ofxPropsMetadata/types.ts";
+} from "../vibe-zone/parsers/parser-ofxPropsMetadata/types.ts";
 import { NameRegulator } from "../utils/name-regulator.ts";
 import { representTypeWithContainer } from "../utils/representations.ts";
 

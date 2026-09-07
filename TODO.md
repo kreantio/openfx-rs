@@ -21,11 +21,13 @@
   - [x] layer `sys`
   - [ ] layer `low`: WIP
   - [ ] layer `high`
-- [ ] a simple OpenGL plugin (using `glow`)
+- [ ] ports of [official examples] (not guide examples)
+  - using `glow` for GL-related examples
 - [ ] a port of [`learn-wgpu`] (Metal on macOS in supported hosts?)
 - [ ] a simple host that supports OpenGL rendering (using `glow`?)
 - [ ] [`ntsc-rs`] + layer `high`
 
 [`ofx-guide-example-plugins`]: https://openfx.readthedocs.io/en/latest/Guide/index.html
+[official examples]: ./crates/openfx/vendor/openfx/Examples/
 [`learn-wgpu`]: https://github.com/umajho/ludejo-de-umajho/tree/1e933c930f0d140b61e8827b89c4712c3ebe562d/ui/deno-wasm-wgpu/crates/learn_wgpu_tutorial
 [`ntsc-rs`]: https://github.com/ntsc-rs/ntsc-rs/tree/af9833b4bb81f195f7fe4a3667211f2a94139a42/crates/openfx-plugin

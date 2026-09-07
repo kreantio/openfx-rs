@@ -232,14 +232,12 @@ impl Plugin for BasicExamplePlugin {
     const PLUGIN_VERSION_MINOR: c_uint = 0;
     type Instance = BasicExamplePluginInstance;
     fn describe(
-        &self,
         ctx: &actions::describe::Context,
         in_args: &actions::describe::InArgs,
     ) -> actions::describe::Result {
         todo!()
     }
     fn create_instance(
-        &self,
         ctx: actions::create_instance::Context,
     ) -> actions::create_instance::Result<Self::Instance> {
         todo!()

@@ -1,7 +1,23 @@
+[suites.special_cases]
+ImageEffectOpenGLRenderSuiteV1 = { key_name = "kOfxOpenGLRenderSuite" }
+# MessageSuiteV1 = { omit_functions = ["message"] }
+# MessageSuiteV2 = { omit_functions = ["message", "setPersistentMessage"] }
+ParameterSuiteV1 = { omit_functions = [
+  "paramGetValue",
+  "paramGetValueAtTime",
+  "paramGetDerivative",
+  "paramGetIntegral",
+  "paramSetValue",
+  "paramSetValueAtTime",
+] }
+
 [property_names]
-simple_names_regex = "^Ofx.*?Prop(.+)$"
+simple_names_regex = "^Ofx(.*?)(?:Prop)(.+)$"
 [property_names.simple_names_special_cases]
-OfxImageEffectFrameVarying = "FrameVarying"
+# action args: no `"Prop"`
+OfxImageEffectFrameVarying = "ImageEffectFrameVarying"
+# property sets: no `"Prop"`
+OfxImageEffectPluginRenderThreadSafety = "ImageEffectPluginRenderThreadSafety"
 
 [actions.pseudo]
 members = ["CustomParamInterpFunc"]

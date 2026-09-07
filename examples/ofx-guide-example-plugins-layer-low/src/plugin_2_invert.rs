@@ -1,49 +1,40 @@
 use std::{
     ffi::{CStr, c_int},
-    sync::{Mutex, OnceLock},
+    sync::Mutex,
 };
 
 use openfx::{
-    low::{Status, enums::ImageEffectPropContext},
+    low::{
+        Status,
+        enums::{
+            ImageEffectPluginRenderThreadSafety, ImageEffectPropContext,
+            ImageEffectPropSupportedComponents, ImageEffectPropSupportedContexts,
+            ImageEffectPropSupportedPixelDepths,
+        },
+    },
     low_plugin::{
-        Plugin,
+        Host, Plugin,
         actions::image_effect::{ActionDescribeInContextIn, ActionRenderIn, ImageEffectAction},
+        property_sets::EffectDescriptorPropertySet,
     },
     sys::{
-        generic::core::{
-            OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, kOfxBitDepthByte,
-            kOfxBitDepthFloat, kOfxBitDepthShort, kOfxStatFailed,
-        },
-        image_effect_v1::image_effect::{
-            OfxImageEffectHandle, kOfxImageComponentAlpha, kOfxImageComponentRGB,
-            kOfxImageComponentRGBA, kOfxImageEffectContextFilter, kOfxImageEffectRenderFullySafe,
-        },
+        generic::core::{OfxRectI, kOfxStatFailed},
+        image_effect_v1::image_effect::OfxImageEffectHandle,
     },
-    sys_helpers::{
-        generic::properties::set_OfxPropLabel,
-        image_effect_v1::properties::{
-            get_OfxImageEffectPropComponents, get_OfxImageEffectPropPixelDepth,
-            get_OfxImageEffectPropRenderWindow, get_OfxImagePropBounds, get_OfxImagePropData,
-            get_OfxImagePropRowBytes, set_OfxImageEffectPluginPropGrouping,
-            set_OfxImageEffectPluginPropHostFrameThreading,
-            set_OfxImageEffectPluginRenderThreadSafety, set_OfxImageEffectPropSupportedComponents,
-            set_OfxImageEffectPropSupportedContexts, set_OfxImageEffectPropSupportedPixelDepths,
-        },
-    },
+    sys_helpers::image_effect_v1::properties::get_OfxImageEffectPropRenderWindow,
 };
 
 use crate::{
     definitions::{PLUGIN_2_INVERT_IDENTIFIER, PLUGIN_2_INVERT_LABEL, PLUGINS_GROUPING},
-    helpers::{SaferHostStruct, SharedData, shared_data_helper::SharedDataHelper},
+    helpers::shared_data::{BitDepth, ClipImageManaged, GuaranteeSend, SharedData},
 };
 
-static HOST_STRUCT: OnceLock<SaferHostStruct> = OnceLock::new();
+static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(None);
+static SHARED_DATA: Mutex<Option<SharedData>> = Mutex::new(None);
 
-static SHARED_DATA: Mutex<Option<SharedData<'static>>> = Mutex::new(None);
-
-fn shared_data_lockless() -> Result<SharedData<'static>, OfxStatus> {
-    let data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
-    let data = data.as_ref().ok_or(kOfxStatFailed)?;
+fn shared_data_lockless() -> openfx::low::Result<SharedData> {
+    let data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
+    let data = data.as_ref().ok_or(Status::Failed)?;
     Ok(data.clone())
 }
 
@@ -53,38 +44,14 @@ impl Plugin for PluginExampleInvert {
     const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
     const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
 
-    fn set_host(host_struct: *mut OfxHost) {
-        fn inner(host_struct: *mut OfxHost) -> Result<(), &'static str> {
-            let host_struct = unsafe {
-                host_struct
-                    .as_mut()
-                    .ok_or("`host_struct` should not be null.")?
-            };
-            let host = unsafe {
-                host_struct
-                    .host
-                    .as_mut()
-                    .ok_or("`host_struct.host` should not be null.")?
-            };
-            let fetch_suite = host_struct
-                .fetchSuite
-                .ok_or("`host_struct.fetchSuite` should not be null.")?;
-
-            if HOST_STRUCT
-                .set(SaferHostStruct { host, fetch_suite })
-                .is_err()
-            {
-                return Err("`HOST_STRUCT` has already been initialized before.");
-            }
-            Ok(())
+    fn set_host(host: Host) {
+        let mut lock = HOST_BEFORE_ACTION_LOAD
+            .lock()
+            .expect("Failed to lock HOST_BEFORE_ACTION_LOAD.");
+        if lock.is_some() {
+            panic!("HOST_BEFORE_ACTION_LOAD has already been set.");
         }
-
-        match inner(host_struct) {
-            Ok(_) => {}
-            Err(err) => {
-                tracing::error!("Failed to set host: {}", err);
-            }
-        }
+        lock.replace(GuaranteeSend(host));
     }
 
     fn main_entry(action: ImageEffectAction) -> openfx::low::Result<()> {
@@ -112,13 +79,17 @@ impl Plugin for PluginExampleInvert {
 }
 
 fn action_load() -> openfx::low::Result<()> {
-    let host_struct = HOST_STRUCT.get().ok_or(kOfxStatFailed)?.clone();
+    let host = HOST_BEFORE_ACTION_LOAD
+        .lock()
+        .map_err(|_| kOfxStatFailed)?
+        .take()
+        .ok_or(kOfxStatFailed)?;
 
     let mut data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
     if data.is_some() {
         Err(Status::Failed)
     } else {
-        *data = Some(SharedData::try_new(host_struct)?);
+        *data = Some(SharedData::try_new(host)?);
         Ok(())
     }
 }
@@ -134,35 +105,32 @@ fn action_unload() -> openfx::low::Result<()> {
 
 fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
-    let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let s_prop = data.inner().property_suite;
+    let s_prop = &data.property_suite.0;
 
     let props = unsafe { data.get_property_set_from_image_effect(descriptor) }?;
+    let props = EffectDescriptorPropertySet::from(props);
 
     unsafe {
-        set_OfxPropLabel(s_prop, props, PLUGIN_2_INVERT_LABEL.as_ptr())?;
-        set_OfxImageEffectPluginPropGrouping(s_prop, props, PLUGINS_GROUPING.as_ptr())?;
-        set_OfxImageEffectPropSupportedContexts(
+        props.set_label(s_prop, Some(PLUGIN_2_INVERT_LABEL))?;
+        props.set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?;
+        props.set_image_effect_supported_contexts(
             s_prop,
-            props,
-            &[kOfxImageEffectContextFilter.as_ptr()],
+            &[ImageEffectPropSupportedContexts::Filter],
         )?;
-        set_OfxImageEffectPropSupportedPixelDepths(
+        props.set_image_effect_supported_pixel_depths(
             s_prop,
-            props,
             &[
-                kOfxBitDepthFloat.as_ptr(),
-                kOfxBitDepthShort.as_ptr(),
-                kOfxBitDepthByte.as_ptr(),
+                ImageEffectPropSupportedPixelDepths::Float,
+                ImageEffectPropSupportedPixelDepths::Short,
+                ImageEffectPropSupportedPixelDepths::Byte,
             ],
         )?;
-        set_OfxImageEffectPluginRenderThreadSafety(
+        props.set_image_effect_plugin_render_thread_safety(
             s_prop,
-            props,
-            kOfxImageEffectRenderFullySafe.as_ptr(),
+            ImageEffectPluginRenderThreadSafety::FullySafe,
         )?;
-        set_OfxImageEffectPluginPropHostFrameThreading(s_prop, props, 1)?;
+        props.set_image_effect_plugin_host_frame_threading(s_prop, true)?;
     }
 
     Ok(())
@@ -173,27 +141,25 @@ fn action_describe_in_context(
     in_args: ActionDescribeInContextIn,
 ) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
-    let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let s_prop = data.inner().property_suite;
-    let image_effect_suite_helper = data.image_effect_suite_helper();
+    let s_prop = &data.property_suite.0;
+    let s_ifx = data.image_effect_suite_helper();
 
-    let context = unsafe { in_args.get_context(s_prop) }?;
+    let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
     if context != ImageEffectPropContext::Filter {
         return Err(Status::ErrUnsupported);
     }
 
     for name in [c"Output", c"Source"] {
-        let props = unsafe { image_effect_suite_helper.clip_define(descriptor, name) }?;
+        let props = unsafe { s_ifx.clip_define(descriptor, name) }?;
 
         (unsafe {
-            set_OfxImageEffectPropSupportedComponents(
+            props.set_image_effect_supported_components(
                 s_prop,
-                props,
                 &[
-                    kOfxImageComponentRGBA.as_ptr(),
-                    kOfxImageComponentAlpha.as_ptr(),
-                    kOfxImageComponentRGB.as_ptr(),
+                    ImageEffectPropSupportedComponents::RGBA,
+                    ImageEffectPropSupportedComponents::Alpha,
+                    ImageEffectPropSupportedComponents::RGB,
                 ],
             )
         })?;
@@ -227,41 +193,35 @@ fn pixel_address<T>(
 
 fn pixel_processing<T>(
     max: T,
-    data: &SharedDataHelper,
+    data: &SharedData,
     instance: OfxImageEffectHandle,
-    source_img: OfxPropertySetHandle,
-    output_img: OfxPropertySetHandle,
+    source_img: ClipImageManaged,
+    output_img: ClipImageManaged,
     render_window: OfxRectI,
-    n_comps: c_int,
 ) -> openfx::low::Result<()>
 where
     T: std::ops::Sub<Output = T> + Copy + Default,
 {
-    let s_prop = data.inner().property_suite;
+    let n_comps = output_img.n_comps();
 
-    let dst_row_bytes = unsafe { get_OfxImagePropRowBytes(s_prop, output_img) }?;
-    let dst_bounds = unsafe { get_OfxImagePropBounds(s_prop, output_img) }?;
-    let dst_bounds = rect_i_from_array(&dst_bounds);
-    let dst_ptr = unsafe { get_OfxImagePropData(s_prop, output_img) }? as *mut T;
-    if dst_ptr.is_null() {
-        return Err(Status::Failed);
-    }
+    let dst_row_bytes = output_img.row_bytes();
+    let dst_bounds = output_img.bounds();
+    let dst_ptr = output_img.data_ptr();
+    let dst_ptr = dst_ptr.as_ptr() as *mut T;
 
-    let src_row_bytes = unsafe { get_OfxImagePropRowBytes(s_prop, source_img) }?;
-    let src_bounds = unsafe { get_OfxImagePropBounds(s_prop, source_img) }?;
-    let src_bounds = rect_i_from_array(&src_bounds);
-    let src_ptr = unsafe { get_OfxImagePropData(s_prop, source_img) }? as *mut T;
-    if src_ptr.is_null() {
-        return Err(Status::Failed);
-    }
+    let src_row_bytes = source_img.row_bytes();
+    let src_bounds = source_img.bounds();
+    let src_ptr = source_img.data_ptr();
+    let src_ptr = src_ptr.as_ptr() as *mut T;
 
     for y in render_window.y1..render_window.y2 {
         if y % 20 == 0
-            && data
-                .inner()
-                .image_effect_suite
-                .abort
-                .is_some_and(|abort| unsafe { abort(instance) } != 0)
+            && unsafe {
+                data.image_effect_suite
+                    .sys_ref()
+                    .abort
+                    .is_some_and(|abort| abort(instance) != 0)
+            }
         {
             return Ok(());
         }
@@ -318,14 +278,13 @@ fn action_render(
     in_args: ActionRenderIn,
 ) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
-    let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let s_prop = data.inner().property_suite;
+    let s_prop = &data.property_suite.0;
     let image_effect_suite_helper = data.image_effect_suite_helper();
 
     let time = unsafe { in_args.get_time(s_prop) }?;
     let render_window =
-        unsafe { get_OfxImageEffectPropRenderWindow(s_prop, in_args.sys_handle()) }?;
+        unsafe { get_OfxImageEffectPropRenderWindow(s_prop.sys_ptr(), in_args.sys_handle()) }?;
     let render_window = rect_i_from_array(&render_window);
 
     let output_clip = unsafe { image_effect_suite_helper.clip_get_handle(instance, c"Output") }?;
@@ -340,74 +299,30 @@ fn action_render(
         return Err(Status::Failed);
     };
 
-    fn inner(
-        data: &SharedDataHelper,
-        instance: OfxImageEffectHandle,
-        source_img: OfxPropertySetHandle,
-        output_img: OfxPropertySetHandle,
-        render_window: OfxRectI,
-    ) -> openfx::low::Result<()> {
-        let s_prop = data.inner().property_suite;
-
-        let components = unsafe { get_OfxImageEffectPropComponents(s_prop, output_img) }?;
-        if components.is_null() {
-            return Err(Status::ErrUnsupported);
-        }
-        let n_comps = match unsafe { CStr::from_ptr(components) } {
-            c if c == kOfxImageComponentRGBA => 4,
-            c if c == kOfxImageComponentRGB => 3,
-            c if c == kOfxImageComponentAlpha => 1,
-            _ => return Err(Status::ErrUnsupported),
-        };
-
-        let data_type = unsafe { get_OfxImageEffectPropPixelDepth(s_prop, output_img) }?;
-        if data_type.is_null() {
-            return Err(Status::ErrUnsupported);
-        }
-        match unsafe { CStr::from_ptr(data_type) } {
-            c if c == kOfxBitDepthByte => pixel_processing(
-                255u8,
-                data,
-                instance,
-                source_img,
-                output_img,
-                render_window,
-                n_comps,
-            ),
-            c if c == kOfxBitDepthShort => pixel_processing(
-                65535u16,
-                data,
-                instance,
-                source_img,
-                output_img,
-                render_window,
-                n_comps,
-            ),
-            c if c == kOfxBitDepthFloat => pixel_processing(
-                1.0f32,
-                data,
-                instance,
-                source_img,
-                output_img,
-                render_window,
-                n_comps,
-            ),
-            _ => return Err(Status::Unlicensed),
-        }?;
-
-        Ok(())
+    match output_img_m.pixel_depth() {
+        BitDepth::Byte => pixel_processing(
+            255u8,
+            &data,
+            instance,
+            source_img_m,
+            output_img_m,
+            render_window,
+        ),
+        BitDepth::Short => pixel_processing(
+            65535u16,
+            &data,
+            instance,
+            source_img_m,
+            output_img_m,
+            render_window,
+        ),
+        BitDepth::Float => pixel_processing(
+            1.0f32,
+            &data,
+            instance,
+            source_img_m,
+            output_img_m,
+            render_window,
+        ),
     }
-
-    let result = inner(
-        &data,
-        instance,
-        source_img_m.image_handle(),
-        output_img_m.image_handle(),
-        render_window,
-    );
-
-    drop(output_img_m);
-    drop(source_img_m);
-
-    result
 }

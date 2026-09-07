@@ -1,9 +1,9 @@
 import {
   FinalResult as FinalResultOfxPropsMetadata,
-} from "../parsers/parser-ofxPropsMetadata/types.ts";
+} from "../vibe-zone/parsers/parser-ofxPropsMetadata/types.ts";
 import {
   FinalResult as FinalResultOfxPropsBySet,
-} from "../parsers/parser-ofxPropsBySet/types.ts";
+} from "../vibe-zone/parsers/parser-ofxPropsBySet/types.ts";
 import { CodegenConfig } from "../definitions.ts";
 
 export class NameRegulator {
@@ -131,6 +131,6 @@ export class NameRegulator {
         `Property name does not match regex. name=\`${name}\` regex=\`${this.#propertyCanonicalNameToSimpleNameRegex}\``,
       );
     }
-    return m[1];
+    return m.slice(1).join("");
   }
 }

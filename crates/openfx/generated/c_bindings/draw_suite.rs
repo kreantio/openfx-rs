@@ -9,37 +9,37 @@ pub struct OfxDrawContext {
 }
 /// @brief Blind declaration of an OFX drawing context
 pub type OfxDrawContextHandle = *mut OfxDrawContext;
-pub const OfxStandardColour_kOfxStandardColourOverlayBackground: OfxStandardColour = 0;
-pub const OfxStandardColour_kOfxStandardColourOverlayActive: OfxStandardColour = 1;
-pub const OfxStandardColour_kOfxStandardColourOverlaySelected: OfxStandardColour = 2;
-pub const OfxStandardColour_kOfxStandardColourOverlayDeselected: OfxStandardColour = 3;
-pub const OfxStandardColour_kOfxStandardColourOverlayMarqueeFG: OfxStandardColour = 4;
-pub const OfxStandardColour_kOfxStandardColourOverlayMarqueeBG: OfxStandardColour = 5;
-pub const OfxStandardColour_kOfxStandardColourOverlayText: OfxStandardColour = 6;
+pub const kOfxStandardColourOverlayBackground: OfxStandardColour = 0;
+pub const kOfxStandardColourOverlayActive: OfxStandardColour = 1;
+pub const kOfxStandardColourOverlaySelected: OfxStandardColour = 2;
+pub const kOfxStandardColourOverlayDeselected: OfxStandardColour = 3;
+pub const kOfxStandardColourOverlayMarqueeFG: OfxStandardColour = 4;
+pub const kOfxStandardColourOverlayMarqueeBG: OfxStandardColour = 5;
+pub const kOfxStandardColourOverlayText: OfxStandardColour = 6;
 /// @brief Defines valid values for OfxDrawSuiteV1::getColour
 pub type OfxStandardColour = ::std::os::raw::c_uint;
-pub const OfxDrawLineStipplePattern_kOfxDrawLineStipplePatternSolid: OfxDrawLineStipplePattern = 0;
-pub const OfxDrawLineStipplePattern_kOfxDrawLineStipplePatternDot: OfxDrawLineStipplePattern = 1;
-pub const OfxDrawLineStipplePattern_kOfxDrawLineStipplePatternDash: OfxDrawLineStipplePattern = 2;
-pub const OfxDrawLineStipplePattern_kOfxDrawLineStipplePatternAltDash: OfxDrawLineStipplePattern = 3;
-pub const OfxDrawLineStipplePattern_kOfxDrawLineStipplePatternDotDash: OfxDrawLineStipplePattern = 4;
+pub const kOfxDrawLineStipplePatternSolid: OfxDrawLineStipplePattern = 0;
+pub const kOfxDrawLineStipplePatternDot: OfxDrawLineStipplePattern = 1;
+pub const kOfxDrawLineStipplePatternDash: OfxDrawLineStipplePattern = 2;
+pub const kOfxDrawLineStipplePatternAltDash: OfxDrawLineStipplePattern = 3;
+pub const kOfxDrawLineStipplePatternDotDash: OfxDrawLineStipplePattern = 4;
 /// @brief Defines valid values for OfxDrawSuiteV1::setLineStipple
 pub type OfxDrawLineStipplePattern = ::std::os::raw::c_uint;
-pub const OfxDrawPrimitive_kOfxDrawPrimitiveLines: OfxDrawPrimitive = 0;
-pub const OfxDrawPrimitive_kOfxDrawPrimitiveLineStrip: OfxDrawPrimitive = 1;
-pub const OfxDrawPrimitive_kOfxDrawPrimitiveLineLoop: OfxDrawPrimitive = 2;
-pub const OfxDrawPrimitive_kOfxDrawPrimitiveRectangle: OfxDrawPrimitive = 3;
-pub const OfxDrawPrimitive_kOfxDrawPrimitivePolygon: OfxDrawPrimitive = 4;
-pub const OfxDrawPrimitive_kOfxDrawPrimitiveEllipse: OfxDrawPrimitive = 5;
+pub const kOfxDrawPrimitiveLines: OfxDrawPrimitive = 0;
+pub const kOfxDrawPrimitiveLineStrip: OfxDrawPrimitive = 1;
+pub const kOfxDrawPrimitiveLineLoop: OfxDrawPrimitive = 2;
+pub const kOfxDrawPrimitiveRectangle: OfxDrawPrimitive = 3;
+pub const kOfxDrawPrimitivePolygon: OfxDrawPrimitive = 4;
+pub const kOfxDrawPrimitiveEllipse: OfxDrawPrimitive = 5;
 /// @brief Defines valid values for OfxDrawSuiteV1::draw
 pub type OfxDrawPrimitive = ::std::os::raw::c_uint;
-pub const OfxDrawTextAlignment_kOfxDrawTextAlignmentLeft: OfxDrawTextAlignment = 1;
-pub const OfxDrawTextAlignment_kOfxDrawTextAlignmentRight: OfxDrawTextAlignment = 2;
-pub const OfxDrawTextAlignment_kOfxDrawTextAlignmentTop: OfxDrawTextAlignment = 4;
-pub const OfxDrawTextAlignment_kOfxDrawTextAlignmentBottom: OfxDrawTextAlignment = 8;
-pub const OfxDrawTextAlignment_kOfxDrawTextAlignmentBaseline: OfxDrawTextAlignment = 16;
-pub const OfxDrawTextAlignment_kOfxDrawTextAlignmentCenterH: OfxDrawTextAlignment = 3;
-pub const OfxDrawTextAlignment_kOfxDrawTextAlignmentCenterV: OfxDrawTextAlignment = 20;
+pub const kOfxDrawTextAlignmentLeft: OfxDrawTextAlignment = 1;
+pub const kOfxDrawTextAlignmentRight: OfxDrawTextAlignment = 2;
+pub const kOfxDrawTextAlignmentTop: OfxDrawTextAlignment = 4;
+pub const kOfxDrawTextAlignmentBottom: OfxDrawTextAlignment = 8;
+pub const kOfxDrawTextAlignmentBaseline: OfxDrawTextAlignment = 16;
+pub const kOfxDrawTextAlignmentCenterH: OfxDrawTextAlignment = 3;
+pub const kOfxDrawTextAlignmentCenterV: OfxDrawTextAlignment = 20;
 /// @brief Defines text alignment values for OfxDrawSuiteV1::drawText
 pub type OfxDrawTextAlignment = ::std::os::raw::c_uint;
 /** @brief OFX suite that allows an effect to draw to a host-defined display context.

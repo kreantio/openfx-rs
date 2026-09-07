@@ -1,5 +1,11 @@
 # CONTRIBUTING
 
+## LLM Policy
+
+Code generated entirely by LLMs should live in directories named `vibe-zone` or
+`vibe_zone`. This restriction does not apply to existing code that LLMs modify
+on a limited, controllable scale.
+
 ## Decisions
 
 ### Codegen: C headers -> `sys` layer
