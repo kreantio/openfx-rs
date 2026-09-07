@@ -2,7 +2,7 @@ mod processing;
 
 use std::{
     ffi::{CStr, c_char, c_void},
-    sync::{Mutex, OnceLock},
+    sync::Mutex,
 };
 
 use openfx::{
@@ -51,12 +51,12 @@ use processing::{pixel_processing, rect_i_from_array};
 use crate::{
     definitions::{PLUGIN_4_SATURATION_IDENTIFIER, PLUGIN_4_SATURATION_LABEL, PLUGINS_GROUPING},
     helpers::{
-        SaferHostStruct, SharedData,
+        HostBeforeActionLoad, SharedData,
         shared_data_helper::{BitDepth, ClipImageManaged, SharedDataHelper},
     },
 };
 
-static HOST_STRUCT: OnceLock<SaferHostStruct<'static>> = OnceLock::new();
+static HOST_BEFORE_ACTION_LOAD: Mutex<Option<HostBeforeActionLoad<'static>>> = Mutex::new(None);
 
 static SHARED_DATA: Mutex<Option<SharedData<'static>>> = Mutex::new(None);
 
@@ -102,11 +102,13 @@ impl Plugin for PluginExampleSaturation {
                 .fetchSuite
                 .ok_or("`host_struct.fetchSuite` should not be null.")?;
 
-            if HOST_STRUCT
-                .set(SaferHostStruct { host, fetch_suite })
-                .is_err()
+            if HOST_BEFORE_ACTION_LOAD
+                .lock()
+                .expect("Failed to lock HOST_BEFORE_ACTION_LOAD.")
+                .replace(HostBeforeActionLoad { host, fetch_suite })
+                .is_some()
             {
-                return Err("`HOST_STRUCT` has already been initialized before.");
+                return Err("`HOST_BEFORE_ACTION_LOAD` has already been initialized before.");
             }
             Ok(())
         }
@@ -155,7 +157,11 @@ impl Plugin for PluginExampleSaturation {
 }
 
 fn action_load() -> Result<(), OfxStatus> {
-    let host_struct = HOST_STRUCT.get().ok_or(kOfxStatFailed)?.clone();
+    let host_struct = HOST_BEFORE_ACTION_LOAD
+        .lock()
+        .map_err(|_| kOfxStatFailed)?
+        .clone()
+        .ok_or(kOfxStatFailed)?;
 
     let mut data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
     if data.is_some() {

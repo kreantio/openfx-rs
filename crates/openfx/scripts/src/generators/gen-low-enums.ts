@@ -1,6 +1,6 @@
 import {
   FinalResult as FinalResultOfxPropsMetadata,
-} from "../parsers/parser-ofxPropsMetadata/types.ts";
+} from "../vibe-zone/parsers/parser-ofxPropsMetadata/types.ts";
 import { NameRegulator } from "../utils/name-regulator.ts";
 
 export function genLowEnums(
@@ -36,7 +36,7 @@ export function genLowEnums(
         };
       });
 
-    parts.push(`    ${enumName} {`);
+    parts.push(`    enum ${enumName} {`);
 
     let commonPrefix: string | null = null;
     if (variants.some((v) => v.kind === "key_constant")) {
@@ -53,7 +53,8 @@ export function genLowEnums(
         case "simple": {
           const rustVariantName = variant.keyConstant[0].toUpperCase() +
             variant.keyConstant.slice(1);
-          parts.push(`        ${rustVariantName} : c"${variant.keyConstant}",`);
+          parts.push(`        #[sys_literal(c"${variant.keyConstant}")]`);
+          parts.push(`        ${rustVariantName},`);
           break;
         }
         case "key_constant": {
@@ -65,8 +66,9 @@ export function genLowEnums(
               `NOTE(gen-low-enums): The enum variant with key constant \`${variant.keyConstant}\` has a different canonical name \`${name}\` for property \`${enumName}\`.`,
             );
           }
+          parts.push(`        #[sys(k${name})]`);
           parts.push(
-            `        ${variantKName} => crate::sys_umbrella::k${name},`,
+            `        ${variantKName},`,
           );
           break;
         }

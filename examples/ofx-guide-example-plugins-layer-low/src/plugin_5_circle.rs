@@ -2,51 +2,44 @@ mod processing;
 
 use std::{
     ffi::{CStr, c_int, c_void},
-    sync::{Arc, Mutex, OnceLock},
+    sync::{Arc, Mutex},
 };
 
 use openfx::{
-    low::{Status, enums::ImageEffectPropContext},
+    low::{
+        Status,
+        enums::{
+            ImageEffectPluginRenderThreadSafety, ImageEffectPropContext,
+            ImageEffectPropSupportedComponents, ImageEffectPropSupportedContexts,
+            ImageEffectPropSupportedPixelDepths, ParamPropDefaultCoordinateSystem,
+            ParamPropDoubleType,
+        },
+    },
     low_plugin::{
-        Plugin,
+        Host, Plugin,
         actions::image_effect::{
             ActionDescribeInContextIn, ActionGetRegionOfDefinitionIn,
             ActionGetRegionOfDefinitionOut, ActionIsIdentityIn, ActionRenderIn, ImageEffectAction,
         },
+        property_sets::{
+            EffectDescriptorPropertySet, EffectInstancePropertySet, ParamDouble1DPropertySet,
+            ParamsBytePropertySet, ParamsDouble2D3DPropertySet, ParamsNormalizedSpatialPropertySet,
+        },
     },
     sys::{
-        generic::core::{
-            OfxHost, OfxPropertySetHandle, OfxRectI, OfxStatus, kOfxBitDepthByte,
-            kOfxBitDepthFloat, kOfxBitDepthShort, kOfxPropAPIVersion, kOfxStatFailed,
-        },
+        generic::core::{OfxPropertySetHandle, kOfxStatFailed},
         image_effect_v1::{
-            image_effect::{
-                OfxImageClipHandle, OfxImageEffectHandle, kOfxImageComponentAlpha,
-                kOfxImageComponentRGB, kOfxImageComponentRGBA, kOfxImageEffectContextFilter,
-                kOfxImageEffectRenderFullySafe,
-            },
+            image_effect::{OfxImageClipHandle, OfxImageEffectHandle},
             param::{
-                OfxParamHandle, kOfxParamCoordinatesNormalised, kOfxParamDoubleTypeX,
-                kOfxParamDoubleTypeXYAbsolute, kOfxParamTypeBoolean, kOfxParamTypeDouble,
-                kOfxParamTypeDouble2D, kOfxParamTypeRGBA,
+                OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble, kOfxParamTypeDouble2D,
+                kOfxParamTypeRGBA,
             },
         },
     },
     sys_helpers::{
-        generic::properties::{
-            get_OfxPropAPIVersion, get_OfxPropInstanceData, get_property_dimension,
-            set_OfxPropInstanceData, set_OfxPropLabel, set_OfxPropName,
-        },
+        generic::properties::{set_OfxPropInstanceData, set_OfxPropName},
         image_effect_v1::properties::{
             get_OfxImageEffectPropRenderScale, get_OfxImageEffectPropRenderWindow,
-            get_OfxImageEffectPropSupportsMultiResolution, set_OfxImageEffectPluginPropGrouping,
-            set_OfxImageEffectPluginPropHostFrameThreading,
-            set_OfxImageEffectPluginRenderThreadSafety, set_OfxImageEffectPropSupportedComponents,
-            set_OfxImageEffectPropSupportedContexts, set_OfxImageEffectPropSupportedPixelDepths,
-            set_OfxParamPropDefault_Double, set_OfxParamPropDefault_Int,
-            set_OfxParamPropDefaultCoordinateSystem, set_OfxParamPropDisplayMax_Double,
-            set_OfxParamPropDisplayMin_Double, set_OfxParamPropDoubleType, set_OfxParamPropHint,
-            set_OfxParamPropMin_Double,
         },
     },
 };
@@ -54,18 +47,11 @@ use processing::{pixel_processing, rect_d_to_array, rect_i_from_array};
 
 use crate::{
     definitions::{PLUGIN_5_CIRCLE_IDENTIFIER, PLUGIN_5_CIRCLE_LABEL, PLUGINS_GROUPING},
-    helpers::{
-        SaferHostStruct, SharedData,
-        shared_data_helper::{
-            BitDepth, ClipImageManaged, SharedDataHelper, param_get_value_at_time,
-        },
-    },
+    helpers::shared_data::{BitDepth, GuaranteeSend, SharedData, param_get_value_at_time},
 };
 
-static HOST_STRUCT: OnceLock<SaferHostStruct<'static>> = OnceLock::new();
-
-static SHARED_DATA: Mutex<Option<(SharedData<'static>, Arc<AdditionalSharedData>)>> =
-    Mutex::new(None);
+static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(None);
+static SHARED_DATA: Mutex<Option<(SharedData, Arc<AdditionalSharedData>)>> = Mutex::new(None);
 
 struct AdditionalSharedData {
     #[expect(unused)]
@@ -83,9 +69,9 @@ struct InstanceData {
     grow_rod_param: Option<OfxParamHandle>,
 }
 
-fn shared_data_lockless() -> Result<(SharedData<'static>, Arc<AdditionalSharedData>), OfxStatus> {
-    let data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
-    let data = data.as_ref().ok_or(kOfxStatFailed)?;
+fn shared_data_lockless() -> openfx::low::Result<(SharedData, Arc<AdditionalSharedData>)> {
+    let data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
+    let data = data.as_ref().ok_or(Status::Failed)?;
     Ok((data.0.clone(), data.1.clone()))
 }
 
@@ -100,38 +86,14 @@ impl Plugin for PluginExampleCircle {
     const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
     const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
 
-    fn set_host(host_struct: *mut OfxHost) {
-        fn inner(host_struct: *mut OfxHost) -> Result<(), &'static str> {
-            let host_struct = unsafe {
-                host_struct
-                    .as_mut()
-                    .ok_or("`host_struct` should not be null.")?
-            };
-            let host = unsafe {
-                host_struct
-                    .host
-                    .as_mut()
-                    .ok_or("`host_struct.host` should not be null.")?
-            };
-            let fetch_suite = host_struct
-                .fetchSuite
-                .ok_or("`host_struct.fetchSuite` should not be null.")?;
-
-            if HOST_STRUCT
-                .set(SaferHostStruct { host, fetch_suite })
-                .is_err()
-            {
-                return Err("`HOST_STRUCT` has already been initialized before.");
-            }
-            Ok(())
+    fn set_host(host: Host) {
+        let mut lock = HOST_BEFORE_ACTION_LOAD
+            .lock()
+            .expect("Failed to lock HOST_BEFORE_ACTION_LOAD.");
+        if lock.is_some() {
+            panic!("HOST_BEFORE_ACTION_LOAD has already been set.");
         }
-
-        match inner(host_struct) {
-            Ok(_) => {}
-            Err(err) => {
-                tracing::error!("Failed to set host: {}", err);
-            }
-        }
+        lock.replace(GuaranteeSend(host));
     }
 
     fn main_entry(action: ImageEffectAction) -> openfx::low::Result<()> {
@@ -177,7 +139,11 @@ impl Plugin for PluginExampleCircle {
 }
 
 fn action_load() -> openfx::low::Result<()> {
-    let host_struct = HOST_STRUCT.get().ok_or(kOfxStatFailed)?.clone();
+    let host = HOST_BEFORE_ACTION_LOAD
+        .lock()
+        .map_err(|_| kOfxStatFailed)?
+        .take()
+        .ok_or(kOfxStatFailed)?;
 
     let mut data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
     if data.is_some() {
@@ -185,37 +151,24 @@ fn action_load() -> openfx::low::Result<()> {
     }
 
     *data = Some({
-        let data = SharedData::try_new(host_struct)?;
-
-        let s_prop = data.property_suite;
+        let data = SharedData::try_new(host)?;
 
         let additional = {
-            let data = unsafe { SharedDataHelper::try_new(&data) }?;
-
-            let host_props = data.inner().host_struct.host;
-            let host_props = std::ptr::from_ref(host_props).cast_mut();
-
-            let var_size =
-                unsafe { get_property_dimension(s_prop, host_props, kOfxPropAPIVersion.as_ptr()) }?;
-            let mut api_version = [1, 0];
-            if var_size == 1 {
-                let mut my_api_version = [0];
-                (unsafe { get_OfxPropAPIVersion(s_prop, host_props, &mut my_api_version) })?;
-                api_version[0] = my_api_version[0];
-            } else {
-                (unsafe { get_OfxPropAPIVersion(s_prop, host_props, &mut api_version) })?;
-            }
+            let api_version = unsafe { data.host.host().get_api_version(&data.property_suite.0) }?;
 
             // we only support 1.2 and above
             if api_version[0] == 1 && api_version[1] < 2 {
                 return Err(Status::ErrMissingHostFeature);
             }
 
-            let host_supports_multi_res =
-                unsafe { get_OfxImageEffectPropSupportsMultiResolution(s_prop, host_props) }? == 1;
+            let host_supports_multi_res = unsafe {
+                data.host
+                    .host()
+                    .get_image_effect_supports_multi_resolution(&data.property_suite.0)
+            }?;
 
             AdditionalSharedData {
-                api_version,
+                api_version: [api_version[0], api_version[1]],
                 host_supports_multi_res,
             }
         };
@@ -237,35 +190,32 @@ fn action_unload() -> openfx::low::Result<()> {
 
 fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> {
     let (data, _additional) = shared_data_lockless()?;
-    let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let s_prop = data.inner().property_suite;
+    let s_prop = &data.property_suite.0;
 
-    let descriptor = unsafe { data.get_property_set_from_image_effect(descriptor) }?;
+    let props = unsafe { data.get_property_set_from_image_effect(descriptor) }?;
+    let props = EffectDescriptorPropertySet::from(props);
 
     unsafe {
-        set_OfxPropLabel(s_prop, descriptor, PLUGIN_5_CIRCLE_LABEL.as_ptr())?;
-        set_OfxImageEffectPluginPropGrouping(s_prop, descriptor, PLUGINS_GROUPING.as_ptr())?;
-        set_OfxImageEffectPropSupportedContexts(
+        props.set_label(s_prop, Some(PLUGIN_5_CIRCLE_LABEL))?;
+        props.set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?;
+        props.set_image_effect_supported_contexts(
             s_prop,
-            descriptor,
-            &[kOfxImageEffectContextFilter.as_ptr()],
+            &[ImageEffectPropSupportedContexts::Filter],
         )?;
-        set_OfxImageEffectPropSupportedPixelDepths(
+        props.set_image_effect_supported_pixel_depths(
             s_prop,
-            descriptor,
             &[
-                kOfxBitDepthFloat.as_ptr(),
-                kOfxBitDepthShort.as_ptr(),
-                kOfxBitDepthByte.as_ptr(),
+                ImageEffectPropSupportedPixelDepths::Float,
+                ImageEffectPropSupportedPixelDepths::Short,
+                ImageEffectPropSupportedPixelDepths::Byte,
             ],
         )?;
-        set_OfxImageEffectPluginRenderThreadSafety(
+        props.set_image_effect_plugin_render_thread_safety(
             s_prop,
-            descriptor,
-            kOfxImageEffectRenderFullySafe.as_ptr(),
+            ImageEffectPluginRenderThreadSafety::FullySafe,
         )?;
-        set_OfxImageEffectPluginPropHostFrameThreading(s_prop, descriptor, 1)?;
+        props.set_image_effect_plugin_host_frame_threading(s_prop, true)?;
     }
 
     Ok(())
@@ -276,12 +226,11 @@ fn action_describe_in_context(
     in_args: ActionDescribeInContextIn,
 ) -> openfx::low::Result<()> {
     let (data, additional) = shared_data_lockless()?;
-    let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let s_prop = data.inner().property_suite;
+    let s_prop = &data.property_suite.0;
     let s_ifx = data.image_effect_suite_helper();
 
-    let context = unsafe { in_args.get_context(s_prop) }?;
+    let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
     if context != ImageEffectPropContext::Filter {
         return Err(Status::ErrUnsupported);
     }
@@ -289,83 +238,85 @@ fn action_describe_in_context(
     for name in [c"Output", c"Source"] {
         let props = unsafe { s_ifx.clip_define(descriptor, name) }?;
 
-        unsafe {
-            set_OfxImageEffectPropSupportedComponents(
+        (unsafe {
+            props.set_image_effect_supported_components(
                 s_prop,
-                props,
                 &[
-                    kOfxImageComponentRGBA.as_ptr(),
-                    kOfxImageComponentAlpha.as_ptr(),
-                    kOfxImageComponentRGB.as_ptr(),
+                    ImageEffectPropSupportedComponents::RGBA,
+                    ImageEffectPropSupportedComponents::Alpha,
+                    ImageEffectPropSupportedComponents::RGB,
                 ],
             )
-        }?;
+        })?;
     }
 
     let param_set = unsafe { data.make_param_set_helper_for_image_effect(descriptor) }?;
 
     {
         let param_props = param_set.param_define(kOfxParamTypeDouble, RADIUS_PARAM_NAME)?;
+        let param_props_d = ParamDouble1DPropertySet::from(param_props);
+        let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
+
         unsafe {
-            set_OfxParamPropDoubleType(s_prop, param_props, kOfxParamDoubleTypeX.as_ptr())?;
+            param_props_d.set_param_double_type(s_prop, ParamPropDoubleType::X)?;
             // Not supported by DaVinci Resolve. To make the plugin work there,
             // we ignore the return value here. TODO: Calculate the default value
             // in canonical coordinate if this fails.
-            set_OfxParamPropDefaultCoordinateSystem(
-                s_prop,
-                param_props,
-                kOfxParamCoordinatesNormalised.as_ptr(),
-            )
-            .ok();
-            set_OfxParamPropDefault_Double(s_prop, param_props, &[0.25])?;
-            set_OfxParamPropMin_Double(s_prop, param_props, &[0.0])?;
-            set_OfxParamPropDisplayMin_Double(s_prop, param_props, &[0.0])?;
-            set_OfxParamPropDisplayMax_Double(s_prop, param_props, &[2.0])?;
-            set_OfxPropLabel(s_prop, param_props, c"Radius".as_ptr())?;
-            set_OfxParamPropHint(s_prop, param_props, c"The radius of the circle.".as_ptr())?;
+            param_props_ns
+                .set_param_default_coordinate_system(
+                    s_prop,
+                    ParamPropDefaultCoordinateSystem::Normalised,
+                )
+                .ok();
+            param_props_d.set_param_default_double(s_prop, &[0.25])?;
+            param_props_d.set_param_min_double(s_prop, &[0.0])?;
+            param_props_d.set_param_display_min_double(s_prop, &[0.0])?;
+            param_props_d.set_param_display_max_double(s_prop, &[2.0])?;
+            param_props_d.set_label(s_prop, Some(c"Radius"))?;
+            param_props_d.set_param_hint(s_prop, Some(c"The radius of the circle."))?;
         }
     }
 
     {
         let param_props = param_set.param_define(kOfxParamTypeDouble2D, CENTRE_PARAM_NAME)?;
+        let param_props_d = ParamsDouble2D3DPropertySet::from(param_props);
+        let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
+
         unsafe {
-            set_OfxParamPropDoubleType(
-                s_prop,
-                param_props,
-                kOfxParamDoubleTypeXYAbsolute.as_ptr(),
-            )?;
-            // Not supported by DaVinci Resolve. See above.
-            set_OfxParamPropDefaultCoordinateSystem(
-                s_prop,
-                param_props,
-                kOfxParamCoordinatesNormalised.as_ptr(),
-            )
-            .ok();
-            set_OfxParamPropDefault_Double(s_prop, param_props, &[0.5, 0.5])?;
-            set_OfxPropLabel(s_prop, param_props, c"Centre".as_ptr())?;
-            set_OfxParamPropHint(s_prop, param_props, c"The centre of the circle.".as_ptr())?;
+            param_props_d.set_param_double_type(s_prop, ParamPropDoubleType::XYAbsolute)?;
+            param_props_ns
+                .set_param_default_coordinate_system(
+                    s_prop,
+                    ParamPropDefaultCoordinateSystem::Normalised,
+                )
+                .ok();
+            param_props_d.set_param_default_double(s_prop, &[0.5, 0.5])?;
+            param_props_d.set_label(s_prop, Some(c"Centre"))?;
+            param_props_d.set_param_hint(s_prop, Some(c"The centre of the circle."))?;
         }
     }
 
     {
         let param_props = param_set.param_define(kOfxParamTypeRGBA, COLOUR_PARAM_NAME)?;
+        let param_props_d = ParamsDouble2D3DPropertySet::from(param_props);
+
         unsafe {
-            set_OfxParamPropDefault_Double(s_prop, param_props, &[1.0, 1.0, 1.0, 0.5])?;
-            set_OfxPropLabel(s_prop, param_props, c"Colour".as_ptr())?;
-            set_OfxParamPropHint(s_prop, param_props, c"The colour of the circle.".as_ptr())?;
+            param_props_d.set_param_default_double(s_prop, &[1.0, 1.0, 1.0, 0.5])?;
+            param_props_d.set_label(s_prop, Some(c"Colour"))?;
+            param_props_d.set_param_hint(s_prop, Some(c"The colour of the circle."))?;
         }
     }
 
     if additional.host_supports_multi_res {
         let param_props = param_set.param_define(kOfxParamTypeBoolean, GROW_ROD_PARAM_NAME)?;
+        let param_props = ParamsBytePropertySet::from(param_props);
+
         unsafe {
-            set_OfxParamPropDefault_Int(s_prop, param_props, &[0])?;
-            set_OfxPropLabel(s_prop, param_props, c"Grow RoD".as_ptr())?;
-            set_OfxParamPropHint(
+            param_props.set_param_default_int(s_prop, &[0])?;
+            param_props.set_label(s_prop, Some(c"Grow RoD"))?;
+            param_props.set_param_hint(
                 s_prop,
-                param_props,
-                c"Whether to grow the output's Region of Definition to include the circle."
-                    .as_ptr(),
+                Some(c"Whether to grow the output's Region of Definition to include the circle."),
             )?;
         }
     }
@@ -375,9 +326,8 @@ fn action_describe_in_context(
 
 fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
     let (data, additional) = shared_data_lockless()?;
-    let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let s_prop = data.inner().property_suite;
+    let s_prop = &data.property_suite.0;
     let s_ifx = data.image_effect_suite_helper();
 
     let instance_props = unsafe { data.get_property_set_from_image_effect(instance) }?;
@@ -407,7 +357,7 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result
 
     // SAFETY: the pointee is kept alive by `Box::into_raw` until it is
     // reclaimed with `Box::from_raw` in `action_destroy_instance`.
-    match unsafe { set_OfxPropInstanceData(s_prop, instance_props, instance_data_ptr) } {
+    match unsafe { set_OfxPropInstanceData(s_prop.sys_ptr(), instance_props, instance_data_ptr) } {
         Ok(_) => Ok(()),
         Err(err) => {
             drop(unsafe { Box::from_raw(instance_data_ptr as *mut InstanceData) });
@@ -418,17 +368,17 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result
 
 fn action_destroy_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
     let (data, _additional) = shared_data_lockless()?;
-    let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let s_prop = data.inner().property_suite;
+    let s_prop = &data.property_suite.0;
 
-    let instance_props = unsafe { data.get_property_set_from_image_effect(instance) }?;
-    let instance_data_ptr = unsafe { get_OfxPropInstanceData(s_prop, instance_props) }?;
-    if instance_data_ptr.is_null() {
+    let props = unsafe { data.get_property_set_from_image_effect(instance) }?;
+    let props = EffectInstancePropertySet::from(props);
+
+    let Some(my_data_ptr) = (unsafe { props.get_instance_data(s_prop)? }) else {
         return Err(Status::Failed);
-    }
+    };
 
-    drop(unsafe { Box::from_raw(instance_data_ptr as *mut InstanceData) });
+    drop(unsafe { Box::from_raw(my_data_ptr.as_ptr() as *mut InstanceData) });
 
     Ok(())
 }
@@ -444,11 +394,9 @@ fn action_get_region_of_definition(
         return Err(Status::ReplyDefault);
     }
 
-    let data = unsafe { SharedDataHelper::try_new(&data) }?;
-
     let instance_data = unsafe { data.get_instance_data::<InstanceData>(effect)? };
 
-    let s_prop = data.inner().property_suite;
+    let s_prop = &data.property_suite.0;
     let s_ifx = data.image_effect_suite_helper();
     let s_param = data.parameter_suite_helper();
 
@@ -483,7 +431,7 @@ fn action_get_region_of_definition(
     rod.x2 = f64::max(rod.x2, centre_x + radius);
     rod.y2 = f64::max(rod.y2, centre_y + radius);
 
-    unsafe { out_args.set_region_of_definition(s_prop, rect_d_to_array(&rod)) }?;
+    unsafe { out_args.set_image_effect_region_of_definition(s_prop, rect_d_to_array(&rod)) }?;
 
     Ok(())
 }
@@ -494,9 +442,8 @@ fn action_is_identity(
     out_args: OfxPropertySetHandle,
 ) -> openfx::low::Result<()> {
     let (data, _additional) = shared_data_lockless()?;
-    let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let s_prop = data.inner().property_suite;
+    let s_prop = &data.property_suite.0;
     let s_ifx = data.image_effect_suite_helper();
     let s_param = data.parameter_suite_helper();
 
@@ -540,7 +487,7 @@ fn action_is_identity(
     };
 
     if is_identity {
-        unsafe { set_OfxPropName(s_prop, out_args, c"Source".as_ptr()) }?;
+        unsafe { set_OfxPropName(s_prop.sys_ptr(), out_args, c"Source".as_ptr()) }?;
         Ok(())
     } else {
         Err(Status::ReplyDefault)
@@ -552,16 +499,16 @@ fn action_render(
     in_args: ActionRenderIn,
 ) -> openfx::low::Result<()> {
     let (data, _additional) = shared_data_lockless()?;
-    let data = unsafe { SharedDataHelper::try_new(&data) }?;
 
-    let s_prop = data.inner().property_suite;
+    let s_prop = &data.property_suite.0;
     let s_param = data.parameter_suite_helper();
 
     let time = unsafe { in_args.get_time(s_prop) }?;
     let render_window =
-        unsafe { get_OfxImageEffectPropRenderWindow(s_prop, in_args.sys_handle()) }?;
+        unsafe { get_OfxImageEffectPropRenderWindow(s_prop.sys_ptr(), in_args.sys_handle()) }?;
     let render_window = rect_i_from_array(&render_window);
-    let render_scale = unsafe { get_OfxImageEffectPropRenderScale(s_prop, in_args.sys_handle()) }?;
+    let render_scale =
+        unsafe { get_OfxImageEffectPropRenderScale(s_prop.sys_ptr(), in_args.sys_handle()) }?;
 
     let instance_data = unsafe { data.get_instance_data::<InstanceData>(instance)? };
 
@@ -607,78 +554,51 @@ fn action_render(
         return Err(Status::Failed);
     };
 
-    #[allow(clippy::too_many_arguments)]
-    fn inner(
-        centre: [f64; 2],
-        radius: f64,
-        colour: [f64; 4],
-        render_scale: [f64; 2],
-        data: &SharedDataHelper,
-        instance: OfxImageEffectHandle,
-        source_img: ClipImageManaged,
-        output_img: ClipImageManaged,
-        render_window: OfxRectI,
-    ) -> openfx::low::Result<()> {
-        match output_img.pixel_depth() {
-            BitDepth::Byte => pixel_processing(
-                |f| f as u8,
-                |v| v as f64,
-                |v, min, max| v.clamp(min, max),
-                255u8,
-                centre,
-                radius,
-                colour,
-                render_scale,
-                data,
-                instance,
-                source_img,
-                output_img,
-                render_window,
-            ),
-            BitDepth::Short => pixel_processing(
-                |f| f as u16,
-                |v| v as f64,
-                |v, min, max| v.clamp(min, max),
-                65535u16,
-                centre,
-                radius,
-                colour,
-                render_scale,
-                data,
-                instance,
-                source_img,
-                output_img,
-                render_window,
-            ),
-            BitDepth::Float => pixel_processing(
-                |f| f as f32,
-                |v| v as f64,
-                |v, min, max| v.clamp(min, max),
-                1.0f32,
-                centre,
-                radius,
-                colour,
-                render_scale,
-                data,
-                instance,
-                source_img,
-                output_img,
-                render_window,
-            ),
-        }?;
-
-        Ok(())
+    match output_img_m.pixel_depth() {
+        BitDepth::Byte => pixel_processing(
+            |f| f as u8,
+            |v| v as f64,
+            |v, min, max| v.clamp(min, max),
+            255u8,
+            centre,
+            radius,
+            colour,
+            render_scale,
+            &data,
+            instance,
+            source_img_m,
+            output_img_m,
+            render_window,
+        ),
+        BitDepth::Short => pixel_processing(
+            |f| f as u16,
+            |v| v as f64,
+            |v, min, max| v.clamp(min, max),
+            65535u16,
+            centre,
+            radius,
+            colour,
+            render_scale,
+            &data,
+            instance,
+            source_img_m,
+            output_img_m,
+            render_window,
+        ),
+        BitDepth::Float => pixel_processing(
+            |f| f as f32,
+            |v| v as f64,
+            |v, min, max| v.clamp(min, max),
+            1.0f32,
+            centre,
+            radius,
+            colour,
+            render_scale,
+            &data,
+            instance,
+            source_img_m,
+            output_img_m,
+            render_window,
+        ),
     }
-
-    inner(
-        centre,
-        radius,
-        colour,
-        render_scale,
-        &data,
-        instance,
-        source_img_m,
-        output_img_m,
-        render_window,
-    )
 }

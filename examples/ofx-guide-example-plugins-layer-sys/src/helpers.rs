@@ -17,7 +17,7 @@ use openfx::{
 };
 
 #[derive(Clone)]
-pub struct SaferHostStruct<'a> {
+pub struct HostBeforeActionLoad<'a> {
     pub host: &'a OfxPropertySetStruct,
     pub fetch_suite: unsafe extern "C" fn(
         host: OfxPropertySetHandle,
@@ -28,14 +28,14 @@ pub struct SaferHostStruct<'a> {
 
 #[derive(Clone)]
 pub struct SharedData<'a> {
-    pub host_struct: SaferHostStruct<'a>,
+    pub host_struct: HostBeforeActionLoad<'a>,
     pub property_suite: &'a OfxPropertySuiteV1,
     pub image_effect_suite: &'a OfxImageEffectSuiteV1,
     pub parameter_suite: &'a OfxParameterSuiteV1,
 }
 
 impl<'a> SharedData<'a> {
-    pub fn try_new(host_struct: SaferHostStruct<'a>) -> Result<Self, OfxStatus> {
+    pub fn try_new(host_struct: HostBeforeActionLoad<'a>) -> Result<Self, OfxStatus> {
         let property_suite = unsafe {
             (host_struct.fetch_suite)(
                 host_struct.host as *const _ as OfxPropertySetHandle,

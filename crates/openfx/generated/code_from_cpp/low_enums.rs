@@ -1,187 +1,310 @@
 openfx_internal_macros::low_make_property_enums! {
-    ImageClipPropFieldExtraction {
-        Both => crate::sys_umbrella::kOfxImageFieldBoth,
-        Doubled => crate::sys_umbrella::kOfxImageFieldDoubled,
-        Lower => crate::sys_umbrella::kOfxImageFieldLower,
-        None => crate::sys_umbrella::kOfxImageFieldNone,
-        Single => crate::sys_umbrella::kOfxImageFieldSingle,
-        Upper => crate::sys_umbrella::kOfxImageFieldUpper,
+    enum ImageClipPropFieldExtraction {
+        #[sys(kOfxImageFieldBoth)]
+        Both,
+        #[sys(kOfxImageFieldDoubled)]
+        Doubled,
+        #[sys(kOfxImageFieldLower)]
+        Lower,
+        #[sys(kOfxImageFieldNone)]
+        None,
+        #[sys(kOfxImageFieldSingle)]
+        Single,
+        #[sys(kOfxImageFieldUpper)]
+        Upper,
     }
-    ImageClipPropFieldOrder {
-        Lower => crate::sys_umbrella::kOfxImageFieldLower,
-        None => crate::sys_umbrella::kOfxImageFieldNone,
-        Upper => crate::sys_umbrella::kOfxImageFieldUpper,
+    enum ImageClipPropFieldOrder {
+        #[sys(kOfxImageFieldLower)]
+        Lower,
+        #[sys(kOfxImageFieldNone)]
+        None,
+        #[sys(kOfxImageFieldUpper)]
+        Upper,
     }
-    ImageClipPropUnmappedComponents {
-        Alpha => crate::sys_umbrella::kOfxImageComponentAlpha,
-        None => crate::sys_umbrella::kOfxImageComponentNone,
-        RGB => crate::sys_umbrella::kOfxImageComponentRGB,
-        RGBA => crate::sys_umbrella::kOfxImageComponentRGBA,
+    enum ImageClipPropUnmappedComponents {
+        #[sys(kOfxImageComponentAlpha)]
+        Alpha,
+        #[sys(kOfxImageComponentNone)]
+        None,
+        #[sys(kOfxImageComponentRGB)]
+        RGB,
+        #[sys(kOfxImageComponentRGBA)]
+        RGBA,
     }
-    ImageClipPropUnmappedPixelDepth {
-        Byte => crate::sys_umbrella::kOfxBitDepthByte,
-        Float => crate::sys_umbrella::kOfxBitDepthFloat,
-        Half => crate::sys_umbrella::kOfxBitDepthHalf,
-        None => crate::sys_umbrella::kOfxBitDepthNone,
-        Short => crate::sys_umbrella::kOfxBitDepthShort,
+    enum ImageClipPropUnmappedPixelDepth {
+        #[sys(kOfxBitDepthByte)]
+        Byte,
+        #[sys(kOfxBitDepthFloat)]
+        Float,
+        #[sys(kOfxBitDepthHalf)]
+        Half,
+        #[sys(kOfxBitDepthNone)]
+        None,
+        #[sys(kOfxBitDepthShort)]
+        Short,
     }
-    ImageEffectHostPropNativeOrigin {
-        BottomLeft => crate::sys_umbrella::kOfxHostNativeOriginBottomLeft,
-        Center => crate::sys_umbrella::kOfxHostNativeOriginCenter,
-        TopLeft => crate::sys_umbrella::kOfxHostNativeOriginTopLeft,
+    enum ImageEffectHostPropNativeOrigin {
+        #[sys(kOfxHostNativeOriginBottomLeft)]
+        BottomLeft,
+        #[sys(kOfxHostNativeOriginCenter)]
+        Center,
+        #[sys(kOfxHostNativeOriginTopLeft)]
+        TopLeft,
     }
-    ImageEffectPluginRenderThreadSafety {
-        FullySafe => crate::sys_umbrella::kOfxImageEffectRenderFullySafe,
-        InstanceSafe => crate::sys_umbrella::kOfxImageEffectRenderInstanceSafe,
-        Unsafe => crate::sys_umbrella::kOfxImageEffectRenderUnsafe,
+    enum ImageEffectPluginRenderThreadSafety {
+        #[sys(kOfxImageEffectRenderFullySafe)]
+        FullySafe,
+        #[sys(kOfxImageEffectRenderInstanceSafe)]
+        InstanceSafe,
+        #[sys(kOfxImageEffectRenderUnsafe)]
+        Unsafe,
     }
-    ImageEffectPropCPURenderSupported {
-        False : c"false",
-        True : c"true",
+    enum ImageEffectPropCPURenderSupported {
+        #[sys_literal(c"false")]
+        False,
+        #[sys_literal(c"true")]
+        True,
     }
-    ImageEffectPropColourManagementStyle {
-        Basic => crate::sys_umbrella::kOfxImageEffectColourManagementBasic,
-        Core => crate::sys_umbrella::kOfxImageEffectColourManagementCore,
-        Full => crate::sys_umbrella::kOfxImageEffectColourManagementFull,
-        None => crate::sys_umbrella::kOfxImageEffectColourManagementNone,
-        OCIO => crate::sys_umbrella::kOfxImageEffectColourManagementOCIO,
+    enum ImageEffectPropColourManagementStyle {
+        #[sys(kOfxImageEffectColourManagementBasic)]
+        Basic,
+        #[sys(kOfxImageEffectColourManagementCore)]
+        Core,
+        #[sys(kOfxImageEffectColourManagementFull)]
+        Full,
+        #[sys(kOfxImageEffectColourManagementNone)]
+        None,
+        #[sys(kOfxImageEffectColourManagementOCIO)]
+        OCIO,
     }
-    ImageEffectPropComponents {
-        Alpha => crate::sys_umbrella::kOfxImageComponentAlpha,
-        None => crate::sys_umbrella::kOfxImageComponentNone,
-        RGB => crate::sys_umbrella::kOfxImageComponentRGB,
-        RGBA => crate::sys_umbrella::kOfxImageComponentRGBA,
+    enum ImageEffectPropComponents {
+        #[sys(kOfxImageComponentAlpha)]
+        Alpha,
+        #[sys(kOfxImageComponentNone)]
+        None,
+        #[sys(kOfxImageComponentRGB)]
+        RGB,
+        #[sys(kOfxImageComponentRGBA)]
+        RGBA,
     }
-    ImageEffectPropContext {
-        Filter => crate::sys_umbrella::kOfxImageEffectContextFilter,
-        General => crate::sys_umbrella::kOfxImageEffectContextGeneral,
-        Generator => crate::sys_umbrella::kOfxImageEffectContextGenerator,
-        Paint => crate::sys_umbrella::kOfxImageEffectContextPaint,
-        Retimer => crate::sys_umbrella::kOfxImageEffectContextRetimer,
-        Transition => crate::sys_umbrella::kOfxImageEffectContextTransition,
+    enum ImageEffectPropContext {
+        #[sys(kOfxImageEffectContextFilter)]
+        Filter,
+        #[sys(kOfxImageEffectContextGeneral)]
+        General,
+        #[sys(kOfxImageEffectContextGenerator)]
+        Generator,
+        #[sys(kOfxImageEffectContextPaint)]
+        Paint,
+        #[sys(kOfxImageEffectContextRetimer)]
+        Retimer,
+        #[sys(kOfxImageEffectContextTransition)]
+        Transition,
     }
-    ImageEffectPropCudaRenderSupported {
-        False : c"false",
-        Needed : c"needed",
-        True : c"true",
+    enum ImageEffectPropCudaRenderSupported {
+        #[sys_literal(c"false")]
+        False,
+        #[sys_literal(c"needed")]
+        Needed,
+        #[sys_literal(c"true")]
+        True,
     }
-    ImageEffectPropCudaStreamSupported {
-        False : c"false",
-        Needed : c"needed",
-        True : c"true",
+    enum ImageEffectPropCudaStreamSupported {
+        #[sys_literal(c"false")]
+        False,
+        #[sys_literal(c"needed")]
+        Needed,
+        #[sys_literal(c"true")]
+        True,
     }
-    ImageEffectPropFieldToRender {
-        Both => crate::sys_umbrella::kOfxImageFieldBoth,
-        Lower => crate::sys_umbrella::kOfxImageFieldLower,
-        None => crate::sys_umbrella::kOfxImageFieldNone,
-        Upper => crate::sys_umbrella::kOfxImageFieldUpper,
+    enum ImageEffectPropFieldToRender {
+        #[sys(kOfxImageFieldBoth)]
+        Both,
+        #[sys(kOfxImageFieldLower)]
+        Lower,
+        #[sys(kOfxImageFieldNone)]
+        None,
+        #[sys(kOfxImageFieldUpper)]
+        Upper,
     }
-    ImageEffectPropMetalRenderSupported {
-        False : c"false",
-        Needed : c"needed",
-        True : c"true",
+    enum ImageEffectPropMetalRenderSupported {
+        #[sys_literal(c"false")]
+        False,
+        #[sys_literal(c"needed")]
+        Needed,
+        #[sys_literal(c"true")]
+        True,
     }
-    ImageEffectPropNoSpatialAwareness {
-        False : c"false",
-        True : c"true",
+    enum ImageEffectPropNoSpatialAwareness {
+        #[sys_literal(c"false")]
+        False,
+        #[sys_literal(c"true")]
+        True,
     }
-    ImageEffectPropOpenCLRenderSupported {
-        False : c"false",
-        Needed : c"needed",
-        True : c"true",
+    enum ImageEffectPropOpenCLRenderSupported {
+        #[sys_literal(c"false")]
+        False,
+        #[sys_literal(c"needed")]
+        Needed,
+        #[sys_literal(c"true")]
+        True,
     }
-    ImageEffectPropOpenCLSupported {
-        False : c"false",
-        True : c"true",
+    enum ImageEffectPropOpenCLSupported {
+        #[sys_literal(c"false")]
+        False,
+        #[sys_literal(c"true")]
+        True,
     }
-    ImageEffectPropOpenGLRenderSupported {
-        False : c"false",
-        Needed : c"needed",
-        True : c"true",
+    enum ImageEffectPropOpenGLRenderSupported {
+        #[sys_literal(c"false")]
+        False,
+        #[sys_literal(c"needed")]
+        Needed,
+        #[sys_literal(c"true")]
+        True,
     }
-    ImageEffectPropPixelDepth {
-        Byte => crate::sys_umbrella::kOfxBitDepthByte,
-        Float => crate::sys_umbrella::kOfxBitDepthFloat,
-        Half => crate::sys_umbrella::kOfxBitDepthHalf,
-        None => crate::sys_umbrella::kOfxBitDepthNone,
-        Short => crate::sys_umbrella::kOfxBitDepthShort,
+    enum ImageEffectPropPixelDepth {
+        #[sys(kOfxBitDepthByte)]
+        Byte,
+        #[sys(kOfxBitDepthFloat)]
+        Float,
+        #[sys(kOfxBitDepthHalf)]
+        Half,
+        #[sys(kOfxBitDepthNone)]
+        None,
+        #[sys(kOfxBitDepthShort)]
+        Short,
     }
-    ImageEffectPropPreMultiplication {
-        PreMultiplied => crate::sys_umbrella::kOfxImagePreMultiplied,
-        UnPreMultiplied => crate::sys_umbrella::kOfxImageUnPreMultiplied,
-        Opaque => crate::sys_umbrella::kOfxImageOpaque,
+    enum ImageEffectPropPreMultiplication {
+        #[sys(kOfxImagePreMultiplied)]
+        PreMultiplied,
+        #[sys(kOfxImageUnPreMultiplied)]
+        UnPreMultiplied,
+        #[sys(kOfxImageOpaque)]
+        Opaque,
     }
-    ImageEffectPropSupportedComponents {
-        Alpha => crate::sys_umbrella::kOfxImageComponentAlpha,
-        None => crate::sys_umbrella::kOfxImageComponentNone,
-        RGB => crate::sys_umbrella::kOfxImageComponentRGB,
-        RGBA => crate::sys_umbrella::kOfxImageComponentRGBA,
+    enum ImageEffectPropSupportedComponents {
+        #[sys(kOfxImageComponentAlpha)]
+        Alpha,
+        #[sys(kOfxImageComponentNone)]
+        None,
+        #[sys(kOfxImageComponentRGB)]
+        RGB,
+        #[sys(kOfxImageComponentRGBA)]
+        RGBA,
     }
-    ImageEffectPropSupportedContexts {
-        Filter => crate::sys_umbrella::kOfxImageEffectContextFilter,
-        General => crate::sys_umbrella::kOfxImageEffectContextGeneral,
-        Generator => crate::sys_umbrella::kOfxImageEffectContextGenerator,
-        Paint => crate::sys_umbrella::kOfxImageEffectContextPaint,
-        Retimer => crate::sys_umbrella::kOfxImageEffectContextRetimer,
-        Transition => crate::sys_umbrella::kOfxImageEffectContextTransition,
+    enum ImageEffectPropSupportedContexts {
+        #[sys(kOfxImageEffectContextFilter)]
+        Filter,
+        #[sys(kOfxImageEffectContextGeneral)]
+        General,
+        #[sys(kOfxImageEffectContextGenerator)]
+        Generator,
+        #[sys(kOfxImageEffectContextPaint)]
+        Paint,
+        #[sys(kOfxImageEffectContextRetimer)]
+        Retimer,
+        #[sys(kOfxImageEffectContextTransition)]
+        Transition,
     }
-    ImageEffectPropSupportedPixelDepths {
-        Byte => crate::sys_umbrella::kOfxBitDepthByte,
-        Float => crate::sys_umbrella::kOfxBitDepthFloat,
-        Half => crate::sys_umbrella::kOfxBitDepthHalf,
-        None => crate::sys_umbrella::kOfxBitDepthNone,
-        Short => crate::sys_umbrella::kOfxBitDepthShort,
+    enum ImageEffectPropSupportedPixelDepths {
+        #[sys(kOfxBitDepthByte)]
+        Byte,
+        #[sys(kOfxBitDepthFloat)]
+        Float,
+        #[sys(kOfxBitDepthHalf)]
+        Half,
+        #[sys(kOfxBitDepthNone)]
+        None,
+        #[sys(kOfxBitDepthShort)]
+        Short,
     }
-    ImageEffectPropThumbnailRender {
-        False : c"false",
-        True : c"true",
+    enum ImageEffectPropThumbnailRender {
+        #[sys_literal(c"false")]
+        False,
+        #[sys_literal(c"true")]
+        True,
     }
-    ImagePropField {
-        Both => crate::sys_umbrella::kOfxImageFieldBoth,
-        Lower => crate::sys_umbrella::kOfxImageFieldLower,
-        None => crate::sys_umbrella::kOfxImageFieldNone,
-        Upper => crate::sys_umbrella::kOfxImageFieldUpper,
+    enum ImagePropField {
+        #[sys(kOfxImageFieldBoth)]
+        Both,
+        #[sys(kOfxImageFieldLower)]
+        Lower,
+        #[sys(kOfxImageFieldNone)]
+        None,
+        #[sys(kOfxImageFieldUpper)]
+        Upper,
     }
-    OpenGLPropPixelDepth {
-        Byte => crate::sys_umbrella::kOfxBitDepthByte,
-        Float => crate::sys_umbrella::kOfxBitDepthFloat,
-        Half => crate::sys_umbrella::kOfxBitDepthHalf,
-        None => crate::sys_umbrella::kOfxBitDepthNone,
-        Short => crate::sys_umbrella::kOfxBitDepthShort,
+    enum OpenGLPropPixelDepth {
+        #[sys(kOfxBitDepthByte)]
+        Byte,
+        #[sys(kOfxBitDepthFloat)]
+        Float,
+        #[sys(kOfxBitDepthHalf)]
+        Half,
+        #[sys(kOfxBitDepthNone)]
+        None,
+        #[sys(kOfxBitDepthShort)]
+        Short,
     }
-    ParamPropCacheInvalidation {
-        All => crate::sys_umbrella::kOfxParamInvalidateAll,
-        ValueChange => crate::sys_umbrella::kOfxParamInvalidateValueChange,
-        ValueChangeToEnd => crate::sys_umbrella::kOfxParamInvalidateValueChangeToEnd,
+    enum ParamPropCacheInvalidation {
+        #[sys(kOfxParamInvalidateAll)]
+        All,
+        #[sys(kOfxParamInvalidateValueChange)]
+        ValueChange,
+        #[sys(kOfxParamInvalidateValueChangeToEnd)]
+        ValueChangeToEnd,
     }
-    ParamPropDefaultCoordinateSystem {
-        Canonical => crate::sys_umbrella::kOfxParamCoordinatesCanonical,
-        Normalised => crate::sys_umbrella::kOfxParamCoordinatesNormalised,
+    enum ParamPropDefaultCoordinateSystem {
+        #[sys(kOfxParamCoordinatesCanonical)]
+        Canonical,
+        #[sys(kOfxParamCoordinatesNormalised)]
+        Normalised,
     }
-    ParamPropDoubleType {
-        AbsoluteTime => crate::sys_umbrella::kOfxParamDoubleTypeAbsoluteTime,
-        Angle => crate::sys_umbrella::kOfxParamDoubleTypeAngle,
-        Plain => crate::sys_umbrella::kOfxParamDoubleTypePlain,
-        Scale => crate::sys_umbrella::kOfxParamDoubleTypeScale,
-        Time => crate::sys_umbrella::kOfxParamDoubleTypeTime,
-        X => crate::sys_umbrella::kOfxParamDoubleTypeX,
-        XAbsolute => crate::sys_umbrella::kOfxParamDoubleTypeXAbsolute,
-        XY => crate::sys_umbrella::kOfxParamDoubleTypeXY,
-        XYAbsolute => crate::sys_umbrella::kOfxParamDoubleTypeXYAbsolute,
-        Y => crate::sys_umbrella::kOfxParamDoubleTypeY,
-        YAbsolute => crate::sys_umbrella::kOfxParamDoubleTypeYAbsolute,
+    enum ParamPropDoubleType {
+        #[sys(kOfxParamDoubleTypeAbsoluteTime)]
+        AbsoluteTime,
+        #[sys(kOfxParamDoubleTypeAngle)]
+        Angle,
+        #[sys(kOfxParamDoubleTypePlain)]
+        Plain,
+        #[sys(kOfxParamDoubleTypeScale)]
+        Scale,
+        #[sys(kOfxParamDoubleTypeTime)]
+        Time,
+        #[sys(kOfxParamDoubleTypeX)]
+        X,
+        #[sys(kOfxParamDoubleTypeXAbsolute)]
+        XAbsolute,
+        #[sys(kOfxParamDoubleTypeXY)]
+        XY,
+        #[sys(kOfxParamDoubleTypeXYAbsolute)]
+        XYAbsolute,
+        #[sys(kOfxParamDoubleTypeY)]
+        Y,
+        #[sys(kOfxParamDoubleTypeYAbsolute)]
+        YAbsolute,
     }
-    ParamPropStringMode {
-        DirectoryPath => crate::sys_umbrella::kOfxParamStringIsDirectoryPath,
-        FilePath => crate::sys_umbrella::kOfxParamStringIsFilePath,
-        Label => crate::sys_umbrella::kOfxParamStringIsLabel,
-        MultiLine => crate::sys_umbrella::kOfxParamStringIsMultiLine,
-        RichTextFormat => crate::sys_umbrella::kOfxParamStringIsRichTextFormat,
-        SingleLine => crate::sys_umbrella::kOfxParamStringIsSingleLine,
+    enum ParamPropStringMode {
+        #[sys(kOfxParamStringIsDirectoryPath)]
+        DirectoryPath,
+        #[sys(kOfxParamStringIsFilePath)]
+        FilePath,
+        #[sys(kOfxParamStringIsLabel)]
+        Label,
+        #[sys(kOfxParamStringIsMultiLine)]
+        MultiLine,
+        #[sys(kOfxParamStringIsRichTextFormat)]
+        RichTextFormat,
+        #[sys(kOfxParamStringIsSingleLine)]
+        SingleLine,
     }
-    PropChangeReason {
-        PluginEdited => crate::sys_umbrella::kOfxChangePluginEdited,
-        Time => crate::sys_umbrella::kOfxChangeTime,
-        UserEdited => crate::sys_umbrella::kOfxChangeUserEdited,
+    enum PropChangeReason {
+        #[sys(kOfxChangePluginEdited)]
+        PluginEdited,
+        #[sys(kOfxChangeTime)]
+        Time,
+        #[sys(kOfxChangeUserEdited)]
+        UserEdited,
     }
 }

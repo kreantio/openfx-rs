@@ -1,6 +1,6 @@
 use std::{
     ffi::{CStr, c_char, c_int, c_void},
-    sync::{Mutex, OnceLock},
+    sync::Mutex,
 };
 
 use openfx::{
@@ -34,9 +34,9 @@ use openfx::{
 
 use crate::definitions::{PLUGIN_1_BASICS_IDENTIFIER, PLUGIN_1_BASICS_LABEL, PLUGINS_GROUPING};
 
-static HOST_STRUCT: OnceLock<SaferHostStruct<'static>> = OnceLock::new();
+static HOST_BEFORE_ACTION_LOAD: Mutex<Option<HostBeforeActionLoad<'static>>> = Mutex::new(None);
 #[derive(Clone)]
-struct SaferHostStruct<'a> {
+struct HostBeforeActionLoad<'a> {
     host: &'a OfxPropertySetStruct,
     fetch_suite: unsafe extern "C" fn(
         host: OfxPropertySetHandle,
@@ -48,7 +48,7 @@ struct SaferHostStruct<'a> {
 static SHARED_DATA: Mutex<Option<SharedData<'static>>> = Mutex::new(None);
 struct SharedData<'a> {
     #[expect(unused)]
-    host_struct: SaferHostStruct<'a>,
+    host_struct: HostBeforeActionLoad<'a>,
     property_suite: &'a OfxPropertySuiteV1,
     image_effect_suite: &'a OfxImageEffectSuiteV1,
 }
@@ -76,11 +76,13 @@ impl Plugin for PluginExampleBasic {
                 .fetchSuite
                 .ok_or("`host_struct.fetchSuite` should not be null.")?;
 
-            if HOST_STRUCT
-                .set(SaferHostStruct { host, fetch_suite })
-                .is_err()
+            if HOST_BEFORE_ACTION_LOAD
+                .lock()
+                .expect("Failed to lock HOST_BEFORE_ACTION_LOAD.")
+                .replace(HostBeforeActionLoad { host, fetch_suite })
+                .is_some()
             {
-                return Err("`HOST_STRUCT` has already been initialized before.");
+                return Err("`HOST_BEFORE_ACTION_LOAD` has already been initialized before.");
             }
             Ok(())
         }
@@ -129,7 +131,11 @@ impl Plugin for PluginExampleBasic {
 }
 
 fn action_load() -> Result<(), OfxStatus> {
-    let host_struct = HOST_STRUCT.get().ok_or(kOfxStatFailed)?.clone();
+    let host_struct = HOST_BEFORE_ACTION_LOAD
+        .lock()
+        .map_err(|_| kOfxStatFailed)?
+        .clone()
+        .ok_or(kOfxStatFailed)?;
 
     let property_suite = unsafe {
         (host_struct.fetch_suite)(

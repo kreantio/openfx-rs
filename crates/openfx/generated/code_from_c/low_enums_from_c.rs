@@ -1,0 +1,64 @@
+openfx_internal_macros::low_make_property_enums_from_c! {
+    #[sys(OfxDrawLineStipplePattern)]
+    enum DrawLineStipplePattern {
+        #[sys(kOfxDrawLineStipplePatternAltDash)]
+        AltDash,
+        #[sys(kOfxDrawLineStipplePatternDash)]
+        Dash,
+        #[sys(kOfxDrawLineStipplePatternDot)]
+        Dot,
+        #[sys(kOfxDrawLineStipplePatternDotDash)]
+        DotDash,
+        #[sys(kOfxDrawLineStipplePatternSolid)]
+        Solid,
+    }
+    #[sys(OfxDrawPrimitive)]
+    enum DrawPrimitive {
+        #[sys(kOfxDrawPrimitiveEllipse)]
+        Ellipse,
+        #[sys(kOfxDrawPrimitiveLineLoop)]
+        LineLoop,
+        #[sys(kOfxDrawPrimitiveLineStrip)]
+        LineStrip,
+        #[sys(kOfxDrawPrimitiveLines)]
+        Lines,
+        #[sys(kOfxDrawPrimitivePolygon)]
+        Polygon,
+        #[sys(kOfxDrawPrimitiveRectangle)]
+        Rectangle,
+    }
+    #[sys(OfxDrawTextAlignment)]
+    enum DrawTextAlignment {
+        #[sys(kOfxDrawTextAlignmentBaseline)]
+        Baseline,
+        #[sys(kOfxDrawTextAlignmentBottom)]
+        Bottom,
+        #[sys(kOfxDrawTextAlignmentCenterH)]
+        CenterH,
+        #[sys(kOfxDrawTextAlignmentCenterV)]
+        CenterV,
+        #[sys(kOfxDrawTextAlignmentLeft)]
+        Left,
+        #[sys(kOfxDrawTextAlignmentRight)]
+        Right,
+        #[sys(kOfxDrawTextAlignmentTop)]
+        Top,
+    }
+    #[sys(OfxStandardColour)]
+    enum StandardColour {
+        #[sys(kOfxStandardColourOverlayActive)]
+        Active,
+        #[sys(kOfxStandardColourOverlayBackground)]
+        Background,
+        #[sys(kOfxStandardColourOverlayDeselected)]
+        Deselected,
+        #[sys(kOfxStandardColourOverlayMarqueeBG)]
+        MarqueeBG,
+        #[sys(kOfxStandardColourOverlayMarqueeFG)]
+        MarqueeFG,
+        #[sys(kOfxStandardColourOverlaySelected)]
+        Selected,
+        #[sys(kOfxStandardColourOverlayText)]
+        Text,
+    }
+}
