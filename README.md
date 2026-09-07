@@ -22,7 +22,6 @@ The following tools are required:
 
 ## Crate `openfx`
 
-[<img alt="github" src="https://img.shields.io/badge/github-kreantio/openfx-rs?logo=github" height="20">](https://github.com/kreantio/openfx-rs)
 [![Latest version](https://img.shields.io/crates/v/openfx.svg)](https://crates.io/crates/openfx)
 [![Documentation](https://docs.rs/openfx/badge.svg)](https://docs.rs/openfx)
 [![Crates.io License](https://img.shields.io/crates/l/openfx)](https://github.com/kreantio/openfx-rs/blob/main/LICENSE.md)
