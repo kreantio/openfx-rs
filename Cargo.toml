@@ -9,16 +9,16 @@ members = [
 ]
 
 [workspace.package]
-version = "0.3.0"
+version = "0.4.0"
 license = "BSD-3-Clause"
 repository = "https://github.com/kreantio/openfx-rs"
 
 [workspace.lints]
 
 [workspace.dependencies]
-openfx = { path = "crates/openfx", version = "0.3.0" }
-openfx-codegen = { path = "crates/private/openfx-codegen", version = "0.3.0" }
-openfx-internal-macros = { path = "crates/openfx-internal-macros", version = "0.3.0" }
+openfx = { path = "crates/openfx", version = "0.4.0" }
+openfx-codegen = { path = "crates/private/openfx-codegen", version = "0.4.0" }
+openfx-internal-macros = { path = "crates/openfx-internal-macros", version = "0.4.0" }
 
 bindgen = "0.72.1"
 clap = "4.6.6"
