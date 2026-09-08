@@ -41,6 +41,11 @@ pub fn low_make_suite_struct(tokens: TokenStream) -> TokenStream {
 }
 
 #[proc_macro]
+pub fn low_make_object_struct(tokens: TokenStream) -> TokenStream {
+    low_macros::make_object_struct::make_object_struct(tokens)
+}
+
+#[proc_macro]
 pub fn low_plugin_impl_host_for_fetch_suite(tokens: TokenStream) -> TokenStream {
     low_macros::plugin_impl_host_for_fetch_suite::plugin_impl_host_for_fetch_suite(tokens)
 }

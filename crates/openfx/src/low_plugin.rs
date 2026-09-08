@@ -9,17 +9,27 @@ pub mod actions {
     ));
 }
 
-pub mod property_sets {
-    include!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/generated/code_from_cpp/low_property_sets_plugin.rs",
-    ));
-}
-
 pub mod suites {
     include!(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/generated/code_from_c/low_suites_plugin.rs",
+    ));
+}
+
+pub mod objects {
+    //! This module contains structs that wrap object handles, excluding
+    //! property sets and parameters.
+
+    include!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/generated/code_from_c/low_objects_plugin.rs",
+    ));
+}
+
+pub mod property_sets {
+    include!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/generated/code_from_cpp/low_property_sets_plugin.rs",
     ));
 }
 
