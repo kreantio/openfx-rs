@@ -201,12 +201,12 @@ function genLowActionsInGroup(
 
     if (actionConfig.in !== hasInArgs) {
       console.warn(
-        `Mismatch in 'in' argument expectation for action ${action.canonicalName}: config expects ${actionConfig.in}, but actual hasInArgs is ${hasInArgs}`,
+        `WARN(gen-low-actions): Mismatch in 'in' argument expectation for action ${action.canonicalName}: config expects ${actionConfig.in}, but actual hasInArgs is ${hasInArgs}`,
       );
     }
     if (actionConfig.out !== hasOutArgs) {
       console.warn(
-        `Mismatch in 'out' argument expectation for action ${action.canonicalName}: config expects ${actionConfig.out}, but actual hasOutArgs is ${hasOutArgs}`,
+        `WARN(gen-low-actions): Mismatch in 'out' argument expectation for action ${action.canonicalName}: config expects ${actionConfig.out}, but actual hasOutArgs is ${hasOutArgs}`,
       );
     }
 
