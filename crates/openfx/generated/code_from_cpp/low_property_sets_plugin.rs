@@ -96,7 +96,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         r/_ is_interactive: Bool @OfxPropIsInteractive;
         r/_ r#type: String @OfxPropType;
     }
-    ImagePropertySet {
+    ImageInstancePropertySet {
         r/_ image_effect_components: Enum(ImageEffectPropComponents) @OfxImageEffectPropComponents;
         r/_ image_effect_pixel_depth: Enum(ImageEffectPropPixelDepth) @OfxImageEffectPropPixelDepth;
         r/_ image_effect_pre_multiplication: Enum(ImageEffectPropPreMultiplication) @OfxImageEffectPropPreMultiplication;
@@ -110,7 +110,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         r/_ image_unique_identifier: String @OfxImagePropUniqueIdentifier;
         r/_ r#type: String @OfxPropType;
     }
-    ImageEffectHostPropertySet {
+    ImageEffectHostDescriptorPropertySet {
         r/_ image_effect_host_is_background: Bool @OfxImageEffectHostPropIsBackground;
         r/_ image_effect_host_native_origin: Enum(ImageEffectHostPropNativeOrigin) @OfxImageEffectHostPropNativeOrigin;
         r/_ image_effect_instance_sequential_render: Bool @OfxImageEffectInstancePropSequentialRender;
@@ -202,7 +202,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         _/w short_label: String @OfxPropShortLabel;
         _/w r#type: String @OfxPropType;
     }
-    ParameterSetPropertySet {
+    ParamSetDescriptorPropertySet {
         _/w plugin_param_page_order: [String] @OfxPluginPropParamPageOrder;
         _/w param_set_needs_syncing: Bool @OfxPropParamSetNeedsSyncing;
     }

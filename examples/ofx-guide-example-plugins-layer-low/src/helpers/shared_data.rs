@@ -12,7 +12,7 @@ use openfx::{
         objects::{ImageEffectDescriptor, ImageEffectInstance},
         property_sets::{
             ImageClipDescriptorPropertySet, ImageEffectDescriptorPropertySet,
-            ImageEffectInstancePropertySet, ImagePropertySet,
+            ImageEffectInstancePropertySet, ImageInstancePropertySet,
         },
         suites::{ImageEffectSuiteV1, ParameterSuiteV1, PropertySuiteV1},
     },
@@ -307,7 +307,7 @@ impl ImageEffectSuiteHelper {
         clip: OfxImageClipHandle,
         time: OfxTime,
         region: Option<&OfxRectD>,
-    ) -> low::Result<ImagePropertySet> {
+    ) -> low::Result<ImageInstancePropertySet> {
         let clip_get_image = unsafe {
             self.image_effect_suite
                 .sys_ref()
@@ -327,7 +327,7 @@ impl ImageEffectSuiteHelper {
         {
             Err(Status::from(stat))
         } else {
-            Ok(ImagePropertySet::from(image))
+            Ok(ImageInstancePropertySet::from(image))
         }
     }
 
@@ -413,7 +413,7 @@ impl ImageEffectSuiteHelper {
 
 pub struct ClipImageManaged {
     image_effect_suite_helper: ImageEffectSuiteHelper,
-    props: ImagePropertySet,
+    props: ImageInstancePropertySet,
 
     n_comps: c_int,
     pixel_depth: BitDepth,
@@ -437,7 +437,7 @@ impl ClipImageManaged {
     /// The caller must ensure that the input `image_props` is valid.
     unsafe fn try_new(
         shared_data: &SharedData,
-        props: ImagePropertySet,
+        props: ImageInstancePropertySet,
     ) -> low::Result<Option<Self>> {
         let s_prop = &shared_data.property_suite.0;
 

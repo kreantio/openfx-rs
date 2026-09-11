@@ -1,4 +1,9 @@
 export interface CodegenConfig {
+  objects: {
+    unused_property_sets_in_metadata: string[];
+    mapping: Record<string, string | { set?: boolean }>;
+    parameter_set_mapping: Record<string, { set: string }>;
+  };
   property_sets: {
     renaming: Record<string, string>;
   };

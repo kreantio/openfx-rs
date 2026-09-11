@@ -19,6 +19,7 @@ import { genSysHelpersPropertyAccessors } from "../src/generators/gen-sys-helper
 import { NameRegulator } from "../src/utils/name-regulator.ts";
 import { genLowActions } from "../src/generators/gen-low-actions.ts";
 import { genLowPropertySets } from "../src/generators/gen-low-property-sets.ts";
+import { checkLowAllPropertySetsHaveCorrespondingObjects } from "../src/checkers/check-low-all-property-sets-have-corresponding-objects.ts";
 
 function doParseArgs(args: string[]) {
   const result = parseArgs(args, {
@@ -72,6 +73,11 @@ async function main(args: Args) {
     cfg: codegenConfig,
     propsMetadata,
     propsBySet,
+  });
+
+  checkLowAllPropertySetsHaveCorrespondingObjects(propsBySet, {
+    cfg: codegenConfig,
+    nameRegulator,
   });
 
   await Deno.writeTextFile(
