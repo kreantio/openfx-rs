@@ -20,7 +20,7 @@ use openfx::{
             ActionDescribeInContextIn, ActionIsIdentityIn, ActionRenderIn, ImageEffectAction,
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
-        property_sets::{ParamDouble1DPropertySet, ParamsBytePropertySet},
+        property_sets::{ParamBytePropertySet, ParamDouble1DPropertySet},
     },
     sys::{
         generic::core::OfxPropertySetHandle,
@@ -207,7 +207,7 @@ fn action_describe_in_context(
     {
         let param_props =
             param_set.param_define(kOfxParamTypeBoolean, APPLY_TO_ALPHA_PARAM_NAME)?;
-        let param_props = ParamsBytePropertySet::from(param_props);
+        let param_props = ParamBytePropertySet::from(param_props);
 
         unsafe {
             param_props.set_param_default_int(s_prop, &[0])?;

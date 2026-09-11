@@ -11,8 +11,8 @@ use openfx::{
         Host, HostOwned,
         objects::{ImageEffectDescriptor, ImageEffectInstance},
         property_sets::{
-            ClipDescriptorPropertySet, EffectDescriptorPropertySet, EffectInstancePropertySet,
-            ImagePropertySet,
+            ImageClipDescriptorPropertySet, ImageEffectDescriptorPropertySet,
+            ImageEffectInstancePropertySet, ImagePropertySet,
         },
         suites::{ImageEffectSuiteV1, ParameterSuiteV1, PropertySuiteV1},
     },
@@ -103,7 +103,7 @@ impl SharedData {
             self.image_effect_suite_helper()
                 .get_property_set(effect.sys_handle())
         }?;
-        let props = EffectInstancePropertySet::from(props);
+        let props = ImageEffectInstancePropertySet::from(props);
         let Some(instance_data_ptr) = unsafe { props.get_instance_data(&self.property_suite.0) }?
         else {
             return Err(Status::Failed);
@@ -175,17 +175,17 @@ impl SharedData {
     pub unsafe fn get_property_set_from_image_effect_descriptor(
         &self,
         handle: &ImageEffectDescriptor,
-    ) -> low::Result<EffectDescriptorPropertySet> {
+    ) -> low::Result<ImageEffectDescriptorPropertySet> {
         let props = unsafe { self.get_property_set_from_image_effect(handle.sys_handle()) }?;
-        Ok(EffectDescriptorPropertySet::from(props))
+        Ok(ImageEffectDescriptorPropertySet::from(props))
     }
 
     pub unsafe fn get_property_set_from_image_effect_instance(
         &self,
         handle: &ImageEffectInstance,
-    ) -> low::Result<EffectInstancePropertySet> {
+    ) -> low::Result<ImageEffectInstancePropertySet> {
         let props = unsafe { self.get_property_set_from_image_effect(handle.sys_handle()) }?;
-        Ok(EffectInstancePropertySet::from(props))
+        Ok(ImageEffectInstancePropertySet::from(props))
     }
 
     /// ## Safety
@@ -248,7 +248,7 @@ impl ImageEffectSuiteHelper {
         &self,
         image_effect: &ImageEffectDescriptor,
         name: &CStr,
-    ) -> low::Result<ClipDescriptorPropertySet> {
+    ) -> low::Result<ImageClipDescriptorPropertySet> {
         let clip_define = unsafe {
             self.image_effect_suite
                 .sys_ref()
@@ -262,7 +262,7 @@ impl ImageEffectSuiteHelper {
         {
             Err(Status::from(stat))
         } else {
-            Ok(ClipDescriptorPropertySet::from(props))
+            Ok(ImageClipDescriptorPropertySet::from(props))
         }
     }
 
