@@ -1,7 +1,9 @@
 export interface CodegenConfig {
-  property_names: {
-    simple_names_regex: string;
-    simple_names_special_cases: Record<string, string>;
+  properties: {
+    names: {
+      simple_names_regex: string;
+      simple_names_special_cases: Record<string, string>;
+    };
   };
   actions: {
     pseudo: {

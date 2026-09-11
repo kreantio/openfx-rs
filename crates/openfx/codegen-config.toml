@@ -78,9 +78,9 @@ ParamPage = { is = "OfxParamHandle", set = "ParamsPage", d = 0, ty = "" }
 ParamPushButton = { is = "OfxParamHandle", set = "ParamsPushButton", d = 0, ty = "" }
 ParamParametric = { is = "OfxParamHandle", set = "ParamsParametric", d = 0, ty = "" }
 
-[property_names]
+[properties.names]
 simple_names_regex = "^Ofx(.*?)(?:Prop)(.+)$"
-[property_names.simple_names_special_cases]
+[properties.names.simple_names_special_cases]
 # action args: no `"Prop"`
 OfxImageEffectFrameVarying = "ImageEffectFrameVarying"
 # property sets: no `"Prop"`
