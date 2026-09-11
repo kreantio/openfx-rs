@@ -1,6 +1,8 @@
 use std::ffi::{CStr, c_int, c_uint};
 
-use crate::{low_plugin::property_sets::ImageEffectHostPropertySet, sys_umbrella::OfxHost};
+use crate::{
+    low_plugin::property_sets::ImageEffectHostDescriptorPropertySet, sys_umbrella::OfxHost,
+};
 
 pub mod actions {
     include!(concat!(
@@ -100,7 +102,7 @@ pub trait HostOwned {}
 /// [invert.cpp]: https://github.com/AcademySoftwareFoundation/openfx/blob/3de640d6f645fe6e346acd57e568d8b0a5ae4574/Documentation/sources/Guide/Code/Example2/invert.cpp
 pub struct Host {
     sys: *const crate::sys::generic::core::OfxHost,
-    host: ImageEffectHostPropertySet,
+    host: ImageEffectHostDescriptorPropertySet,
 }
 
 impl HostOwned for Host {}
@@ -117,7 +119,7 @@ impl Host {
 
         Self {
             sys,
-            host: ImageEffectHostPropertySet::from(host.host),
+            host: ImageEffectHostDescriptorPropertySet::from(host.host),
         }
     }
 
@@ -125,7 +127,7 @@ impl Host {
         self.sys
     }
 
-    pub fn host(&self) -> &ImageEffectHostPropertySet {
+    pub fn host(&self) -> &ImageEffectHostDescriptorPropertySet {
         &self.host
     }
 

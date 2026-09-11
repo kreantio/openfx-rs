@@ -8,6 +8,7 @@ import { NameRegulator } from "../utils/name-regulator.ts";
 import { CodegenConfig } from "../definitions.ts";
 import { genPropertySetPropertyItem } from "./gen-low-property-sets.ts";
 import { pascalCase } from "es-toolkit/string";
+import { assertSetsEqual } from "../utils/assertions.ts";
 
 export function genLowActions(
   frM: FinalResultOfxPropsMetadata,
@@ -318,31 +319,11 @@ function verifyActionMembers(
   membersFromRegex: Set<string>,
   membersFromConfig: Set<string>,
 ) {
-  if (
-    membersFromRegex.size === membersFromConfig.size &&
-    membersFromRegex.isSubsetOf(membersFromConfig)
-  ) {
-    return;
-  }
-
-  const onlyInConfig = membersFromConfig.difference(membersFromRegex);
-  const onlyMatchedByRegex = membersFromRegex.difference(membersFromConfig);
-  let err =
-    `Action members in the configuration and matched by regex differ in group "${groupNameSnake}":`;
-  if (onlyInConfig.size > 0) {
-    err += ` some members are only in the configuration (${
-      Array.from(onlyInConfig).join(", ")
-    })`;
-  }
-  if (onlyMatchedByRegex.size > 0) {
-    if (onlyInConfig.size > 0) {
-      err += ", while";
-    }
-    err += ` some members are only matched by regex (${
-      Array.from(onlyMatchedByRegex).join(", ")
-    })`;
-  }
-  err += ".";
-
-  throw new Error(err);
+  assertSetsEqual(
+    `Action members for group "${groupNameSnake}"`,
+    "`membersFromRegex`",
+    membersFromRegex,
+    "`membersFromConfig`",
+    membersFromConfig,
+  );
 }

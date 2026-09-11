@@ -12,7 +12,10 @@ ParameterSuiteV1 = { omit_functions = [
 ] }
 
 [objects]
-unused_property_sets_in_metadata = ["ParamsNormalizedSpatial"]
+unused_property_sets_in_metadata = [
+  # no corresponding `kOfxParamType*`, and it is deprecated anyway.
+  "ParamNormalizedSpatial",
+]
 
 [objects.mapping]
 # source: https://openfx.readthedocs.io/en/main/Reference/ofxImageEffectAPI.html#main-objects-used-by-the-api (`openfx/Documentation/sources/Reference/ofxImageEffectAPI.rst`)
@@ -36,13 +39,13 @@ InteractInstance = { is = "OfxInteractHandle", set = true }         # Interact I
 # source: same as the above.
 
 # Host Descriptor: This is just a property set handle.
-HostDescriptor = { is = "OfxPropertySetHandle", omit = true }
+ImageEffectHostDescriptor = { is = "OfxPropertySetHandle", omit = true, set = true }
 # Parameter Descriptor/Instance: Concrete parameter descriptors/instances are
 # used instead.
 ParamDescriptor = { is = "OfxParamHandle", omit = true }
 # Image Instance: This is also a property set handle, so we need to handle this
 # specifically.
-ImageInstance = { is = "OfxPropertySetHandle", omit = true }
+ImageInstance = { is = "OfxPropertySetHandle", omit = true, set = true }
 
 # remain
 
@@ -74,17 +77,23 @@ ParamDouble3D = { is = "OfxParamHandle", set = "ParamDouble2D3D", d = 3, ty = "D
 ParamInteger3D = { is = "OfxParamHandle", set = "ParamInteger2D3D", d = 3, ty = "Int" }
 ParamString = { is = "OfxParamHandle", set = "ParamString", d = 1, ty = "String" }
 ParamCustom = { is = "OfxParamHandle", set = "ParamCustom", d = 1, ty = "Custom" }
-ParamBytes = { is = "OfxParamHandle", set = "ParamBytes", d = 1, ty = "Pointer" }
+ParamBytes = { is = "OfxParamHandle", set = "ParamByte", d = 1, ty = "Pointer" }
 ParamGroup = { is = "OfxParamHandle", set = "ParamGroup", d = 0, ty = "" }
 ParamPage = { is = "OfxParamHandle", set = "ParamPage", d = 0, ty = "" }
-ParamPushButton = { is = "OfxParamHandle", set = "?", d = 0, ty = "" }                   # FIXME!!
+ParamPushButton = { is = "OfxParamHandle", set = "ParamByte", d = 0, ty = "" }           # FIXME: This definitely does not correspond to `ParamByte`.
 ParamParametric = { is = "OfxParamHandle", set = "ParamParametric", d = 0, ty = "" }
 
 [property_sets.renaming]
+ImageEffectHost = "ImageEffectHostDescriptor"
+Image = "ImageInstance"
+
 ClipDescriptor = "ImageClipDescriptor"
 ClipInstance = "ImageClipInstance"
 EffectDescriptor = "ImageEffectDescriptor"
 EffectInstance = "ImageEffectInstance"
+
+ParameterSet = "ParamSetDescriptor"
+
 ParamsByte = "ParamByte"
 ParamsChoice = "ParamChoice"
 ParamsCustom = "ParamCustom"
