@@ -247,28 +247,13 @@ fn get_k_name(var: &InputVariant, enum_name: &str) -> String {
 /// make_action_enum! {
 ///     pub ImageEffectAction {
 ///         _/_ core::Load,
-///         _/_ core::Unload,
+///         // …
 ///         _/_ core::Describe: crate::low_plugin::objects::ImageEffectDescriptor,
-///         _/_ core::CreateInstance: crate::low_plugin::objects::ImageEffectInstance,
-///         _/_ core::DestroyInstance: crate::low_plugin::objects::ImageEffectInstance,
-///         i/_ core::BeginInstanceChanged: crate::low_plugin::objects::ImageEffectInstance,
-///         i/_ core::EndInstanceChanged: crate::low_plugin::objects::ImageEffectInstance,
-///         i/_ core::InstanceChanged: crate::low_plugin::objects::ImageEffectInstance,
-///         _/_ core::PurgeCaches: crate::low_plugin::objects::ImageEffectInstance,
-///         _/_ core::SyncPrivateData: crate::low_plugin::objects::ImageEffectInstance,
-///         _/_ core::BeginInstanceEdit: crate::low_plugin::objects::ImageEffectInstance,
-///         _/_ core::EndInstanceEdit: crate::low_plugin::objects::ImageEffectInstance,
-///         i/_ BeginSequenceRender: crate::low_plugin::objects::ImageEffectInstance,
-///         i/_ DescribeInContext: crate::low_plugin::objects::ImageEffectDescriptor,
+///         // …
 ///         i/_ EndSequenceRender: crate::low_plugin::objects::ImageEffectInstance,
 ///         _/o GetClipPreferences: crate::low_plugin::objects::ImageEffectInstance,
 ///         i/o GetFramesNeeded: crate::low_plugin::objects::ImageEffectInstance,
-///         i/o GetOutputColourspace: crate::low_plugin::objects::ImageEffectInstance,
-///         i/o GetRegionOfDefinition: crate::low_plugin::objects::ImageEffectInstance,
-///         i/_ GetRegionsOfInterest: crate::low_plugin::objects::ImageEffectInstance,
-///         _/o GetTimeDomain: crate::low_plugin::objects::ImageEffectInstance,
-///         i/_ IsIdentity: crate::low_plugin::objects::ImageEffectInstance,
-///         i/_ Render: crate::low_plugin::objects::ImageEffectInstance,
+///         // …
 ///     }
 /// }
 /// ```
