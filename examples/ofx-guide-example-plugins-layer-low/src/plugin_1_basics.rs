@@ -14,12 +14,9 @@ use openfx::{
     low_plugin::{
         Host, Plugin,
         actions::image_effect::{ActionDescribeInContextIn, ImageEffectAction},
-        property_sets::{EffectDescriptorPropertySet, EffectInstancePropertySet},
+        objects::{ImageEffectDescriptor, ImageEffectInstance},
     },
-    sys::{
-        generic::core::{OfxPropertySetHandle, kOfxStatOK},
-        image_effect_v1::image_effect::OfxImageEffectHandle,
-    },
+    sys::generic::core::{OfxPropertySetHandle, kOfxStatOK},
     sys_helpers::generic::properties::{set_OfxPropInstanceData, set_OfxPropLabel},
 };
 
@@ -51,20 +48,12 @@ impl Plugin for PluginExampleBasic {
         match action {
             ImageEffectAction::Load { .. } => action_load(),
             ImageEffectAction::Unload { .. } => action_unload(),
-            ImageEffectAction::Describe { sys_handle, .. } => {
-                action_describe(sys_handle as OfxImageEffectHandle)
-            }
+            ImageEffectAction::Describe { handle, .. } => action_describe(handle),
             ImageEffectAction::DescribeInContext {
-                sys_handle,
-                in_args,
-                ..
-            } => action_describe_in_context(sys_handle as OfxImageEffectHandle, in_args),
-            ImageEffectAction::CreateInstance { sys_handle, .. } => {
-                action_create_instance(sys_handle as OfxImageEffectHandle)
-            }
-            ImageEffectAction::DestroyInstance { sys_handle, .. } => {
-                action_destroy_instance(sys_handle as OfxImageEffectHandle)
-            }
+                handle, in_args, ..
+            } => action_describe_in_context(handle, in_args),
+            ImageEffectAction::CreateInstance { handle, .. } => action_create_instance(handle),
+            ImageEffectAction::DestroyInstance { handle, .. } => action_destroy_instance(handle),
             ImageEffectAction::IsIdentity { sys_out_args, .. } => action_is_identity(sys_out_args),
             _ => Err(Status::ReplyDefault),
         }
@@ -96,7 +85,7 @@ fn action_unload() -> openfx::low::Result<()> {
     }
 }
 
-fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> {
+fn action_describe(descriptor: ImageEffectDescriptor) -> openfx::low::Result<()> {
     let data = {
         let data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
         let data = data.as_ref().ok_or(Status::Failed)?;
@@ -105,8 +94,7 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> 
 
     let s_prop = &data.property_suite.0;
 
-    let props = unsafe { data.get_property_set_from_image_effect(descriptor) }?;
-    let props = EffectDescriptorPropertySet::from(props);
+    let props = unsafe { data.get_property_set_from_image_effect_descriptor(&descriptor) }?;
 
     unsafe {
         props.set_label(s_prop, Some(PLUGIN_1_BASICS_LABEL))?;
@@ -121,7 +109,7 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> 
 }
 
 fn action_describe_in_context(
-    descriptor: OfxImageEffectHandle,
+    descriptor: ImageEffectDescriptor,
     in_args: ActionDescribeInContextIn,
 ) -> openfx::low::Result<()> {
     let data = {
@@ -138,7 +126,7 @@ fn action_describe_in_context(
         return Err(Status::ErrUnsupported);
     }
 
-    let props = unsafe { s_ifx.clip_define(descriptor, c"Output") }?;
+    let props = unsafe { s_ifx.clip_define(&descriptor, c"Output") }?;
     (unsafe {
         props.set_image_effect_supported_components(
             s_prop,
@@ -149,7 +137,7 @@ fn action_describe_in_context(
         )
     })?;
 
-    let props = unsafe { s_ifx.clip_define(descriptor, c"Source") }?;
+    let props = unsafe { s_ifx.clip_define(&descriptor, c"Source") }?;
     (unsafe {
         props.set_image_effect_supported_components(
             s_prop,
@@ -163,7 +151,7 @@ fn action_describe_in_context(
     Ok(())
 }
 
-fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
+fn action_create_instance(instance: ImageEffectInstance) -> openfx::low::Result<()> {
     let data = {
         let data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
         let data = data.as_ref().ok_or(Status::Failed)?;
@@ -172,8 +160,7 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result
 
     let s_prop = &data.property_suite.0;
 
-    let props = unsafe { data.get_property_set_from_image_effect(instance) }?;
-    let props = EffectInstancePropertySet::from(props);
+    let props = unsafe { data.get_property_set_from_image_effect_instance(&instance) }?;
 
     let my_string = Box::new(String::from(
         "This is random instance data that could be anything you want.",
@@ -190,7 +177,7 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result
     Ok(())
 }
 
-fn action_destroy_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
+fn action_destroy_instance(instance: ImageEffectInstance) -> openfx::low::Result<()> {
     let data = {
         let data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
         let data = data.as_ref().ok_or(Status::Failed)?;
@@ -199,8 +186,7 @@ fn action_destroy_instance(instance: OfxImageEffectHandle) -> openfx::low::Resul
 
     let s_prop = &data.property_suite.0;
 
-    let props = unsafe { data.get_property_set_from_image_effect(instance) }?;
-    let props = EffectInstancePropertySet::from(props);
+    let props = unsafe { data.get_property_set_from_image_effect_instance(&instance) }?;
 
     let my_string =
         unsafe { props.get_instance_data(s_prop) }?.expect("Instance data should not be null");

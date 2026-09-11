@@ -97,7 +97,10 @@ fn make_from_sys_fn(enum_name: &str, items: &[InputVariant]) -> proc_macro2::Tok
         let k_name = get_k_name(var, enum_name);
         let k_name = syn::Ident::new(&k_name, var.name.span());
         let (handle_ident, handle_from_sys) = if let Some(handle_type) = &var.handle_type {
-            (quote! { handle }, quote! { #handle_type::from_sys(handle) })
+            (
+                quote! { handle },
+                quote! { #handle_type::from_sys_unchecked(handle) },
+            )
         } else {
             (quote! { sys_handle }, quote! { handle })
         };
@@ -202,7 +205,7 @@ fn make_sys_fns(enum_name: &str, items: &[InputVariant]) -> proc_macro2::TokenSt
 
         pub fn sys_handle(&self) -> *const ::std::ffi::c_void {
             match self {
-                #(Self::#vars_with_handle { handle, .. } => handle.sys_handle(),)*
+                #(Self::#vars_with_handle { handle, .. } => handle.sys_ptr() as *const std::ffi::c_void,)*
                 #(Self::#vars_with_sys_handle { sys_handle, .. } => *sys_handle,)*
                 Self::UnknownDontUseThisDirectly { handle, .. } => *handle,
             }

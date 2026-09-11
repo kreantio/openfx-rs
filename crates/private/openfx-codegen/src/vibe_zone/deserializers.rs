@@ -10,7 +10,7 @@ pub fn deserialize_CodegenConfigObjectMappingEntry<'de, D>(
 where
     D: serde::Deserializer<'de>,
 {
-    const FIELDS: &[&str] = &["is", "set", "omit"];
+    const FIELDS: &[&str] = &["is", "set", "omit", "rename"];
 
     struct Visitor;
 
@@ -18,8 +18,9 @@ where
         type Value = CodegenConfigObjectMappingEntry;
 
         fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            formatter
-                .write_str("a type name string or a table with `is` and optional `set` and `omit`")
+            formatter.write_str(
+                "a type name string or a table with `is` and optional `set`, `omit` and `rename`",
+            )
         }
 
         fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
@@ -30,6 +31,7 @@ where
                 is: v.to_owned(),
                 set: false,
                 omit: false,
+                rename: None,
             })
         }
 
@@ -40,11 +42,13 @@ where
             let mut is: Option<String> = None;
             let mut set = false;
             let mut omit = false;
+            let mut rename: Option<String> = None;
             while let Some(key) = map.next_key::<String>()? {
                 match key.as_str() {
                     "is" => is = Some(map.next_value()?),
                     "set" => set = map.next_value()?,
                     "omit" => omit = map.next_value()?,
+                    "rename" => rename = Some(map.next_value()?),
                     _ => return Err(serde::de::Error::unknown_field(&key, FIELDS)),
                 }
             }
@@ -53,6 +57,7 @@ where
                 is: is.ok_or_else(|| serde::de::Error::missing_field("is"))?,
                 set,
                 omit,
+                rename,
             })
         }
     }
@@ -159,13 +164,14 @@ mod tests {
         assert_eq!(mapping["EffectDescriptor"].is, "OfxImageEffectHandle");
         assert!(!mapping["EffectDescriptor"].set);
         assert!(!mapping["EffectDescriptor"].omit);
+        assert_eq!(mapping["EffectDescriptor"].rename, None);
     }
 
     #[test]
     fn object_mapping_accepts_table_value() {
         let mapping = parse_object_mapping(
             r#"
-EffectDescriptor = { is = "OfxImageEffectHandle", set = true }
+EffectDescriptor = { is = "OfxImageEffectHandle", set = true, rename = "ImageEffectDescriptor" }
 ImageEffectHost = { is = "OfxPropertySetHandle", omit = true }
 DrawContext = { is = "OfxDrawContextHandle" }
 "#,
@@ -174,12 +180,18 @@ DrawContext = { is = "OfxDrawContextHandle" }
         assert_eq!(mapping["EffectDescriptor"].is, "OfxImageEffectHandle");
         assert!(mapping["EffectDescriptor"].set);
         assert!(!mapping["EffectDescriptor"].omit);
+        assert_eq!(
+            mapping["EffectDescriptor"].rename,
+            Some("ImageEffectDescriptor".to_owned())
+        );
         assert_eq!(mapping["ImageEffectHost"].is, "OfxPropertySetHandle");
         assert!(!mapping["ImageEffectHost"].set);
         assert!(mapping["ImageEffectHost"].omit);
+        assert_eq!(mapping["ImageEffectHost"].rename, None);
         assert_eq!(mapping["DrawContext"].is, "OfxDrawContextHandle");
         assert!(!mapping["DrawContext"].set);
         assert!(!mapping["DrawContext"].omit);
+        assert_eq!(mapping["DrawContext"].rename, None);
     }
 
     #[test]

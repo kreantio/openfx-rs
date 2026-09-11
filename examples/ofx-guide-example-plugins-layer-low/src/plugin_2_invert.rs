@@ -15,12 +15,9 @@ use openfx::{
     low_plugin::{
         Host, Plugin,
         actions::image_effect::{ActionDescribeInContextIn, ActionRenderIn, ImageEffectAction},
-        property_sets::EffectDescriptorPropertySet,
+        objects::{ImageEffectDescriptor, ImageEffectInstance},
     },
-    sys::{
-        generic::core::{OfxRectI, kOfxStatFailed},
-        image_effect_v1::image_effect::OfxImageEffectHandle,
-    },
+    sys::generic::core::{OfxRectI, kOfxStatFailed},
     sys_helpers::image_effect_v1::properties::get_OfxImageEffectPropRenderWindow,
 };
 
@@ -58,19 +55,13 @@ impl Plugin for PluginExampleInvert {
         match action {
             ImageEffectAction::Load { .. } => action_load(),
             ImageEffectAction::Unload { .. } => action_unload(),
-            ImageEffectAction::Describe { sys_handle, .. } => {
-                action_describe(sys_handle as OfxImageEffectHandle)
-            }
+            ImageEffectAction::Describe { handle, .. } => action_describe(handle),
             ImageEffectAction::DescribeInContext {
-                sys_handle,
-                in_args,
-                ..
-            } => action_describe_in_context(sys_handle as OfxImageEffectHandle, in_args),
+                handle, in_args, ..
+            } => action_describe_in_context(handle, in_args),
             ImageEffectAction::Render {
-                sys_handle,
-                in_args,
-                ..
-            } => action_render(sys_handle as OfxImageEffectHandle, in_args),
+                handle, in_args, ..
+            } => action_render(handle, in_args),
             ImageEffectAction::CreateInstance { .. }
             | ImageEffectAction::DestroyInstance { .. } => Ok(()),
             _ => Err(Status::ReplyDefault),
@@ -103,13 +94,12 @@ fn action_unload() -> openfx::low::Result<()> {
     }
 }
 
-fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> {
+fn action_describe(descriptor: ImageEffectDescriptor) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
 
-    let props = unsafe { data.get_property_set_from_image_effect(descriptor) }?;
-    let props = EffectDescriptorPropertySet::from(props);
+    let props = unsafe { data.get_property_set_from_image_effect_descriptor(&descriptor) }?;
 
     unsafe {
         props.set_label(s_prop, Some(PLUGIN_2_INVERT_LABEL))?;
@@ -137,7 +127,7 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> 
 }
 
 fn action_describe_in_context(
-    descriptor: OfxImageEffectHandle,
+    descriptor: ImageEffectDescriptor,
     in_args: ActionDescribeInContextIn,
 ) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
@@ -151,7 +141,7 @@ fn action_describe_in_context(
     }
 
     for name in [c"Output", c"Source"] {
-        let props = unsafe { s_ifx.clip_define(descriptor, name) }?;
+        let props = unsafe { s_ifx.clip_define(&descriptor, name) }?;
 
         (unsafe {
             props.set_image_effect_supported_components(
@@ -194,7 +184,7 @@ fn pixel_address<T>(
 fn pixel_processing<T>(
     max: T,
     data: &SharedData,
-    instance: OfxImageEffectHandle,
+    instance: ImageEffectInstance,
     source_img: ClipImageManaged,
     output_img: ClipImageManaged,
     render_window: OfxRectI,
@@ -220,7 +210,7 @@ where
                 data.image_effect_suite
                     .sys_ref()
                     .abort
-                    .is_some_and(|abort| abort(instance) != 0)
+                    .is_some_and(|abort| abort(*instance.sys_ptr()) != 0)
             }
         {
             return Ok(());
@@ -274,7 +264,7 @@ fn rect_i_from_array(arr: &[c_int; 4]) -> OfxRectI {
 }
 
 fn action_render(
-    instance: OfxImageEffectHandle,
+    instance: ImageEffectInstance,
     in_args: ActionRenderIn,
 ) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
@@ -287,8 +277,8 @@ fn action_render(
         unsafe { get_OfxImageEffectPropRenderWindow(s_prop.sys_ptr(), in_args.sys_handle()) }?;
     let render_window = rect_i_from_array(&render_window);
 
-    let output_clip = unsafe { image_effect_suite_helper.clip_get_handle(instance, c"Output") }?;
-    let source_clip = unsafe { image_effect_suite_helper.clip_get_handle(instance, c"Source") }?;
+    let output_clip = unsafe { image_effect_suite_helper.clip_get_handle(&instance, c"Output") }?;
+    let source_clip = unsafe { image_effect_suite_helper.clip_get_handle(&instance, c"Source") }?;
 
     let Some(output_img_m) = unsafe { data.make_clip_image_managed(output_clip, time, None) }?
     else {
