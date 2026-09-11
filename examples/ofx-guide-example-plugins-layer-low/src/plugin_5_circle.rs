@@ -23,8 +23,8 @@ use openfx::{
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
         property_sets::{
-            ParamDouble1DPropertySet, ParamsBytePropertySet, ParamsDouble2D3DPropertySet,
-            ParamsNormalizedSpatialPropertySet,
+            ParamBytePropertySet, ParamDouble1DPropertySet, ParamDouble2D3DPropertySet,
+            ParamNormalizedSpatialPropertySet,
         },
     },
     sys::{
@@ -241,7 +241,7 @@ fn action_describe_in_context(
     {
         let param_props = param_set.param_define(kOfxParamTypeDouble, RADIUS_PARAM_NAME)?;
         let param_props_d = ParamDouble1DPropertySet::from(param_props);
-        let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
+        let param_props_ns = ParamNormalizedSpatialPropertySet::from(param_props);
 
         unsafe {
             param_props_d.set_param_double_type(s_prop, ParamPropDoubleType::X)?;
@@ -265,8 +265,8 @@ fn action_describe_in_context(
 
     {
         let param_props = param_set.param_define(kOfxParamTypeDouble2D, CENTRE_PARAM_NAME)?;
-        let param_props_d = ParamsDouble2D3DPropertySet::from(param_props);
-        let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
+        let param_props_d = ParamDouble2D3DPropertySet::from(param_props);
+        let param_props_ns = ParamNormalizedSpatialPropertySet::from(param_props);
 
         unsafe {
             param_props_d.set_param_double_type(s_prop, ParamPropDoubleType::XYAbsolute)?;
@@ -284,7 +284,7 @@ fn action_describe_in_context(
 
     {
         let param_props = param_set.param_define(kOfxParamTypeRGBA, COLOUR_PARAM_NAME)?;
-        let param_props_d = ParamsDouble2D3DPropertySet::from(param_props);
+        let param_props_d = ParamDouble2D3DPropertySet::from(param_props);
 
         unsafe {
             param_props_d.set_param_default_double(s_prop, &[1.0, 1.0, 1.0, 0.5])?;
@@ -295,7 +295,7 @@ fn action_describe_in_context(
 
     if additional.host_supports_multi_res {
         let param_props = param_set.param_define(kOfxParamTypeBoolean, GROW_ROD_PARAM_NAME)?;
-        let param_props = ParamsBytePropertySet::from(param_props);
+        let param_props = ParamBytePropertySet::from(param_props);
 
         unsafe {
             param_props.set_param_default_int(s_prop, &[0])?;

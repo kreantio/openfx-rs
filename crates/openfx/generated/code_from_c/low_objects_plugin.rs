@@ -1,14 +1,14 @@
 openfx_internal_macros::low_make_object_struct!(
+    DrawContext : OfxDrawContextHandle : draw, draw_text, get_colour, set_colour,
+    set_line_stipple, set_line_width,
+);
+openfx_internal_macros::low_make_object_struct!(
     ImageClipDescriptor : OfxImageClipHandle : clip_get_image, clip_get_property_set,
     clip_get_region_of_definition, clip_load_texture,
 );
 openfx_internal_macros::low_make_object_struct!(
     ImageClipInstance : OfxImageClipHandle : clip_get_image, clip_get_property_set,
     clip_get_region_of_definition, clip_load_texture,
-);
-openfx_internal_macros::low_make_object_struct!(
-    DrawContext : OfxDrawContextHandle : draw, draw_text, get_colour, set_colour,
-    set_line_stipple, set_line_width,
 );
 openfx_internal_macros::low_make_object_struct!(
     ImageEffectDescriptor : OfxImageEffectHandle : abort, clip_define, clip_get_handle,

@@ -31,7 +31,6 @@ where
                 is: v.to_owned(),
                 set: false,
                 omit: false,
-                rename: None,
             })
         }
 
@@ -42,13 +41,11 @@ where
             let mut is: Option<String> = None;
             let mut set = false;
             let mut omit = false;
-            let mut rename: Option<String> = None;
             while let Some(key) = map.next_key::<String>()? {
                 match key.as_str() {
                     "is" => is = Some(map.next_value()?),
                     "set" => set = map.next_value()?,
                     "omit" => omit = map.next_value()?,
-                    "rename" => rename = Some(map.next_value()?),
                     _ => return Err(serde::de::Error::unknown_field(&key, FIELDS)),
                 }
             }
@@ -57,7 +54,6 @@ where
                 is: is.ok_or_else(|| serde::de::Error::missing_field("is"))?,
                 set,
                 omit,
-                rename,
             })
         }
     }
@@ -164,14 +160,13 @@ mod tests {
         assert_eq!(mapping["EffectDescriptor"].is, "OfxImageEffectHandle");
         assert!(!mapping["EffectDescriptor"].set);
         assert!(!mapping["EffectDescriptor"].omit);
-        assert_eq!(mapping["EffectDescriptor"].rename, None);
     }
 
     #[test]
     fn object_mapping_accepts_table_value() {
         let mapping = parse_object_mapping(
             r#"
-EffectDescriptor = { is = "OfxImageEffectHandle", set = true, rename = "ImageEffectDescriptor" }
+EffectDescriptor = { is = "OfxImageEffectHandle", set = true }
 ImageEffectHost = { is = "OfxPropertySetHandle", omit = true }
 DrawContext = { is = "OfxDrawContextHandle" }
 "#,
@@ -180,18 +175,12 @@ DrawContext = { is = "OfxDrawContextHandle" }
         assert_eq!(mapping["EffectDescriptor"].is, "OfxImageEffectHandle");
         assert!(mapping["EffectDescriptor"].set);
         assert!(!mapping["EffectDescriptor"].omit);
-        assert_eq!(
-            mapping["EffectDescriptor"].rename,
-            Some("ImageEffectDescriptor".to_owned())
-        );
         assert_eq!(mapping["ImageEffectHost"].is, "OfxPropertySetHandle");
         assert!(!mapping["ImageEffectHost"].set);
         assert!(mapping["ImageEffectHost"].omit);
-        assert_eq!(mapping["ImageEffectHost"].rename, None);
         assert_eq!(mapping["DrawContext"].is, "OfxDrawContextHandle");
         assert!(!mapping["DrawContext"].set);
         assert!(!mapping["DrawContext"].omit);
-        assert_eq!(mapping["DrawContext"].rename, None);
     }
 
     #[test]

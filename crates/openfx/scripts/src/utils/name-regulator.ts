@@ -11,6 +11,7 @@ export class NameRegulator {
   #actionCanonicalNameToVariantNameMap: Record<string, string> = {};
   #propertyCanonicalNameToSimpleNameRegex: RegExp;
   #propertyCanonicalNameToSimpleNameSpecialCases: Record<string, string> = {};
+  #propertySetRenamingMap: Record<string, string> = {};
 
   constructor(opts: {
     cfg: CodegenConfig;
@@ -26,6 +27,7 @@ export class NameRegulator {
     );
     this.#propertyCanonicalNameToSimpleNameSpecialCases =
       opts.cfg.properties.names.simple_names_special_cases;
+    this.#propertySetRenamingMap = opts.cfg.property_sets.renaming;
   }
 
   static #buildKConstantToCanonicalNameMap(opts: {
@@ -132,5 +134,10 @@ export class NameRegulator {
       );
     }
     return m.slice(1).join("");
+  }
+
+  propertySetNameWeUse(name: string): string {
+    const renamed = this.#propertySetRenamingMap[name];
+    return renamed ?? name;
   }
 }

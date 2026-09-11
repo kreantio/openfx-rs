@@ -402,10 +402,7 @@ fn gen_low_objects(
             fns.insert(fn_name.clone());
         }
 
-        let object_ident = syn::Ident::new(
-            entry.rename.as_ref().unwrap_or(name),
-            proc_macro2::Span::call_site(),
-        );
+        let object_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
 
         let handle_ident = syn::Ident::new(&entry.is, proc_macro2::Span::call_site());
         let mut fns = fns

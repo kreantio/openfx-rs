@@ -1,4 +1,7 @@
 export interface CodegenConfig {
+  property_sets: {
+    renaming: Record<string, string>;
+  };
   properties: {
     names: {
       simple_names_regex: string;
