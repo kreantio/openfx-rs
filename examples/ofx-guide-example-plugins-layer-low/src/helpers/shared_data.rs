@@ -101,7 +101,7 @@ impl SharedData {
     pub unsafe fn get_instance_data<T>(&self, effect: ImageEffectInstance) -> low::Result<&T> {
         let props = unsafe {
             self.image_effect_suite_helper()
-                .get_property_set(*effect.sys_ptr())
+                .get_property_set(effect.sys_handle())
         }?;
         let props = EffectInstancePropertySet::from(props);
         let Some(instance_data_ptr) = unsafe { props.get_instance_data(&self.property_suite.0) }?
@@ -122,7 +122,7 @@ impl SharedData {
     ) -> low::Result<ParamSetHelper> {
         let param_set = unsafe {
             self.image_effect_suite_helper()
-                .get_param_set(*handle.sys_ptr())
+                .get_param_set(handle.sys_handle())
         }?;
 
         Ok(unsafe {
@@ -141,7 +141,7 @@ impl SharedData {
     ) -> low::Result<ParamSetHelper> {
         let param_set = unsafe {
             self.image_effect_suite_helper()
-                .get_param_set(*handle.sys_ptr())
+                .get_param_set(handle.sys_handle())
         }?;
 
         Ok(unsafe {
@@ -176,7 +176,7 @@ impl SharedData {
         &self,
         handle: &ImageEffectDescriptor,
     ) -> low::Result<EffectDescriptorPropertySet> {
-        let props = unsafe { self.get_property_set_from_image_effect(*handle.sys_ptr()) }?;
+        let props = unsafe { self.get_property_set_from_image_effect(handle.sys_handle()) }?;
         Ok(EffectDescriptorPropertySet::from(props))
     }
 
@@ -184,7 +184,7 @@ impl SharedData {
         &self,
         handle: &ImageEffectInstance,
     ) -> low::Result<EffectInstancePropertySet> {
-        let props = unsafe { self.get_property_set_from_image_effect(*handle.sys_ptr()) }?;
+        let props = unsafe { self.get_property_set_from_image_effect(handle.sys_handle()) }?;
         Ok(EffectInstancePropertySet::from(props))
     }
 
@@ -257,7 +257,7 @@ impl ImageEffectSuiteHelper {
         };
 
         let mut props: OfxPropertySetHandle = std::ptr::null_mut();
-        if let stat = (unsafe { clip_define(*image_effect.sys_ptr(), name.as_ptr(), &mut props) })
+        if let stat = (unsafe { clip_define(image_effect.sys_handle(), name.as_ptr(), &mut props) })
             && stat != kOfxStatOK
         {
             Err(Status::from(stat))
@@ -284,7 +284,7 @@ impl ImageEffectSuiteHelper {
         let mut clip: OfxImageClipHandle = std::ptr::null_mut();
         if let stat = (unsafe {
             clip_get_handle(
-                *image_effect.sys_ptr(),
+                image_effect.sys_handle(),
                 name.as_ptr(),
                 &mut clip,
                 std::ptr::null_mut(),

@@ -210,7 +210,7 @@ where
                 data.image_effect_suite
                     .sys_ref()
                     .abort
-                    .is_some_and(|abort| abort(*instance.sys_ptr()) != 0)
+                    .is_some_and(|abort| abort(instance.sys_handle()) != 0)
             }
         {
             return Ok(());
