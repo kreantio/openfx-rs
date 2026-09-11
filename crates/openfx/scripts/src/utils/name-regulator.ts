@@ -22,10 +22,10 @@ export class NameRegulator {
     this.#actionCanonicalNameToVariantNameMap = NameRegulator
       .#buildActionCanonicalNameToVariantNameMap(opts);
     this.#propertyCanonicalNameToSimpleNameRegex = new RegExp(
-      opts.cfg.property_names.simple_names_regex,
+      opts.cfg.properties.names.simple_names_regex,
     );
     this.#propertyCanonicalNameToSimpleNameSpecialCases =
-      opts.cfg.property_names.simple_names_special_cases;
+      opts.cfg.properties.names.simple_names_special_cases;
   }
 
   static #buildKConstantToCanonicalNameMap(opts: {
