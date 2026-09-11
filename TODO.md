@@ -7,8 +7,9 @@
 - [ ] `low`
   - [ ] `low_plugin`: WIP
   - [ ] `low_host`
-  - [ ] handle map-like properties (`OfxImageEffectPropFrameRange_*` and
-        `OfxImageEffectClipPropRoI_*`).
+  - [ ] handle map-like properties (e.g., `OfxImageEffectPropFrameRange_*`,
+        `OfxImageEffectClipPropRoI_*`, some out args for
+        `OfxImageEffectActionGetClipPreferences`, etc.).
   - [ ] stronger typing. (e.g., `Time` (`OfxTime`) instead of `f64`, `RectI`
         (`OfxRectI`) instead of `[c_int; 4]`, etc.)
   - [ ] improve DX of Go to Definition: move `generated/` to `src/generated/`,

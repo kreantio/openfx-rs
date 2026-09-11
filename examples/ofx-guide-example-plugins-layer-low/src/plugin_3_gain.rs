@@ -19,15 +19,13 @@ use openfx::{
         actions::image_effect::{
             ActionDescribeInContextIn, ActionIsIdentityIn, ActionRenderIn, ImageEffectAction,
         },
-        property_sets::{
-            EffectDescriptorPropertySet, EffectInstancePropertySet, ParamDouble1DPropertySet,
-            ParamsBytePropertySet,
-        },
+        objects::{ImageEffectDescriptor, ImageEffectInstance},
+        property_sets::{ParamDouble1DPropertySet, ParamsBytePropertySet},
     },
     sys::{
         generic::core::OfxPropertySetHandle,
         image_effect_v1::{
-            image_effect::{OfxImageClipHandle, OfxImageEffectHandle},
+            image_effect::OfxImageClipHandle,
             param::{OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble},
         },
     },
@@ -84,30 +82,20 @@ impl Plugin for PluginExampleGain {
         match action {
             ImageEffectAction::Load { .. } => action_load(),
             ImageEffectAction::Unload { .. } => action_unload(),
-            ImageEffectAction::Describe { sys_handle, .. } => {
-                action_describe(sys_handle as OfxImageEffectHandle)
-            }
+            ImageEffectAction::Describe { handle, .. } => action_describe(handle),
             ImageEffectAction::DescribeInContext {
-                sys_handle,
-                in_args,
-                ..
-            } => action_describe_in_context(sys_handle as OfxImageEffectHandle, in_args),
-            ImageEffectAction::CreateInstance { sys_handle, .. } => {
-                action_create_instance(sys_handle as OfxImageEffectHandle)
-            }
-            ImageEffectAction::DestroyInstance { sys_handle, .. } => {
-                action_destroy_instance(sys_handle as OfxImageEffectHandle)
-            }
+                handle, in_args, ..
+            } => action_describe_in_context(handle, in_args),
+            ImageEffectAction::CreateInstance { handle, .. } => action_create_instance(handle),
+            ImageEffectAction::DestroyInstance { handle, .. } => action_destroy_instance(handle),
             ImageEffectAction::IsIdentity {
-                sys_handle,
+                handle,
                 in_args,
                 sys_out_args,
-            } => action_is_identity(sys_handle as OfxImageEffectHandle, in_args, sys_out_args),
+            } => action_is_identity(handle, in_args, sys_out_args),
             ImageEffectAction::Render {
-                sys_handle,
-                in_args,
-                ..
-            } => action_render(sys_handle as OfxImageEffectHandle, in_args),
+                handle, in_args, ..
+            } => action_render(handle, in_args),
             _ => Err(Status::ReplyDefault),
         }
     }
@@ -138,13 +126,12 @@ fn action_unload() -> openfx::low::Result<()> {
     }
 }
 
-fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> {
+fn action_describe(descriptor: ImageEffectDescriptor) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
 
-    let props = unsafe { data.get_property_set_from_image_effect(descriptor) }?;
-    let props = EffectDescriptorPropertySet::from(props);
+    let props = unsafe { data.get_property_set_from_image_effect_descriptor(&descriptor) }?;
 
     unsafe {
         props.set_label(s_prop, Some(PLUGIN_3_GAIN_LABEL))?;
@@ -172,7 +159,7 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> 
 }
 
 fn action_describe_in_context(
-    descriptor: OfxImageEffectHandle,
+    descriptor: ImageEffectDescriptor,
     in_args: ActionDescribeInContextIn,
 ) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
@@ -186,7 +173,7 @@ fn action_describe_in_context(
     }
 
     for name in [c"Output", c"Source"] {
-        let props = unsafe { s_ifx.clip_define(descriptor, name) }?;
+        let props = unsafe { s_ifx.clip_define(&descriptor, name) }?;
 
         (unsafe {
             props.set_image_effect_supported_components(
@@ -200,7 +187,7 @@ fn action_describe_in_context(
         })?;
     }
 
-    let param_set = unsafe { data.make_param_set_helper_for_image_effect(descriptor) }?;
+    let param_set = unsafe { data.make_param_set_helper_for_image_effect_descriptor(&descriptor) }?;
 
     {
         let param_props = param_set.param_define(kOfxParamTypeDouble, GAIN_PARAM_NAME)?;
@@ -235,18 +222,18 @@ fn action_describe_in_context(
     Ok(())
 }
 
-fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
+fn action_create_instance(instance: ImageEffectInstance) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = data.image_effect_suite_helper();
 
-    let instance_props = unsafe { data.get_property_set_from_image_effect(instance) }?;
+    let instance_props = unsafe { data.get_property_set_from_image_effect_instance(&instance) }?;
 
-    let source_clip = unsafe { s_ifx.clip_get_handle(instance, c"Source") }?;
-    let output_clip = unsafe { s_ifx.clip_get_handle(instance, c"Output") }?;
+    let source_clip = unsafe { s_ifx.clip_get_handle(&instance, c"Source") }?;
+    let output_clip = unsafe { s_ifx.clip_get_handle(&instance, c"Output") }?;
 
-    let param_set = unsafe { data.make_param_set_helper_for_image_effect(instance) }?;
+    let param_set = unsafe { data.make_param_set_helper_for_image_effect_instance(&instance) }?;
     let gain_param = param_set.param_get_handle(GAIN_PARAM_NAME)?;
     let apply_to_alpha_param = param_set.param_get_handle(APPLY_TO_ALPHA_PARAM_NAME)?;
 
@@ -260,7 +247,9 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result
 
     // SAFETY: the pointee is kept alive by `Box::into_raw` until it is
     // reclaimed with `Box::from_raw` in `action_destroy_instance`.
-    match unsafe { set_OfxPropInstanceData(s_prop.sys_ptr(), instance_props, my_data_ptr) } {
+    match unsafe {
+        set_OfxPropInstanceData(s_prop.sys_ptr(), instance_props.sys_handle(), my_data_ptr)
+    } {
         Ok(_) => Ok(()),
         Err(err) => {
             drop(unsafe { Box::from_raw(my_data_ptr as *mut MyInstanceData) });
@@ -269,13 +258,12 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result
     }
 }
 
-fn action_destroy_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
+fn action_destroy_instance(instance: ImageEffectInstance) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
 
-    let props = unsafe { data.get_property_set_from_image_effect(instance) }?;
-    let props = EffectInstancePropertySet::from(props);
+    let props = unsafe { data.get_property_set_from_image_effect_instance(&instance) }?;
 
     let Some(my_data_ptr) = (unsafe { props.get_instance_data(s_prop)? }) else {
         return Err(Status::Failed);
@@ -287,7 +275,7 @@ fn action_destroy_instance(instance: OfxImageEffectHandle) -> openfx::low::Resul
 }
 
 fn action_is_identity(
-    effect: OfxImageEffectHandle,
+    effect: ImageEffectInstance,
     in_args: ActionIsIdentityIn,
     out_args: OfxPropertySetHandle,
 ) -> openfx::low::Result<()> {
@@ -296,8 +284,7 @@ fn action_is_identity(
     let s_prop = &data.property_suite.0;
     let s_param = data.parameter_suite_helper();
 
-    let instance_props = unsafe { data.get_property_set_from_image_effect(effect) }?;
-    let instance_props = EffectInstancePropertySet::from(instance_props);
+    let instance_props = unsafe { data.get_property_set_from_image_effect_instance(&effect) }?;
 
     let Some(my_data_ptr) = (unsafe { instance_props.get_instance_data(s_prop)? }) else {
         return Err(Status::Failed);
@@ -316,7 +303,7 @@ fn action_is_identity(
 }
 
 fn action_render(
-    instance: OfxImageEffectHandle,
+    instance: ImageEffectInstance,
     in_args: ActionRenderIn,
 ) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
@@ -324,8 +311,7 @@ fn action_render(
     let s_prop = &data.property_suite.0;
     let s_param = data.parameter_suite_helper();
 
-    let instance_props = unsafe { data.get_property_set_from_image_effect(instance) }?;
-    let instance_props = EffectInstancePropertySet::from(instance_props);
+    let instance_props = unsafe { data.get_property_set_from_image_effect_instance(&instance) }?;
 
     let time = unsafe { in_args.get_time(s_prop) }?;
     let render_window =

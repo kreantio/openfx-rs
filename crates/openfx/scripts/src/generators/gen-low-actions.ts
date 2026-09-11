@@ -111,6 +111,12 @@ function genLowActionsCore(
 
   const actions = extractActions([...frS.infos.actions], membersRegex, opts);
 
+  verifyActionMembers(
+    "core",
+    new Set(actions.map((a) => a.variantName)),
+    new Set(Object.keys(opts.cfg.actions.core.members)),
+  );
+
   for (const action of actions) {
     if (opts.seenActions.has(action.canonicalName)) {
       throw new Error(
@@ -180,9 +186,29 @@ function genLowActionsInGroup(
     opts,
   ).map((a) => ({ ...a, isFromCore: false }));
 
+  verifyActionMembers(
+    groupNameSnake,
+    new Set(actionsSelf.map((a) => a.variantName)),
+    new Set(Object.keys(opts.cfg.actions[groupNameSnake].members)),
+  );
+
   for (const action of [...actionsCore, ...actionsSelf]) {
     const hasInArgs = !!frS.infos.actionProps[action.canonicalName]?.inArgs;
     const hasOutArgs = !!frS.infos.actionProps[action.canonicalName]?.outArgs;
+    const actionConfig = action.isFromCore
+      ? opts.cfg.actions.core.members[action.variantName]!
+      : opts.cfg.actions[groupNameSnake].members[action.variantName]!;
+
+    if (actionConfig.in !== hasInArgs) {
+      console.warn(
+        `Mismatch in 'in' argument expectation for action ${action.canonicalName}: config expects ${actionConfig.in}, but actual hasInArgs is ${hasInArgs}`,
+      );
+    }
+    if (actionConfig.out !== hasOutArgs) {
+      console.warn(
+        `Mismatch in 'out' argument expectation for action ${action.canonicalName}: config expects ${actionConfig.out}, but actual hasOutArgs is ${hasOutArgs}`,
+      );
+    }
 
     let text = "            ";
     text += (hasInArgs ? "i" : "_") + "/";
@@ -192,8 +218,10 @@ function genLowActionsInGroup(
     }
     text += action.variantName;
 
-    // text += ": ";
-    // text += "*const std::ffi::c_void";
+    if (actionConfig.handle) {
+      text += ": " + "crate::low_plugin::objects::" +
+        opts.cfg.actions[groupNameSnake].handle_prefix + actionConfig.handle;
+    }
 
     text += ",";
 
@@ -283,4 +311,38 @@ function extractActions(actions: string[], membersRegex: RegExp, opts: {
       variantName: m[1],
     }];
   });
+}
+
+function verifyActionMembers(
+  groupNameSnake: string,
+  membersFromRegex: Set<string>,
+  membersFromConfig: Set<string>,
+) {
+  if (
+    membersFromRegex.size === membersFromConfig.size &&
+    membersFromRegex.isSubsetOf(membersFromConfig)
+  ) {
+    return;
+  }
+
+  const onlyInConfig = membersFromConfig.difference(membersFromRegex);
+  const onlyMatchedByRegex = membersFromRegex.difference(membersFromConfig);
+  let err =
+    `Action members in the configuration and matched by regex differ in group "${groupNameSnake}":`;
+  if (onlyInConfig.size > 0) {
+    err += ` some members are only in the configuration (${
+      Array.from(onlyInConfig).join(", ")
+    })`;
+  }
+  if (onlyMatchedByRegex.size > 0) {
+    if (onlyInConfig.size > 0) {
+      err += ", while";
+    }
+    err += ` some members are only matched by regex (${
+      Array.from(onlyMatchedByRegex).join(", ")
+    })`;
+  }
+  err += ".";
+
+  throw new Error(err);
 }

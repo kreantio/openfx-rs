@@ -9,14 +9,30 @@ export interface CodegenConfig {
     };
     core: {
       members_regex: string;
+      members: Record<
+        string,
+        { handle: ActionMemberHandle; in: boolean; out: boolean }
+      >;
     };
     image_effect: {
-      members_regex: string;
+      handle_prefix: string;
       members_from_core: string[];
+      members_regex: string;
+      members: Record<
+        string,
+        { handle: ActionMemberHandle; in: boolean; out: boolean }
+      >;
     };
     interact: {
-      members_regex: string;
+      handle_prefix: string;
       members_from_core: string[];
+      members_regex: string;
+      members: Record<
+        string,
+        { handle: ActionMemberHandle; in: boolean; out: boolean }
+      >;
     };
   };
 }
+
+type ActionMemberHandle = "Instance" | "Descriptor" | false;

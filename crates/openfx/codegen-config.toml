@@ -19,15 +19,17 @@ unused_property_sets_in_metadata = ["ParamsNormalizedSpatial"]
 #
 # The keys follows `openfx/openfx-cpp/include/openfx/ofxPropsBySet.h`.
 # The names in the comments follows the source.
+#
+# `rename`s are based on the names of the corresponding handles.
 
-EffectDescriptor = { is = "OfxImageEffectHandle", set = true }    # Image Effect Descriptor
-EffectInstance = { is = "OfxImageEffectHandle", set = true }      # Image Effect Instance
-ClipDescriptor = { is = "OfxImageClipHandle", set = true }        # Clip Descriptor
-ClipInstance = { is = "OfxImageClipHandle", set = true }          # Clip Instance
-ParameterSetDescriptor = { is = "OfxParamSetHandle", set = true } # Parameter Set Descriptor
-ParameterSetInstance = { is = "OfxParamSetHandle", set = true }   # Parameter Set Instance
-InteractDescriptor = { is = "OfxInteractHandle", set = true }     # Interact Descriptor
-InteractInstance = { is = "OfxInteractHandle", set = true }       # Interact Instance
+EffectDescriptor = { is = "OfxImageEffectHandle", set = true, rename = "ImageEffectDescriptor" } # Image Effect Descriptor
+EffectInstance = { is = "OfxImageEffectHandle", set = true, rename = "ImageEffectInstance" }     # Image Effect Instance
+ClipDescriptor = { is = "OfxImageClipHandle", set = true, rename = "ImageClipDescriptor" }       # Clip Descriptor
+ClipInstance = { is = "OfxImageClipHandle", set = true, rename = "ImageClipInstance" }           # Clip Instance
+ParameterSetDescriptor = { is = "OfxParamSetHandle", set = true, rename = "ParamSetDescriptor" } # Parameter Set Descriptor
+ParameterSetInstance = { is = "OfxParamSetHandle", set = true, rename = "ParamSetInstance" }     # Parameter Set Instance
+InteractDescriptor = { is = "OfxInteractHandle", set = true }                                    # Interact Descriptor
+InteractInstance = { is = "OfxInteractHandle", set = true }                                      # Interact Instance
 
 # source: same as the above.
 
@@ -35,7 +37,7 @@ InteractInstance = { is = "OfxInteractHandle", set = true }       # Interact Ins
 ImageEffectHost = { is = "OfxPropertySetHandle", omit = true }
 # Parameter Descriptor/Instance: Concrete parameter descriptors/instances are
 # used instead.
-ParamsDescriptor = { is = "OfxParamHandle", omit = true }
+ParamsDescriptor = { is = "OfxParamHandle", omit = true, rename = "ParamDescriptor" }
 # Image Instance: This is also a property set handle, so we need to handle this
 # specifically.
 Image = { is = "OfxPropertySetHandle", omit = true }
@@ -90,8 +92,24 @@ members = ["CustomParamInterpFunc"]
 [actions.core]
 members_regex = "^OfxAction(.+)$"
 
+# source: openfx/include/ofxCore.h
+[actions.core.members]
+Load = { handle = false, in = false, out = false }
+Describe = { handle = "Descriptor", in = false, out = false }
+Unload = { handle = false, in = false, out = false }
+PurgeCaches = { handle = "Instance", in = false, out = false }
+SyncPrivateData = { handle = "Instance", in = false, out = false }
+CreateInstance = { handle = "Instance", in = false, out = false }
+DestroyInstance = { handle = "Instance", in = false, out = false }
+InstanceChanged = { handle = "Instance", in = true, out = false }
+BeginInstanceChanged = { handle = "Instance", in = true, out = false }
+EndInstanceChanged = { handle = "Instance", in = true, out = false }
+BeginInstanceEdit = { handle = "Instance", in = false, out = false }
+EndInstanceEdit = { handle = "Instance", in = false, out = false }
+
 [actions.image_effect]
-members_regex = "^OfxImageEffectAction(.+)$"
+handle_prefix = "ImageEffect"
+
 # based on: https://openfx.readthedocs.io/en/main/Reference/ofxImageEffectActions.html
 # TODO: parse `ofxImageEffectActions.rst`?
 members_from_core = [
@@ -109,8 +127,27 @@ members_from_core = [
   "OfxActionEndInstanceEdit",
 ]
 
+members_regex = "^OfxImageEffectAction(.+)$"
+
+[actions.image_effect.members]
+# source: openfx/include/ofxImageEffect.h
+GetRegionOfDefinition = { handle = "Instance", in = true, out = true }
+GetRegionsOfInterest = { handle = "Instance", in = true, out = true }
+GetTimeDomain = { handle = "Instance", in = false, out = true }
+GetFramesNeeded = { handle = "Instance", in = true, out = true }
+GetClipPreferences = { handle = "Instance", in = false, out = true }
+IsIdentity = { handle = "Instance", in = true, out = true }
+Render = { handle = "Instance", in = true, out = false }
+BeginSequenceRender = { handle = "Instance", in = true, out = false }
+EndSequenceRender = { handle = "Instance", in = true, out = false }
+DescribeInContext = { handle = "Descriptor", in = true, out = false }
+
+# source: openfx/include/ofxColour.h
+GetOutputColourspace = { handle = "Instance", in = true, out = true }
+
 [actions.interact]
-members_regex = "^OfxInteractAction(.+)$"
+handle_prefix = "Interact"
+
 # based on: https://openfx.readthedocs.io/en/main/Reference/ofxInteractActions.html
 # TODO: parse `ofxInteractActions.rst`?
 members_from_core = [
@@ -124,3 +161,17 @@ members_from_core = [
   "OfxActionCreateInstance",
   "OfxActionDestroyInstance",
 ]
+
+members_regex = "^OfxInteractAction(.+)$"
+
+# source: openfx/include/ofxInteract.h
+[actions.interact.members]
+Draw = { handle = "Instance", in = true, out = false }
+PenMotion = { handle = "Instance", in = true, out = false }
+PenDown = { handle = "Instance", in = true, out = false }
+PenUp = { handle = "Instance", in = true, out = false }
+KeyDown = { handle = "Instance", in = true, out = false }
+KeyUp = { handle = "Instance", in = true, out = false }
+KeyRepeat = { handle = "Instance", in = true, out = false }
+GainFocus = { handle = "Instance", in = true, out = false }
+LoseFocus = { handle = "Instance", in = true, out = false }

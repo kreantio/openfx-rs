@@ -19,8 +19,11 @@ pub fn make_object_struct(tokens: TokenStream) -> TokenStream {
         impl crate::low_plugin::HostOwned for #simple_ident {}
         unsafe impl Sync for #simple_ident {}
         impl #simple_ident {
-            pub fn try_from(ptr: *const ::std::os::raw::c_void) -> Option<Self> {
+            pub fn try_from_sys(ptr: *const ::std::os::raw::c_void) -> Option<Self> {
                 ::std::ptr::NonNull::new(ptr as *mut crate::sys_umbrella::#full_ident).map(|v| Self(v))
+            }
+            pub unsafe fn from_sys_unchecked(ptr: *const ::std::os::raw::c_void) -> Self {
+                Self::try_from_sys(ptr).unwrap_unchecked()
             }
             pub fn sys(&self) -> ::std::ptr::NonNull<crate::sys_umbrella::#full_ident> {
                 self.0
