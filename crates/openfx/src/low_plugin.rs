@@ -11,12 +11,7 @@ pub mod actions {
     ));
 }
 
-pub mod suites {
-    include!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/generated/code_from_c/low_suites_plugin.rs",
-    ));
-}
+pub mod suites;
 
 pub mod objects {
     //! This module contains structs that wrap object handles, excluding

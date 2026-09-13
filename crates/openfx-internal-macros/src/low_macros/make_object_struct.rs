@@ -19,8 +19,11 @@ pub fn make_object_struct(tokens: TokenStream) -> TokenStream {
         impl crate::low_plugin::HostOwned for #simple_ident {}
         unsafe impl Sync for #simple_ident {}
         impl #simple_ident {
-            pub unsafe fn from_sys_handle(ptr: *const ::std::os::raw::c_void) -> Self {
-                Self(ptr as crate::sys_umbrella::#full_ident)
+            pub fn from_sys_handle(sys_handle: crate::sys_umbrella::#full_ident) -> Self {
+                Self(sys_handle)
+            }
+            pub fn from_sys_ptr(sys_ptr: *const ::std::os::raw::c_void) -> Self {
+                Self(sys_ptr as crate::sys_umbrella::#full_ident)
             }
             pub fn sys_handle(&self) -> crate::sys_umbrella::#full_ident {
                 self.0

@@ -99,7 +99,7 @@ fn make_from_sys_fn(enum_name: &str, items: &[InputVariant]) -> proc_macro2::Tok
         let (handle_ident, handle_from_sys) = if let Some(handle_type) = &var.handle_type {
             (
                 quote! { handle },
-                quote! { #handle_type::from_sys_handle(handle) },
+                quote! { #handle_type::from_sys_ptr(handle) },
             )
         } else {
             (quote! { sys_handle }, quote! { handle })
