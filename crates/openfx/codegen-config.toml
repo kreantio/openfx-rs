@@ -1,5 +1,7 @@
 [suites.special_cases]
 ImageEffectOpenGLRenderSuiteV1 = { key_name = "kOfxOpenGLRenderSuite" }
+
+# C variadic arguments:
 # MessageSuiteV1 = { omit_functions = ["message"] }
 # MessageSuiteV2 = { omit_functions = ["message", "setPersistentMessage"] }
 ParameterSuiteV1 = { omit_functions = [
@@ -9,6 +11,33 @@ ParameterSuiteV1 = { omit_functions = [
   "paramGetIntegral",
   "paramSetValue",
   "paramSetValueAtTime",
+] }
+
+# The documentation is unclear, and I have absolutely zero knowledge about
+# OpenCL:
+OpenCLProgramSuiteV1 = { omit_functions = ["compileProgram"] }
+
+# Just use functions in `openfx::sys_helpers::generic::properties` instead of
+# functions here:
+PropertySuiteV1 = { omit_functions = [
+  "propGetDimension",
+  "propGetDouble",
+  "propGetDoubleN",
+  "propGetInt",
+  "propGetIntN",
+  "propGetPointer",
+  "propGetPointerN",
+  "propGetString",
+  "propGetStringN",
+  "propReset",
+  "propSetDouble",
+  "propSetDoubleN",
+  "propSetInt",
+  "propSetIntN",
+  "propSetPointer",
+  "propSetPointerN",
+  "propSetString",
+  "propSetStringN",
 ] }
 
 [objects]

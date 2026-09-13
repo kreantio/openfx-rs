@@ -13,8 +13,10 @@ pub fn make_suite_struct(tokens: TokenStream) -> TokenStream {
     let Input {
         simple_ident,
         full_ident,
-        fns: _,
+        fns,
     } = syn::parse_macro_input!(tokens as Input);
+
+    let fns: Vec<_> = fns.into_iter().collect();
 
     quote! {
         /// ## Safety
@@ -45,11 +47,11 @@ pub fn make_suite_struct(tokens: TokenStream) -> TokenStream {
             }
         }
 
-        // const _: () = {
-        //     #(
-        //         let _ = #simple_ident::#fns;
-        //     )*
-        // };
+        const _: () = {
+            #(
+                let _ = #simple_ident::#fns;
+            )*
+        };
     }
     .into()
 }
@@ -57,7 +59,6 @@ pub fn make_suite_struct(tokens: TokenStream) -> TokenStream {
 struct Input {
     simple_ident: syn::Ident,
     full_ident: syn::Ident,
-    #[expect(dead_code)]
     fns: syn::punctuated::Punctuated<syn::Ident, syn::Token![,]>,
 }
 
