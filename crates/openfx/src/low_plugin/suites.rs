@@ -15,7 +15,6 @@ use crate::{
             ParamSetDescriptorPropertySet,
         },
     },
-    sys::image_effect_v1::progress,
     sys_umbrella::{
         OfxImageClipHandle, OfxImageEffectHandle, OfxImageMemoryHandle, OfxInteractHandle,
         OfxMutexHandle, OfxParamHandle, OfxParamSetHandle, OfxPointD, OfxPropertySetHandle,
@@ -30,12 +29,18 @@ include!(concat!(
 
 #[openfx_internal_macros::low_impl_suite]
 impl DialogSuiteV1 {
+    /// ## SAFETY
+    ///
+    /// `self` must be valid.
     pub unsafe fn notify_redraw_pending(&self) -> crate::low::Result<()> {
         let sys_fn = unsafe { sys_fn!(pascal) };
 
         crate::low::Status::result_from(unsafe { sys_fn() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` must be valid.
     pub unsafe fn request_dialog(&self, user_data: *mut c_void) -> crate::low::Result<()> {
         let sys_fn = unsafe { sys_fn!(pascal) };
 
@@ -45,6 +50,9 @@ impl DialogSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl DrawSuiteV1 {
+    /// ## SAFETY
+    ///
+    /// `self` and `context` must be valid.
     pub unsafe fn draw(
         &self,
         context: &DrawContext,
@@ -63,6 +71,9 @@ impl DrawSuiteV1 {
         })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `context` must be valid.
     pub unsafe fn draw_text(
         &self,
         context: &DrawContext,
@@ -82,6 +93,9 @@ impl DrawSuiteV1 {
         })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `context` must be valid.
     pub unsafe fn get_colour(
         &self,
         context: &DrawContext,
@@ -102,6 +116,9 @@ impl DrawSuiteV1 {
         Ok(unsafe { colour.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `context` must be valid.
     pub unsafe fn set_colour(
         &self,
         context: &DrawContext,
@@ -112,6 +129,9 @@ impl DrawSuiteV1 {
         crate::low::Status::result_from(unsafe { sys_fn(context.sys_handle(), &colour) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `context` must be valid.
     pub unsafe fn set_line_stipple(
         &self,
         context: &DrawContext,
@@ -122,6 +142,9 @@ impl DrawSuiteV1 {
         crate::low::Status::result_from(unsafe { sys_fn(context.sys_handle(), pattern.as_sys()) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `context` must be valid.
     pub unsafe fn set_line_width(
         &self,
         context: &DrawContext,
@@ -135,7 +158,13 @@ impl DrawSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl ImageEffectOpenGLRenderSuiteV1 {
-    /// TODO: dedicate object `Texture`.
+    /// ## SAFETY
+    ///
+    /// `self` and `texture_handle` must be valid.
+    ///
+    /// ## TODO
+    ///
+    /// dedicate object `Texture`.
     pub unsafe fn clip_free_texture(
         &self,
         texture_handle: OfxPropertySetHandle,
@@ -145,6 +174,9 @@ impl ImageEffectOpenGLRenderSuiteV1 {
         crate::low::Status::result_from(unsafe { sys_fn(texture_handle) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `clip` must be valid.
     pub unsafe fn clip_load_texture(
         &self,
         clip: &ImageClipInstance,
@@ -169,6 +201,9 @@ impl ImageEffectOpenGLRenderSuiteV1 {
         Ok(unsafe { texture_handle.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` must be valid.
     pub unsafe fn flush_resources(&self) -> crate::low::Result<()> {
         let sys_fn = unsafe { sys_fn!() };
 
@@ -178,12 +213,18 @@ impl ImageEffectOpenGLRenderSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl ImageEffectSuiteV1 {
+    /// ## SAFETY
+    ///
+    /// `self` and `image_effect` must be valid.
     pub unsafe fn abort(&self, image_effect: &ImageEffectInstance) -> bool {
         let sys_fn = unsafe { sys_fn!() };
 
         (unsafe { sys_fn(image_effect.sys_handle()) }) != 0
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `image_effect` must be valid.
     pub unsafe fn clip_define(
         &self,
         image_effect: &ImageEffectDescriptor,
@@ -204,6 +245,9 @@ impl ImageEffectSuiteV1 {
         Ok(unsafe { ImageClipDescriptorPropertySet::from(property_set.assume_init()) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `image_effect` must be valid.
     pub unsafe fn clip_get_handle(
         &self,
         image_effect: &ImageEffectInstance,
@@ -229,6 +273,9 @@ impl ImageEffectSuiteV1 {
         ))
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `image_effect` must be valid.
     pub unsafe fn clip_get_clip_handle(
         &self,
         image_effect: &ImageEffectInstance,
@@ -250,6 +297,9 @@ impl ImageEffectSuiteV1 {
         Ok(unsafe { ImageClipInstance::from_sys_handle(clip.assume_init()) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `clip` must be valid.
     pub unsafe fn clip_get_image(
         &self,
         clip: &ImageClipInstance,
@@ -274,6 +324,9 @@ impl ImageEffectSuiteV1 {
         Ok(unsafe { ImageInstancePropertySet::from(image_handle.assume_init()) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_clip` must be valid.
     unsafe fn clip_get_property_set(
         &self,
         sys_clip: OfxImageClipHandle,
@@ -287,6 +340,9 @@ impl ImageEffectSuiteV1 {
         Ok(unsafe { prop_handle.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `clip` must be valid.
     #[no_sys_fn]
     pub unsafe fn clip_get_descriptor_property_set(
         &self,
@@ -297,6 +353,9 @@ impl ImageEffectSuiteV1 {
         }))
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `clip` must be valid.
     #[no_sys_fn]
     pub unsafe fn clip_get_instance_property_set(
         &self,
@@ -307,6 +366,9 @@ impl ImageEffectSuiteV1 {
         }))
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `clip` must be valid.
     pub unsafe fn clip_get_region_of_definition(
         &self,
         clip: &ImageClipInstance,
@@ -323,6 +385,10 @@ impl ImageEffectSuiteV1 {
         Ok(unsafe { bounds.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `image_handle` must be valid.
+    ///
     /// ## TODO
     ///
     /// Since all operations on it after this will be invalid, should we consume
@@ -338,6 +404,9 @@ impl ImageEffectSuiteV1 {
         Ok(())
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_image_effect` must be valid.
     unsafe fn get_param_set(
         &self,
         sys_image_effect: OfxImageEffectHandle,
@@ -353,6 +422,9 @@ impl ImageEffectSuiteV1 {
         Ok(unsafe { param_set.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `image_effect` must be valid.
     #[no_sys_fn]
     pub unsafe fn get_param_set_descriptor(
         &self,
@@ -363,6 +435,9 @@ impl ImageEffectSuiteV1 {
         }))
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `image_effect` must be valid.
     #[no_sys_fn]
     pub unsafe fn get_param_set_instance(
         &self,
@@ -373,6 +448,9 @@ impl ImageEffectSuiteV1 {
         }))
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_image_effect` must be valid.
     unsafe fn get_property_set(
         &self,
         sys_image_effect: OfxImageEffectHandle,
@@ -388,6 +466,9 @@ impl ImageEffectSuiteV1 {
         Ok(unsafe { prop_handle.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `image_effect` must be valid.
     #[no_sys_fn]
     pub unsafe fn get_descriptor_property_set(
         &self,
@@ -398,6 +479,9 @@ impl ImageEffectSuiteV1 {
         }))
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `image_effect` must be valid.
     #[no_sys_fn]
     pub unsafe fn get_instance_property_set(
         &self,
@@ -408,6 +492,9 @@ impl ImageEffectSuiteV1 {
         }))
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `instance_handle` must be valid.
     pub unsafe fn image_memory_alloc(
         &self,
         instance_handle: &ImageEffectInstance,
@@ -428,12 +515,18 @@ impl ImageEffectSuiteV1 {
         Ok(unsafe { ImageMemory::from_sys_handle(image_memory.assume_init()) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `memory_handle` must be valid.
     pub unsafe fn image_memory_free(&self, memory_handle: &ImageMemory) -> crate::low::Result<()> {
         let sys_fn = unsafe { sys_fn!() };
 
         crate::low::Status::result_from(unsafe { sys_fn(memory_handle.sys_handle()) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `memory_handle` must be valid.
     pub unsafe fn image_memory_lock(
         &self,
         memory_handle: &ImageMemory,
@@ -449,6 +542,9 @@ impl ImageEffectSuiteV1 {
         Ok(unsafe { returned_ptr.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `memory_handle` must be valid.
     pub unsafe fn image_memory_unlock(
         &self,
         memory_handle: &ImageMemory,
@@ -461,6 +557,10 @@ impl ImageEffectSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl InteractSuiteV1 {
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_interact_instance` must be valid.
+    ///
     /// ## Note
     ///
     /// The first parameter is called `interactInstance` in the original code,
@@ -481,6 +581,10 @@ impl InteractSuiteV1 {
         Ok(unsafe { property.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `interact_instance` must be valid.
+    ///
     /// ## Note
     ///
     /// See [`Self::interact_get_property_set`] about the weird name of the
@@ -495,6 +599,9 @@ impl InteractSuiteV1 {
         }))
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `interact_instance` must be valid.
     #[no_sys_fn]
     pub unsafe fn interacte_get_instance_property_set(
         &self,
@@ -505,6 +612,9 @@ impl InteractSuiteV1 {
         }))
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `interact_instance` must be valid.
     pub unsafe fn interact_redraw(
         &self,
         interact_instance: &InteractInstance,
@@ -514,6 +624,9 @@ impl InteractSuiteV1 {
         crate::low::Status::result_from(unsafe { sys_fn(interact_instance.sys_handle()) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `interact_instance` must be valid.
     pub unsafe fn interact_swap_buffers(
         &self,
         interact_instance: &InteractInstance,
@@ -526,6 +639,9 @@ impl InteractSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl MemorySuiteV1 {
+    /// ## SAFETY
+    ///
+    /// `self` and `handle` must be valid.
     pub unsafe fn memory_alloc(
         &self,
         handle: Option<&ImageEffectInstance>,
@@ -546,7 +662,9 @@ impl MemorySuiteV1 {
 
         Ok(unsafe { allocated_data.assume_init() })
     }
-
+    /// ## SAFETY
+    ///
+    /// `self` and `allocated_data` must be valid.
     pub unsafe fn memory_free(&self, allocated_data: *mut c_void) -> crate::low::Result<()> {
         let sys_fn = unsafe { sys_fn!() };
 
@@ -556,6 +674,10 @@ impl MemorySuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl MessageSuiteV1 {
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_handle` must be valid.
+    ///
     /// ## Note
     ///
     /// The parameters of this function diverge from the original function,
@@ -585,6 +707,9 @@ impl MessageSuiteV1 {
         })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` must be valid.
     #[no_sys_fn]
     pub unsafe fn message_with_null(
         &self,
@@ -602,6 +727,9 @@ impl MessageSuiteV1 {
         }
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `handle` must be valid.
     #[no_sys_fn]
     pub unsafe fn message_with_image_effect_descriptor(
         &self,
@@ -613,6 +741,9 @@ impl MessageSuiteV1 {
         unsafe { self.message(handle.into(), message_type, message_id, message) }
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `handle` must be valid.
     #[no_sys_fn]
     pub unsafe fn message_with_image_effect_instance(
         &self,
@@ -627,6 +758,10 @@ impl MessageSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl MessageSuiteV2 {
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_handle` must be valid.
+    ///
     /// ## Note
     ///
     /// For `clear_persistent_message_with_*`, don't use
@@ -640,6 +775,9 @@ impl MessageSuiteV2 {
         crate::low::Status::result_from(unsafe { sys_fn(sys_handle as *mut c_void) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `handle` must be valid.
     #[no_sys_fn]
     pub unsafe fn clear_persistent_message_with_image_effect_descriptor(
         &self,
@@ -648,6 +786,9 @@ impl MessageSuiteV2 {
         unsafe { self.clear_persistent_message(handle.into()) }
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `handle` must be valid.
     #[no_sys_fn]
     pub unsafe fn clear_persistent_message_with_image_effect_instance(
         &self,
@@ -656,6 +797,10 @@ impl MessageSuiteV2 {
         unsafe { self.clear_persistent_message(handle.into()) }
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_handle` must be valid.
+    ///
     /// ## Note
     ///
     /// See [`MessageSuiteV1::message`].
@@ -683,6 +828,9 @@ impl MessageSuiteV2 {
         })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` must be valid.
     #[no_sys_fn]
     pub unsafe fn message_with_null(
         &self,
@@ -700,6 +848,9 @@ impl MessageSuiteV2 {
         }
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `handle` must be valid.
     #[no_sys_fn]
     pub unsafe fn message_with_image_effect_descriptor(
         &self,
@@ -711,6 +862,9 @@ impl MessageSuiteV2 {
         unsafe { self.message(handle.into(), message_type, message_id, message) }
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `handle` must be valid.
     #[no_sys_fn]
     pub unsafe fn message_with_image_effect_instance(
         &self,
@@ -722,6 +876,10 @@ impl MessageSuiteV2 {
         unsafe { self.message(handle.into(), message_type, message_id, message) }
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_handle` must be valid.
+    ///
     /// ## Note
     ///
     /// For `set_persistent_message_with_*`, don't use
@@ -752,6 +910,9 @@ impl MessageSuiteV2 {
         })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `handle` must be valid.
     #[no_sys_fn]
     pub unsafe fn set_persistent_message_with_image_effect_descriptor(
         &self,
@@ -763,6 +924,9 @@ impl MessageSuiteV2 {
         unsafe { self.set_persistent_message(handle.into(), message_type, message_id, message) }
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `handle` must be valid.
     #[no_sys_fn]
     pub unsafe fn set_persistent_message_with_image_effect_instance(
         &self,
@@ -777,6 +941,9 @@ impl MessageSuiteV2 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl MultiThreadSuiteV1 {
+    /// ## SAFETY
+    ///
+    /// `self` must be valid.
     unsafe fn multi_thread(
         &self,
         sys_func: unsafe extern "C" fn(
@@ -792,6 +959,10 @@ impl MultiThreadSuiteV1 {
         crate::low::Status::result_from(unsafe { sys_fn(Some(sys_func), n_threads, custom_arg) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` must be valid.
+    ///
     /// ## TODO
     ///
     /// Find a better name for this function?
@@ -802,15 +973,18 @@ impl MultiThreadSuiteV1 {
         n_threads: c_uint,
         custom_arg: &T,
     ) -> crate::low::Result<()> {
-        unsafe {
-            self.multi_thread(
-                std::mem::transmute(func),
-                n_threads,
-                custom_arg as *const T as *mut c_void,
-            )
-        }
+        let func: unsafe extern "C" fn(
+            thread_index: c_uint,
+            thread_max: c_uint,
+            custom_arg: *mut c_void,
+        ) = unsafe { std::mem::transmute(func) };
+
+        unsafe { self.multi_thread(func, n_threads, custom_arg as *const T as *mut c_void) }
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` must be valid.
     pub unsafe fn multi_thread_index(&self) -> crate::low::Result<c_uint> {
         let sys_fn = unsafe { sys_fn!() };
 
@@ -821,12 +995,19 @@ impl MultiThreadSuiteV1 {
         Ok(unsafe { thread_index.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` must be valid.
     pub unsafe fn multi_thread_is_spawned_thread(&self) -> bool {
         let sys_fn = unsafe { sys_fn!() };
 
         (unsafe { sys_fn() }) != 0
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` must be valid.
+    ///
     /// FIXME: `multi_thread_num_cp_us` -> `multi_thread_num_cpus`
     pub unsafe fn multi_thread_num_cp_us(&self) -> crate::low::Result<c_uint> {
         let sys_fn = unsafe { sys_fn!("multiThreadNumCPUs") };
@@ -838,6 +1019,9 @@ impl MultiThreadSuiteV1 {
         Ok(unsafe { num_cpus.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` must be valid.
     pub unsafe fn mutex_create(&self, lock_count: c_int) -> crate::low::Result<Mutex> {
         let sys_fn = unsafe { sys_fn!() };
 
@@ -848,6 +1032,10 @@ impl MultiThreadSuiteV1 {
         Ok(unsafe { Mutex::from_sys_handle(mutex.assume_init()) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `mutex` must be valid.
+    ///
     /// ## TODO
     ///
     /// Should we consume `mutex` here? Or is that out of the scope of the low
@@ -858,18 +1046,27 @@ impl MultiThreadSuiteV1 {
         crate::low::Status::result_from(unsafe { sys_fn(mutex.sys_handle()) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `mutex` must be valid.
     pub unsafe fn mutex_lock(&self, mutex: &Mutex) -> crate::low::Result<()> {
         let sys_fn = unsafe { sys_fn!() };
 
         crate::low::Status::result_from(unsafe { sys_fn(mutex.sys_handle()) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `mutex` must be valid.
     pub unsafe fn mutex_try_lock(&self, mutex: &Mutex) -> crate::low::Result<()> {
         let sys_fn = unsafe { sys_fn!() };
 
         crate::low::Status::result_from(unsafe { sys_fn(mutex.sys_handle()) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `mutex` must be valid.
     pub unsafe fn mutex_un_lock(&self, mutex: &Mutex) -> crate::low::Result<()> {
         let sys_fn = unsafe { sys_fn!() };
 
@@ -882,6 +1079,9 @@ impl OpenCLProgramSuiteV1 {}
 
 #[openfx_internal_macros::low_impl_suite]
 impl ParameterSuiteV1 {
+    /// ## SAFETY
+    ///
+    /// `self`, `sys_param_to` and `sys_param_from` must be valid.
     pub(crate) unsafe fn param_copy(
         &self,
         sys_param_to: OfxParamHandle,
@@ -901,6 +1101,10 @@ impl ParameterSuiteV1 {
         })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `param_set` must be valid.
+    ///
     /// ## TODO
     ///
     /// Enum type `kOfxParamType*`?
@@ -926,6 +1130,10 @@ impl ParameterSuiteV1 {
         Ok(unsafe { property_set.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `param_set` must be valid.
+    ///
     /// ## TODO
     ///
     /// See [`Self::param_define`].
@@ -947,6 +1155,9 @@ impl ParameterSuiteV1 {
         })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_param_handle` must be valid.
     pub(crate) unsafe fn param_delete_all_keys(
         &self,
         sys_param_handle: OfxParamHandle,
@@ -956,6 +1167,9 @@ impl ParameterSuiteV1 {
         crate::low::Status::result_from(unsafe { sys_fn(sys_param_handle) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_param_handle` must be valid.
     pub(crate) unsafe fn param_delete_key(
         &self,
         sys_param_handle: OfxParamHandle,
@@ -966,6 +1180,9 @@ impl ParameterSuiteV1 {
         crate::low::Status::result_from(unsafe { sys_fn(sys_param_handle, time) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `param_set` must be valid.
     pub unsafe fn param_edit_begin(
         &self,
         param_set: ParamSetInstance,
@@ -976,12 +1193,18 @@ impl ParameterSuiteV1 {
         crate::low::Status::result_from(unsafe { sys_fn(param_set.sys_handle(), name.as_ptr()) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `param_set` must be valid.
     pub unsafe fn param_edit_end(&self, param_set: ParamSetInstance) -> crate::low::Result<()> {
         let sys_fn = unsafe { sys_fn!() };
 
         crate::low::Status::result_from(unsafe { sys_fn(param_set.sys_handle()) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `param_set` must be valid.
     pub(crate) unsafe fn param_get_handle(
         &self,
         param_set: ParamSetInstance,
@@ -1004,6 +1227,10 @@ impl ParameterSuiteV1 {
         Ok(unsafe { (param.assume_init(), property_set.assume_init()) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `param_set` must be valid.
+    #[expect(unused)]
     pub(crate) unsafe fn param_get_param_handle(
         &self,
         param_set: ParamSetInstance,
@@ -1025,6 +1252,9 @@ impl ParameterSuiteV1 {
         Ok(unsafe { param.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_param_handle` must be valid.
     pub(crate) unsafe fn param_get_key_index(
         &self,
         sys_param_handle: OfxParamHandle,
@@ -1042,6 +1272,9 @@ impl ParameterSuiteV1 {
         Ok(unsafe { index.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_param_handle` must be valid.
     pub(crate) unsafe fn param_get_key_time(
         &self,
         sys_param_handle: OfxParamHandle,
@@ -1058,6 +1291,9 @@ impl ParameterSuiteV1 {
         Ok(unsafe { time.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_param_handle` must be valid.
     pub(crate) unsafe fn param_get_num_keys(
         &self,
         sys_param_handle: OfxParamHandle,
@@ -1073,6 +1309,9 @@ impl ParameterSuiteV1 {
         Ok(unsafe { num_keys.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_param` must be valid.
     pub(crate) unsafe fn param_get_property_set(
         &self,
         sys_param: OfxParamHandle,
@@ -1086,6 +1325,9 @@ impl ParameterSuiteV1 {
         Ok(unsafe { prop_handle.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_param_set` must be valid.
     unsafe fn param_set_get_property_set(
         &self,
         sys_param_set: OfxParamSetHandle,
@@ -1101,6 +1343,9 @@ impl ParameterSuiteV1 {
         Ok(unsafe { prop_handle.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `param_set` must be valid.
     #[no_sys_fn]
     pub unsafe fn param_set_get_descriptor_property_set(
         &self,
@@ -1111,6 +1356,10 @@ impl ParameterSuiteV1 {
         }))
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `param_set` must be valid.
+    ///
     /// ## TODO
     ///
     /// Should [`ParamSetDescriptorPropertySet`] be renamed as
@@ -1128,6 +1377,9 @@ impl ParameterSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl ParametricParameterSuiteV1 {
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_param` must be valid.
     pub(crate) unsafe fn parametric_param_add_control_point(
         &self,
         sys_param: OfxParamHandle,
@@ -1146,6 +1398,9 @@ impl ParametricParameterSuiteV1 {
         Ok(())
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_param` must be valid.
     pub(crate) unsafe fn parametric_param_delete_all_control_points(
         &self,
         sys_param: OfxParamHandle,
@@ -1158,6 +1413,9 @@ impl ParametricParameterSuiteV1 {
         Ok(())
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_param` must be valid.
     pub(crate) unsafe fn parametric_param_delete_control_point(
         &self,
         sys_param: OfxParamHandle,
@@ -1171,6 +1429,9 @@ impl ParametricParameterSuiteV1 {
         Ok(())
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_param` must be valid.
     pub(crate) unsafe fn parametric_param_get_n_control_points(
         &self,
         sys_param: OfxParamHandle,
@@ -1188,6 +1449,9 @@ impl ParametricParameterSuiteV1 {
         Ok(unsafe { return_value.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `sys_param` must be valid.
     pub(crate) unsafe fn parametric_param_get_nth_control_point(
         &self,
         sys_param: OfxParamHandle,
@@ -1214,6 +1478,9 @@ impl ParametricParameterSuiteV1 {
         Ok(unsafe { (key.assume_init(), value.assume_init()) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `param` must be valid.
     pub(crate) unsafe fn parametric_param_get_value(
         &self,
         param: OfxParamHandle,
@@ -1238,6 +1505,9 @@ impl ParametricParameterSuiteV1 {
         Ok(unsafe { return_value.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `param` must be valid.
     #[expect(clippy::too_many_arguments)]
     pub(crate) unsafe fn parametric_param_set_nth_control_point(
         &self,
@@ -1269,6 +1539,9 @@ impl ParametricParameterSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl ProgressSuiteV1 {
+    /// ## SAFETY
+    ///
+    /// `self` and `effect_instance` must be valid.
     unsafe fn progress_end(&self, effect_instance: &ImageEffectInstance) -> crate::low::Result<()> {
         let sys_fn = unsafe { sys_fn!() };
 
@@ -1277,6 +1550,9 @@ impl ProgressSuiteV1 {
         })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `effect_instance` must be valid.
     unsafe fn progress_start(
         &self,
         effect_instance: &ImageEffectInstance,
@@ -1289,6 +1565,9 @@ impl ProgressSuiteV1 {
         })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `effect_instance` must be valid.
     unsafe fn progress_update(
         &self,
         effect_instance: &ImageEffectInstance,
@@ -1304,6 +1583,9 @@ impl ProgressSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl ProgressSuiteV2 {
+    /// ## SAFETY
+    ///
+    /// `self` and `effect_instance` must be valid.
     unsafe fn progress_end(&self, effect_instance: &ImageEffectInstance) -> crate::low::Result<()> {
         let sys_fn = unsafe { sys_fn!() };
 
@@ -1312,6 +1594,9 @@ impl ProgressSuiteV2 {
         })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `effect_instance` must be valid.
     unsafe fn progress_start(
         &self,
         effect_instance: &ImageEffectInstance,
@@ -1329,6 +1614,9 @@ impl ProgressSuiteV2 {
         })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `effect_instance` must be valid.
     unsafe fn progress_update(
         &self,
         effect_instance: &ImageEffectInstance,
@@ -1347,6 +1635,9 @@ impl PropertySuiteV1 {}
 
 #[openfx_internal_macros::low_impl_suite]
 impl TimeLineSuiteV1 {
+    /// ## SAFETY
+    ///
+    /// `self` and `instance` must be valid.
     unsafe fn get_time(&self, instance: &ImageEffectInstance) -> crate::low::Result<OfxTime> {
         let sys_fn = unsafe { sys_fn!() };
 
@@ -1359,6 +1650,9 @@ impl TimeLineSuiteV1 {
         Ok(unsafe { time.assume_init() })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `instance` must be valid.
     unsafe fn get_time_bounds(
         &self,
         instance: &ImageEffectInstance,
@@ -1379,6 +1673,9 @@ impl TimeLineSuiteV1 {
         Ok(unsafe { (first_time.assume_init(), last_time.assume_init()) })
     }
 
+    /// ## SAFETY
+    ///
+    /// `self` and `instance` must be valid.
     unsafe fn goto_time(
         &self,
         instance: &ImageEffectInstance,
