@@ -405,6 +405,9 @@ fn gen_low_objects(
             }
             fns.insert(fn_name.clone());
         }
+        if let Some(omit_fns) = &entry.omit_functions {
+            fns.retain(|fn_name| !omit_fns.contains(fn_name));
+        }
 
         let object_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
 

@@ -47,6 +47,7 @@ pub struct CodegenConfigObjectMappingEntry {
     /// the property set's key in that collection.
     pub set: CodegenConfigObjectMappingEntrySet,
     pub omit: bool,
+    pub omit_functions: Option<HashSet<String>>,
 }
 
 impl<'de> serde::Deserialize<'de> for CodegenConfigObjectMappingEntry {

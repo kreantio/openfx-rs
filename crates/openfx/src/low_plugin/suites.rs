@@ -177,6 +177,10 @@ impl ImageEffectOpenGLRenderSuiteV1 {
     /// ## SAFETY
     ///
     /// `self` and `clip` must be valid.
+    ///
+    /// ## TODO
+    ///
+    /// See [Self::clip_free_texture].
     pub unsafe fn clip_load_texture(
         &self,
         clip: &ImageClipInstance,

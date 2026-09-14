@@ -13,7 +13,7 @@ pub fn deserialize_CodegenConfigObjectMappingEntry<'de, D>(
 where
     D: serde::Deserializer<'de>,
 {
-    const FIELDS: &[&str] = &["is", "set", "omit"];
+    const FIELDS: &[&str] = &["is", "set", "omit", "omit_functions"];
 
     #[derive(serde::Deserialize)]
     #[serde(untagged)]
@@ -41,6 +41,7 @@ where
                 is: v.to_owned(),
                 set: CodegenConfigObjectMappingEntrySet::Absent,
                 omit: false,
+                omit_functions: None,
             })
         }
 
@@ -51,6 +52,7 @@ where
             let mut is: Option<String> = None;
             let mut set = CodegenConfigObjectMappingEntrySet::Absent;
             let mut omit = false;
+            let mut omit_functions = None;
             while let Some(key) = map.next_key::<String>()? {
                 match key.as_str() {
                     "is" => is = Some(map.next_value()?),
@@ -64,6 +66,7 @@ where
                         }
                     }
                     "omit" => omit = map.next_value()?,
+                    "omit_functions" => omit_functions = Some(map.next_value()?),
                     _ => return Err(serde::de::Error::unknown_field(&key, FIELDS)),
                 }
             }
@@ -72,6 +75,7 @@ where
                 is: is.ok_or_else(|| serde::de::Error::missing_field("is"))?,
                 set,
                 omit,
+                omit_functions,
             })
         }
     }
@@ -190,7 +194,7 @@ mod tests {
     fn object_mapping_accepts_table_value() {
         let mapping = parse_object_mapping(
             r#"
-EffectDescriptor = { is = "OfxImageEffectHandle", set = true }
+EffectDescriptor = { is = "OfxImageEffectHandle", set = true, omit_functions = ["clipGetHandle"] }
 ImageEffectHost = { is = "OfxPropertySetHandle", omit = true }
 DrawContext = { is = "OfxDrawContextHandle" }
 ParamSet = { is = "OfxParamSetHandle", set = "ParamSet" }
@@ -203,6 +207,10 @@ ParamSet = { is = "OfxParamSetHandle", set = "ParamSet" }
             CodegenConfigObjectMappingEntrySet::Present
         ));
         assert!(!mapping["EffectDescriptor"].omit);
+        assert_eq!(
+            mapping["EffectDescriptor"].omit_functions,
+            Some(["clipGetHandle".to_owned()].into())
+        );
         assert_eq!(mapping["ImageEffectHost"].is, "OfxPropertySetHandle");
         assert!(matches!(
             mapping["ImageEffectHost"].set,
