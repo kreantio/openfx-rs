@@ -1007,9 +1007,7 @@ impl MultiThreadSuiteV1 {
     /// ## SAFETY
     ///
     /// `self` must be valid.
-    ///
-    /// FIXME: `multi_thread_num_cp_us` -> `multi_thread_num_cpus`
-    pub unsafe fn multi_thread_num_cp_us(&self) -> crate::low::Result<c_uint> {
+    pub unsafe fn multi_thread_num_cpus(&self) -> crate::low::Result<c_uint> {
         let sys_fn = unsafe { sys_fn!("multiThreadNumCPUs") };
 
         let mut num_cpus = std::mem::MaybeUninit::<c_uint>::uninit();
@@ -1067,8 +1065,8 @@ impl MultiThreadSuiteV1 {
     /// ## SAFETY
     ///
     /// `self` and `mutex` must be valid.
-    pub unsafe fn mutex_un_lock(&self, mutex: &Mutex) -> crate::low::Result<()> {
-        let sys_fn = unsafe { sys_fn!() };
+    pub unsafe fn mutex_unlock(&self, mutex: &Mutex) -> crate::low::Result<()> {
+        let sys_fn = unsafe { sys_fn!("mutexUnLock") };
 
         crate::low::Status::result_from(unsafe { sys_fn(mutex.sys_handle()) })
     }

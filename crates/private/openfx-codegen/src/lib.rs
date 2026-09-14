@@ -30,6 +30,7 @@ pub struct CodegenConfigSuites {
 pub struct CodegenConfigSuiteSpecialCase {
     pub key_name: Option<String>,
     pub omit_functions: Option<HashSet<String>>,
+    pub function_rust_names: Option<HashMap<String, String>>,
 }
 
 #[derive(serde::Deserialize)]
