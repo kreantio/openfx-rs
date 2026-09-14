@@ -68,14 +68,41 @@ unused_property_sets_in_metadata = [
 #
 # The names in the comments follows the source.
 
-ImageEffectDescriptor = { is = "OfxImageEffectHandle", set = true } # Image Effect Descriptor
-ImageEffectInstance = { is = "OfxImageEffectHandle", set = true }   # Image Effect Instance
-ImageClipDescriptor = { is = "OfxImageClipHandle", set = true }     # Clip Descriptor
-ImageClipInstance = { is = "OfxImageClipHandle", set = true }       # Clip Instance
-ParamSetDescriptor = { is = "OfxParamSetHandle", set = "ParamSet" } # Parameter Set Descriptor
-ParamSetInstance = { is = "OfxParamSetHandle", set = "ParamSet" }   # Parameter Set Instance
-InteractDescriptor = { is = "OfxInteractHandle", set = true }       # Interact Descriptor
-InteractInstance = { is = "OfxInteractHandle", set = true }         # Interact Instance
+# Image Effect Descriptor / Instance
+ImageEffectDescriptor = { is = "OfxImageEffectHandle", set = true, omit_functions = [
+  "abort",            # instance-specific
+  "clipGetHandle",    # instance-specific
+  "imageMemoryAlloc", # instance-specific
+] }
+ImageEffectInstance = { is = "OfxImageEffectHandle", set = true, omit_functions = [
+  "clipDefine", # descriptor-specific
+] }
+
+# Clip Descriptor / Instance
+ImageClipDescriptor = { is = "OfxImageClipHandle", set = true, omit_functions = [
+  "clipGetImage",              # instance-specific
+  "clipGetHandle",             # instance-specific
+  "clipGetRegionOfDefinition", # instance-specific
+  "clipLoadTexture",           # instance-specific
+] }
+ImageClipInstance = { is = "OfxImageClipHandle", set = true }
+
+# Parameter Set Descriptor / Instance
+ParamSetDescriptor = { is = "OfxParamSetHandle", set = "ParamSet", omit_functions = [
+  "paramEditBegin", # instance-specific
+  "paramEditEnd",   # instance-specific
+  "paramGetHandle", # instance-specific
+] }
+ParamSetInstance = { is = "OfxParamSetHandle", set = "ParamSet", omit_functions = [
+  "paramDefine", # descriptor-specific
+] }
+
+# Interact Descriptor / Instance
+InteractDescriptor = { is = "OfxInteractHandle", set = true, omit_functions = [
+  "interactRedraw",      # instance-specific
+  "interactSwapBuffers", # instance-specific
+] }
+InteractInstance = { is = "OfxInteractHandle", set = true }
 
 # source: same as the above.
 
