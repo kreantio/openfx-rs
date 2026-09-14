@@ -22,7 +22,7 @@ export function checkLowAllPropertySetsHaveCorrespondingObjects(
   for (const [name, v] of Object.entries(opts.cfg.objects.mapping)) {
     if (typeof v === "string") continue;
     if (v.set) {
-      propertySetsSeen.push(name);
+      propertySetsSeen.push(typeof v.set === "string" ? v.set : name);
     }
   }
   for (const [_, v] of Object.entries(opts.cfg.objects.parameter_set_mapping)) {

@@ -202,7 +202,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         _/w short_label: String @OfxPropShortLabel;
         _/w r#type: String @OfxPropType;
     }
-    ParamSetDescriptorPropertySet {
+    ParamSetPropertySet {
         _/w plugin_param_page_order: [String] @OfxPluginPropParamPageOrder;
         _/w param_set_needs_syncing: Bool @OfxPropParamSetNeedsSyncing;
     }

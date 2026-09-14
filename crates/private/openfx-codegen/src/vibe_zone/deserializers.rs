@@ -1,7 +1,10 @@
 //! Authors:
 //! - OpenCode / Omen Alpha (Default)
 
-use crate::{CodegenConfigObjectMappingEntry, CodegenConfigObjectParameterSetMappingEntry};
+use crate::{
+    CodegenConfigObjectMappingEntry, CodegenConfigObjectMappingEntrySet,
+    CodegenConfigObjectParameterSetMappingEntry,
+};
 
 #[expect(non_snake_case)]
 pub fn deserialize_CodegenConfigObjectMappingEntry<'de, D>(
@@ -10,7 +13,14 @@ pub fn deserialize_CodegenConfigObjectMappingEntry<'de, D>(
 where
     D: serde::Deserializer<'de>,
 {
-    const FIELDS: &[&str] = &["is", "set", "omit", "rename"];
+    const FIELDS: &[&str] = &["is", "set", "omit"];
+
+    #[derive(serde::Deserialize)]
+    #[serde(untagged)]
+    enum Set {
+        Boolean(bool),
+        Custom(String),
+    }
 
     struct Visitor;
 
@@ -29,7 +39,7 @@ where
         {
             Ok(Self::Value {
                 is: v.to_owned(),
-                set: false,
+                set: CodegenConfigObjectMappingEntrySet::Absent,
                 omit: false,
             })
         }
@@ -39,12 +49,20 @@ where
             A: serde::de::MapAccess<'de>,
         {
             let mut is: Option<String> = None;
-            let mut set = false;
+            let mut set = CodegenConfigObjectMappingEntrySet::Absent;
             let mut omit = false;
             while let Some(key) = map.next_key::<String>()? {
                 match key.as_str() {
                     "is" => is = Some(map.next_value()?),
-                    "set" => set = map.next_value()?,
+                    "set" => {
+                        set = match map.next_value()? {
+                            Set::Boolean(false) => CodegenConfigObjectMappingEntrySet::Absent,
+                            Set::Boolean(true) => CodegenConfigObjectMappingEntrySet::Present,
+                            Set::Custom(name) => {
+                                CodegenConfigObjectMappingEntrySet::PresentCustom(name)
+                            }
+                        }
+                    }
                     "omit" => omit = map.next_value()?,
                     _ => return Err(serde::de::Error::unknown_field(&key, FIELDS)),
                 }
@@ -130,7 +148,10 @@ where
 mod tests {
     use std::collections::HashMap;
 
-    use crate::{CodegenConfigObjectMappingEntry, CodegenConfigObjectParameterSetMappingEntry};
+    use crate::{
+        CodegenConfigObjectMappingEntry, CodegenConfigObjectMappingEntrySet,
+        CodegenConfigObjectParameterSetMappingEntry,
+    };
 
     fn parse_object_mapping(
         toml_str: &str,
@@ -158,7 +179,10 @@ mod tests {
     fn object_mapping_accepts_string_value() {
         let mapping = parse_object_mapping(r#"EffectDescriptor = "OfxImageEffectHandle""#).unwrap();
         assert_eq!(mapping["EffectDescriptor"].is, "OfxImageEffectHandle");
-        assert!(!mapping["EffectDescriptor"].set);
+        assert!(matches!(
+            mapping["EffectDescriptor"].set,
+            CodegenConfigObjectMappingEntrySet::Absent
+        ));
         assert!(!mapping["EffectDescriptor"].omit);
     }
 
@@ -169,18 +193,32 @@ mod tests {
 EffectDescriptor = { is = "OfxImageEffectHandle", set = true }
 ImageEffectHost = { is = "OfxPropertySetHandle", omit = true }
 DrawContext = { is = "OfxDrawContextHandle" }
+ParamSet = { is = "OfxParamSetHandle", set = "ParamSet" }
 "#,
         )
         .unwrap();
         assert_eq!(mapping["EffectDescriptor"].is, "OfxImageEffectHandle");
-        assert!(mapping["EffectDescriptor"].set);
+        assert!(matches!(
+            mapping["EffectDescriptor"].set,
+            CodegenConfigObjectMappingEntrySet::Present
+        ));
         assert!(!mapping["EffectDescriptor"].omit);
         assert_eq!(mapping["ImageEffectHost"].is, "OfxPropertySetHandle");
-        assert!(!mapping["ImageEffectHost"].set);
+        assert!(matches!(
+            mapping["ImageEffectHost"].set,
+            CodegenConfigObjectMappingEntrySet::Absent
+        ));
         assert!(mapping["ImageEffectHost"].omit);
         assert_eq!(mapping["DrawContext"].is, "OfxDrawContextHandle");
-        assert!(!mapping["DrawContext"].set);
+        assert!(matches!(
+            mapping["DrawContext"].set,
+            CodegenConfigObjectMappingEntrySet::Absent
+        ));
         assert!(!mapping["DrawContext"].omit);
+        assert!(matches!(
+            &mapping["ParamSet"].set,
+            CodegenConfigObjectMappingEntrySet::PresentCustom(name) if name == "ParamSet"
+        ));
     }
 
     #[test]
