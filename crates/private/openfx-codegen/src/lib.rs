@@ -45,7 +45,7 @@ pub struct CodegenConfigObjectMappingEntry {
     /// Indicates whether this object has a corresponding property set defined
     /// in `ofxPropsBySet.h`'s `prop_sets`. This mapping's key corresponds to
     /// the property set's key in that collection.
-    pub set: bool,
+    pub set: CodegenConfigObjectMappingEntrySet,
     pub omit: bool,
 }
 
@@ -57,6 +57,15 @@ impl<'de> serde::Deserialize<'de> for CodegenConfigObjectMappingEntry {
     {
         deserialize_CodegenConfigObjectMappingEntry(deserializer)
     }
+}
+
+pub enum CodegenConfigObjectMappingEntrySet {
+    /// `false`
+    Absent,
+    /// `true`
+    Present,
+    /// e.g. `"foo"`
+    PresentCustom(String),
 }
 
 pub struct CodegenConfigObjectParameterSetMappingEntry {

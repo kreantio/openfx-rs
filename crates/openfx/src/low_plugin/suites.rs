@@ -12,7 +12,7 @@ use crate::{
             ImageClipDescriptorPropertySet, ImageClipInstancePropertySet,
             ImageEffectDescriptorPropertySet, ImageEffectInstancePropertySet,
             ImageInstancePropertySet, InteractDescriptorPropertySet, InteractInstancePropertySet,
-            ParamSetDescriptorPropertySet,
+            ParamSetPropertySet,
         },
     },
     sys_umbrella::{
@@ -1348,8 +1348,8 @@ impl ParameterSuiteV1 {
     pub unsafe fn param_set_get_descriptor_property_set(
         &self,
         param_set: ParamSetDescriptor,
-    ) -> crate::low::Result<ParamSetDescriptorPropertySet> {
-        Ok(ParamSetDescriptorPropertySet::from(unsafe {
+    ) -> crate::low::Result<ParamSetPropertySet> {
+        Ok(ParamSetPropertySet::from(unsafe {
             self.param_set_get_property_set(param_set.sys_handle())?
         }))
     }
@@ -1357,17 +1357,12 @@ impl ParameterSuiteV1 {
     /// ## SAFETY
     ///
     /// `self` and `param_set` must be valid.
-    ///
-    /// ## TODO
-    ///
-    /// Should [`ParamSetDescriptorPropertySet`] be renamed as
-    /// `ParamSetPropertySet`?
     #[no_sys_fn]
     pub unsafe fn param_set_get_instance_property_set(
         &self,
         param_set: ParamSetInstance,
-    ) -> crate::low::Result<ParamSetDescriptorPropertySet> {
-        Ok(ParamSetDescriptorPropertySet::from(unsafe {
+    ) -> crate::low::Result<ParamSetPropertySet> {
+        Ok(ParamSetPropertySet::from(unsafe {
             self.param_set_get_property_set(param_set.sys_handle())?
         }))
     }

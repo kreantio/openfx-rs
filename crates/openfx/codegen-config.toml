@@ -72,8 +72,8 @@ ImageEffectDescriptor = { is = "OfxImageEffectHandle", set = true } # Image Effe
 ImageEffectInstance = { is = "OfxImageEffectHandle", set = true }   # Image Effect Instance
 ImageClipDescriptor = { is = "OfxImageClipHandle", set = true }     # Clip Descriptor
 ImageClipInstance = { is = "OfxImageClipHandle", set = true }       # Clip Instance
-ParamSetDescriptor = { is = "OfxParamSetHandle", set = true }       # Parameter Set Descriptor
-ParamSetInstance = { is = "OfxParamSetHandle", set = false }        # Parameter Set Instance
+ParamSetDescriptor = { is = "OfxParamSetHandle", set = "ParamSet" } # Parameter Set Descriptor
+ParamSetInstance = { is = "OfxParamSetHandle", set = "ParamSet" }   # Parameter Set Instance
 InteractDescriptor = { is = "OfxInteractHandle", set = true }       # Interact Descriptor
 InteractInstance = { is = "OfxInteractHandle", set = true }         # Interact Instance
 
@@ -133,7 +133,7 @@ ClipInstance = "ImageClipInstance"
 EffectDescriptor = "ImageEffectDescriptor"
 EffectInstance = "ImageEffectInstance"
 
-ParameterSet = "ParamSetDescriptor"
+ParameterSet = "ParamSet"
 
 ParamsByte = "ParamByte"
 ParamsChoice = "ParamChoice"
