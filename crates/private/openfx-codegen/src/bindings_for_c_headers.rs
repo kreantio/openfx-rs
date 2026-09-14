@@ -313,6 +313,7 @@ fn gen_low_suites(
         for (name, simple_ident) in suite_names.iter().zip(simple_idents.iter()) {
             let special_case = &confg.suites.special_cases.get(&simple_ident.to_string());
             let fns_to_omit = special_case.and_then(|sc| sc.omit_functions.as_ref());
+            let fn_rust_names = special_case.and_then(|sc| sc.function_rust_names.as_ref());
 
             let full_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
             let mut fns: Vec<syn::Ident> = suites[name]
@@ -320,7 +321,10 @@ fn gen_low_suites(
                 .filter(|v| fns_to_omit.is_none_or(|o| !o.contains(*v)))
                 .map(|v| {
                     syn::Ident::new(
-                        &v.to_case(convert_case::Case::Snake),
+                        &fn_rust_names
+                            .and_then(|m| m.get(v))
+                            .cloned()
+                            .unwrap_or_else(|| v.to_case(convert_case::Case::Snake)),
                         proc_macro2::Span::call_site(),
                     )
                 })

@@ -1,10 +1,26 @@
 [suites.special_cases]
 ImageEffectOpenGLRenderSuiteV1 = { key_name = "kOfxOpenGLRenderSuite" }
 
-# C variadic arguments:
-# MessageSuiteV1 = { omit_functions = ["message"] }
-# MessageSuiteV2 = { omit_functions = ["message", "setPersistentMessage"] }
+MessageSuiteV1 = { omit_functions = [
+  # # C variadic arguments:
+  # "message",
+] }
+
+MessageSuiteV2 = { omit_functions = [
+  # # C variadic arguments:
+  # "message",
+  # "setPersistentMessage",
+] }
+
+
+MultiThreadSuiteV1 = { function_rust_names = { multiThreadNumCPUs = "multi_thread_num_cpus", mutexUnLock = "mutex_unlock" } }
+
+# The documentation is unclear, and I have absolutely zero knowledge about
+# OpenCL:
+OpenCLProgramSuiteV1 = { omit_functions = ["compileProgram"] }
+
 ParameterSuiteV1 = { omit_functions = [
+  # C variadic arguments:
   "paramGetValue",
   "paramGetValueAtTime",
   "paramGetDerivative",
@@ -12,10 +28,6 @@ ParameterSuiteV1 = { omit_functions = [
   "paramSetValue",
   "paramSetValueAtTime",
 ] }
-
-# The documentation is unclear, and I have absolutely zero knowledge about
-# OpenCL:
-OpenCLProgramSuiteV1 = { omit_functions = ["compileProgram"] }
 
 # Just use functions in `openfx::sys_helpers::generic::properties` instead of
 # functions here:
