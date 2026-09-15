@@ -118,7 +118,7 @@ impl ImageClipInstance {
         &self,
         image_effect_suite: &ImageEffectSuiteV1,
         time: OfxTime,
-        region: &Option<OfxRectD>,
+        region: Option<&OfxRectD>,
     ) -> crate::low::Result<ImageInstancePropertySet> {
         unsafe { image_effect_suite.clip_get_image(self, time, region) }
     }
