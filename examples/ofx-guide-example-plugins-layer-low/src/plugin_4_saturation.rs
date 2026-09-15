@@ -178,7 +178,7 @@ fn action_describe_in_context(
     }
 
     for name in [c"Output", c"Source"] {
-        let props = unsafe { s_ifx.clip_define(&descriptor, name) }?;
+        let props = unsafe { descriptor.clip_define(s_ifx, name) }?;
 
         (unsafe {
             props.set_image_effect_supported_components(
@@ -191,7 +191,7 @@ fn action_describe_in_context(
         })?;
     }
     if context == ImageEffectPropContext::General {
-        let props = unsafe { s_ifx.clip_define(&descriptor, c"Mask") }?;
+        let props = unsafe { descriptor.clip_define(s_ifx, c"Mask") }?;
 
         unsafe {
             props.set_image_effect_supported_components(
@@ -233,10 +233,10 @@ fn action_create_instance(instance: ImageEffectInstance) -> openfx::low::Result<
     let context = unsafe { instance_props.get_image_effect_context(s_prop) }?;
     let is_general_context = context == ImageEffectPropContext::General;
 
-    let source_clip = unsafe { s_ifx.clip_get_clip_handle(&instance, c"Source") }?;
-    let output_clip = unsafe { s_ifx.clip_get_clip_handle(&instance, c"Output") }?;
+    let source_clip = unsafe { instance.clip_get_clip_handle(s_ifx, c"Source") }?;
+    let output_clip = unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }?;
     let mask_clip = if is_general_context {
-        Some(unsafe { s_ifx.clip_get_clip_handle(&instance, c"Mask") }?)
+        Some(unsafe { instance.clip_get_clip_handle(s_ifx, c"Mask") }?)
     } else {
         None
     };

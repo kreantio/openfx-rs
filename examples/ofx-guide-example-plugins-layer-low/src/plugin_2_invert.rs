@@ -141,7 +141,7 @@ fn action_describe_in_context(
     }
 
     for name in [c"Output", c"Source"] {
-        let props = unsafe { s_ifx.clip_define(&descriptor, name) }?;
+        let props = unsafe { descriptor.clip_define(s_ifx, name) }?;
 
         (unsafe {
             props.set_image_effect_supported_components(
@@ -277,8 +277,8 @@ fn action_render(
         unsafe { get_OfxImageEffectPropRenderWindow(s_prop.sys_ptr(), in_args.sys_handle()) }?;
     let render_window = rect_i_from_array(&render_window);
 
-    let output_clip = unsafe { s_ifx.clip_get_clip_handle(&instance, c"Output") }?;
-    let source_clip = unsafe { s_ifx.clip_get_clip_handle(&instance, c"Source") }?;
+    let output_clip = unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }?;
+    let source_clip = unsafe { instance.clip_get_clip_handle(s_ifx, c"Source") }?;
 
     let output_img = unsafe { output_clip.clip_get_image(s_ifx, time, None) }?;
     let source_img = unsafe { source_clip.clip_get_image(s_ifx, time, None) }?;
