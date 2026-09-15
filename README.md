@@ -3,7 +3,6 @@
 See Also:
 
 - [CONTRIBUTING.md](./CONTRIBUTING.md)
-- [TODO.md](./TODO.md)
 
 ## Prerequisites
 
