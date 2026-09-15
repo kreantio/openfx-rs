@@ -149,11 +149,11 @@ impl ClipImageManaged {
     pub unsafe fn try_new(
         shared_data: &SharedData,
         props: ImageInstancePropertySet,
-    ) -> low::Result<Option<Self>> {
+    ) -> low::Result<Self> {
         let s_prop = &shared_data.property_suite.0;
 
         let Some(data_ptr) = (unsafe { props.get_image_data(s_prop)? }) else {
-            return Ok(None);
+            return Err(Status::Failed);
         };
 
         let n_comps = match unsafe { props.get_image_effect_components(s_prop)? } {
@@ -173,7 +173,7 @@ impl ClipImageManaged {
         let bounds = rect_i_from_array(&bounds);
         let pixel_aspect_ratio = unsafe { props.get_image_pixel_aspect_ratio(s_prop)? };
 
-        Ok(Some(Self {
+        Ok(Self {
             image_effect_suite: shared_data.image_effect_suite,
             props,
 
@@ -183,7 +183,7 @@ impl ClipImageManaged {
             bounds,
             pixel_aspect_ratio,
             data_ptr,
-        }))
+        })
     }
 
     pub fn n_comps(&self) -> c_int {
