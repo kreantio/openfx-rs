@@ -308,7 +308,7 @@ impl ImageEffectSuiteV1 {
         &self,
         clip: &ImageClipInstance,
         time: OfxTime,
-        region: &Option<OfxRectD>,
+        region: Option<&OfxRectD>,
     ) -> crate::low::Result<ImageInstancePropertySet> {
         let sys_fn = unsafe { sys_fn!() };
 
@@ -320,7 +320,7 @@ impl ImageEffectSuiteV1 {
                 time,
                 region
                     .as_ref()
-                    .map_or(std::ptr::null(), |r| r as *const OfxRectD),
+                    .map_or(std::ptr::null(), |r| *r as *const OfxRectD),
                 image_handle.as_mut_ptr(),
             )
         })?;
@@ -399,7 +399,7 @@ impl ImageEffectSuiteV1 {
     /// `image_handle` here? Or is that out of the scope of the low layer?
     pub unsafe fn clip_release_image(
         &self,
-        image_handle: &ImageClipDescriptorPropertySet,
+        image_handle: &ImageInstancePropertySet,
     ) -> crate::low::Result<()> {
         let sys_fn = unsafe { sys_fn!() };
 
