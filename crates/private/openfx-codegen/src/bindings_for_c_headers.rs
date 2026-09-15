@@ -71,6 +71,7 @@ fn generate_bindings_for_c_headers_inner(opts: Options) -> Result<(), Box<dyn st
         root_item_idents_per_header,
         c_enums,
         suites,
+        direct_handle_usages_in_suite_functions,
     } = process(&headers).map_err(|err| format!("Failed to process headers: {}", err))?;
 
     std::fs::create_dir_all(&opts.output_folder_c)?;
@@ -81,7 +82,12 @@ fn generate_bindings_for_c_headers_inner(opts: Options) -> Result<(), Box<dyn st
 
     gen_low_statuses(&opts.output_folder_c, statuses)?;
     gen_low_enums_from_c(&opts.output_folder_c, c_enums)?;
-    gen_suites(&opts.config, &opts.output_folder_c, suites)?;
+    gen_low_plugin_suites(&opts.config, &opts.output_folder_c, suites)?;
+    gen_low_plugin_objects(
+        &opts.config,
+        &opts.output_folder_c,
+        direct_handle_usages_in_suite_functions,
+    )?;
 
     gen_data_root_idents(
         &opts.output_folder_intermediate,
@@ -279,7 +285,7 @@ fn gen_low_enums_from_c(
     Ok(())
 }
 
-fn gen_suites(
+fn gen_low_plugin_suites(
     confg: &CodegenConfig,
     output_folder_c: &Path,
     suites: HashMap<String, HashSet<String>>,
@@ -307,6 +313,7 @@ fn gen_suites(
         for (name, simple_ident) in suite_names.iter().zip(simple_idents.iter()) {
             let special_case = &confg.suites.special_cases.get(&simple_ident.to_string());
             let fns_to_omit = special_case.and_then(|sc| sc.omit_functions.as_ref());
+            let fn_rust_names = special_case.and_then(|sc| sc.function_rust_names.as_ref());
 
             let full_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
             let mut fns: Vec<syn::Ident> = suites[name]
@@ -314,7 +321,10 @@ fn gen_suites(
                 .filter(|v| fns_to_omit.is_none_or(|o| !o.contains(*v)))
                 .map(|v| {
                     syn::Ident::new(
-                        &v.to_case(convert_case::Case::Snake),
+                        &fn_rust_names
+                            .and_then(|m| m.get(v))
+                            .cloned()
+                            .unwrap_or_else(|| v.to_case(convert_case::Case::Snake)),
                         proc_macro2::Span::call_site(),
                     )
                 })
@@ -357,6 +367,71 @@ fn gen_suites(
             prettyplease::unparse(&syn::parse2(output)?),
         )?;
     }
+
+    Ok(())
+}
+
+fn gen_low_plugin_objects(
+    confg: &CodegenConfig,
+    output_folder_c: &Path,
+    direct_handle_usages_in_suite_functions: HashMap<String, HashSet<(String, String)>>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut output = proc_macro2::TokenStream::new();
+
+    let mut mapping = confg.objects.mapping.iter().collect::<Vec<_>>();
+    mapping.sort_by(|a, b| a.0.cmp(b.0));
+
+    for (name, entry) in mapping {
+        if entry.omit {
+            continue;
+        }
+        let fn_set = direct_handle_usages_in_suite_functions
+            .get(&entry.is)
+            .cloned()
+            .unwrap_or_default();
+        let mut fns: HashSet<String> = HashSet::new();
+        for (_suite_name, fn_name) in &fn_set {
+            if fns.contains(fn_name) {
+                let suite_names = fn_set
+                    .iter()
+                    .filter(|(_, fn_name_in_set)| fn_name_in_set == fn_name)
+                    .map(|(suite_name, _)| suite_name)
+                    .collect::<Vec<_>>();
+                return Err(format!(
+                    "Duplicate function usage found for function `{}` in suites: {:?}",
+                    fn_name, suite_names
+                )
+                .into());
+            }
+            fns.insert(fn_name.clone());
+        }
+        if let Some(omit_fns) = &entry.omit_functions {
+            fns.retain(|fn_name| !omit_fns.contains(fn_name));
+        }
+
+        let object_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
+
+        let handle_ident = syn::Ident::new(&entry.is, proc_macro2::Span::call_site());
+        let mut fns = fns
+            .iter()
+            .map(|v| {
+                syn::Ident::new(
+                    &v.to_case(convert_case::Case::Snake),
+                    proc_macro2::Span::call_site(),
+                )
+            })
+            .collect::<Vec<_>>();
+        fns.sort();
+
+        output.extend(quote! {
+            openfx_internal_macros::low_make_object_struct!(#object_ident:#handle_ident: #(#fns,)*);
+        });
+    }
+
+    std::fs::write(
+        output_folder_c.join("low_objects_plugin.rs"),
+        prettyplease::unparse(&syn::parse2(output)?),
+    )?;
 
     Ok(())
 }
@@ -505,6 +580,8 @@ struct ProcessOutput {
     root_item_idents_per_header: HashMap<String, HashSet<String>>,
     c_enums: HashMap<String, HashSet<String>>,
     suites: HashMap<String, HashSet<String>>,
+    /// direct = first parameter + bare type (i.e., no `&` and `*`)
+    direct_handle_usages_in_suite_functions: HashMap<String, HashSet<(String, String)>>,
 }
 
 fn process(headers: &[Header]) -> Result<ProcessOutput, Box<dyn std::error::Error>> {
@@ -516,6 +593,8 @@ fn process(headers: &[Header]) -> Result<ProcessOutput, Box<dyn std::error::Erro
     let mut root_item_idents_per_header: HashMap<String, HashSet<String>> = HashMap::new();
     let mut c_enums: HashMap<String, HashSet<String>> = HashMap::new();
     let mut suites: HashMap<String, HashSet<String>> = HashMap::new();
+    let mut direct_handle_usages_in_suite_functions: HashMap<String, HashSet<(String, String)>> =
+        HashMap::new();
 
     for header in headers {
         let syn_file = syn::parse_file(&header.bindgen_generated_rust_code)?;
@@ -549,7 +628,11 @@ fn process(headers: &[Header]) -> Result<ProcessOutput, Box<dyn std::error::Erro
                 seen_names.insert(name.clone(), header.mod_name_snake_case.clone());
                 let mut item = item.clone();
                 SpecialCasingForCEnums::process_relevant_item(&mut item, &mut c_enums)?;
-                SpecialCasingForSuites::record_relevant_item(&item, &mut suites)?;
+                SpecialCasingForSuites::record_relevant_item(
+                    &item,
+                    &mut suites,
+                    &mut direct_handle_usages_in_suite_functions,
+                )?;
                 dedup_items.push(item);
                 root_item_idents_per_header
                     .entry(header.mod_name_snake_case.clone())
@@ -597,6 +680,7 @@ fn process(headers: &[Header]) -> Result<ProcessOutput, Box<dyn std::error::Erro
         root_item_idents_per_header,
         c_enums,
         suites,
+        direct_handle_usages_in_suite_functions,
     })
 }
 
@@ -758,21 +842,83 @@ impl SpecialCasingForSuites {
     fn record_relevant_item(
         item: &syn::Item,
         suites: &mut HashMap<String, HashSet<String>>,
+        direct_handle_usages_in_suite_functions: &mut HashMap<String, HashSet<(String, String)>>,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let syn::Item::Struct(item) = item else {
             return Ok(());
         };
-        let ident_str = item.ident.to_string();
-        if !ident_str.rfind("SuiteV").is_some() {
+        let suite_ident_str = item.ident.to_string();
+        if !suite_ident_str.rfind("SuiteV").is_some() {
             return Ok(());
         }
-        let fns: HashSet<String> = item
-            .fields
-            .iter()
-            .filter_map(|field| field.ident.as_ref().map(|ident| ident.to_string()))
-            .collect();
+        let mut fns: HashSet<String> = HashSet::new();
+        for field in &item.fields {
+            let Some(fn_ident) = &field.ident else {
+                return Err(format!("field without ident: {:?}", field.to_token_stream()).into());
+            };
+            let fn_ident_str = fn_ident.to_string();
+            fns.insert(fn_ident_str.clone());
 
-        suites.entry(ident_str).or_default().extend(fns);
+            macro_rules! unexpected_field_type {
+                ($field:expr, $step:literal) => {
+                    Err(format!(
+                        "unexpected field type for field at step {}: {:?}",
+                        $step,
+                        $field.to_token_stream().to_string()
+                    )
+                    .into())
+                };
+            }
+
+            // `::std::option::…`
+            let syn::Type::Path(type_path) = &field.ty else {
+                return unexpected_field_type!(field, 1);
+            };
+            // `Option<…>`
+            let Some(segment) = type_path.path.segments.last() else {
+                return unexpected_field_type!(field, 2);
+            };
+            if segment.ident != "Option" {
+                return unexpected_field_type!(field, 3);
+            }
+            // `unsafe extern "C" fn(…) -> OfxStatus`
+            let syn::PathArguments::AngleBracketed(angle_bracketed) = &segment.arguments else {
+                return unexpected_field_type!(field, 4);
+            };
+            let Some(g_arg) = angle_bracketed.args.first() else {
+                return unexpected_field_type!(field, 5);
+            };
+            let syn::GenericArgument::Type(g_arg) = g_arg else {
+                return unexpected_field_type!(field, 6);
+            };
+            let syn::Type::FnPtr(g_arg) = g_arg else {
+                return unexpected_field_type!(field, 7);
+            };
+            // `…, colour: *const OfxRGBAColourF,`
+            let args = &g_arg.inputs;
+            // finally…
+            let Some(direct_arg) = args.first() else {
+                continue;
+            };
+            let syn::Type::Path(direct_arg) = &direct_arg.ty else {
+                continue;
+            };
+            if direct_arg.path.leading_colon.is_some() || direct_arg.path.segments.len() != 1 {
+                continue;
+            }
+            let Some(direct_arg) = direct_arg.path.segments.first() else {
+                continue;
+            };
+            let direct_arg_str = direct_arg.ident.to_string();
+            if direct_arg_str.starts_with("Ofx") && direct_arg_str.ends_with("Handle") {
+                direct_handle_usages_in_suite_functions
+                    .entry(direct_arg_str)
+                    .or_default()
+                    .insert((suite_ident_str.clone(), fn_ident_str.clone()));
+            }
+        }
+
+        suites.entry(suite_ident_str).or_default().extend(fns);
 
         Ok(())
     }

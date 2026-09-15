@@ -1,5 +1,5 @@
 openfx_internal_macros::low_make_property_set_structs! {
-    ClipDescriptorPropertySet {
+    ImageClipDescriptorPropertySet {
         _/w image_clip_field_extraction: Enum(ImageClipPropFieldExtraction) @OfxImageClipPropFieldExtraction;
         _/w image_clip_is_mask: Bool @OfxImageClipPropIsMask;
         _/w image_clip_optional: Bool @OfxImageClipPropOptional;
@@ -12,7 +12,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         _/w short_label: String @OfxPropShortLabel;
         _/w r#type: String @OfxPropType;
     }
-    ClipInstancePropertySet {
+    ImageClipInstancePropertySet {
         r/_ image_clip_colourspace: String @OfxImageClipPropColourspace;
         r/_ image_clip_connected: Bool @OfxImageClipPropConnected;
         r/_ image_clip_continuous_samples: Bool @OfxImageClipPropContinuousSamples;
@@ -40,7 +40,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         r/_ short_label: String @OfxPropShortLabel;
         r/_ r#type: String @OfxPropType;
     }
-    EffectDescriptorPropertySet {
+    ImageEffectDescriptorPropertySet {
         _/w image_effect_plugin_field_render_twice_always: Bool @OfxImageEffectPluginPropFieldRenderTwiceAlways;
         _/w image_effect_plugin_grouping: String @OfxImageEffectPluginPropGrouping;
         _/w image_effect_plugin_host_frame_threading: Bool @OfxImageEffectPluginPropHostFrameThreading;
@@ -73,7 +73,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         _/w version: [Int] @OfxPropVersion;
         _/w version_label: String @OfxPropVersionLabel;
     }
-    EffectInstancePropertySet {
+    ImageEffectInstancePropertySet {
         r/_ image_effect_instance_effect_duration: Double @OfxImageEffectInstancePropEffectDuration;
         r/_ image_effect_instance_sequential_render: Bool @OfxImageEffectInstancePropSequentialRender;
         r/_ image_effect_colour_management_config: String @OfxImageEffectPropColourManagementConfig;
@@ -96,7 +96,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         r/_ is_interactive: Bool @OfxPropIsInteractive;
         r/_ r#type: String @OfxPropType;
     }
-    ImagePropertySet {
+    ImageInstancePropertySet {
         r/_ image_effect_components: Enum(ImageEffectPropComponents) @OfxImageEffectPropComponents;
         r/_ image_effect_pixel_depth: Enum(ImageEffectPropPixelDepth) @OfxImageEffectPropPixelDepth;
         r/_ image_effect_pre_multiplication: Enum(ImageEffectPropPreMultiplication) @OfxImageEffectPropPreMultiplication;
@@ -110,7 +110,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         r/_ image_unique_identifier: String @OfxImagePropUniqueIdentifier;
         r/_ r#type: String @OfxPropType;
     }
-    ImageEffectHostPropertySet {
+    ImageEffectHostDescriptorPropertySet {
         r/_ image_effect_host_is_background: Bool @OfxImageEffectHostPropIsBackground;
         r/_ image_effect_host_native_origin: Enum(ImageEffectHostPropNativeOrigin) @OfxImageEffectHostPropNativeOrigin;
         r/_ image_effect_instance_sequential_render: Bool @OfxImageEffectInstancePropSequentialRender;
@@ -202,11 +202,11 @@ openfx_internal_macros::low_make_property_set_structs! {
         _/w short_label: String @OfxPropShortLabel;
         _/w r#type: String @OfxPropType;
     }
-    ParameterSetPropertySet {
+    ParamSetPropertySet {
         _/w plugin_param_page_order: [String] @OfxPluginPropParamPageOrder;
         _/w param_set_needs_syncing: Bool @OfxPropParamSetNeedsSyncing;
     }
-    ParamsBytePropertySet {
+    ParamBytePropertySet {
         _/w param_animates: Bool @OfxParamPropAnimates;
         _/w param_cache_invalidation: Enum(ParamPropCacheInvalidation) @OfxParamPropCacheInvalidation;
         _/w param_can_undo: Bool @OfxParamPropCanUndo;
@@ -241,7 +241,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         _/w short_label: String @OfxPropShortLabel;
         _/w r#type: String @OfxPropType;
     }
-    ParamsChoicePropertySet {
+    ParamChoicePropertySet {
         _/w param_animates: Bool @OfxParamPropAnimates;
         _/w param_cache_invalidation: Enum(ParamPropCacheInvalidation) @OfxParamPropCacheInvalidation;
         _/w param_can_undo: Bool @OfxParamPropCanUndo;
@@ -274,7 +274,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         _/w short_label: String @OfxPropShortLabel;
         _/w r#type: String @OfxPropType;
     }
-    ParamsCustomPropertySet {
+    ParamCustomPropertySet {
         _/w param_animates: Bool @OfxParamPropAnimates;
         _/w param_cache_invalidation: Enum(ParamPropCacheInvalidation) @OfxParamPropCacheInvalidation;
         _/w param_can_undo: Bool @OfxParamPropCanUndo;
@@ -306,7 +306,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         _/w short_label: String @OfxPropShortLabel;
         _/w r#type: String @OfxPropType;
     }
-    ParamsDouble2D3DPropertySet {
+    ParamDouble2D3DPropertySet {
         _/w param_animates: Bool @OfxParamPropAnimates;
         _/w param_cache_invalidation: Enum(ParamPropCacheInvalidation) @OfxParamPropCacheInvalidation;
         _/w param_can_undo: Bool @OfxParamPropCanUndo;
@@ -344,7 +344,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         _/w short_label: String @OfxPropShortLabel;
         _/w r#type: String @OfxPropType;
     }
-    ParamsGroupPropertySet {
+    ParamGroupPropertySet {
         _/w param_data_ptr: Pointer @OfxParamPropDataPtr;
         _/w param_enabled: Bool @OfxParamPropEnabled;
         _/w param_group_open: Bool @OfxParamPropGroupOpen;
@@ -360,7 +360,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         _/w short_label: String @OfxPropShortLabel;
         _/w r#type: String @OfxPropType;
     }
-    ParamsInt2D3DPropertySet {
+    ParamInteger2D3DPropertySet {
         _/w param_animates: Bool @OfxParamPropAnimates;
         _/w param_cache_invalidation: Enum(ParamPropCacheInvalidation) @OfxParamPropCacheInvalidation;
         _/w param_can_undo: Bool @OfxParamPropCanUndo;
@@ -396,7 +396,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         _/w short_label: String @OfxPropShortLabel;
         _/w r#type: String @OfxPropType;
     }
-    ParamsNormalizedSpatialPropertySet {
+    ParamNormalizedSpatialPropertySet {
         _/w param_animates: Bool @OfxParamPropAnimates;
         _/w param_cache_invalidation: Enum(ParamPropCacheInvalidation) @OfxParamPropCacheInvalidation;
         _/w param_can_undo: Bool @OfxParamPropCanUndo;
@@ -434,7 +434,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         _/w short_label: String @OfxPropShortLabel;
         _/w r#type: String @OfxPropType;
     }
-    ParamsPagePropertySet {
+    ParamPagePropertySet {
         _/w param_data_ptr: Pointer @OfxParamPropDataPtr;
         _/w param_enabled: Bool @OfxParamPropEnabled;
         _/w param_hint: String @OfxParamPropHint;
@@ -450,7 +450,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         _/w short_label: String @OfxPropShortLabel;
         _/w r#type: String @OfxPropType;
     }
-    ParamsParametricPropertySet {
+    ParamParametricPropertySet {
         _/w param_animates: Bool @OfxParamPropAnimates;
         _/w param_cache_invalidation: Enum(ParamPropCacheInvalidation) @OfxParamPropCacheInvalidation;
         _/w param_can_undo: Bool @OfxParamPropCanUndo;
@@ -485,7 +485,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         _/w short_label: String @OfxPropShortLabel;
         _/w r#type: String @OfxPropType;
     }
-    ParamsStrChoicePropertySet {
+    ParamStrChoicePropertySet {
         _/w param_animates: Bool @OfxParamPropAnimates;
         _/w param_cache_invalidation: Enum(ParamPropCacheInvalidation) @OfxParamPropCacheInvalidation;
         _/w param_can_undo: Bool @OfxParamPropCanUndo;
@@ -518,7 +518,7 @@ openfx_internal_macros::low_make_property_set_structs! {
         _/w short_label: String @OfxPropShortLabel;
         _/w r#type: String @OfxPropType;
     }
-    ParamsStringPropertySet {
+    ParamStringPropertySet {
         _/w param_animates: Bool @OfxParamPropAnimates;
         _/w param_cache_invalidation: Enum(ParamPropCacheInvalidation) @OfxParamPropCacheInvalidation;
         _/w param_can_undo: Bool @OfxParamPropCanUndo;

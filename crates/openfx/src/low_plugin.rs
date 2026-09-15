@@ -1,6 +1,8 @@
 use std::ffi::{CStr, c_int, c_uint};
 
-use crate::{low_plugin::property_sets::ImageEffectHostPropertySet, sys_umbrella::OfxHost};
+use crate::{
+    low_plugin::property_sets::ImageEffectHostDescriptorPropertySet, sys_umbrella::OfxHost,
+};
 
 pub mod actions {
     include!(concat!(
@@ -9,17 +11,13 @@ pub mod actions {
     ));
 }
 
+pub mod objects;
+pub mod suites;
+
 pub mod property_sets {
     include!(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/generated/code_from_cpp/low_property_sets_plugin.rs",
-    ));
-}
-
-pub mod suites {
-    include!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/generated/code_from_c/low_suites_plugin.rs",
     ));
 }
 
@@ -61,7 +59,9 @@ impl<T: Plugin> crate::sys_helpers::image_effect_v1::Plugin for T {
     }
 }
 
-pub trait HostOwned {}
+/// Objects passed to a plugin whose lifetime is at least as long as the
+/// plugin's lifetime (`kOfxActionLoad` -> `kOfxActionUnload`).
+pub trait LifetimePlugin {}
 
 /// ## Safety
 ///
@@ -72,8 +72,8 @@ pub trait HostOwned {}
 /// expected by the host, they may create a wrapper type that implements `Send`:
 ///
 /// ```rs,ignore
-/// struct GuaranteeSend<T: HostOwned>(T);
-/// unsafe impl<T: HostOwned> Send for GuaranteeSend<T> {}
+/// struct GuaranteeSend<T: LifetimePlugin>(T);
+/// unsafe impl<T: LifetimePlugin> Send for GuaranteeSend<T> {}
 /// ```
 ///
 /// ### On `Sync`
@@ -90,10 +90,10 @@ pub trait HostOwned {}
 /// [invert.cpp]: https://github.com/AcademySoftwareFoundation/openfx/blob/3de640d6f645fe6e346acd57e568d8b0a5ae4574/Documentation/sources/Guide/Code/Example2/invert.cpp
 pub struct Host {
     sys: *const crate::sys::generic::core::OfxHost,
-    host: ImageEffectHostPropertySet,
+    host: ImageEffectHostDescriptorPropertySet,
 }
 
-impl HostOwned for Host {}
+impl LifetimePlugin for Host {}
 
 unsafe impl Sync for Host {}
 
@@ -107,7 +107,7 @@ impl Host {
 
         Self {
             sys,
-            host: ImageEffectHostPropertySet::from(host.host),
+            host: ImageEffectHostDescriptorPropertySet::from(host.host),
         }
     }
 
@@ -115,7 +115,7 @@ impl Host {
         self.sys
     }
 
-    pub fn host(&self) -> &ImageEffectHostPropertySet {
+    pub fn host(&self) -> &ImageEffectHostDescriptorPropertySet {
         &self.host
     }
 
