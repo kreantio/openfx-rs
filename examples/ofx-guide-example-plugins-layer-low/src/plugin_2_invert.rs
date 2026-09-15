@@ -283,12 +283,8 @@ fn action_render(
     let output_img = unsafe { output_clip.clip_get_image(s_ifx, time, None) }?;
     let source_img = unsafe { source_clip.clip_get_image(s_ifx, time, None) }?;
 
-    let Some(output_img_m) = unsafe { ClipImageManaged::try_new(&data, output_img) }? else {
-        return Err(openfx::low::Status::Failed);
-    };
-    let Some(source_img_m) = unsafe { ClipImageManaged::try_new(&data, source_img) }? else {
-        return Err(openfx::low::Status::Failed);
-    };
+    let output_img_m = unsafe { ClipImageManaged::try_new(&data, output_img) }?;
+    let source_img_m = unsafe { ClipImageManaged::try_new(&data, source_img) }?;
 
     match output_img_m.pixel_depth() {
         BitDepth::Byte => pixel_processing(

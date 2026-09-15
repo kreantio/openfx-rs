@@ -408,31 +408,10 @@ fn action_render(
     let saturation =
         unsafe { s_param.param_get_value_at_time_double(my_data.saturation_param, time) }?;
 
-    let Some(output_img_m) =
-        unsafe { data.make_clip_image_managed(my_data.output_clip, time, None) }?
-    else {
-        return Err(kOfxStatFailed);
-    };
-    let Some(source_img_m) =
-        unsafe { data.make_clip_image_managed(my_data.source_clip, time, None) }?
-    else {
-        return Err(kOfxStatFailed);
-    };
+    let output_img_m = unsafe { data.make_clip_image_managed(my_data.output_clip, time, None) }?;
+    let source_img_m = unsafe { data.make_clip_image_managed(my_data.source_clip, time, None) }?;
     let mask_img_m = if let Some(mask_clip) = my_data.mask_clip {
-        #[expect(clippy::needless_match, clippy::manual_map)]
-        match unsafe { data.make_clip_image_managed(mask_clip, time, None) }? {
-            Some(mask_img_m) => Some(mask_img_m),
-            // copilot:
-            //
-            // ```md
-            // an optional but unconnected Mask clip commonly returns `None`
-            // from `clip_get_image`;
-            // ```
-            None => {
-                // return Err(OfxStat::kOfxStatFailed);
-                None
-            }
-        }
+        unsafe { data.make_clip_image_managed_optional(mask_clip, time, None) }?
     } else {
         None
     };

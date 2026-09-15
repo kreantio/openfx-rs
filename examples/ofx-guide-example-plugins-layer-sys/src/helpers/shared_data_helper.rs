@@ -124,13 +124,38 @@ impl<'data> SharedDataHelper<'data> {
         clip: OfxImageClipHandle,
         time: OfxTime,
         region: Option<&OfxRectD>,
-    ) -> Result<Option<ClipImageManaged<'data>>, OfxStatus> {
+    ) -> Result<ClipImageManaged<'data>, OfxStatus> {
         let image_handle = unsafe {
             self.image_effect_suite_helper()
                 .clip_get_image(clip, time, region)
         }?;
 
         unsafe { ClipImageManaged::try_new(self, image_handle) }
+    }
+
+    /// ## Safety
+    ///
+    /// The caller must ensure that the input `clip` is valid, and will remain
+    /// valid for the lifetime of the returned reference.
+    pub unsafe fn make_clip_image_managed_optional(
+        &self,
+        clip: OfxImageClipHandle,
+        time: OfxTime,
+        region: Option<&OfxRectD>,
+    ) -> Result<Option<ClipImageManaged<'data>>, OfxStatus> {
+        let image_handle = match unsafe {
+            self.image_effect_suite_helper()
+                .clip_get_image(clip, time, region)
+        } {
+            Ok(v) => v,
+            #[expect(non_upper_case_globals)]
+            Err(kOfxStatFailed) => return Ok(None),
+            Err(stat) => return Err(stat),
+        };
+
+        Ok(Some(unsafe {
+            ClipImageManaged::try_new(self, image_handle)
+        }?))
     }
 }
 
@@ -349,12 +374,12 @@ impl<'data> ClipImageManaged<'data> {
     unsafe fn try_new(
         shared_data_helper: &SharedDataHelper<'data>,
         image_handle: OfxPropertySetHandle,
-    ) -> Result<Option<Self>, OfxStatus> {
+    ) -> Result<Self, OfxStatus> {
         let s_prop = shared_data_helper.inner().property_suite;
 
         let data_ptr = unsafe { get_OfxImagePropData(s_prop, image_handle) }?;
         if data_ptr.is_null() {
-            return Ok(None);
+            return Err(kOfxStatFailed);
         }
 
         let n_comps = {
@@ -387,7 +412,7 @@ impl<'data> ClipImageManaged<'data> {
         let bounds = rect_i_from_array(&bounds);
         let pixel_aspect_ratio = unsafe { get_OfxImagePropPixelAspectRatio(s_prop, image_handle) }?;
 
-        Ok(Some(Self {
+        Ok(Self {
             image_effect_suite_helper: shared_data_helper.image_effect_suite_helper(),
             image_handle,
 
@@ -397,7 +422,7 @@ impl<'data> ClipImageManaged<'data> {
             bounds,
             pixel_aspect_ratio,
             data_ptr,
-        }))
+        })
     }
 
     /// ## Safety

@@ -604,16 +604,10 @@ fn action_render(
         [colour_r, colour_g, colour_b, colour_a]
     };
 
-    let Some(output_img_m) =
-        unsafe { data.make_clip_image_managed(instance_data.output_clip, time, None) }?
-    else {
-        return Err(kOfxStatFailed);
-    };
-    let Some(source_img_m) =
-        unsafe { data.make_clip_image_managed(instance_data.source_clip, time, None) }?
-    else {
-        return Err(kOfxStatFailed);
-    };
+    let output_img_m =
+        unsafe { data.make_clip_image_managed(instance_data.output_clip, time, None) }?;
+    let source_img_m =
+        unsafe { data.make_clip_image_managed(instance_data.source_clip, time, None) }?;
 
     #[allow(clippy::too_many_arguments)]
     fn inner(

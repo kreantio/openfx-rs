@@ -390,16 +390,8 @@ fn action_render(
     let apply_to_alpha =
         unsafe { s_param.param_get_value_at_time_int(my_data.apply_to_alpha_param, time) }? != 0;
 
-    let Some(output_img_m) =
-        unsafe { data.make_clip_image_managed(my_data.output_clip, time, None) }?
-    else {
-        return Err(kOfxStatFailed);
-    };
-    let Some(source_img_m) =
-        unsafe { data.make_clip_image_managed(my_data.source_clip, time, None) }?
-    else {
-        return Err(kOfxStatFailed);
-    };
+    let output_img_m = unsafe { data.make_clip_image_managed(my_data.output_clip, time, None) }?;
+    let source_img_m = unsafe { data.make_clip_image_managed(my_data.source_clip, time, None) }?;
 
     fn inner(
         gain: f64,
