@@ -82,8 +82,8 @@ fn generate_bindings_for_c_headers_inner(opts: Options) -> Result<(), Box<dyn st
 
     gen_low_statuses(&opts.output_folder_c, statuses)?;
     gen_low_enums_from_c(&opts.output_folder_c, c_enums)?;
-    gen_low_suites(&opts.config, &opts.output_folder_c, suites)?;
-    gen_low_objects(
+    gen_low_plugin_suites(&opts.config, &opts.output_folder_c, suites)?;
+    gen_low_plugin_objects(
         &opts.config,
         &opts.output_folder_c,
         direct_handle_usages_in_suite_functions,
@@ -285,7 +285,7 @@ fn gen_low_enums_from_c(
     Ok(())
 }
 
-fn gen_low_suites(
+fn gen_low_plugin_suites(
     confg: &CodegenConfig,
     output_folder_c: &Path,
     suites: HashMap<String, HashSet<String>>,
@@ -371,7 +371,7 @@ fn gen_low_suites(
     Ok(())
 }
 
-fn gen_low_objects(
+fn gen_low_plugin_objects(
     confg: &CodegenConfig,
     output_folder_c: &Path,
     direct_handle_usages_in_suite_functions: HashMap<String, HashSet<(String, String)>>,
