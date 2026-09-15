@@ -25,7 +25,7 @@ pub fn make_suite_struct(tokens: TokenStream) -> TokenStream {
         /// section of [`crate::low_plugin::Host`], which has the same requirements.
         #[derive(Clone, Copy)]
         pub struct #simple_ident(::std::ptr::NonNull<crate::sys_umbrella::#full_ident>);
-        impl crate::low_plugin::HostOwned for #simple_ident {}
+        impl crate::low_plugin::LifetimePlugin for #simple_ident {}
         unsafe impl Sync for #simple_ident {}
         impl #simple_ident {
             pub fn try_from(ptr: *const ::std::os::raw::c_void) -> Option<Self> {
