@@ -352,14 +352,8 @@ fn action_render(
     let output_clip = unsafe { image_effect_suite_helper.clip_get_handle(instance, c"Output") }?;
     let source_clip = unsafe { image_effect_suite_helper.clip_get_handle(instance, c"Source") }?;
 
-    let Some(output_img_m) = unsafe { data.make_clip_image_managed(output_clip, time, None) }?
-    else {
-        return Err(kOfxStatFailed);
-    };
-    let Some(source_img_m) = unsafe { data.make_clip_image_managed(source_clip, time, None) }?
-    else {
-        return Err(kOfxStatFailed);
-    };
+    let output_img_m = unsafe { data.make_clip_image_managed(output_clip, time, None) }?;
+    let source_img_m = unsafe { data.make_clip_image_managed(source_clip, time, None) }?;
 
     fn inner(
         data: &SharedDataHelper,

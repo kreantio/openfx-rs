@@ -2,10 +2,8 @@ use std::ffi::c_int;
 
 use openfx::{
     low::Status,
-    sys::{
-        generic::core::{OfxRectD, OfxRectI},
-        image_effect_v1::image_effect::OfxImageEffectHandle,
-    },
+    low_plugin::objects::ImageEffectInstance,
+    sys::generic::core::{OfxRectD, OfxRectI},
 };
 
 use crate::helpers::shared_data::{ClipImageManaged, SharedData};
@@ -21,7 +19,7 @@ pub fn pixel_processing<T>(
     colour: [f64; 4],
     render_scale: [f64; 2],
     data: &SharedData,
-    instance: OfxImageEffectHandle,
+    instance: ImageEffectInstance,
     source_img: ClipImageManaged,
     output_img: ClipImageManaged,
     render_window: OfxRectI,
@@ -44,7 +42,7 @@ where
                 data.image_effect_suite
                     .sys_ref()
                     .abort
-                    .is_some_and(|abort| abort(instance) != 0)
+                    .is_some_and(|abort| abort(instance.sys_handle()) != 0)
             }
         {
             return Ok(());

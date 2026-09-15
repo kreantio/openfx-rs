@@ -1,15 +1,8 @@
 use proc_macro::TokenStream;
 use quote::quote;
 
-/// ## Note
-///
-/// This was originally a declarative macro. While migrating
-/// `ofx-guide-example-plugins-layer-low`, however, `rustc` reported that it
-/// could not find `sys` in numerous places. The issue may disappear once the
-/// migration is complete, but these errors obscured genuine errors and made
-/// debugging difficult. It was therefore converted to a procedural macro to
-/// avoid macro expansion-order issues.
-pub fn make_suite_struct(tokens: TokenStream) -> TokenStream {
+/// This is copied from [`super::make_suite_struct::make_suite_struct`].
+pub fn make_object_struct(tokens: TokenStream) -> TokenStream {
     let Input {
         simple_ident,
         full_ident,
@@ -24,26 +17,22 @@ pub fn make_suite_struct(tokens: TokenStream) -> TokenStream {
         /// This type is not `Send`, but it is `Sync`. For details, see the Safety
         /// section of [`crate::low_plugin::Host`], which has the same requirements.
         #[derive(Clone, Copy)]
-        pub struct #simple_ident(::std::ptr::NonNull<crate::sys_umbrella::#full_ident>);
-        impl crate::low_plugin::LifetimePlugin for #simple_ident {}
+        pub struct #simple_ident(crate::sys_umbrella::#full_ident);
         unsafe impl Sync for #simple_ident {}
         impl #simple_ident {
-            pub fn try_from(ptr: *const ::std::os::raw::c_void) -> Option<Self> {
-                ::std::ptr::NonNull::new(ptr as *mut crate::sys_umbrella::#full_ident).map(|v| Self(v))
+            pub fn from_sys_handle(sys_handle: crate::sys_umbrella::#full_ident) -> Self {
+                Self(sys_handle)
             }
-            pub fn sys(&self) -> ::std::ptr::NonNull<crate::sys_umbrella::#full_ident> {
+            pub fn from_sys_ptr(sys_ptr: *const ::std::os::raw::c_void) -> Self {
+                Self(sys_ptr as crate::sys_umbrella::#full_ident)
+            }
+            pub fn sys_handle(&self) -> crate::sys_umbrella::#full_ident {
                 self.0
             }
-            pub fn sys_ptr(&self) -> *const crate::sys_umbrella::#full_ident {
-                self.0.as_ptr()
-            }
-            pub unsafe fn sys_ref(&self) -> &crate::sys_umbrella::#full_ident {
-                unsafe { self.0.as_ref() }
-            }
         }
-        impl From<&#simple_ident> for *const crate::sys_umbrella::#full_ident {
+        impl From<&#simple_ident> for crate::sys_umbrella::#full_ident {
             fn from(value: &#simple_ident) -> Self {
-                value.sys_ptr()
+                value.sys_handle()
             }
         }
 

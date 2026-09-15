@@ -21,19 +21,17 @@ use openfx::{
             ActionDescribeInContextIn, ActionGetRegionOfDefinitionIn,
             ActionGetRegionOfDefinitionOut, ActionIsIdentityIn, ActionRenderIn, ImageEffectAction,
         },
+        objects::{ImageEffectDescriptor, ImageEffectInstance},
         property_sets::{
-            EffectDescriptorPropertySet, EffectInstancePropertySet, ParamDouble1DPropertySet,
-            ParamsBytePropertySet, ParamsDouble2D3DPropertySet, ParamsNormalizedSpatialPropertySet,
+            ParamBytePropertySet, ParamDouble1DPropertySet, ParamDouble2D3DPropertySet,
+            ParamNormalizedSpatialPropertySet,
         },
     },
     sys::{
         generic::core::{OfxPropertySetHandle, kOfxStatFailed},
-        image_effect_v1::{
-            image_effect::{OfxImageClipHandle, OfxImageEffectHandle},
-            param::{
-                OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble, kOfxParamTypeDouble2D,
-                kOfxParamTypeRGBA,
-            },
+        image_effect_v1::param::{
+            OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble, kOfxParamTypeDouble2D,
+            kOfxParamTypeRGBA,
         },
     },
     sys_helpers::{
@@ -47,7 +45,10 @@ use processing::{pixel_processing, rect_d_to_array, rect_i_from_array};
 
 use crate::{
     definitions::{PLUGIN_5_CIRCLE_IDENTIFIER, PLUGIN_5_CIRCLE_LABEL, PLUGINS_GROUPING},
-    helpers::shared_data::{BitDepth, GuaranteeSend, SharedData, param_get_value_at_time},
+    helpers::shared_data::{
+        BitDepth, ClipImageManaged, GuaranteeSend, GuaranteeSendClipInInstance, SharedData,
+        param_get_value_at_time,
+    },
 };
 
 static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(None);
@@ -59,9 +60,9 @@ struct AdditionalSharedData {
     host_supports_multi_res: bool,
 }
 
-struct InstanceData {
-    source_clip: OfxImageClipHandle,
-    output_clip: OfxImageClipHandle,
+struct MyInstanceData {
+    source_clip: GuaranteeSendClipInInstance,
+    output_clip: GuaranteeSendClipInInstance,
 
     radius_param: OfxParamHandle,
     centre_param: OfxParamHandle,
@@ -100,39 +101,25 @@ impl Plugin for PluginExampleCircle {
         match action {
             ImageEffectAction::Load { .. } => action_load(),
             ImageEffectAction::Unload { .. } => action_unload(),
-            ImageEffectAction::Describe { sys_handle, .. } => {
-                action_describe(sys_handle as OfxImageEffectHandle)
-            }
+            ImageEffectAction::Describe { handle, .. } => action_describe(handle),
             ImageEffectAction::DescribeInContext {
-                sys_handle,
-                in_args,
-                ..
-            } => action_describe_in_context(sys_handle as OfxImageEffectHandle, in_args),
-            ImageEffectAction::CreateInstance { sys_handle, .. } => {
-                action_create_instance(sys_handle as OfxImageEffectHandle)
-            }
-            ImageEffectAction::DestroyInstance { sys_handle, .. } => {
-                action_destroy_instance(sys_handle as OfxImageEffectHandle)
-            }
+                handle, in_args, ..
+            } => action_describe_in_context(handle, in_args),
+            ImageEffectAction::CreateInstance { handle, .. } => action_create_instance(handle),
+            ImageEffectAction::DestroyInstance { handle, .. } => action_destroy_instance(handle),
             ImageEffectAction::IsIdentity {
-                sys_handle,
+                handle,
                 in_args,
                 sys_out_args,
-            } => action_is_identity(sys_handle as OfxImageEffectHandle, in_args, sys_out_args),
+            } => action_is_identity(handle, in_args, sys_out_args),
             ImageEffectAction::GetRegionOfDefinition {
-                sys_handle,
+                handle,
                 in_args,
                 out_args,
-            } => action_get_region_of_definition(
-                sys_handle as OfxImageEffectHandle,
-                in_args,
-                out_args,
-            ),
+            } => action_get_region_of_definition(handle, in_args, out_args),
             ImageEffectAction::Render {
-                sys_handle,
-                in_args,
-                ..
-            } => action_render(sys_handle as OfxImageEffectHandle, in_args),
+                handle, in_args, ..
+            } => action_render(handle, in_args),
             _ => Err(Status::ReplyDefault),
         }
     }
@@ -188,13 +175,13 @@ fn action_unload() -> openfx::low::Result<()> {
     }
 }
 
-fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> {
+fn action_describe(descriptor: ImageEffectDescriptor) -> openfx::low::Result<()> {
     let (data, _additional) = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
+    let s_ifx = &data.image_effect_suite.0;
 
-    let props = unsafe { data.get_property_set_from_image_effect(descriptor) }?;
-    let props = EffectDescriptorPropertySet::from(props);
+    let props = unsafe { descriptor.get_property_set(s_ifx) }?;
 
     unsafe {
         props.set_label(s_prop, Some(PLUGIN_5_CIRCLE_LABEL))?;
@@ -222,13 +209,13 @@ fn action_describe(descriptor: OfxImageEffectHandle) -> openfx::low::Result<()> 
 }
 
 fn action_describe_in_context(
-    descriptor: OfxImageEffectHandle,
+    descriptor: ImageEffectDescriptor,
     in_args: ActionDescribeInContextIn,
 ) -> openfx::low::Result<()> {
     let (data, additional) = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
-    let s_ifx = data.image_effect_suite_helper();
+    let s_ifx = &data.image_effect_suite.0;
 
     let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
     if context != ImageEffectPropContext::Filter {
@@ -236,7 +223,7 @@ fn action_describe_in_context(
     }
 
     for name in [c"Output", c"Source"] {
-        let props = unsafe { s_ifx.clip_define(descriptor, name) }?;
+        let props = unsafe { descriptor.clip_define(s_ifx, name) }?;
 
         (unsafe {
             props.set_image_effect_supported_components(
@@ -250,12 +237,12 @@ fn action_describe_in_context(
         })?;
     }
 
-    let param_set = unsafe { data.make_param_set_helper_for_image_effect(descriptor) }?;
+    let param_set = unsafe { data.make_param_set_helper_for_image_effect_descriptor(&descriptor) }?;
 
     {
         let param_props = param_set.param_define(kOfxParamTypeDouble, RADIUS_PARAM_NAME)?;
         let param_props_d = ParamDouble1DPropertySet::from(param_props);
-        let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
+        let param_props_ns = ParamNormalizedSpatialPropertySet::from(param_props);
 
         unsafe {
             param_props_d.set_param_double_type(s_prop, ParamPropDoubleType::X)?;
@@ -279,8 +266,8 @@ fn action_describe_in_context(
 
     {
         let param_props = param_set.param_define(kOfxParamTypeDouble2D, CENTRE_PARAM_NAME)?;
-        let param_props_d = ParamsDouble2D3DPropertySet::from(param_props);
-        let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
+        let param_props_d = ParamDouble2D3DPropertySet::from(param_props);
+        let param_props_ns = ParamNormalizedSpatialPropertySet::from(param_props);
 
         unsafe {
             param_props_d.set_param_double_type(s_prop, ParamPropDoubleType::XYAbsolute)?;
@@ -298,7 +285,7 @@ fn action_describe_in_context(
 
     {
         let param_props = param_set.param_define(kOfxParamTypeRGBA, COLOUR_PARAM_NAME)?;
-        let param_props_d = ParamsDouble2D3DPropertySet::from(param_props);
+        let param_props_d = ParamDouble2D3DPropertySet::from(param_props);
 
         unsafe {
             param_props_d.set_param_default_double(s_prop, &[1.0, 1.0, 1.0, 0.5])?;
@@ -309,7 +296,7 @@ fn action_describe_in_context(
 
     if additional.host_supports_multi_res {
         let param_props = param_set.param_define(kOfxParamTypeBoolean, GROW_ROD_PARAM_NAME)?;
-        let param_props = ParamsBytePropertySet::from(param_props);
+        let param_props = ParamBytePropertySet::from(param_props);
 
         unsafe {
             param_props.set_param_default_int(s_prop, &[0])?;
@@ -324,18 +311,18 @@ fn action_describe_in_context(
     Ok(())
 }
 
-fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
+fn action_create_instance(instance: ImageEffectInstance) -> openfx::low::Result<()> {
     let (data, additional) = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
-    let s_ifx = data.image_effect_suite_helper();
+    let s_ifx = &data.image_effect_suite.0;
 
-    let instance_props = unsafe { data.get_property_set_from_image_effect(instance) }?;
+    let instance_props = unsafe { instance.get_property_set(s_ifx) }?;
 
-    let source_clip = unsafe { s_ifx.clip_get_handle(instance, c"Source") }?;
-    let output_clip = unsafe { s_ifx.clip_get_handle(instance, c"Output") }?;
+    let source_clip = unsafe { instance.clip_get_clip_handle(s_ifx, c"Source") }?;
+    let output_clip = unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }?;
 
-    let param_set = unsafe { data.make_param_set_helper_for_image_effect(instance) }?;
+    let param_set = unsafe { data.make_param_set_helper_for_image_effect_instance(&instance) }?;
     let radius_param = param_set.param_get_handle(RADIUS_PARAM_NAME)?;
     let centre_param = param_set.param_get_handle(CENTRE_PARAM_NAME)?;
     let colour_param = param_set.param_get_handle(COLOUR_PARAM_NAME)?;
@@ -345,46 +332,48 @@ fn action_create_instance(instance: OfxImageEffectHandle) -> openfx::low::Result
         None
     };
 
-    let instance_data = InstanceData {
-        source_clip,
-        output_clip,
+    let my_data = MyInstanceData {
+        source_clip: GuaranteeSendClipInInstance(source_clip),
+        output_clip: GuaranteeSendClipInInstance(output_clip),
         radius_param,
         centre_param,
         colour_param,
         grow_rod_param,
     };
-    let instance_data_ptr = Box::into_raw(Box::new(instance_data)) as *mut c_void;
+    let my_data_ptr = Box::into_raw(Box::new(my_data)) as *mut c_void;
 
     // SAFETY: the pointee is kept alive by `Box::into_raw` until it is
     // reclaimed with `Box::from_raw` in `action_destroy_instance`.
-    match unsafe { set_OfxPropInstanceData(s_prop.sys_ptr(), instance_props, instance_data_ptr) } {
+    match unsafe {
+        set_OfxPropInstanceData(s_prop.sys_ptr(), instance_props.sys_handle(), my_data_ptr)
+    } {
         Ok(_) => Ok(()),
         Err(err) => {
-            drop(unsafe { Box::from_raw(instance_data_ptr as *mut InstanceData) });
+            drop(unsafe { Box::from_raw(my_data_ptr as *mut MyInstanceData) });
             Err(Status::from(err))
         }
     }
 }
 
-fn action_destroy_instance(instance: OfxImageEffectHandle) -> openfx::low::Result<()> {
+fn action_destroy_instance(instance: ImageEffectInstance) -> openfx::low::Result<()> {
     let (data, _additional) = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
+    let s_ifx = &data.image_effect_suite.0;
 
-    let props = unsafe { data.get_property_set_from_image_effect(instance) }?;
-    let props = EffectInstancePropertySet::from(props);
+    let props = unsafe { instance.get_property_set(s_ifx) }?;
 
     let Some(my_data_ptr) = (unsafe { props.get_instance_data(s_prop)? }) else {
         return Err(Status::Failed);
     };
 
-    drop(unsafe { Box::from_raw(my_data_ptr.as_ptr() as *mut InstanceData) });
+    drop(unsafe { Box::from_raw(my_data_ptr.as_ptr() as *mut MyInstanceData) });
 
     Ok(())
 }
 
 fn action_get_region_of_definition(
-    effect: OfxImageEffectHandle,
+    effect: ImageEffectInstance,
     in_args: ActionGetRegionOfDefinitionIn,
     out_args: ActionGetRegionOfDefinitionOut,
 ) -> openfx::low::Result<()> {
@@ -394,15 +383,20 @@ fn action_get_region_of_definition(
         return Err(Status::ReplyDefault);
     }
 
-    let instance_data = unsafe { data.get_instance_data::<InstanceData>(effect)? };
-
     let s_prop = &data.property_suite.0;
-    let s_ifx = data.image_effect_suite_helper();
+    let s_ifx = &data.image_effect_suite.0;
     let s_param = data.parameter_suite_helper();
+
+    let instance_props = unsafe { effect.get_property_set(s_ifx) }?;
 
     let time = unsafe { in_args.get_time(s_prop) }?;
 
-    let growing_rod = if let Some(grow_rod_param) = instance_data.grow_rod_param {
+    let Some(my_data_ptr) = (unsafe { instance_props.get_instance_data(s_prop)? }) else {
+        return Err(Status::Failed);
+    };
+    let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
+
+    let growing_rod = if let Some(grow_rod_param) = my_data.grow_rod_param {
         (unsafe { s_param.param_get_value_at_time_int(grow_rod_param, time) })? != 0
     } else {
         false
@@ -412,19 +406,23 @@ fn action_get_region_of_definition(
         return Err(Status::ReplyDefault);
     }
 
-    let radius =
-        unsafe { s_param.param_get_value_at_time_double(instance_data.radius_param, time) }?;
+    let radius = unsafe { s_param.param_get_value_at_time_double(my_data.radius_param, time) }?;
     let mut centre_x = 0.0;
     let mut centre_y = 0.0;
     param_get_value_at_time!(
         s_param,
-        instance_data.centre_param,
+        my_data.centre_param,
         time,
         &mut centre_x,
         &mut centre_y,
     );
 
-    let mut rod = unsafe { s_ifx.clip_get_region_of_definition(instance_data.source_clip, time) }?;
+    let mut rod = unsafe {
+        my_data
+            .source_clip
+            .0
+            .clip_get_region_of_definition(s_ifx, time)
+    }?;
 
     rod.x1 = f64::min(rod.x1, centre_x - radius);
     rod.y1 = f64::min(rod.y1, centre_y - radius);
@@ -437,27 +435,31 @@ fn action_get_region_of_definition(
 }
 
 fn action_is_identity(
-    effect: OfxImageEffectHandle,
+    effect: ImageEffectInstance,
     in_args: ActionIsIdentityIn,
     out_args: OfxPropertySetHandle,
 ) -> openfx::low::Result<()> {
     let (data, _additional) = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
-    let s_ifx = data.image_effect_suite_helper();
+    let s_ifx = &data.image_effect_suite.0;
     let s_param = data.parameter_suite_helper();
 
-    let instance_data = unsafe { data.get_instance_data::<InstanceData>(effect)? };
+    let instance_props = unsafe { effect.get_property_set(s_ifx) }?;
 
     let time = unsafe { in_args.get_time(s_prop) }?;
 
-    let radius =
-        unsafe { s_param.param_get_value_at_time_double(instance_data.radius_param, time) }?;
+    let Some(my_data_ptr) = (unsafe { instance_props.get_instance_data(s_prop)? }) else {
+        return Err(Status::Failed);
+    };
+    let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
+
+    let radius = unsafe { s_param.param_get_value_at_time_double(my_data.radius_param, time) }?;
 
     let is_identity = if radius < 0.0001 {
         true
     } else {
-        let growing_rod = if let Some(grow_rod_param) = instance_data.grow_rod_param {
+        let growing_rod = if let Some(grow_rod_param) = my_data.grow_rod_param {
             (unsafe { s_param.param_get_value_at_time_int(grow_rod_param, time) })? != 0
         } else {
             false
@@ -466,14 +468,18 @@ fn action_is_identity(
         if growing_rod {
             false
         } else {
-            let bounds =
-                unsafe { s_ifx.clip_get_region_of_definition(instance_data.source_clip, time) }?;
+            let bounds = unsafe {
+                my_data
+                    .source_clip
+                    .0
+                    .clip_get_region_of_definition(s_ifx, time)
+            }?;
 
             let mut centre_x = 0.0;
             let mut centre_y = 0.0;
             param_get_value_at_time!(
                 s_param,
-                instance_data.centre_param,
+                my_data.centre_param,
                 time,
                 &mut centre_x,
                 &mut centre_y,
@@ -495,13 +501,16 @@ fn action_is_identity(
 }
 
 fn action_render(
-    instance: OfxImageEffectHandle,
+    instance: ImageEffectInstance,
     in_args: ActionRenderIn,
 ) -> openfx::low::Result<()> {
     let (data, _additional) = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
+    let s_ifx = &data.image_effect_suite.0;
     let s_param = data.parameter_suite_helper();
+
+    let instance_props = unsafe { instance.get_property_set(s_ifx) }?;
 
     let time = unsafe { in_args.get_time(s_prop) }?;
     let render_window =
@@ -510,16 +519,18 @@ fn action_render(
     let render_scale =
         unsafe { get_OfxImageEffectPropRenderScale(s_prop.sys_ptr(), in_args.sys_handle()) }?;
 
-    let instance_data = unsafe { data.get_instance_data::<InstanceData>(instance)? };
+    let Some(my_data_ptr) = (unsafe { instance_props.get_instance_data(s_prop)? }) else {
+        return Err(Status::Failed);
+    };
+    let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
-    let radius =
-        unsafe { s_param.param_get_value_at_time_double(instance_data.radius_param, time) }?;
+    let radius = unsafe { s_param.param_get_value_at_time_double(my_data.radius_param, time) }?;
     let centre = {
         let mut centre_x = 0.0;
         let mut centre_y = 0.0;
         param_get_value_at_time!(
             s_param,
-            instance_data.centre_param,
+            my_data.centre_param,
             time,
             &mut centre_x,
             &mut centre_y,
@@ -533,7 +544,7 @@ fn action_render(
         let mut colour_a = 0.0;
         param_get_value_at_time!(
             s_param,
-            instance_data.colour_param,
+            my_data.colour_param,
             time,
             &mut colour_r,
             &mut colour_g,
@@ -543,16 +554,11 @@ fn action_render(
         [colour_r, colour_g, colour_b, colour_a]
     };
 
-    let Some(output_img_m) =
-        unsafe { data.make_clip_image_managed(instance_data.output_clip, time, None) }?
-    else {
-        return Err(Status::Failed);
-    };
-    let Some(source_img_m) =
-        unsafe { data.make_clip_image_managed(instance_data.source_clip, time, None) }?
-    else {
-        return Err(Status::Failed);
-    };
+    let output_img = unsafe { my_data.output_clip.0.clip_get_image(s_ifx, time, None) }?;
+    let source_img = unsafe { my_data.source_clip.0.clip_get_image(s_ifx, time, None) }?;
+
+    let output_img_m = unsafe { ClipImageManaged::try_new(&data, output_img) }?;
+    let source_img_m = unsafe { ClipImageManaged::try_new(&data, source_img) }?;
 
     match output_img_m.pixel_depth() {
         BitDepth::Byte => pixel_processing(
