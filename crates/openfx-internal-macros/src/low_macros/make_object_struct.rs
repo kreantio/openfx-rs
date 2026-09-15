@@ -18,7 +18,6 @@ pub fn make_object_struct(tokens: TokenStream) -> TokenStream {
         /// section of [`crate::low_plugin::Host`], which has the same requirements.
         #[derive(Clone, Copy)]
         pub struct #simple_ident(crate::sys_umbrella::#full_ident);
-        impl crate::low_plugin::HostOwned for #simple_ident {}
         unsafe impl Sync for #simple_ident {}
         impl #simple_ident {
             pub fn from_sys_handle(sys_handle: crate::sys_umbrella::#full_ident) -> Self {

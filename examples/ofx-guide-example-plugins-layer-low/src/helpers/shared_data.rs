@@ -8,7 +8,7 @@ use std::{
 use openfx::{
     low::{self, Status},
     low_plugin::{
-        Host, HostOwned,
+        Host, LifetimePlugin,
         objects::{ImageEffectDescriptor, ImageEffectInstance},
         property_sets::{
             ImageClipDescriptorPropertySet, ImageEffectDescriptorPropertySet,
@@ -31,13 +31,13 @@ use openfx::{
 use super::internal_utils::rect_i_from_array;
 
 #[derive(Clone, Copy)]
-pub struct GuaranteeSend<T: HostOwned>(pub T);
+pub struct GuaranteeSend<T: LifetimePlugin>(pub T);
 /// ## Safety
 ///
 /// This plugin does not spawn threads, so the host exclusively controls its
 /// lifecycle.
-unsafe impl<T: HostOwned> Send for GuaranteeSend<T> {}
-impl<T: HostOwned> Deref for GuaranteeSend<T> {
+unsafe impl<T: LifetimePlugin> Send for GuaranteeSend<T> {}
+impl<T: LifetimePlugin> Deref for GuaranteeSend<T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {

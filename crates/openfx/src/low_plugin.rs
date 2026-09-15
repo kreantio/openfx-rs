@@ -59,7 +59,9 @@ impl<T: Plugin> crate::sys_helpers::image_effect_v1::Plugin for T {
     }
 }
 
-pub trait HostOwned {}
+/// Objects passed to a plugin whose lifetime is at least as long as the
+/// plugin's lifetime (`kOfxActionLoad` -> `kOfxActionUnload`).
+pub trait LifetimePlugin {}
 
 /// ## Safety
 ///
@@ -70,8 +72,8 @@ pub trait HostOwned {}
 /// expected by the host, they may create a wrapper type that implements `Send`:
 ///
 /// ```rs,ignore
-/// struct GuaranteeSend<T: HostOwned>(T);
-/// unsafe impl<T: HostOwned> Send for GuaranteeSend<T> {}
+/// struct GuaranteeSend<T: LifetimePlugin>(T);
+/// unsafe impl<T: LifetimePlugin> Send for GuaranteeSend<T> {}
 /// ```
 ///
 /// ### On `Sync`
@@ -91,7 +93,7 @@ pub struct Host {
     host: ImageEffectHostDescriptorPropertySet,
 }
 
-impl HostOwned for Host {}
+impl LifetimePlugin for Host {}
 
 unsafe impl Sync for Host {}
 
