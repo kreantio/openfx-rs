@@ -9,29 +9,21 @@
 >
 > This crate is in the early stages of development:
 >
-> - Its API is expected to change significantly.
+> - Its API is expected to change.
 > - At present, only `openfx::{sys, sys_helpers}` is fully implemented.
->   `openfx::{low, low_plugin}` is still under development, and the remaining
->   layers have not yet been implemented.
+>   `openfx::{low, low_plugin}` is still under development.
 >
 > Although `openfx::{low, low_plugin}` already provides some functionality, it
 > is not currently recommended for use.
 
-This crate provides bindings for the OpenFX API in 3 abstraction layers:
+This crate provides bindings for the OpenFX API in 2 abstraction layers:
 
-- layer `sys` (`openfx::*::sys`): raw low-level bindings generated from the
-  OpenFX C headers.
-- layer `low_{plugin,host}` (`openfx::*::{low_plugin,low_host}`): unsafe
-  low-level bindings built on top of the `sys` bindings, where types of values
-  from the `sys` bindings are converted to stronger types generated from the
-  official C++ bindings (`$OFX_REPO/openfx-cpp/include`) with runtime overhead.
-- layer `high_{plugin,host}` (`openfx::*::{high_plugin,high_host}`): (generally)
-  safe and rust-idiomatic high-level bindings built on top of the `low_*`
-  bindings. There definitely is some runtime overhead.
-
-The first two layers are just building blocks for the layer `high_*`. Although
-you can use them directly, it is recommended to use the `high_*` layer bindings
-for most use cases.
+- layer `sys` (`openfx::sys`): raw low-level bindings generated from the OpenFX
+  C headers.
+- layer `low` (`openfx::{low, low_plugin}`): unsafe low-level bindings built on
+  top of the `sys` bindings, where types of values from the `sys` bindings are
+  converted to stronger types generated from the official C++ bindings
+  (`$OFX_REPO/openfx-cpp/include`) with runtime overhead.
 
 ## for Plugin Development
 
@@ -207,66 +199,3 @@ impl Plugin for BasicExamplePlugin {
 ```
 
 </details>
-
-#### TODO: writing plugins in layer `high_plugin`
-
-<details open><summary>example code</summary>
-
-```rs
-use openfx::{
-    high_plugin::{Context, Plugin, PluginInstance, actions},
-    sys_helpers::generic::{PluginStruct, Plugins, export_plugins, plugin_struct},
-};
-
-// …
-
-struct MyPlugins;
-export_plugins!(MyPlugins);
-
-impl Plugins for MyPlugins {
-    fn plugins(_host: Option<*const OfxHost>) -> Vec<PluginStruct> {
-        vec![plugin_struct!(BasicExamplePlugin)]
-    }
-}
-
-struct BasicExamplePlugin;
-
-impl Plugin for BasicExamplePlugin {
-    const PLUGIN_IDENTIFIER: &'static str = "org.openeffects:BasicExamplePlugin";
-    const PLUGIN_VERSION_MAJOR: c_uint = 1;
-    const PLUGIN_VERSION_MINOR: c_uint = 0;
-    type Instance = BasicExamplePluginInstance;
-    fn describe(
-        ctx: &actions::describe::Context,
-        in_args: &actions::describe::InArgs,
-    ) -> actions::describe::Result {
-        todo!()
-    }
-    fn create_instance(
-        ctx: actions::create_instance::Context,
-    ) -> actions::create_instance::Result<Self::Instance> {
-        todo!()
-    }
-    // …
-}
-
-#[derive(Default)]
-struct BasicExamplePluginInstance {}
-
-impl PluginInstance for BasicExamplePluginInstance {
-    fn get_region_of_definition(
-        &self,
-        ctx: &actions::get_region_of_definition::Context,
-        in_args: &actions::get_region_of_definition::InArgs,
-    ) -> actions::get_region_of_definition::Result {
-        todo!()
-    }
-    // …
-}
-
-// …
-```
-
-</details>
-
-## TODO: for Host Development
