@@ -14,7 +14,7 @@ use crate::{
         },
         suites::{
             DrawSuiteV1, ImageEffectOpenGLRenderSuiteV1, ImageEffectSuiteV1, InteractSuiteV1,
-            MultiThreadSuiteV1, ParameterSuiteV1,
+            MessageSuiteV1Compatible, MessageSuiteV2, MultiThreadSuiteV1, ParameterSuiteV1,
         },
     },
     sys_umbrella::{
@@ -192,6 +192,56 @@ impl ImageEffectDescriptor {
     ) -> crate::low::Result<ImageEffectDescriptorPropertySet> {
         unsafe { image_effect_suite.get_descriptor_property_set(self) }
     }
+
+    /// ## SAFETY
+    ///
+    /// `self` and `message_suite_v1` must be valid.
+    pub unsafe fn message(
+        &self,
+        message_suite_v1: impl MessageSuiteV1Compatible,
+        message_type: &CStr,
+        message_id: Option<&CStr>,
+        message: &CStr,
+    ) -> crate::low::Result<()> {
+        unsafe {
+            message_suite_v1.message_with_image_effect_descriptor(
+                self,
+                message_type,
+                message_id,
+                message,
+            )
+        }
+    }
+
+    /// ## SAFETY
+    ///
+    /// `self` and `message_suite_v2` must be valid.
+    pub unsafe fn clear_persistent_message(
+        &self,
+        message_suite_v2: MessageSuiteV2,
+    ) -> crate::low::Result<()> {
+        unsafe { message_suite_v2.clear_persistent_message_with_image_effect_descriptor(self) }
+    }
+
+    /// ## SAFETY
+    ///
+    /// `self` and `message_suite_v2` must be valid.
+    pub unsafe fn set_persistent_message(
+        &self,
+        message_suite_v2: MessageSuiteV2,
+        message_type: &CStr,
+        message_id: Option<&CStr>,
+        message: &CStr,
+    ) -> crate::low::Result<()> {
+        unsafe {
+            message_suite_v2.set_persistent_message_with_image_effect_descriptor(
+                self,
+                message_type,
+                message_id,
+                message,
+            )
+        }
+    }
 }
 
 impl ImageEffectInstance {
@@ -253,6 +303,56 @@ impl ImageEffectInstance {
         n_bytes: usize,
     ) -> crate::low::Result<ImageMemory> {
         unsafe { image_effect_suite.image_memory_alloc(self, n_bytes) }
+    }
+
+    /// ## SAFETY
+    ///
+    /// `self` and `message_suite_v1` must be valid.
+    pub unsafe fn message(
+        &self,
+        message_suite_v1: impl MessageSuiteV1Compatible,
+        message_type: &CStr,
+        message_id: Option<&CStr>,
+        message: &CStr,
+    ) -> crate::low::Result<()> {
+        unsafe {
+            message_suite_v1.message_with_image_effect_instance(
+                self,
+                message_type,
+                message_id,
+                message,
+            )
+        }
+    }
+
+    /// ## SAFETY
+    ///
+    /// `self` and `message_suite_v2` must be valid.
+    pub unsafe fn clear_persistent_message(
+        &self,
+        message_suite_v2: MessageSuiteV2,
+    ) -> crate::low::Result<()> {
+        unsafe { message_suite_v2.clear_persistent_message_with_image_effect_instance(self) }
+    }
+
+    /// ## SAFETY
+    ///
+    /// `self` and `message_suite_v2` must be valid.
+    pub unsafe fn set_persistent_message(
+        &self,
+        message_suite_v2: MessageSuiteV2,
+        message_type: &CStr,
+        message_id: Option<&CStr>,
+        message: &CStr,
+    ) -> crate::low::Result<()> {
+        unsafe {
+            message_suite_v2.set_persistent_message_with_image_effect_instance(
+                self,
+                message_type,
+                message_id,
+                message,
+            )
+        }
     }
 }
 
@@ -384,7 +484,20 @@ impl ParamSetDescriptor {
         param_type: &CStr,
         name: &CStr,
     ) -> crate::low::Result<OfxPropertySetHandle> {
-        unsafe { parameter_suite.param_define(*self, param_type, name) }
+        unsafe { parameter_suite.param_define(self, param_type, name) }
+    }
+
+    /// ## SAFETY
+    ///
+    /// `self` and `parameter_suite` must be valid.
+    #[expect(unused)]
+    pub(crate) unsafe fn param_define_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        param_type: &CStr,
+        name: &CStr,
+    ) -> crate::low::Result<()> {
+        unsafe { parameter_suite.param_define_no_output(self, param_type, name) }
     }
 
     /// ## SAFETY
@@ -394,7 +507,7 @@ impl ParamSetDescriptor {
         &self,
         parameter_suite: &ParameterSuiteV1,
     ) -> crate::low::Result<ParamSetPropertySet> {
-        unsafe { parameter_suite.param_set_get_descriptor_property_set(*self) }
+        unsafe { parameter_suite.param_set_get_descriptor_property_set(self) }
     }
 }
 
@@ -407,7 +520,7 @@ impl ParamSetInstance {
         parameter_suite: &ParameterSuiteV1,
         name: &CStr,
     ) -> crate::low::Result<()> {
-        unsafe { parameter_suite.param_edit_begin(*self, name) }
+        unsafe { parameter_suite.param_edit_begin(self, name) }
     }
 
     /// ## SAFETY
@@ -417,7 +530,7 @@ impl ParamSetInstance {
         &self,
         parameter_suite: &ParameterSuiteV1,
     ) -> crate::low::Result<()> {
-        unsafe { parameter_suite.param_edit_end(*self) }
+        unsafe { parameter_suite.param_edit_end(self) }
     }
 
     /// ## SAFETY
@@ -428,7 +541,7 @@ impl ParamSetInstance {
         parameter_suite: &ParameterSuiteV1,
         name: &CStr,
     ) -> crate::low::Result<(OfxParamHandle, OfxPropertySetHandle)> {
-        unsafe { parameter_suite.param_get_handle(*self, name) }
+        unsafe { parameter_suite.param_get_handle(self, name) }
     }
 
     #[expect(unused)]
@@ -440,7 +553,7 @@ impl ParamSetInstance {
         parameter_suite: &ParameterSuiteV1,
         name: &CStr,
     ) -> crate::low::Result<OfxParamHandle> {
-        unsafe { parameter_suite.param_get_param_handle(*self, name) }
+        unsafe { parameter_suite.param_get_param_handle(self, name) }
     }
 
     /// ## SAFETY
@@ -450,6 +563,6 @@ impl ParamSetInstance {
         &self,
         parameter_suite: &ParameterSuiteV1,
     ) -> crate::low::Result<ParamSetPropertySet> {
-        unsafe { parameter_suite.param_set_get_instance_property_set(*self) }
+        unsafe { parameter_suite.param_set_get_instance_property_set(self) }
     }
 }

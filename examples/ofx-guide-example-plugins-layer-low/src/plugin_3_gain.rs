@@ -173,7 +173,7 @@ fn action_describe_in_context(
     }
 
     for name in [c"Output", c"Source"] {
-        let props = unsafe { s_ifx.clip_define(&descriptor, name) }?;
+        let props = unsafe { descriptor.clip_define(s_ifx, name) }?;
 
         (unsafe {
             props.set_image_effect_supported_components(
@@ -230,8 +230,8 @@ fn action_create_instance(instance: ImageEffectInstance) -> openfx::low::Result<
 
     let instance_props = unsafe { instance.get_property_set(s_ifx) }?;
 
-    let source_clip = unsafe { s_ifx.clip_get_clip_handle(&instance, c"Source") }?;
-    let output_clip = unsafe { s_ifx.clip_get_clip_handle(&instance, c"Output") }?;
+    let source_clip = unsafe { instance.clip_get_clip_handle(s_ifx, c"Source") }?;
+    let output_clip = unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }?;
 
     let param_set = unsafe { data.make_param_set_helper_for_image_effect_instance(&instance) }?;
     let gain_param = param_set.param_get_handle(GAIN_PARAM_NAME)?;
