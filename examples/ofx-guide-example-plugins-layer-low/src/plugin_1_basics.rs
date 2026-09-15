@@ -94,7 +94,7 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> openfx::low::Result<()>
 
     let s_prop = &data.property_suite.0;
 
-    let props = unsafe { data.get_property_set_from_image_effect_descriptor(&descriptor) }?;
+    let props = unsafe { descriptor.get_property_set(&data.image_effect_suite.0) }?;
 
     unsafe {
         props.set_label(s_prop, Some(PLUGIN_1_BASICS_LABEL))?;
@@ -119,14 +119,14 @@ fn action_describe_in_context(
     };
 
     let s_prop = &data.property_suite.0;
-    let s_ifx = data.image_effect_suite_helper();
+    let s_ifx = &data.image_effect_suite.0;
 
     let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
     if context != ImageEffectPropContext::Filter {
         return Err(Status::ErrUnsupported);
     }
 
-    let props = unsafe { s_ifx.clip_define(&descriptor, c"Output") }?;
+    let props = unsafe { descriptor.clip_define(s_ifx, c"Output") }?;
     (unsafe {
         props.set_image_effect_supported_components(
             s_prop,
@@ -137,7 +137,7 @@ fn action_describe_in_context(
         )
     })?;
 
-    let props = unsafe { s_ifx.clip_define(&descriptor, c"Source") }?;
+    let props = unsafe { descriptor.clip_define(s_ifx, c"Source") }?;
     (unsafe {
         props.set_image_effect_supported_components(
             s_prop,
@@ -159,8 +159,9 @@ fn action_create_instance(instance: ImageEffectInstance) -> openfx::low::Result<
     };
 
     let s_prop = &data.property_suite.0;
+    let s_ifx = &data.image_effect_suite.0;
 
-    let props = unsafe { data.get_property_set_from_image_effect_instance(&instance) }?;
+    let props = unsafe { instance.get_property_set(s_ifx) }?;
 
     let my_string = Box::new(String::from(
         "This is random instance data that could be anything you want.",
@@ -185,8 +186,9 @@ fn action_destroy_instance(instance: ImageEffectInstance) -> openfx::low::Result
     };
 
     let s_prop = &data.property_suite.0;
+    let s_ifx = &data.image_effect_suite.0;
 
-    let props = unsafe { data.get_property_set_from_image_effect_instance(&instance) }?;
+    let props = unsafe { instance.get_property_set(s_ifx) }?;
 
     let my_string =
         unsafe { props.get_instance_data(s_prop) }?.expect("Instance data should not be null");

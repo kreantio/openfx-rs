@@ -24,10 +24,7 @@ use openfx::{
     },
     sys::{
         generic::core::OfxPropertySetHandle,
-        image_effect_v1::{
-            image_effect::OfxImageClipHandle,
-            param::{OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble},
-        },
+        image_effect_v1::param::{OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble},
     },
     sys_helpers::{
         generic::properties::{set_OfxPropInstanceData, set_OfxPropName},
@@ -39,15 +36,17 @@ use processing::{pixel_processing, rect_i_from_array};
 
 use crate::{
     definitions::{PLUGIN_3_GAIN_IDENTIFIER, PLUGIN_3_GAIN_LABEL, PLUGINS_GROUPING},
-    helpers::shared_data::{BitDepth, GuaranteeSend, SharedData},
+    helpers::shared_data::{
+        BitDepth, ClipImageManaged, GuaranteeSend, GuaranteeSendClipInInstance, SharedData,
+    },
 };
 
 static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(None);
 static SHARED_DATA: Mutex<Option<SharedData>> = Mutex::new(None);
 
 struct MyInstanceData {
-    source_clip: OfxImageClipHandle,
-    output_clip: OfxImageClipHandle,
+    source_clip: GuaranteeSendClipInInstance,
+    output_clip: GuaranteeSendClipInInstance,
 
     gain_param: OfxParamHandle,
     apply_to_alpha_param: OfxParamHandle,
@@ -130,8 +129,9 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> openfx::low::Result<()>
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
+    let s_ifx = &data.image_effect_suite.0;
 
-    let props = unsafe { data.get_property_set_from_image_effect_descriptor(&descriptor) }?;
+    let props = unsafe { descriptor.get_property_set(s_ifx) }?;
 
     unsafe {
         props.set_label(s_prop, Some(PLUGIN_3_GAIN_LABEL))?;
@@ -165,7 +165,7 @@ fn action_describe_in_context(
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
-    let s_ifx = data.image_effect_suite_helper();
+    let s_ifx = &data.image_effect_suite.0;
 
     let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
     if context != ImageEffectPropContext::Filter {
@@ -226,20 +226,20 @@ fn action_create_instance(instance: ImageEffectInstance) -> openfx::low::Result<
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
-    let s_ifx = data.image_effect_suite_helper();
+    let s_ifx = &data.image_effect_suite.0;
 
-    let instance_props = unsafe { data.get_property_set_from_image_effect_instance(&instance) }?;
+    let instance_props = unsafe { instance.get_property_set(s_ifx) }?;
 
-    let source_clip = unsafe { s_ifx.clip_get_handle(&instance, c"Source") }?;
-    let output_clip = unsafe { s_ifx.clip_get_handle(&instance, c"Output") }?;
+    let source_clip = unsafe { s_ifx.clip_get_clip_handle(&instance, c"Source") }?;
+    let output_clip = unsafe { s_ifx.clip_get_clip_handle(&instance, c"Output") }?;
 
     let param_set = unsafe { data.make_param_set_helper_for_image_effect_instance(&instance) }?;
     let gain_param = param_set.param_get_handle(GAIN_PARAM_NAME)?;
     let apply_to_alpha_param = param_set.param_get_handle(APPLY_TO_ALPHA_PARAM_NAME)?;
 
     let my_data = MyInstanceData {
-        source_clip,
-        output_clip,
+        source_clip: GuaranteeSendClipInInstance(source_clip),
+        output_clip: GuaranteeSendClipInInstance(output_clip),
         gain_param,
         apply_to_alpha_param,
     };
@@ -262,8 +262,9 @@ fn action_destroy_instance(instance: ImageEffectInstance) -> openfx::low::Result
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
+    let s_ifx = &data.image_effect_suite.0;
 
-    let props = unsafe { data.get_property_set_from_image_effect_instance(&instance) }?;
+    let props = unsafe { instance.get_property_set(s_ifx) }?;
 
     let Some(my_data_ptr) = (unsafe { props.get_instance_data(s_prop)? }) else {
         return Err(Status::Failed);
@@ -283,8 +284,9 @@ fn action_is_identity(
 
     let s_prop = &data.property_suite.0;
     let s_param = data.parameter_suite_helper();
+    let s_ifx = &data.image_effect_suite.0;
 
-    let instance_props = unsafe { data.get_property_set_from_image_effect_instance(&effect) }?;
+    let instance_props = unsafe { effect.get_property_set(s_ifx) }?;
 
     let Some(my_data_ptr) = (unsafe { instance_props.get_instance_data(s_prop)? }) else {
         return Err(Status::Failed);
@@ -310,8 +312,9 @@ fn action_render(
 
     let s_prop = &data.property_suite.0;
     let s_param = data.parameter_suite_helper();
+    let s_ifx = &data.image_effect_suite.0;
 
-    let instance_props = unsafe { data.get_property_set_from_image_effect_instance(&instance) }?;
+    let instance_props = unsafe { instance.get_property_set(s_ifx) }?;
 
     let time = unsafe { in_args.get_time(s_prop) }?;
     let render_window =
@@ -327,15 +330,14 @@ fn action_render(
     let apply_to_alpha =
         unsafe { s_param.param_get_value_at_time_int(my_data.apply_to_alpha_param, time) }? != 0;
 
-    let Some(output_img_m) =
-        unsafe { data.make_clip_image_managed(my_data.output_clip, time, None) }?
-    else {
-        return Err(Status::Failed);
+    let output_img = unsafe { my_data.output_clip.0.clip_get_image(s_ifx, time, None) }?;
+    let source_img = unsafe { my_data.source_clip.0.clip_get_image(s_ifx, time, None) }?;
+
+    let Some(output_img_m) = unsafe { ClipImageManaged::try_new(&data, output_img) }? else {
+        return Err(openfx::low::Status::Failed);
     };
-    let Some(source_img_m) =
-        unsafe { data.make_clip_image_managed(my_data.source_clip, time, None) }?
-    else {
-        return Err(Status::Failed);
+    let Some(source_img_m) = unsafe { ClipImageManaged::try_new(&data, source_img) }? else {
+        return Err(openfx::low::Status::Failed);
     };
 
     match output_img_m.pixel_depth() {
