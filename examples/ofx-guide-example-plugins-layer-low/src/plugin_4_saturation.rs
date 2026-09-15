@@ -24,10 +24,7 @@ use openfx::{
     },
     sys::{
         generic::core::OfxPropertySetHandle,
-        image_effect_v1::{
-            image_effect::OfxImageClipHandle,
-            param::{OfxParamHandle, kOfxParamTypeDouble},
-        },
+        image_effect_v1::param::{OfxParamHandle, kOfxParamTypeDouble},
     },
     sys_helpers::{
         generic::properties::{set_OfxPropInstanceData, set_OfxPropName},
@@ -39,7 +36,9 @@ use processing::{pixel_processing, rect_i_from_array};
 
 use crate::{
     definitions::{PLUGIN_4_SATURATION_IDENTIFIER, PLUGIN_4_SATURATION_LABEL, PLUGINS_GROUPING},
-    helpers::shared_data::{BitDepth, GuaranteeSend, SharedData},
+    helpers::shared_data::{
+        BitDepth, ClipImageManaged, GuaranteeSend, GuaranteeSendClipInInstance, SharedData,
+    },
 };
 
 static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(None);
@@ -49,9 +48,9 @@ struct MyInstanceData {
     #[expect(unused)]
     is_general_context: bool,
 
-    source_clip: OfxImageClipHandle,
-    output_clip: OfxImageClipHandle,
-    mask_clip: Option<OfxImageClipHandle>,
+    source_clip: GuaranteeSendClipInInstance,
+    output_clip: GuaranteeSendClipInInstance,
+    mask_clip: Option<GuaranteeSendClipInInstance>,
 
     saturation_param: OfxParamHandle,
 }
@@ -132,8 +131,9 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> openfx::low::Result<()>
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
+    let s_ifx = &data.image_effect_suite.0;
 
-    let props = unsafe { data.get_property_set_from_image_effect_descriptor(&descriptor) }?;
+    let props = unsafe { descriptor.get_property_set(s_ifx) }?;
 
     unsafe {
         props.set_label(s_prop, Some(PLUGIN_4_SATURATION_LABEL))?;
@@ -170,7 +170,7 @@ fn action_describe_in_context(
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
-    let s_ifx = data.image_effect_suite_helper();
+    let s_ifx = &data.image_effect_suite.0;
 
     let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
     if context != ImageEffectPropContext::Filter && context != ImageEffectPropContext::General {
@@ -226,17 +226,17 @@ fn action_create_instance(instance: ImageEffectInstance) -> openfx::low::Result<
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
-    let s_ifx = data.image_effect_suite_helper();
+    let s_ifx = &data.image_effect_suite.0;
 
-    let instance_props = unsafe { data.get_property_set_from_image_effect_instance(&instance) }?;
+    let instance_props = unsafe { instance.get_property_set(s_ifx) }?;
 
     let context = unsafe { instance_props.get_image_effect_context(s_prop) }?;
     let is_general_context = context == ImageEffectPropContext::General;
 
-    let source_clip = unsafe { s_ifx.clip_get_handle(&instance, c"Source") }?;
-    let output_clip = unsafe { s_ifx.clip_get_handle(&instance, c"Output") }?;
+    let source_clip = unsafe { s_ifx.clip_get_clip_handle(&instance, c"Source") }?;
+    let output_clip = unsafe { s_ifx.clip_get_clip_handle(&instance, c"Output") }?;
     let mask_clip = if is_general_context {
-        Some(unsafe { s_ifx.clip_get_handle(&instance, c"Mask") }?)
+        Some(unsafe { s_ifx.clip_get_clip_handle(&instance, c"Mask") }?)
     } else {
         None
     };
@@ -246,9 +246,9 @@ fn action_create_instance(instance: ImageEffectInstance) -> openfx::low::Result<
 
     let my_data = MyInstanceData {
         is_general_context,
-        source_clip,
-        output_clip,
-        mask_clip,
+        source_clip: GuaranteeSendClipInInstance(source_clip),
+        output_clip: GuaranteeSendClipInInstance(output_clip),
+        mask_clip: mask_clip.map(GuaranteeSendClipInInstance),
         saturation_param,
     };
     let my_data_ptr = Box::into_raw(Box::new(my_data)) as *mut c_void;
@@ -270,8 +270,9 @@ fn action_destroy_instance(instance: ImageEffectInstance) -> openfx::low::Result
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
+    let s_ifx = &data.image_effect_suite.0;
 
-    let props = unsafe { data.get_property_set_from_image_effect_instance(&instance) }?;
+    let props = unsafe { instance.get_property_set(s_ifx) }?;
 
     let Some(my_data_ptr) = (unsafe { props.get_instance_data(s_prop)? }) else {
         return Err(Status::Failed);
@@ -291,8 +292,9 @@ fn action_is_identity(
 
     let s_prop = &data.property_suite.0;
     let s_param = data.parameter_suite_helper();
+    let s_ifx = &data.image_effect_suite.0;
 
-    let instance_props = unsafe { data.get_property_set_from_image_effect_instance(&effect) }?;
+    let instance_props = unsafe { effect.get_property_set(s_ifx) }?;
 
     let Some(my_data_ptr) = (unsafe { instance_props.get_instance_data(s_prop)? }) else {
         return Err(Status::Failed);
@@ -319,8 +321,9 @@ fn action_render(
 
     let s_prop = &data.property_suite.0;
     let s_param = data.parameter_suite_helper();
+    let s_ifx = &data.image_effect_suite.0;
 
-    let instance_props = unsafe { data.get_property_set_from_image_effect_instance(&instance) }?;
+    let instance_props = unsafe { instance.get_property_set(s_ifx) }?;
 
     let time = unsafe { in_args.get_time(s_prop) }?;
     let render_window =
@@ -335,31 +338,23 @@ fn action_render(
     let saturation =
         unsafe { s_param.param_get_value_at_time_double(my_data.saturation_param, time) }?;
 
-    let Some(output_img_m) =
-        unsafe { data.make_clip_image_managed(my_data.output_clip, time, None) }?
-    else {
-        return Err(Status::Failed);
+    let output_img = unsafe { my_data.output_clip.0.clip_get_image(s_ifx, time, None) }?;
+    let source_img = unsafe { my_data.source_clip.0.clip_get_image(s_ifx, time, None) }?;
+    let mask_img = if let Some(mask_clip) = my_data.mask_clip {
+        Some(unsafe { mask_clip.0.clip_get_image(s_ifx, time, None) }?)
+    } else {
+        None
     };
-    let Some(source_img_m) =
-        unsafe { data.make_clip_image_managed(my_data.source_clip, time, None) }?
-    else {
-        return Err(Status::Failed);
+
+    let Some(output_img_m) = unsafe { ClipImageManaged::try_new(&data, output_img) }? else {
+        return Err(openfx::low::Status::Failed);
     };
-    let mask_img_m = if let Some(mask_clip) = my_data.mask_clip {
-        #[expect(clippy::needless_match, clippy::manual_map)]
-        match unsafe { data.make_clip_image_managed(mask_clip, time, None) }? {
-            Some(mask_img_m) => Some(mask_img_m),
-            // copilot:
-            //
-            // ```md
-            // an optional but unconnected Mask clip commonly returns `None`
-            // from `clip_get_image`;
-            // ```
-            None => {
-                // return Err(Status::Failed);
-                None
-            }
-        }
+    let Some(source_img_m) = unsafe { ClipImageManaged::try_new(&data, source_img) }? else {
+        return Err(openfx::low::Status::Failed);
+    };
+    let mask_img_m = if let Some(mask_img) = mask_img {
+        // `None`: unconnected
+        unsafe { ClipImageManaged::try_new(&data, mask_img) }?
     } else {
         None
     };

@@ -99,7 +99,7 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> openfx::low::Result<()>
 
     let s_prop = &data.property_suite.0;
 
-    let props = unsafe { data.get_property_set_from_image_effect_descriptor(&descriptor) }?;
+    let props = unsafe { descriptor.get_property_set(&data.image_effect_suite.0) }?;
 
     unsafe {
         props.set_label(s_prop, Some(PLUGIN_2_INVERT_LABEL))?;
@@ -133,7 +133,7 @@ fn action_describe_in_context(
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
-    let s_ifx = data.image_effect_suite_helper();
+    let s_ifx = &data.image_effect_suite.0;
 
     let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
     if context != ImageEffectPropContext::Filter {
@@ -270,23 +270,24 @@ fn action_render(
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
-    let image_effect_suite_helper = data.image_effect_suite_helper();
+    let s_ifx = &data.image_effect_suite.0;
 
     let time = unsafe { in_args.get_time(s_prop) }?;
     let render_window =
         unsafe { get_OfxImageEffectPropRenderWindow(s_prop.sys_ptr(), in_args.sys_handle()) }?;
     let render_window = rect_i_from_array(&render_window);
 
-    let output_clip = unsafe { image_effect_suite_helper.clip_get_handle(&instance, c"Output") }?;
-    let source_clip = unsafe { image_effect_suite_helper.clip_get_handle(&instance, c"Source") }?;
+    let output_clip = unsafe { s_ifx.clip_get_clip_handle(&instance, c"Output") }?;
+    let source_clip = unsafe { s_ifx.clip_get_clip_handle(&instance, c"Source") }?;
 
-    let Some(output_img_m) = unsafe { data.make_clip_image_managed(output_clip, time, None) }?
-    else {
-        return Err(Status::Failed);
+    let output_img = unsafe { output_clip.clip_get_image(s_ifx, time, None) }?;
+    let source_img = unsafe { source_clip.clip_get_image(s_ifx, time, None) }?;
+
+    let Some(output_img_m) = unsafe { ClipImageManaged::try_new(&data, output_img) }? else {
+        return Err(openfx::low::Status::Failed);
     };
-    let Some(source_img_m) = unsafe { data.make_clip_image_managed(source_clip, time, None) }?
-    else {
-        return Err(Status::Failed);
+    let Some(source_img_m) = unsafe { ClipImageManaged::try_new(&data, source_img) }? else {
+        return Err(openfx::low::Status::Failed);
     };
 
     match output_img_m.pixel_depth() {
