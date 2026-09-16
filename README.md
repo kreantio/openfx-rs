@@ -2,6 +2,7 @@
 
 See Also:
 
+- [ATTRIBUTION.md](./ATTRIBUTION.md)
 - [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## Prerequisites
