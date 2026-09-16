@@ -1,10 +1,19 @@
-This repository inherits [the BSD-3-Clause license from the OpenFX standard]:
+> [!NOTE]
+>
+> Licenses for third-party dependencies managed by tools such as [`cargo`] and
+> [`deno`] are not included here.
+
+[`cargo`]: https://github.com/rust-lang/cargo
+[`deno`]: https://deno.com/
+
+## the OpenFX standard
+
+[link](https://github.com/AcademySoftwareFoundation/openfx/blob/3de640d6f645fe6e346acd57e568d8b0a5ae4574/LICENSE.md)
 
 ```
 BSD 3-Clause License
 
 Copyright (c) 2025, OpenFX and contributors to the OpenFX project
-Copyright Umaĵo <umajho@proton.me>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -32,7 +41,9 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
 
-## Licenses of relevant projects that are not in the dependency tree
+## ntsc-rs
+
+[link](https://github.com/ntsc-rs/ntsc-rs/blob/af9833b4bb81f195f7fe4a3667211f2a94139a42/LICENSE-MIT)
 
 Some code in this repository was initially taken from / inspired by [ntsc-rs]'s
 [`/crates/openfx-plugin`](https://github.com/ntsc-rs/ntsc-rs/tree/af9833b4bb81f195f7fe4a3667211f2a94139a42/crates/openfx-plugin).
@@ -50,5 +61,4 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ```
 
-[the BSD-3-Clause license from the OpenFX standard]: https://github.com/AcademySoftwareFoundation/openfx/blob/3de640d6f645fe6e346acd57e568d8b0a5ae4574/LICENSE.md
 [ntsc-rs]: https://github.com/ntsc-rs/ntsc-rs
