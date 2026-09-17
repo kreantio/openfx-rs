@@ -99,10 +99,10 @@ pub fn make_property_enums(tokens: TokenStream) -> TokenStream {
 
                     /// ## SAFETY
                     ///
-                    /// - The pointer must be either null or valid and point to
-                    ///   a null-terminated C string.
-                    /// - The pointer must live at least as long as the returned
-                    ///   [`Self`] value.
+                    /// For enum variants unknown to this crate, this enum
+                    /// stores a pointer to a C string owned by the host. The
+                    /// caller must ensure that this pointer remains valid for
+                    /// the duration of this call.
                     pub unsafe fn matches(&self, val: &::std::ffi::CStr) -> bool {
                         let ptr = self.as_ptr();
                         if ptr.is_null() {

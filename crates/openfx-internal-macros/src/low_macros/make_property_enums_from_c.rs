@@ -67,7 +67,13 @@ pub fn make_property_enums_from_c(tokens: TokenStream) -> TokenStream {
                         }
                     }
 
-                    pub fn matches(&self, val: crate::sys_umbrella::#sys_name) -> bool {
+                    /// ## SAFETY
+                    ///
+                    /// For enum variants unknown to this crate, this enum
+                    /// stores a pointer to a C string owned by the host. The
+                    /// caller must ensure that this pointer remains valid for
+                    /// the duration of this call.
+                    pub unsafe fn matches(&self, val: crate::sys_umbrella::#sys_name) -> bool {
                         self.as_sys() == val
                     }
                 }
