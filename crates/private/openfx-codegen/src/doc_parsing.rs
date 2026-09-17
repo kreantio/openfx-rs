@@ -44,11 +44,15 @@ pub enum DocContent {
     /// e.g., `typedef …`
     SimpleType(String),
     /// e.g., `typedef struct …`
+    ///
+    /// TODO: individual variant for fields.
     StructType {
         self_doc: String,
         field_docs: HashMap<String, String>,
     },
     /// e.g., `OfxExport …`
+    ///
+    /// TODO: individual variant for variants.
     EnumType {
         self_doc: String,
         variant_docs: HashMap<String, String>,
@@ -61,6 +65,37 @@ pub enum DocContent {
         kind: String,
         content: String,
     },
+}
+
+impl std::fmt::Display for DocContent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DocContent::Define(s) => write!(f, "{}", s),
+            DocContent::SimpleType(s) => write!(f, "{}", s),
+            DocContent::StructType {
+                self_doc,
+                field_docs: _,
+            } => {
+                write!(f, "{}", self_doc)?;
+                Ok(())
+            }
+            DocContent::EnumType {
+                self_doc,
+                variant_docs: _,
+            } => {
+                write!(f, "{}", self_doc)?;
+                Ok(())
+            }
+            DocContent::Fn(s) => write!(f, "{}", s),
+            DocContent::Unclassified {
+                parent: _,
+                kind: _,
+                content,
+            } => {
+                write!(f, "{}", content)
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -1,6 +1,12 @@
 use super::core::{OfxPointD, OfxStatus};
 use super::pixels::OfxRGBAColourF;
+/// @brief the string that names the DrawSuite, passed to OfxHost::fetchSuite
 pub const kOfxDrawSuite: &::std::ffi::CStr = c"OfxDrawSuite";
+/** @brief The Draw Context handle
+
+ @propdef
+ type: pointer
+ dimension: 1*/
 pub const kOfxInteractPropDrawContext: &::std::ffi::CStr = c"OfxInteractPropDrawContext";
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]

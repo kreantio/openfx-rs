@@ -1,10 +1,36 @@
 use super::core::OfxStatus;
 pub const kOfxMessageSuite: &::std::ffi::CStr = c"OfxMessageSuite";
+/** @brief String used to type fatal error messages
+
+    Fatal error messages should only be posted by a plugin when it can no longer continue operation.*/
 pub const kOfxMessageFatal: &::std::ffi::CStr = c"OfxMessageFatal";
+/** @brief String used to type error messages
+
+    Ordinary error messages should be posted when there is an error in operation that is recoverable by
+    user intervention.*/
 pub const kOfxMessageError: &::std::ffi::CStr = c"OfxMessageError";
+/** @brief String used to type warning messages
+
+    Warnings indicate states that allow for operations to proceed, but are not necessarily optimal.*/
 pub const kOfxMessageWarning: &::std::ffi::CStr = c"OfxMessageWarning";
+/** @brief String used to type simple ordinary messages
+
+    Ordinary messages simply convey information from the plugin directly to the user.*/
 pub const kOfxMessageMessage: &::std::ffi::CStr = c"OfxMessageMessage";
+/** @brief String used to type log messages
+
+    Log messages are written out to a log and not to the end user.*/
 pub const kOfxMessageLog: &::std::ffi::CStr = c"OfxMessageLog";
+/** @brief String used to type yes/no messages
+
+    The host is to enter a modal state which waits for the user to respond yes or no.
+The OfxMessageSuiteV1::message function which posted the message will only return after
+the user responds. When asking a question, the OfxStatus code returned by the message function will be,
+    - kOfxStatReplyYes - if the user replied 'yes' to the question
+    - kOfxStatReplyNo - if the user replied 'no' to the question
+    - some error code if an error was encounterred
+
+    It is an error to post a question message if the plugin is not in an interactive session.*/
 pub const kOfxMessageQuestion: &::std::ffi::CStr = c"OfxMessageQuestion";
 /** @brief The OFX suite that allows a plug-in to pass messages back to a user. The V2 suite extends on this
 in a backwards compatible manner.*/

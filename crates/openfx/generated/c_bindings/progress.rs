@@ -1,4 +1,5 @@
 use super::core::OfxStatus;
+/// @brief suite for displaying a progress bar
 pub const kOfxProgressSuite: &::std::ffi::CStr = c"OfxProgressSuite";
 /** @brief A suite that provides progress feedback from a plugin to an application
 
