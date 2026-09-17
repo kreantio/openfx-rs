@@ -5,7 +5,7 @@ edition = "2024"
 description = "Rust bindings for the OpenFX API"
 license.workspace = true
 repository.workspace = true
-include = ["src/**", "generated/**", "README.md", "LICENSE.md"]
+include = ["src/**", "generated/**", "README.md", "LICENSE"]
 
 [lints]
 workspace = true
