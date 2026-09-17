@@ -38,12 +38,7 @@ pub fn parse_docs(c_code: &str) -> Result<CHeaderDocParseOutput, Error> {
                 if lines.is_empty() {
                     continue;
                 }
-                let first_tok = lines[0]
-                    .trim_start()
-                    .split_whitespace()
-                    .next()
-                    .unwrap_or("")
-                    .to_string();
+                let first_tok = lines[0].split_whitespace().next().unwrap_or("").to_string();
                 match first_tok.as_str() {
                     "@defgroup" | "\\defgroup" => {
                         let (name, has_title) = group_name_and_title(&lines[0]);
@@ -61,22 +56,16 @@ pub fn parse_docs(c_code: &str) -> Result<CHeaderDocParseOutput, Error> {
                             }
                             // hack: top-level group docs drop the blank line right after the title line
                             if parent.is_none() && content.len() >= 2 {
-                                while content
-                                    .get(1)
-                                    .map(|l| l.trim().is_empty())
-                                    .unwrap_or(false)
-                                {
+                                while content.get(1).map(|l| l.trim().is_empty()).unwrap_or(false) {
                                     content.remove(1);
                                 }
                             }
                             let content = content.join("\n");
-                            group_docs
-                                .entry(name.clone())
-                                .or_insert(DocGroup {
-                                    parent,
-                                    name: name.clone(),
-                                    content,
-                                });
+                            group_docs.entry(name.clone()).or_insert(DocGroup {
+                                parent,
+                                name: name.clone(),
+                                content,
+                            });
                             stack.push(name);
                             pending = None;
                             continue;
@@ -118,11 +107,7 @@ pub fn parse_docs(c_code: &str) -> Result<CHeaderDocParseOutput, Error> {
                         let mut text = doc_text(&lines);
                         if bytes.get(i) == Some(&b'\n') {
                             let rest = &c_code[i + 1..];
-                            if rest.starts_with('\n')
-                                && rest[1..]
-                                    .trim_start()
-                                    .starts_with("/**")
-                            {
+                            if rest.starts_with('\n') && rest[1..].trim_start().starts_with("/**") {
                                 text.push('\n');
                             }
                         }
@@ -284,15 +269,11 @@ fn find_stmt_end(bytes: &[u8], len: usize, start: usize) -> usize {
 }
 
 fn second_token(line: &str) -> String {
-    line.trim()
-        .split_whitespace()
-        .nth(1)
-        .unwrap_or("")
-        .to_string()
+    line.split_whitespace().nth(1).unwrap_or("").to_string()
 }
 
 fn group_name_and_title(line: &str) -> (String, bool) {
-    let toks: Vec<&str> = line.trim().split_whitespace().collect();
+    let toks: Vec<&str> = line.split_whitespace().collect();
     if toks.len() >= 2 {
         (toks[1].to_string(), toks.len() > 2)
     } else {
@@ -370,11 +351,21 @@ fn fn_name(decl: &str) -> Option<String> {
             if c == '*' || c.is_whitespace() {
                 // skip back to the previous identifier start
                 let mut j = idx;
-                while j > 0 && (before.chars().nth(j - 1) == Some('*') || before.chars().nth(j - 1).map(|c| c.is_whitespace()).unwrap_or(false)) {
+                while j > 0
+                    && (before.chars().nth(j - 1) == Some('*')
+                        || before
+                            .chars()
+                            .nth(j - 1)
+                            .map(|c| c.is_whitespace())
+                            .unwrap_or(false))
+                {
                     j -= 1;
                 }
                 let candidate = before[..end].trim();
-                let tok = candidate.rsplit(|c: char| c.is_whitespace() || c == '*').next().unwrap_or("");
+                let tok = candidate
+                    .rsplit(|c: char| c.is_whitespace() || c == '*')
+                    .next()
+                    .unwrap_or("");
                 if !tok.is_empty() && tok.chars().all(|c| c.is_alphanumeric() || c == '_') {
                     return Some(tok.to_string());
                 }
@@ -383,7 +374,11 @@ fn fn_name(decl: &str) -> Option<String> {
             it = before[..idx].char_indices().rev();
         }
     }
-    let tok = before.trim().rsplit(|c: char| c.is_whitespace() || c == '*').next().unwrap_or("");
+    let tok = before
+        .trim()
+        .rsplit(|c: char| c.is_whitespace() || c == '*')
+        .next()
+        .unwrap_or("");
     if tok.is_empty() {
         None
     } else {
@@ -393,8 +388,7 @@ fn fn_name(decl: &str) -> Option<String> {
 
 fn last_ident(s: &str) -> String {
     s.split(|c: char| c.is_whitespace() || c == '*')
-        .filter(|t| !t.is_empty())
-        .next_back()
+        .rfind(|t| !t.is_empty())
         .unwrap_or("")
         .to_string()
 }
@@ -405,7 +399,8 @@ fn apply_typedef(
     group: Option<String>,
     entries: &mut HashMap<String, DocEntry>,
 ) {
-    let after = decl[7..].trim_start();    let head_word = after.split_whitespace().next().unwrap_or("");
+    let after = decl[7..].trim_start();
+    let head_word = after.split_whitespace().next().unwrap_or("");
     let head_rest = after[head_word.len()..].trim_start();
     let content: DocContent;
     let name: String;
@@ -502,17 +497,18 @@ fn matching_brace(s: &str, open: usize) -> Option<usize> {
 }
 
 fn first_word(s: &str) -> String {
-    s.split(|c: char| c.is_whitespace() || c == ';' || c == '{' || c == '}' || c == '(' || c == ')' || c == ',')
-        .find(|t| !t.is_empty())
-        .unwrap_or("")
-        .trim_start_matches('*')
-        .to_string()
+    s.split(|c: char| {
+        c.is_whitespace() || c == ';' || c == '{' || c == '}' || c == '(' || c == ')' || c == ','
+    })
+    .find(|t| !t.is_empty())
+    .unwrap_or("")
+    .trim_start_matches('*')
+    .to_string()
 }
 
 fn before_body_name(s: &str) -> String {
     s.split(|c: char| c.is_whitespace() || c == '*')
-        .filter(|t| !t.is_empty() && *t != "struct" && *t != "enum")
-        .next_back()
+        .rfind(|t| !t.is_empty() && *t != "struct" && *t != "enum")
         .unwrap_or("")
         .to_string()
 }
@@ -598,10 +594,9 @@ fn field_name_of_stmt(stmt: &str) -> Option<String> {
     let probe = stmt.split('(').next().unwrap_or(stmt);
     let tok = probe
         .split(|c: char| c.is_whitespace() || c == '*')
-        .filter(|t| !t.is_empty())
-        .next_back()
+        .rfind(|t| !t.is_empty())
         .unwrap_or("");
-    return Some(tok.to_string());
+    Some(tok.to_string())
 }
 
 /// Extract enum variant names and their trailing `//` comment.
@@ -613,8 +608,7 @@ fn parse_enum_variants(body: &str) -> HashMap<String, String> {
             let left = line[..pos].trim_end();
             let name = left
                 .split(|c: char| c.is_whitespace() || c == ',')
-                .filter(|t| !t.is_empty())
-                .next_back()
+                .rfind(|t| !t.is_empty())
                 .unwrap_or("");
             if name.is_empty() {
                 continue;
