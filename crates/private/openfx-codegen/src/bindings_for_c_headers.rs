@@ -9,8 +9,12 @@ use rayon::iter::{IntoParallelRefIterator, ParallelIterator as _};
 
 use crate::{
     CodegenConfig,
-    vibe_zone::utils::algorithms_by_llms::{
-        DependencySortable, sort_by_dependencies, strip_common_prefix,
+    doc_parsing::{CHeaderDocParseOutput, DocEntry, parse_docs},
+    vibe_zone::{
+        syn_visitors::DocRegulator,
+        utils::algorithms_by_llms::{
+            DependencySortable, sort_by_dependencies, strip_common_prefix,
+        },
     },
 };
 
@@ -108,17 +112,45 @@ fn gen_c_bindings(
 ) -> Result<GenCBindingsOutput, Box<dyn std::error::Error>> {
     let mut statuses: HashSet<String> = HashSet::new();
 
+    let mut doc_entries = HashMap::<String, Vec<DocEntry>>::new();
+    for header in headers {
+        for (name, entry) in header.docs.entries.iter() {
+            match doc_entries.entry(name.clone()) {
+                std::collections::hash_map::Entry::Vacant(e) => {
+                    e.insert(vec![entry.clone()]);
+                }
+                std::collections::hash_map::Entry::Occupied(mut e) => {
+                    // return Err(format!("Duplicate doc entry found for `{}`", name).into());
+                    let mut v = e.get().clone();
+                    v.push(entry.clone());
+                    e.insert(v);
+                }
+            }
+        }
+    }
+
     for header in headers {
         let mod_name = &header.mod_name_snake_case;
         let output_path = output_folder.join(format!("{}.rs", mod_name));
 
-        let syn_file = deduplicated_syn_files.get(&header.name).ok_or_else(|| {
-            format!(
-                "`deduplicated_syn_files` should contain the header with name `{}`",
-                header.name
-            )
-        })?;
-        let mut code = prettyplease::unparse(syn_file);
+        let mut syn_file = deduplicated_syn_files
+            .get(&header.name)
+            .ok_or_else(|| {
+                format!(
+                    "`deduplicated_syn_files` should contain the header with name `{}`",
+                    header.name
+                )
+            })?
+            .clone();
+
+        syn::visit_mut::VisitMut::visit_file_mut(
+            &mut DocRegulator {
+                doc_entries: &doc_entries,
+            },
+            &mut syn_file,
+        );
+
+        let mut code = prettyplease::unparse(&syn_file);
         if let Some(additional_rust_code) = &header.additional_rust_code {
             code.push('\n');
             code.push_str(additional_rust_code);
@@ -468,6 +500,8 @@ pub(crate) struct Header {
     /// `syn` or `proc_macro2` values across threads.
     pub bindgen_generated_rust_code: String,
 
+    pub docs: CHeaderDocParseOutput,
+
     pub additional_rust_code: Option<String>,
     pub additional_info: AdditionalInfo,
 }
@@ -527,6 +561,8 @@ impl Header {
             .unwrap()
             .to_case(convert_case::Case::Snake);
 
+        let docs = parse_docs(c_code)?;
+
         let mut info: AdditionalInfo = Default::default();
 
         let mut included_headers = HashSet::new();
@@ -568,6 +604,7 @@ impl Header {
                 .generate_cstr(true)
                 .generate()?
                 .to_string(),
+            docs,
             additional_rust_code,
             additional_info: info,
         })

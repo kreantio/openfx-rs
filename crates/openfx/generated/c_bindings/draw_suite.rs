@@ -1,13 +1,25 @@
 use super::core::{OfxPointD, OfxStatus};
 use super::pixels::OfxRGBAColourF;
+/// ```doxygen
+/// @brief the string that names the DrawSuite, passed to OfxHost::fetchSuite
+/// ```
 pub const kOfxDrawSuite: &::std::ffi::CStr = c"OfxDrawSuite";
+/// ```doxygen
+/// @brief The Draw Context handle
+///
+///  @propdef
+///  type: pointer
+///  dimension: 1
+/// ```
 pub const kOfxInteractPropDrawContext: &::std::ffi::CStr = c"OfxInteractPropDrawContext";
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct OfxDrawContext {
     _unused: [u8; 0],
 }
+/// ```doxygen
 /// @brief Blind declaration of an OFX drawing context
+/// ```
 pub type OfxDrawContextHandle = *mut OfxDrawContext;
 pub const kOfxStandardColourOverlayBackground: OfxStandardColour = 0;
 pub const kOfxStandardColourOverlayActive: OfxStandardColour = 1;
@@ -16,14 +28,18 @@ pub const kOfxStandardColourOverlayDeselected: OfxStandardColour = 3;
 pub const kOfxStandardColourOverlayMarqueeFG: OfxStandardColour = 4;
 pub const kOfxStandardColourOverlayMarqueeBG: OfxStandardColour = 5;
 pub const kOfxStandardColourOverlayText: OfxStandardColour = 6;
+/// ```doxygen
 /// @brief Defines valid values for OfxDrawSuiteV1::getColour
+/// ```
 pub type OfxStandardColour = ::std::os::raw::c_uint;
 pub const kOfxDrawLineStipplePatternSolid: OfxDrawLineStipplePattern = 0;
 pub const kOfxDrawLineStipplePatternDot: OfxDrawLineStipplePattern = 1;
 pub const kOfxDrawLineStipplePatternDash: OfxDrawLineStipplePattern = 2;
 pub const kOfxDrawLineStipplePatternAltDash: OfxDrawLineStipplePattern = 3;
 pub const kOfxDrawLineStipplePatternDotDash: OfxDrawLineStipplePattern = 4;
+/// ```doxygen
 /// @brief Defines valid values for OfxDrawSuiteV1::setLineStipple
+/// ```
 pub type OfxDrawLineStipplePattern = ::std::os::raw::c_uint;
 pub const kOfxDrawPrimitiveLines: OfxDrawPrimitive = 0;
 pub const kOfxDrawPrimitiveLineStrip: OfxDrawPrimitive = 1;
@@ -31,7 +47,9 @@ pub const kOfxDrawPrimitiveLineLoop: OfxDrawPrimitive = 2;
 pub const kOfxDrawPrimitiveRectangle: OfxDrawPrimitive = 3;
 pub const kOfxDrawPrimitivePolygon: OfxDrawPrimitive = 4;
 pub const kOfxDrawPrimitiveEllipse: OfxDrawPrimitive = 5;
+/// ```doxygen
 /// @brief Defines valid values for OfxDrawSuiteV1::draw
+/// ```
 pub type OfxDrawPrimitive = ::std::os::raw::c_uint;
 pub const kOfxDrawTextAlignmentLeft: OfxDrawTextAlignment = 1;
 pub const kOfxDrawTextAlignmentRight: OfxDrawTextAlignment = 2;
@@ -40,23 +58,29 @@ pub const kOfxDrawTextAlignmentBottom: OfxDrawTextAlignment = 8;
 pub const kOfxDrawTextAlignmentBaseline: OfxDrawTextAlignment = 16;
 pub const kOfxDrawTextAlignmentCenterH: OfxDrawTextAlignment = 3;
 pub const kOfxDrawTextAlignmentCenterV: OfxDrawTextAlignment = 20;
+/// ```doxygen
 /// @brief Defines text alignment values for OfxDrawSuiteV1::drawText
+/// ```
 pub type OfxDrawTextAlignment = ::std::os::raw::c_uint;
-/** @brief OFX suite that allows an effect to draw to a host-defined display context.
-To use this, the plugin must use kOfxImageEffectPluginPropOverlayInteractV2.*/
+/// ```doxygen
+/// @brief OFX suite that allows an effect to draw to a host-defined display context.
+/// To use this, the plugin must use kOfxImageEffectPluginPropOverlayInteractV2.
+/// ```
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct OfxDrawSuiteV1 {
-    /** @brief Retrieves the host's desired draw colour for
-
-\arg \c context  draw context
-\arg \c std_colour desired colour type
-\arg \c colour      returned RGBA colour
-
-@returns
-- ::kOfxStatOK - the colour was returned
-- ::kOfxStatErrValue - std_colour was invalid
-- ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw*/
+    /// ```doxygen
+    /// @brief Retrieves the host's desired draw colour for
+    ///
+    /// \arg \c context  draw context
+    /// \arg \c std_colour desired colour type
+    /// \arg \c colour      returned RGBA colour
+    ///
+    /// @returns
+    /// - ::kOfxStatOK - the colour was returned
+    /// - ::kOfxStatErrValue - std_colour was invalid
+    /// - ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw
+    /// ```
     pub getColour: ::std::option::Option<
         unsafe extern "C" fn(
             context: OfxDrawContextHandle,
@@ -64,70 +88,78 @@ pub struct OfxDrawSuiteV1 {
             colour: *mut OfxRGBAColourF,
         ) -> OfxStatus,
     >,
-    /** @brief Sets the colour for future drawing operations (lines, filled shapes and text)
-
-\arg \c context  draw context
-\arg \c colour      RGBA colour
-
-The host should use "over" compositing when using a non-opaque colour.
-
-@returns
-- ::kOfxStatOK - the colour was changed
-- ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw*/
+    /// ```doxygen
+    /// @brief Sets the colour for future drawing operations (lines, filled shapes and text)
+    ///
+    /// \arg \c context  draw context
+    /// \arg \c colour      RGBA colour
+    ///
+    /// The host should use "over" compositing when using a non-opaque colour.
+    ///
+    /// @returns
+    /// - ::kOfxStatOK - the colour was changed
+    /// - ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw
+    /// ```
     pub setColour: ::std::option::Option<
         unsafe extern "C" fn(
             context: OfxDrawContextHandle,
             colour: *const OfxRGBAColourF,
         ) -> OfxStatus,
     >,
-    /** @brief Sets the line width for future line drawing operations
-
-\arg \c context  draw context
-\arg \c width     line width
-
-Use width 0 for a single pixel line or non-zero for a smooth line of the desired width
-
-The host should adjust for screen density.
-
-@returns
-- ::kOfxStatOK - the width was changed
-- ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw*/
+    /// ```doxygen
+    /// @brief Sets the line width for future line drawing operations
+    ///
+    /// \arg \c context  draw context
+    /// \arg \c width     line width
+    ///
+    /// Use width 0 for a single pixel line or non-zero for a smooth line of the desired width
+    ///
+    /// The host should adjust for screen density.
+    ///
+    /// @returns
+    /// - ::kOfxStatOK - the width was changed
+    /// - ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw
+    /// ```
     pub setLineWidth: ::std::option::Option<
         unsafe extern "C" fn(context: OfxDrawContextHandle, width: f32) -> OfxStatus,
     >,
-    /** @brief Sets the stipple pattern for future line drawing operations
-
-\arg \c context  draw context
-\arg \c pattern  desired stipple pattern
-
-@returns
-- ::kOfxStatOK - the pattern was changed
-- ::kOfxStatErrValue - pattern was not valid
-- ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw*/
+    /// ```doxygen
+    /// @brief Sets the stipple pattern for future line drawing operations
+    ///
+    /// \arg \c context  draw context
+    /// \arg \c pattern  desired stipple pattern
+    ///
+    /// @returns
+    /// - ::kOfxStatOK - the pattern was changed
+    /// - ::kOfxStatErrValue - pattern was not valid
+    /// - ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw
+    /// ```
     pub setLineStipple: ::std::option::Option<
         unsafe extern "C" fn(
             context: OfxDrawContextHandle,
             pattern: OfxDrawLineStipplePattern,
         ) -> OfxStatus,
     >,
-    /** @brief Draws a primitive of the desired type
-
-\arg \c context  draw context
-\arg \c primitive  desired primitive
-\arg \c points  array of points in the primitive
-\arg \c point_count  number of points in the array
-
-kOfxDrawPrimitiveLines - like GL_LINES, n points draws n/2 separated lines
-kOfxDrawPrimitiveLineStrip - like GL_LINE_STRIP, n points draws n-1 connected lines
-kOfxDrawPrimitiveLineLoop - like GL_LINE_LOOP, n points draws n connected lines
-kOfxDrawPrimitiveRectangle - draws an axis-aligned filled rectangle defined by 2 opposite corner points
-kOfxDrawPrimitivePolygon - like GL_POLYGON, draws a filled n-sided polygon
-kOfxDrawPrimitiveEllipse - draws a axis-aligned elliptical line (not filled) within the rectangle defined by 2 opposite corner points
-
-@returns
-- ::kOfxStatOK - the draw was completed
-- ::kOfxStatErrValue - invalid primitive, or point_count not valid for primitive
-- ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw*/
+    /// ```doxygen
+    /// @brief Draws a primitive of the desired type
+    ///
+    /// \arg \c context  draw context
+    /// \arg \c primitive  desired primitive
+    /// \arg \c points  array of points in the primitive
+    /// \arg \c point_count  number of points in the array
+    ///
+    /// kOfxDrawPrimitiveLines - like GL_LINES, n points draws n/2 separated lines
+    /// kOfxDrawPrimitiveLineStrip - like GL_LINE_STRIP, n points draws n-1 connected lines
+    /// kOfxDrawPrimitiveLineLoop - like GL_LINE_LOOP, n points draws n connected lines
+    /// kOfxDrawPrimitiveRectangle - draws an axis-aligned filled rectangle defined by 2 opposite corner points
+    /// kOfxDrawPrimitivePolygon - like GL_POLYGON, draws a filled n-sided polygon
+    /// kOfxDrawPrimitiveEllipse - draws a axis-aligned elliptical line (not filled) within the rectangle defined by 2 opposite corner points
+    ///
+    /// @returns
+    /// - ::kOfxStatOK - the draw was completed
+    /// - ::kOfxStatErrValue - invalid primitive, or point_count not valid for primitive
+    /// - ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw
+    /// ```
     pub draw: ::std::option::Option<
         unsafe extern "C" fn(
             context: OfxDrawContextHandle,
@@ -136,19 +168,21 @@ kOfxDrawPrimitiveEllipse - draws a axis-aligned elliptical line (not filled) wit
             point_count: ::std::os::raw::c_int,
         ) -> OfxStatus,
     >,
-    /** @brief Draws text at the specified position
-
-\arg \c context  draw context
-\arg \c text  text to draw (UTF-8 encoded)
-\arg \c pos  position at which to align the text
-\arg \c alignment  text alignment flags (see kOfxDrawTextAlignment*)
-
-The text font face and size are determined by the host.
-
-@returns
-- ::kOfxStatOK - the text was drawn
-- ::kOfxStatErrValue - text or pos were not defined
-- ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw*/
+    /// ```doxygen
+    /// @brief Draws text at the specified position
+    ///
+    /// \arg \c context  draw context
+    /// \arg \c text  text to draw (UTF-8 encoded)
+    /// \arg \c pos  position at which to align the text
+    /// \arg \c alignment  text alignment flags (see kOfxDrawTextAlignment*)
+    ///
+    /// The text font face and size are determined by the host.
+    ///
+    /// @returns
+    /// - ::kOfxStatOK - the text was drawn
+    /// - ::kOfxStatErrValue - text or pos were not defined
+    /// - ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw
+    /// ```
     pub drawText: ::std::option::Option<
         unsafe extern "C" fn(
             context: OfxDrawContextHandle,
