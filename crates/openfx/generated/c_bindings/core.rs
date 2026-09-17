@@ -950,20 +950,71 @@ pub struct OfxRectD {
     pub x2: f64,
     pub y2: f64,
 }
-
+/// ```doxygen
+/// @brief Status code indicating all was fine
+/// ```
 pub const kOfxStatOK: OfxStatus = 0;
+/// ```doxygen
+/// @brief Status error code for a failed operation.
+/// ```
 pub const kOfxStatFailed: OfxStatus = 1;
+/// ```doxygen
+/// @brief Status error code for a fatal error
+///
+///   Only returned in the case where the plug-in or host cannot continue to function and needs to be restarted.
+/// ```
 pub const kOfxStatErrFatal: OfxStatus = 2;
+/// ```doxygen
+/// @brief Status error code for an operation on or request for an unknown object
+/// ```
 pub const kOfxStatErrUnknown: OfxStatus = 3;
+/// ```doxygen
+/// @brief Status error code returned by plug-ins when they are missing host functionality, either an API or some optional functionality (eg: custom params).
+///
+///     Plug-Ins returning this should post an appropriate error message stating what they are missing.
+/// ```
 pub const kOfxStatErrMissingHostFeature: OfxStatus = 4;
+/// ```doxygen
+/// @brief Status error code for an unsupported feature/operation
+/// ```
 pub const kOfxStatErrUnsupported: OfxStatus = 5;
+/// ```doxygen
+/// @brief Status error code for an operation attempting to create something that exists
+/// ```
 pub const kOfxStatErrExists: OfxStatus = 6;
+/// ```doxygen
+/// @brief Status error code for an incorrect format
+/// ```
 pub const kOfxStatErrFormat: OfxStatus = 7;
+/// ```doxygen
+/// @brief Status error code indicating that something failed due to memory shortage
+/// ```
 pub const kOfxStatErrMemory: OfxStatus = 8;
+/// ```doxygen
+/// @brief Status error code for an operation on a bad handle
+/// ```
 pub const kOfxStatErrBadHandle: OfxStatus = 9;
+/// ```doxygen
+/// @brief Status error code indicating that a given index was invalid or unavailable
+/// ```
 pub const kOfxStatErrBadIndex: OfxStatus = 10;
+/// ```doxygen
+/// @brief Status error code indicating that something failed due an illegal value
+/// ```
 pub const kOfxStatErrValue: OfxStatus = 11;
+/// ```doxygen
+/// @brief OfxStatus returned indicating a 'yes'
+/// ```
 pub const kOfxStatReplyYes: OfxStatus = 12;
+/// ```doxygen
+/// @brief OfxStatus returned indicating a 'no'
+/// ```
 pub const kOfxStatReplyNo: OfxStatus = 13;
+/// ```doxygen
+/// @brief OfxStatus returned indicating that a default action should be performed
+/// ```
 pub const kOfxStatReplyDefault: OfxStatus = 14;
+/// ```doxygen
+/// @brief OfxStatus returned indicating that the plug-in is unlicensed (see \ref kOfxImageEffectPropBehaviourWhenUnlicensed)
+/// ```
 pub const kOfxStatUnlicensed: OfxStatus = 15;
