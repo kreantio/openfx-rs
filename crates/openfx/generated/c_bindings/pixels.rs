@@ -1,4 +1,6 @@
+/// ```doxygen
 /// @brief Defines an 8 bit per component RGBA pixel
+/// ```
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct OfxRGBAColourB {
@@ -7,7 +9,9 @@ pub struct OfxRGBAColourB {
     pub b: ::std::os::raw::c_uchar,
     pub a: ::std::os::raw::c_uchar,
 }
+/// ```doxygen
 /// @brief Defines a 16 bit per component RGBA pixel
+/// ```
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct OfxRGBAColourS {
@@ -16,7 +20,9 @@ pub struct OfxRGBAColourS {
     pub b: ::std::os::raw::c_ushort,
     pub a: ::std::os::raw::c_ushort,
 }
+/// ```doxygen
 /// @brief Defines a floating point component RGBA pixel
+/// ```
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct OfxRGBAColourF {
@@ -25,7 +31,9 @@ pub struct OfxRGBAColourF {
     pub b: f32,
     pub a: f32,
 }
+/// ```doxygen
 /// @brief Defines a double precision floating point component RGBA pixel
+/// ```
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct OfxRGBAColourD {
@@ -34,7 +42,9 @@ pub struct OfxRGBAColourD {
     pub b: f64,
     pub a: f64,
 }
+/// ```doxygen
 /// @brief Defines an 8 bit per component RGB pixel
+/// ```
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct OfxRGBColourB {
@@ -42,7 +52,9 @@ pub struct OfxRGBColourB {
     pub g: ::std::os::raw::c_uchar,
     pub b: ::std::os::raw::c_uchar,
 }
+/// ```doxygen
 /// @brief Defines a 16 bit per component RGB pixel
+/// ```
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct OfxRGBColourS {
@@ -50,7 +62,9 @@ pub struct OfxRGBColourS {
     pub g: ::std::os::raw::c_ushort,
     pub b: ::std::os::raw::c_ushort,
 }
+/// ```doxygen
 /// @brief Defines a floating point component RGB pixel
+/// ```
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct OfxRGBColourF {
@@ -58,7 +72,9 @@ pub struct OfxRGBColourF {
     pub g: f32,
     pub b: f32,
 }
+/// ```doxygen
 /// @brief Defines a double precision floating point component RGB pixel
+/// ```
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct OfxRGBColourD {

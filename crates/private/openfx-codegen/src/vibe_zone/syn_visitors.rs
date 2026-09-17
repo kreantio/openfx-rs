@@ -3,42 +3,92 @@
 use crate::doc_parsing::DocEntry;
 use std::collections::HashMap;
 
-pub struct MissingDocsAdder<'a> {
+pub struct DocRegulator<'a> {
     pub doc_entries: &'a HashMap<String, Vec<DocEntry>>,
 }
 
-impl MissingDocsAdder<'_> {
-    /// Adds a `#[doc = "..."]` attribute to `attrs` if `attrs` does not
-    /// already have a doc attribute and `name` has a doc entry.
+impl DocRegulator<'_> {
+    /// Regulates the doc attributes of a node named `name`:
     ///
-    /// Only the first level of `doc_entries` is consulted, regardless of how
-    /// deeply nested the item is.
-    pub fn add_doc_if_missing(&self, attrs: &mut Vec<syn::Attribute>, name: &str) {
-        if attrs.iter().any(|attr| attr.path().is_ident("doc")) {
-            return;
-        }
-        let Some(entry) = self.doc_entries.get(name) else {
-            return;
+    /// - existing `#[doc = "..."]` attributes are collected and removed;
+    /// - if there were none, the doc content is taken from `doc_entries`
+    ///   (only the first level is consulted, regardless of how deeply nested
+    ///   the item is);
+    /// - the resulting doc content is re-emitted, wrapped in a markdown code
+    ///   fence tagged with the `doxygen` language mark. The fence length is
+    ///   calculated from the longest backtick run inside the content
+    ///   (minimum 3 backticks).
+    pub fn regulate_docs(&self, attrs: &mut Vec<syn::Attribute>, name: &str) {
+        let mut existing_docs: Vec<String> = vec![];
+        attrs.retain(|attr| {
+            if !attr.path().is_ident("doc") {
+                return true;
+            }
+            if let syn::Meta::NameValue(name_value) = &attr.meta
+                && let syn::Expr::Lit(syn::ExprLit {
+                    lit: syn::Lit::Str(lit),
+                    ..
+                }) = &name_value.value
+            {
+                existing_docs.push(lit.value());
+            }
+            false
+        });
+
+        let content = if existing_docs.is_empty() {
+            let Some(entries) = self.doc_entries.get(name) else {
+                return;
+            };
+            entries
+                .iter()
+                .map(|e| e.content.to_string())
+                .collect::<Vec<_>>()
+                .join("\n\n")
+        } else {
+            existing_docs.join("\n")
         };
-        let content = entry
-            .iter()
-            .map(|e| e.content.to_string())
-            .collect::<Vec<_>>()
-            .join("\n\n");
         let content = content.trim();
         if content.is_empty() {
             return;
         }
-        let content = format!(" {}", content);
-        attrs.push(syn::parse_quote!(#[doc = #content]));
+
+        // The fence must be longer than any backtick run inside the content.
+        let mut longest_backtick_run = 0usize;
+        let mut current_run = 0usize;
+        for ch in content.chars() {
+            if ch == '`' {
+                current_run += 1;
+                longest_backtick_run = longest_backtick_run.max(current_run);
+            } else {
+                current_run = 0;
+            }
+        }
+        let fence = "`".repeat((longest_backtick_run + 1).max(3));
+
+        let mut doc_attrs: Vec<syn::Attribute> = Vec::with_capacity(content.lines().count() + 2);
+        let opening = format!(" {fence}doxygen");
+        doc_attrs.push(syn::parse_quote!(#[doc = #opening]));
+        for line in content.lines() {
+            let line = if line.is_empty() {
+                String::new()
+            } else {
+                format!(" {line}")
+            };
+            doc_attrs.push(syn::parse_quote!(#[doc = #line]));
+        }
+        let closing = format!(" {fence}");
+        doc_attrs.push(syn::parse_quote!(#[doc = #closing]));
+
+        doc_attrs.append(attrs);
+        *attrs = doc_attrs;
     }
 }
 
 /// Implements one `VisitMut` method per doc-able node kind.
 ///
 /// Each method:
-/// - looks up the node's own name in the first level of `doc_entries` and adds
-///   a doc attribute if the node doesn't have one yet;
+/// - regulates the node's doc attributes (wrapping existing docs and docs
+///   from the first level of `doc_entries` in a fenced `doxygen` block);
 /// - delegates to the default visitor so that nested nodes (fields, variants,
 ///   items inside modules, etc.) are visited as well.
 macro_rules! impl_visit_mut_for_docable {
@@ -47,7 +97,7 @@ macro_rules! impl_visit_mut_for_docable {
             fn $method(&mut self, $node: &mut $ty) {
                 let ident: Option<&syn::Ident> = $ident;
                 if let Some(ident) = ident {
-                    self.add_doc_if_missing(&mut $node.attrs, &ident.to_string());
+                    self.regulate_docs(&mut $node.attrs, &ident.to_string());
                 }
                 syn::visit_mut::$method(self, $node);
             }
@@ -55,7 +105,7 @@ macro_rules! impl_visit_mut_for_docable {
     };
 }
 
-impl syn::visit_mut::VisitMut for MissingDocsAdder<'_> {
+impl syn::visit_mut::VisitMut for DocRegulator<'_> {
     impl_visit_mut_for_docable! {
         // Top-level items.
         visit_item_const_mut(syn::ItemConst) => |node| Some(&node.ident);
