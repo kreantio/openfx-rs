@@ -8,12 +8,12 @@ pub use crate::vibe_zone::doc_parsing::Error;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CHeaderDocParseOutput {
-    misc_docs: Vec<MiscDoc>,
-    file_doc: Option<String>,
+    pub misc_docs: Vec<MiscDoc>,
+    pub file_doc: Option<String>,
     /// name -> entry
-    entries: HashMap<String, DocEntry>,
+    pub entries: HashMap<String, DocEntry>,
     /// group name -> group
-    group_docs: HashMap<String, DocGroup>,
+    pub group_docs: HashMap<String, DocGroup>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -32,9 +32,9 @@ pub enum MiscDoc {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DocEntry {
-    group: Option<String>,
-    name: String,
-    content: DocContent,
+    pub group: Option<String>,
+    pub name: String,
+    pub content: DocContent,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -65,10 +65,10 @@ pub enum DocContent {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DocGroup {
-    parent: Option<String>,
+    pub parent: Option<String>,
     /// group name
-    name: String,
-    content: String,
+    pub name: String,
+    pub content: String,
 }
 
 #[cfg(test)]
