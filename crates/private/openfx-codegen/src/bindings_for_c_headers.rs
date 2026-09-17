@@ -143,6 +143,20 @@ fn gen_c_bindings(
             })?
             .clone();
 
+        // `additional_rust_code` is stored as a string because `syn` values
+        // cannot cross threads (headers are built in parallel); parse it here
+        // and splice the items in so that `DocRegulator` can document them.
+        // (written by Kimi K3 and I agree.)
+        if let Some(additional_rust_code) = &header.additional_rust_code {
+            let additional_items = syn::parse_file(additional_rust_code).map_err(|err| {
+                format!(
+                    "Failed to parse additional Rust code for header `{}`: {}",
+                    header.name, err
+                )
+            })?;
+            syn_file.items.extend(additional_items.items);
+        }
+
         syn::visit_mut::VisitMut::visit_file_mut(
             &mut DocRegulator {
                 doc_entries: &doc_entries,
@@ -150,11 +164,7 @@ fn gen_c_bindings(
             &mut syn_file,
         );
 
-        let mut code = prettyplease::unparse(&syn_file);
-        if let Some(additional_rust_code) = &header.additional_rust_code {
-            code.push('\n');
-            code.push_str(additional_rust_code);
-        }
+        let code = prettyplease::unparse(&syn_file);
         std::fs::write(&output_path, code)?;
 
         if !header.additional_info.statuses.is_empty() {
