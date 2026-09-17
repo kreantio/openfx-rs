@@ -11,7 +11,7 @@ use crate::{
     CodegenConfig,
     doc_parsing::{CHeaderDocParseOutput, DocEntry, parse_docs},
     vibe_zone::{
-        syn_visitors::MissingDocsAdder,
+        syn_visitors::DocRegulator,
         utils::algorithms_by_llms::{
             DependencySortable, sort_by_dependencies, strip_common_prefix,
         },
@@ -144,7 +144,7 @@ fn gen_c_bindings(
             .clone();
 
         syn::visit_mut::VisitMut::visit_file_mut(
-            &mut MissingDocsAdder {
+            &mut DocRegulator {
                 doc_entries: &doc_entries,
             },
             &mut syn_file,
