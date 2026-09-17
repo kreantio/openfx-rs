@@ -1,11 +1,60 @@
 use super::core::{OfxStatus, OfxTime};
 use super::param::OfxParamHandle;
+/// @brief string value to the ::kOfxPropType property for all parameters
 pub const kOfxParametricParameterSuite: &::std::ffi::CStr = c"OfxParametricParameterSuite";
+/// @brief String to identify a param as a single valued integer
 pub const kOfxParamTypeParametric: &::std::ffi::CStr = c"OfxParamTypeParametric";
+/** @brief The dimension of a parametric param
+
+This indicates the dimension of the parametric param.
+
+    @propdef
+    type: int
+    dimension: 1*/
 pub const kOfxParamPropParametricDimension: &::std::ffi::CStr = c"OfxParamPropParametricDimension";
+/** @brief The colour of parametric param curve interface in any UI.
+
+      being interpreted as R, G and B of the colour for each curve drawn in the UI.
+
+This sets the colour of a parametric param curve drawn a host user interface. A colour triple
+is needed for each dimension of the oparametric param.
+
+If not set, the host should generally draw these in white.
+
+    @propdef
+    type: double
+    dimension: N*/
 pub const kOfxParamPropParametricUIColour: &::std::ffi::CStr = c"OfxParamPropParametricUIColour";
+/** @brief Interact entry point to draw the background of a parametric parameter.
+
+Defines a pointer to an interact which will be used to draw the background of a parametric
+parameter's user interface.  None of the pen or keyboard actions can ever be called on the interact.
+
+The openGL transform will be set so that it is an orthographic transform that maps directly to the
+'parametric' space, so that 'x' represents the parametric position and 'y' represents the evaluated
+value.
+
+    @propdef
+    type: pointer
+    dimension: 1*/
 pub const kOfxParamPropParametricInteractBackground: &::std::ffi::CStr = c"OfxParamPropParametricInteractBackground";
+/** @brief Property on the host to indicate support for parametric parameter animation.
+
+    - Valid Values
+      - 0 indicating the host does not support animation of parmetric params,
+      - 1 indicating the host does support animation of parmetric params,
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxParamHostPropSupportsParametricAnimation: &::std::ffi::CStr = c"OfxParamHostPropSupportsParametricAnimation";
+/** @brief Property to indicate the min and max range of the parametric input value.
+
+This controls the min and max values that the parameter will be evaluated at.
+
+    - Valid Values - any pair of numbers so that  the first is less than the second.
+    @propdef
+    type: double
+    dimension: 2*/
 pub const kOfxParamPropParametricRange: &::std::ffi::CStr = c"OfxParamPropParametricRange";
 /** @brief The OFX suite used to define and manipulate 'parametric' parameters.
 

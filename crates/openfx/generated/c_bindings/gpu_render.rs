@@ -1,25 +1,394 @@
 use super::core::{OfxPropertySetHandle, OfxRectD, OfxStatus, OfxTime};
 use super::image_effect::OfxImageClipHandle;
+/** @brief The name of the OpenGL render suite, used to fetch from a host
+via OfxHost::fetchSuite*/
 pub const kOfxOpenGLRenderSuite: &::std::ffi::CStr = c"OfxImageEffectOpenGLRenderSuite";
+/** @brief Indicates whether a host or plug-in can support OpenGL accelerated
+rendering
+
+   - Valid Values -
+     - "false"  - in which case the host or plug-in does not support OpenGL
+                  accelerated rendering
+     - "true"   - which means a host or plug-in can support OpenGL accelerated
+                  rendering, in the case of plug-ins this also means that it
+                  is capable of CPU based rendering in the absence of a GPU
+     - "needed" - only for plug-ins, this means that an plug-in has to have
+                  OpenGL support, without which it cannot work.
+
+V1.4: It is now expected from host reporting v1.4 that the plug-in can during instance change switch from true to false and false to true.
+
+    @propdef
+    type: enum
+    dimension: 1
+    values:
+      - "false"
+      - "true"
+      - needed*/
 pub const kOfxImageEffectPropOpenGLRenderSupported: &::std::ffi::CStr = c"OfxImageEffectPropOpenGLRenderSupported";
+/** @brief Indicates the bit depths supported by a plug-in during OpenGL renders.
+
+    This is analogous to ::kOfxImageEffectPropSupportedPixelDepths. When a
+    plug-in sets this property, the host will try to provide buffers/textures
+    in one of the supported formats. Additionally, the target buffers where
+    the plug-in renders to will be set to one of the supported formats.
+
+    Unlike ::kOfxImageEffectPropSupportedPixelDepths, this property is
+    optional. Shader-based effects might not really care about any
+    format specifics when using OpenGL textures, so they can leave this unset
+    and allow the host the decide the format.
+
+   - Valid Values -
+       - ::kOfxBitDepthNone (implying a clip is unconnected, not valid for an
+         image)
+       - ::kOfxBitDepthByte
+       - ::kOfxBitDepthShort
+       - ::kOfxBitDepthHalf
+       - ::kOfxBitDepthFloat
+
+    @propdef
+    type: enum
+    dimension: N
+    values:
+      - OfxBitDepthNone
+      - OfxBitDepthByte
+      - OfxBitDepthShort
+      - OfxBitDepthHalf
+      - OfxBitDepthFloat*/
 pub const kOfxOpenGLPropPixelDepth: &::std::ffi::CStr = c"OfxOpenGLPropPixelDepth";
+/** @brief Indicates that a plug-in SHOULD use OpenGL acceleration in
+the current action
+
+   When a plug-in and host have established they can both use OpenGL renders
+   then when this property has been set the host expects the plug-in to render
+   its result into the buffer it has setup before calling the render.  The
+   plug-in can then also safely use the 'OfxImageEffectOpenGLRenderSuite'
+
+   - Valid Values
+      - 0 indicates that the plug-in cannot use the OpenGL suite
+      - 1 indicates that the plug-in should render into the texture,
+          and may use the OpenGL suite functions.
+
+\note Once this property is set, the host and plug-in have agreed to
+use OpenGL, so the effect SHOULD access all its images through the
+OpenGL suite.
+
+v1.4:  kOfxImageEffectPropOpenGLEnabled should probably be checked in Instance Changed prior to try to read image via clipLoadTexture
+
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxImageEffectPropOpenGLEnabled: &::std::ffi::CStr = c"OfxImageEffectPropOpenGLEnabled";
+/** @brief Indicates the texture index of an image turned into an OpenGL
+texture by the host
+
+This value should be cast to a GLuint and used as the texture index when
+performing OpenGL texture operations.
+
+   The property set of the following actions should contain this property:
+      - ::kOfxImageEffectActionRender
+      - ::kOfxImageEffectActionBeginSequenceRender
+      - ::kOfxImageEffectActionEndSequenceRender
+
+    @propdef
+    type: int
+    dimension: 1*/
 pub const kOfxImageEffectPropOpenGLTextureIndex: &::std::ffi::CStr = c"OfxImageEffectPropOpenGLTextureIndex";
+/** @brief Indicates the texture target enumerator of an image turned into
+    an OpenGL texture by the host
+
+This value should be cast to a GLenum and used as the texture target
+when performing OpenGL texture operations.
+
+   The property set of the following actions should contain this property:
+      - ::kOfxImageEffectActionRender
+      - ::kOfxImageEffectActionBeginSequenceRender
+      - ::kOfxImageEffectActionEndSequenceRender
+
+    @propdef
+    type: int
+    dimension: 1*/
 pub const kOfxImageEffectPropOpenGLTextureTarget: &::std::ffi::CStr = c"OfxImageEffectPropOpenGLTextureTarget";
+/** @brief Indicates whether a host or plug-in can (or more importantly cannot)
+    support CPU rendering.
+
+  @version added in version 1.5.1.
+
+   - Valid Values -
+     - "false"  - in which case the host or plug-in does not support CPU
+                  rendering
+     - "true"   - which means a host or plug-in can support CPU rendering
+
+    @propdef
+    type: enum
+    dimension: 1
+    values:
+      - "false"
+      - "true"
+    introduced: "1.5.1"*/
 pub const kOfxImageEffectPropCPURenderSupported: &::std::ffi::CStr = c"OfxImageEffectPropCPURenderSupported";
+/** @brief Action called when an effect has just been attached to an OpenGL
+context.
+
+The purpose of this action is to allow a plug-in to set up any data it may need
+to do OpenGL rendering in an instance. For example...
+   - allocate a lookup table on a GPU,
+   - create an OpenCL or CUDA context that is bound to the host's OpenGL
+     context so it can share buffers.
+
+The plug-in will be responsible for deallocating any such shared resource in the
+\ref ::kOfxActionOpenGLContextDetached action.
+
+A host cannot call ::kOfxActionOpenGLContextAttached on the same instance
+without an intervening ::kOfxActionOpenGLContextDetached. A host can have a
+plug-in swap OpenGL contexts by issuing a attach/detach for the first context
+then another attach for the next context.
+
+The arguments to the action are...
+  \arg \c handle handle to the plug-in instance, cast to an
+  \ref OfxImageEffectHandle
+  \arg \c inArgs is redundant and set to NULL
+  \arg \c outArgs is redundant and set to NULL
+
+A plug-in can return...
+  - ::kOfxStatOK, the action was trapped and all was well
+  - ::kOfxStatReplyDefault, the action was ignored, but all was well anyway
+  - ::kOfxStatErrMemory, in which case this may be called again after a memory
+    purge
+  - ::kOfxStatFailed, something went wrong, but no error code appropriate,
+    the plug-in should to post a message if possible and the host should not
+    attempt to run the plug-in in OpenGL render mode.*/
 pub const kOfxActionOpenGLContextAttached: &::std::ffi::CStr = c"OfxActionOpenGLContextAttached";
+/** @brief Action called when an effect is about to be detached from an
+OpenGL context
+
+The purpose of this action is to allow a plug-in to deallocate any resource
+allocated in \ref ::kOfxActionOpenGLContextAttached just before the host
+decouples a plug-in from an OpenGL context.
+The host must call this with the same OpenGL context active as it
+called with the corresponding ::kOfxActionOpenGLContextAttached.
+
+The arguments to the action are...
+  \arg \c handle handle to the plug-in instance, cast to an
+  \ref OfxImageEffectHandle
+  \arg \c inArgs is redundant and set to NULL
+  \arg \c outArgs is redundant and set to NULL
+
+A plug-in can return...
+  - ::kOfxStatOK, the action was trapped and all was well
+  - ::kOfxStatReplyDefault, the action was ignored, but all was well anyway
+  - ::kOfxStatErrMemory, in which case this may be called again after a memory
+    purge
+  - ::kOfxStatFailed, something went wrong, but no error code appropriate,
+    the plug-in should to post a message if possible and the host should not
+    attempt to run the plug-in in OpenGL render mode.*/
 pub const kOfxActionOpenGLContextDetached: &::std::ffi::CStr = c"kOfxActionOpenGLContextDetached";
+/** @brief Indicates whether a host or plug-in can support CUDA render
+
+    - Valid Values -
+      - "false"  - the host or plug-in does not support CUDA render
+      - "true"   - the host or plug-in can support CUDA render
+
+    @propdef
+    type: enum
+    dimension: 1
+    values:
+      - "false"
+      - "true"
+      - needed*/
 pub const kOfxImageEffectPropCudaRenderSupported: &::std::ffi::CStr = c"OfxImageEffectPropCudaRenderSupported";
+/** @brief Indicates that a plug-in SHOULD use CUDA render in
+the current action
+
+   If a plug-in and host have both set
+   kOfxImageEffectPropCudaRenderSupported="true" then the host MAY set
+   this property to indicate that it is passing images as CUDA memory
+   pointers.
+
+   - Valid Values
+      - 0 indicates that the kOfxImagePropData of each image of each clip
+          is a CPU memory pointer.
+      - 1 indicates that the kOfxImagePropData of each image of each clip
+	      is a CUDA memory pointer.
+
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxImageEffectPropCudaEnabled: &::std::ffi::CStr = c"OfxImageEffectPropCudaEnabled";
+/** @brief Indicates whether a host or plug-in can support CUDA streams
+
+    - Valid Values -
+      - "false"  - in which case the host or plug-in does not support CUDA streams
+      - "true"   - which means a host or plug-in can support CUDA streams
+
+    @propdef
+    type: enum
+    dimension: 1
+    values:
+      - "false"
+      - "true"
+      - needed*/
 pub const kOfxImageEffectPropCudaStreamSupported: &::std::ffi::CStr = c"OfxImageEffectPropCudaStreamSupported";
+/** @brief The CUDA stream to be used for rendering
+
+This property will only be set if the host and plug-in both support CUDA streams.
+
+If set:
+
+- this property contains a pointer to the stream of CUDA render (cudaStream_t).
+  In order to use it, reinterpret_cast<cudaStream_t>(pointer) is needed.
+
+- the plug-in SHOULD ensure that its render action enqueues any
+  asynchronous CUDA operations onto the supplied queue.
+
+- the plug-in SHOULD NOT wait for final asynchronous operations to
+  complete before returning from the render action, and SHOULD NOT
+  call cudaDeviceSynchronize() at any time.
+
+If not set:
+
+- the plug-in SHOULD ensure that any asynchronous operations it
+  enqueues have completed before returning from the render action.
+
+    @propdef
+    type: pointer
+    dimension: 1*/
 pub const kOfxImageEffectPropCudaStream: &::std::ffi::CStr = c"OfxImageEffectPropCudaStream";
+/** @brief Indicates whether a host or plug-in can support Metal render
+
+    - Valid Values -
+      - "false"  - the host or plug-in does not support Metal render
+      - "true"   - the host or plug-in can support Metal render
+
+    @propdef
+    type: enum
+    dimension: 1
+    values:
+      - "false"
+      - "true"
+      - needed
+    introduced: "1.5"*/
 pub const kOfxImageEffectPropMetalRenderSupported: &::std::ffi::CStr = c"OfxImageEffectPropMetalRenderSupported";
+/** @brief Indicates that a plug-in SHOULD use Metal render in
+the current action
+
+   If a plug-in and host have both set
+   kOfxImageEffectPropMetalRenderSupported="true" then the host MAY
+   set this property to indicate that it is passing images as Metal
+   buffers.
+
+   - Valid Values
+      - 0 indicates that the kOfxImagePropData of each image of each clip
+          is a CPU memory pointer.
+      - 1 indicates that the kOfxImagePropData of each image of each clip
+	      is a Metal id<MTLBuffer>.
+
+    @propdef
+    type: bool
+    dimension: 1
+    introduced: "1.5"*/
 pub const kOfxImageEffectPropMetalEnabled: &::std::ffi::CStr = c"OfxImageEffectPropMetalEnabled";
+/** @brief The command queue of Metal render
+
+This property contains a pointer to the command queue to be used for
+Metal rendering (id<MTLCommandQueue>). In order to use it,
+reinterpret_cast<id<MTLCommandQueue>>(pointer) is needed.
+
+The plug-in SHOULD ensure that its render action enqueues any
+asynchronous Metal operations onto the supplied queue.
+
+The plug-in SHOULD NOT wait for final asynchronous operations to
+complete before returning from the render action.
+
+    @propdef
+    type: pointer
+    dimension: 1
+    introduced: "1.5"*/
 pub const kOfxImageEffectPropMetalCommandQueue: &::std::ffi::CStr = c"OfxImageEffectPropMetalCommandQueue";
+/** @brief Indicates whether a host or plug-in can support OpenCL Buffers render
+
+    - Valid Values -
+      - "false"  - the host or plug-in does not support OpenCL Buffers render
+      - "true"   - the host or plug-in can support OpenCL Buffers render
+
+    @propdef
+    type: enum
+    dimension: 1
+    values:
+      - "false"
+      - "true"
+      - needed
+    introduced: "1.5"*/
 pub const kOfxImageEffectPropOpenCLRenderSupported: &::std::ffi::CStr = c"OfxImageEffectPropOpenCLRenderSupported";
+/** @brief Indicates whether a host or plug-in can support OpenCL Images render
+
+    - Valid Values -
+      - "false"  - in which case the host or plug-in does not support OpenCL Images render
+      - "true"   - which means a host or plug-in can support OpenCL Images render
+
+    @propdef
+    type: enum
+    dimension: 1
+    values:
+      - "false"
+      - "true"
+    introduced: "1.5"*/
 pub const kOfxImageEffectPropOpenCLSupported: &::std::ffi::CStr = c"OfxImageEffectPropOpenCLSupported";
+/** @brief Indicates that a plug-in SHOULD use OpenCL render in
+the current action
+
+   If a plug-in and host have both set
+   kOfxImageEffectPropOpenCLRenderSupported="true" or have both
+   set kOfxImageEffectPropOpenCLSupported="true" then the host MAY
+   set this property to indicate that it is passing images as OpenCL
+   Buffers or Images.
+
+   When rendering using OpenCL Buffers, the cl_mem of the buffers are retrieved using ::kOfxImagePropData.
+   When rendering using OpenCL Images, the cl_mem of the images are retrieved using ::kOfxImageEffectPropOpenCLImage.
+   If both ::kOfxImageEffectPropOpenCLSupported (Buffers) and ::kOfxImageEffectPropOpenCLRenderSupported (Images) are
+   enabled by the plug-in, it should use ::kOfxImageEffectPropOpenCLImage to determine which is being used by the host.
+
+   - Valid Values
+      - 0 indicates that a plug-in SHOULD use OpenCL render in
+          the render action
+      - 1 indicates that a plug-in SHOULD NOT use OpenCL render in
+          the render action
+
+    @propdef
+    type: bool
+    dimension: 1
+    introduced: "1.5"*/
 pub const kOfxImageEffectPropOpenCLEnabled: &::std::ffi::CStr = c"OfxImageEffectPropOpenCLEnabled";
+/** @brief Indicates the OpenCL command queue that should be used for rendering
+
+This property contains a pointer to the command queue to be used for
+OpenCL rendering (cl_command_queue). In order to use it,
+reinterpret_cast<cl_command_queue>(pointer) is needed.
+
+The plug-in SHOULD ensure that its render action enqueues any
+asynchronous OpenCL operations onto the supplied queue.
+
+The plug-in SHOULD NOT wait for final asynchronous operations to
+complete before returning from the render action.
+
+    @propdef
+    type: pointer
+    dimension: 1
+    introduced: "1.5"*/
 pub const kOfxImageEffectPropOpenCLCommandQueue: &::std::ffi::CStr = c"OfxImageEffectPropOpenCLCommandQueue";
+/** @brief Indicates the image handle of an image supplied as an OpenCL Image by the host
+
+This value should be cast to a cl_mem and used as the image handle when performing
+OpenCL Images operations. The property should be used (not ::kOfxImagePropData) when
+rendering with OpenCL Images (::kOfxImageEffectPropOpenCLSupported), and should be used
+to determine whether Images or Buffers should be used if a plug-in supports both
+::kOfxImageEffectPropOpenCLSupported and ::kOfxImageEffectPropOpenCLRenderSupported.
+Note: the kOfxImagePropRowBytes property is not required to be set by the host, since
+OpenCL Images do not have the concept of row bytes.
+
+    @propdef
+    type: pointer
+    dimension: 1
+    introduced: "1.5"*/
 pub const kOfxImageEffectPropOpenCLImage: &::std::ffi::CStr = c"OfxImageEffectPropOpenCLImage";
 pub const kOfxOpenCLProgramSuite: &::std::ffi::CStr = c"OfxOpenCLProgramSuite";
 /** @brief OFX suite that provides image to texture conversion for OpenGL

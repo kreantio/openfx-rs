@@ -1,107 +1,700 @@
 use super::core::{OfxPropertySetHandle, OfxRangeD, OfxStatus, OfxTime};
+/// @brief string value to the ::kOfxPropType property for all parameters
 pub const kOfxParameterSuite: &::std::ffi::CStr = c"OfxParameterSuite";
+/// @brief string value on the ::kOfxPropType property for all parameter definitions (ie: the handle returned in describe)
 pub const kOfxTypeParameter: &::std::ffi::CStr = c"OfxTypeParameter";
+/// @brief string value on the ::kOfxPropType property for all parameter instances
 pub const kOfxTypeParameterInstance: &::std::ffi::CStr = c"OfxTypeParameterInstance";
+/// @brief String to identify a param as a single valued integer
 pub const kOfxParamTypeInteger: &::std::ffi::CStr = c"OfxParamTypeInteger";
+/// @brief String to identify a param as a Single valued floating point parameter
 pub const kOfxParamTypeDouble: &::std::ffi::CStr = c"OfxParamTypeDouble";
+/// @brief String to identify a param as a Single valued boolean parameter
 pub const kOfxParamTypeBoolean: &::std::ffi::CStr = c"OfxParamTypeBoolean";
+/// @brief String to identify a param as a Single valued, 'one-of-many' parameter
 pub const kOfxParamTypeChoice: &::std::ffi::CStr = c"OfxParamTypeChoice";
+/// @brief String to identify a param as a string-valued 'one-of-many' parameter. \since Version 1.5
 pub const kOfxParamTypeStrChoice: &::std::ffi::CStr = c"OfxParamTypeStrChoice";
+/// @brief String to identify a param as a Red, Green, Blue and Alpha colour parameter
 pub const kOfxParamTypeRGBA: &::std::ffi::CStr = c"OfxParamTypeRGBA";
+/// @brief String to identify a param as a Red, Green and Blue colour parameter
 pub const kOfxParamTypeRGB: &::std::ffi::CStr = c"OfxParamTypeRGB";
+/// @brief String to identify a param as a Two dimensional floating point parameter
 pub const kOfxParamTypeDouble2D: &::std::ffi::CStr = c"OfxParamTypeDouble2D";
+/// @brief String to identify a param as a Two dimensional integer point parameter
 pub const kOfxParamTypeInteger2D: &::std::ffi::CStr = c"OfxParamTypeInteger2D";
+/// @brief String to identify a param as a Three dimensional floating point parameter
 pub const kOfxParamTypeDouble3D: &::std::ffi::CStr = c"OfxParamTypeDouble3D";
+/// @brief String to identify a param as a Three dimensional integer parameter
 pub const kOfxParamTypeInteger3D: &::std::ffi::CStr = c"OfxParamTypeInteger3D";
+/// @brief String to identify a param as a String (UTF8) parameter
 pub const kOfxParamTypeString: &::std::ffi::CStr = c"OfxParamTypeString";
+/// @brief String to identify a param as a Plug-in defined parameter
 pub const kOfxParamTypeCustom: &::std::ffi::CStr = c"OfxParamTypeCustom";
+/// @brief String to identify a param as a Plug-in defined opaque data parameter
 pub const kOfxParamTypeBytes: &::std::ffi::CStr = c"OfxParamTypeBytes";
+/// @brief String to identify a param as a Grouping parameter
 pub const kOfxParamTypeGroup: &::std::ffi::CStr = c"OfxParamTypeGroup";
+/// @brief String to identify a param as a page parameter
 pub const kOfxParamTypePage: &::std::ffi::CStr = c"OfxParamTypePage";
+/// @brief String to identify a param as a PushButton parameter
 pub const kOfxParamTypePushButton: &::std::ffi::CStr = c"OfxParamTypePushButton";
+/** @brief Indicates if the host supports animation of custom parameters
+
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxParamHostPropSupportsCustomAnimation: &::std::ffi::CStr = c"OfxParamHostPropSupportsCustomAnimation";
+/** @brief Indicates if the host supports animation of string params
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxParamHostPropSupportsStringAnimation: &::std::ffi::CStr = c"OfxParamHostPropSupportsStringAnimation";
+/** @brief Indicates if the host supports animation of boolean params
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxParamHostPropSupportsBooleanAnimation: &::std::ffi::CStr = c"OfxParamHostPropSupportsBooleanAnimation";
+/** @brief Indicates if the host supports animation of choice params
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxParamHostPropSupportsChoiceAnimation: &::std::ffi::CStr = c"OfxParamHostPropSupportsChoiceAnimation";
+/** @brief Indicates if the host supports custom interacts for parameters
+
+Currently custom interacts for parameters can only be drawn using OpenGL.
+APIs will be added later to support using the new Draw Suite.
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxParamHostPropSupportsCustomInteract: &::std::ffi::CStr = c"OfxParamHostPropSupportsCustomInteract";
+/** @brief Indicates the maximum numbers of parameters available on the host.
+
+If set to -1 it implies unlimited number of parameters.
+
+    @propdef
+    type: int
+    dimension: 1*/
 pub const kOfxParamHostPropMaxParameters: &::std::ffi::CStr = c"OfxParamHostPropMaxParameters";
+/** @brief Indicates the maximum number of parameter pages.
+
+    If there is no limit to the number of pages on a host, set this to -1.
+
+Hosts that do not support paged parameter layout should set this to zero.
+
+    @propdef
+    type: int
+    dimension: 1*/
 pub const kOfxParamHostPropMaxPages: &::std::ffi::CStr = c"OfxParamHostPropMaxPages";
+/** @brief This indicates the number of parameter rows and columns on a page.
+
+If the host has supports paged parameter layout, used dimension 0 as the number of columns per page and dimension 1 as the number of rows per page.
+
+    @propdef
+    type: int
+    dimension: 2*/
 pub const kOfxParamHostPropPageRowColumnCount: &::std::ffi::CStr = c"OfxParamHostPropPageRowColumnCount";
+/** @brief Pseudo parameter name used to skip a row in a page layout.
+
+Passed as a value to the \ref kOfxParamPropPageChild property.
+
+See \ref ParametersInterfacesPagedLayouts for more details.*/
 pub const kOfxParamPageSkipRow: &::std::ffi::CStr = c"OfxParamPageSkipRow";
+/** @brief Pseudo parameter name used to skip a row in a page layout.
+
+Passed as a value to the \ref kOfxParamPropPageChild property.
+
+See \ref ParametersInterfacesPagedLayouts for more details.*/
 pub const kOfxParamPageSkipColumn: &::std::ffi::CStr = c"OfxParamPageSkipColumn";
+/** @brief Overrides the parameter's standard user interface with the given interact.
+
+If set, the parameter's normal interface is replaced completely by the interact gui.
+
+Currently custom interacts for parameters can only be drawn using OpenGL.
+APIs will be added later to support using the new Draw Suite.
+
+    - Valid Values -  must point to a OfxPluginEntryPoint
+    @propdef
+    type: pointer
+    dimension: 1*/
 pub const kOfxParamPropInteractV1: &::std::ffi::CStr = c"OfxParamPropInteractV1";
+/** @brief The size of a parameter instance's custom interface in screen pixels.
+
+This is set by a host to indicate the current size of a custom interface if the plug-in has one. If not this is set to (0,0).
+
+  @propdef
+  type: double
+  dimension: 2*/
 pub const kOfxParamPropInteractSize: &::std::ffi::CStr = c"OfxParamPropInteractSize";
+/** @brief The preferred aspect ratio of a parameter's custom interface.
+
+If set to anything other than 0.0, the custom interface for this parameter will be of a size with this aspect ratio (x size/y size).
+
+    - Valid Values - greater than or equal to 0.0
+    @propdef
+    type: double
+    dimension: 1*/
 pub const kOfxParamPropInteractSizeAspect: &::std::ffi::CStr = c"OfxParamPropInteractSizeAspect";
+/** @brief The minimum size of a parameter's custom interface, in screen pixels.
+
+Any custom interface will not be less than this size.
+
+    - Valid Values - greater than (0, 0)
+    @propdef
+    type: double
+    dimension: 2*/
 pub const kOfxParamPropInteractMinimumSize: &::std::ffi::CStr = c"OfxParamPropInteractMinimumSize";
+/** @brief The preferred size of a parameter's custom interface.
+
+  A host should attempt to set a parameter's custom interface on a parameter to be this size if possible, otherwise it will be of ::kOfxParamPropInteractSizeAspect aspect but larger than ::kOfxParamPropInteractMinimumSize.
+
+    - Valid Values - greater than (0, 0)
+    @propdef
+    type: int
+    dimension: 2*/
 pub const kOfxParamPropInteractPreferedSize: &::std::ffi::CStr = c"OfxParamPropInteractPreferedSize";
+/** @brief The type of a parameter.
+
+This string will be set to the type that the parameter was create with.
+
+   @propdef
+   type: string
+   dimension: 1*/
 pub const kOfxParamPropType: &::std::ffi::CStr = c"OfxParamPropType";
+/** @brief Flags whether a parameter can animate.
+
+A plug-in uses this property to indicate if a parameter is able to animate.
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxParamPropAnimates: &::std::ffi::CStr = c"OfxParamPropAnimates";
+/** @brief Flags whether changes to a parameter should be put on the undo/redo stack
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxParamPropCanUndo: &::std::ffi::CStr = c"OfxParamPropCanUndo";
+/** @brief States whether the plugin needs to resync its private data
+
+The plugin should set this flag to true whenever any internal state has not
+been flushed to the set of params.
+
+The host will examine this property each time it does a copy or save
+operation on the instance.
+If it is set to 1, the host will call SyncPrivateData and then set
+   it to zero before doing the copy/save.
+If it is set to 0, the host will assume that the param data
+   correctly represents the private state, and will not call
+   SyncPrivateData before copying/saving.
+If this property is not set, the host will always call
+   SyncPrivateData before copying or saving the effect (as if the
+   property were set to 1 -- but the host will not create or
+   modify the property).
+
+    - Valid Values -
+        - 0 - no need to sync
+        - 1 - paramset is not synced
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxPropParamSetNeedsSyncing: &::std::ffi::CStr = c"OfxPropParamSetNeedsSyncing";
+/** @brief Flags whether a parameter is currently animating.
+
+Set by a host on a parameter instance to indicate if the parameter has a non-constant value set on it. This can
+be as a consequence of animation or of scripting modifying the value, or of a parameter being connected to
+an expression in the host.
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxParamPropIsAnimating: &::std::ffi::CStr = c"OfxParamPropIsAnimating";
+/** @brief Flags whether the plugin will attempt to set the value of a parameter in some callback or analysis pass
+
+This is used to tell the host whether the plug-in is going to attempt to set the value of the parameter.
+
+@deprecated - v1.4: deprecated - to be removed in 1.5
+    @propdef
+    type: bool
+    dimension: 1
+    deprecated: "1.4"*/
 pub const kOfxParamPropPluginMayWrite: &::std::ffi::CStr = c"OfxParamPropPluginMayWrite";
+/** @brief Flags whether the value of a parameter should persist.
+
+This is used to tell the host whether the value of the parameter is important and should be save in any description of the plug-in.
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxParamPropPersistant: &::std::ffi::CStr = c"OfxParamPropPersistant";
+/** @brief Flags whether changing a parameter's value forces an evaluation (ie: render),
+
+This is used to indicate if the value of a parameter has any affect on an effect's output, eg: the parameter may be purely for GUI purposes, and so changing its value should not trigger a re-render.
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxParamPropEvaluateOnChange: &::std::ffi::CStr = c"OfxParamPropEvaluateOnChange";
+/** @brief Flags whether a parameter should be exposed to a user,
+
+If secret, a parameter is not exposed to a user in any interface, but should otherwise behave as a normal parameter.
+
+Secret params are typically used to hide important state detail that would otherwise be unintelligible to a user, for example the result of a statical analysis that might need many parameters to store.
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxParamPropSecret: &::std::ffi::CStr = c"OfxParamPropSecret";
+/** @brief The value to be used as the id of the parameter in a host scripting language.
+
+Many hosts have a scripting language that they use to set values of parameters and more. If so, this is the name of a parameter in such scripts.
+
+    - Valid Values - ASCII string unique to all parameters in the plug-in.
+    @propdef
+    type: string
+    dimension: 1*/
 pub const kOfxParamPropScriptName: &::std::ffi::CStr = c"OfxParamPropScriptName";
+/** @brief Specifies how modifying the value of a param will affect any output of an effect over time.
+
+Imagine an effect with an animating parameter in a host that caches
+rendered output. Think of the what happens when you add a new key frame.
+ -If the parameter represents something like an absolute position, the cache will only need to be invalidated for the range of frames that keyframe affects.
+- If the parameter represents something like a speed which is integrated, the cache will be invalidated from the keyframe until the end of the clip.
+- There are potentially other situations where the entire cache will need to be invalidated (though I can't think of one off the top of my head).
+
+   - Valid Values - This must be one of
+       - ::kOfxParamInvalidateValueChange
+       - ::kOfxParamInvalidateValueChangeToEnd
+       - ::kOfxParamInvalidateAll
+   @propdef
+   type: enum
+   dimension: 1
+   values:
+     - OfxParamInvalidateValueChange
+     - OfxParamInvalidateValueChangeToEnd
+     - OfxParamInvalidateAll*/
 pub const kOfxParamPropCacheInvalidation: &::std::ffi::CStr = c"OfxParamPropCacheInvalidation";
+/// @brief Used as a value for the ::kOfxParamPropCacheInvalidation property
 pub const kOfxParamInvalidateValueChange: &::std::ffi::CStr = c"OfxParamInvalidateValueChange";
+/// @brief Used as a value for the ::kOfxParamPropCacheInvalidation property
 pub const kOfxParamInvalidateValueChangeToEnd: &::std::ffi::CStr = c"OfxParamInvalidateValueChangeToEnd";
+/// @brief Used as a value for the ::kOfxParamPropCacheInvalidation property
 pub const kOfxParamInvalidateAll: &::std::ffi::CStr = c"OfxParamInvalidateAll";
+/** @brief A hint to the user as to how the parameter is to be used.
+
+   @propdef
+   type: string
+   dimension: 1*/
 pub const kOfxParamPropHint: &::std::ffi::CStr = c"OfxParamPropHint";
+/** @brief The default value of a parameter.
+
+The exact type and dimension is dependent on the type of the parameter. These are....
+  - ::kOfxParamTypeInteger - integer property of one dimension
+  - ::kOfxParamTypeDouble - double property of one dimension
+  - ::kOfxParamTypeBoolean - integer property of one dimension
+  - ::kOfxParamTypeChoice - integer property of one dimension
+  - ::kOfxParamTypeStrChoice - string property of one dimension
+  - ::kOfxParamTypeRGBA - double property of four dimensions
+  - ::kOfxParamTypeRGB - double property of three dimensions
+  - ::kOfxParamTypeDouble2D - double property of two dimensions
+  - ::kOfxParamTypeInteger2D - integer property of two dimensions
+  - ::kOfxParamTypeDouble3D - double property of three dimensions
+  - ::kOfxParamTypeInteger3D - integer property of three dimensions
+  - ::kOfxParamTypeString - string property of one dimension
+  - ::kOfxParamTypeCustom - string property of one dimension
+  - ::kOfxParamTypeBytes - pointer to OfxBytes struct of one dimension, or nullptr
+  - ::kOfxParamTypeGroup - does not have this property
+  - ::kOfxParamTypePage - does not have this property
+  - ::kOfxParamTypePushButton - does not have this property
+
+   @propdef
+   type: [int, double, string, pointer]
+   dimension: N*/
 pub const kOfxParamPropDefault: &::std::ffi::CStr = c"OfxParamPropDefault";
+/** @brief Describes how the double parameter should be interpreted by a host.
+
+   - Valid Values -This must be one of
+      - ::kOfxParamDoubleTypePlain - parameter has no special interpretation,
+      - ::kOfxParamDoubleTypeAngle - parameter is to be interpreted as an angle,
+      - ::kOfxParamDoubleTypeScale - parameter is to be interpreted as a scale factor,
+      - ::kOfxParamDoubleTypeTime  - parameter represents a time value (1D only),
+      - ::kOfxParamDoubleTypeAbsoluteTime  - parameter represents an absolute time value (1D only),
+
+      - ::kOfxParamDoubleTypeX - size wrt to the project's X dimension (1D only), in canonical coordinates,
+      - ::kOfxParamDoubleTypeXAbsolute - absolute position on the X axis (1D only), in canonical coordinates,
+      - ::kOfxParamDoubleTypeY - size wrt to the project's Y dimension(1D only), in canonical coordinates,
+      - ::kOfxParamDoubleTypeYAbsolute - absolute position on the Y axis (1D only), in canonical coordinates,
+      - ::kOfxParamDoubleTypeXY - size in 2D (2D only), in canonical coordinates,
+      - ::kOfxParamDoubleTypeXYAbsolute - an absolute position on the image plane, in canonical coordinates.
+
+Double parameters can be interpreted in several different ways, this property tells the host how to do so and thus gives hints
+as to the interface of the parameter.
+   @propdef
+   type: enum
+   dimension: 1
+   values:
+     - OfxParamDoubleTypePlain
+     - OfxParamDoubleTypeAngle
+     - OfxParamDoubleTypeScale
+     - OfxParamDoubleTypeTime
+     - OfxParamDoubleTypeAbsoluteTime
+     - OfxParamDoubleTypeX
+     - OfxParamDoubleTypeXAbsolute
+     - OfxParamDoubleTypeY
+     - OfxParamDoubleTypeYAbsolute
+     - OfxParamDoubleTypeXY
+     - OfxParamDoubleTypeXYAbsolute*/
 pub const kOfxParamPropDoubleType: &::std::ffi::CStr = c"OfxParamPropDoubleType";
+/// @brief value for the ::kOfxParamPropDoubleType property, indicating the parameter has no special interpretation and should be interpreted as a raw numeric value.
 pub const kOfxParamDoubleTypePlain: &::std::ffi::CStr = c"OfxParamDoubleTypePlain";
+/// @brief value for the ::kOfxParamPropDoubleType property, indicating the parameter is to be interpreted as a scale factor. See \ref ::kOfxParamPropDoubleType.
 pub const kOfxParamDoubleTypeScale: &::std::ffi::CStr = c"OfxParamDoubleTypeScale";
+/// @brief value for the ::kOfxParamDoubleTypeAngle property, indicating the parameter is to be interpreted as an angle. See \ref ::kOfxParamPropDoubleType.
 pub const kOfxParamDoubleTypeAngle: &::std::ffi::CStr = c"OfxParamDoubleTypeAngle";
+/// @brief value for the ::kOfxParamDoubleTypeAngle property, indicating the parameter is to be interpreted as a time. See \ref ::kOfxParamPropDoubleType.
 pub const kOfxParamDoubleTypeTime: &::std::ffi::CStr = c"OfxParamDoubleTypeTime";
+/// @brief value for the ::kOfxParamDoubleTypeAngle property, indicating the parameter is to be interpreted as an absolute time from the start of the effect. See \ref ::kOfxParamPropDoubleType.
 pub const kOfxParamDoubleTypeAbsoluteTime: &::std::ffi::CStr = c"OfxParamDoubleTypeAbsoluteTime";
+/// @brief value for the ::kOfxParamPropDoubleType property, indicating a size in canonical coords in the X dimension. See \ref ::kOfxParamPropDoubleType.
 pub const kOfxParamDoubleTypeX: &::std::ffi::CStr = c"OfxParamDoubleTypeX";
+/// @brief value for the ::kOfxParamPropDoubleType property, indicating a size in canonical coords in the Y dimension. See \ref ::kOfxParamPropDoubleType.
 pub const kOfxParamDoubleTypeY: &::std::ffi::CStr = c"OfxParamDoubleTypeY";
+/// @brief value for the ::kOfxParamPropDoubleType property, indicating an absolute position in canonical coords in the X dimension. See \ref ::kOfxParamPropDoubleType.
 pub const kOfxParamDoubleTypeXAbsolute: &::std::ffi::CStr = c"OfxParamDoubleTypeXAbsolute";
+/// @brief value for the ::kOfxParamPropDoubleType property, indicating an absolute position in canonical coords in the Y dimension. See \ref ::kOfxParamPropDoubleType.
 pub const kOfxParamDoubleTypeYAbsolute: &::std::ffi::CStr = c"OfxParamDoubleTypeYAbsolute";
+/// @brief value for the ::kOfxParamPropDoubleType property, indicating a 2D size in canonical coords. See \ref ::kOfxParamPropDoubleType.
 pub const kOfxParamDoubleTypeXY: &::std::ffi::CStr = c"OfxParamDoubleTypeXY";
+/// @brief value for the ::kOfxParamPropDoubleType property, indicating a 2D position in canonical coords. See \ref ::kOfxParamPropDoubleType.
 pub const kOfxParamDoubleTypeXYAbsolute: &::std::ffi::CStr = c"OfxParamDoubleTypeXYAbsolute";
+/** @brief Describes in which coordinate system a spatial double parameter's default value is specified.
+
+This allows a spatial param to specify what its default is, so by saying normalised and "0.5" it would be in the 'middle', by saying canonical and 100 it would be at value 100 independent of the size of the image being applied to.
+
+   - Valid Values - This must be one of
+      - kOfxParamCoordinatesCanonical - the default is in canonical coords
+      - kOfxParamCoordinatesNormalised - the default is in normalised coordinates
+   @propdef
+   type: enum
+   dimension: 1
+   values:
+     - OfxParamCoordinatesCanonical
+     - OfxParamCoordinatesNormalised*/
 pub const kOfxParamPropDefaultCoordinateSystem: &::std::ffi::CStr = c"OfxParamPropDefaultCoordinateSystem";
+/// @brief Define the canonical coordinate system
 pub const kOfxParamCoordinatesCanonical: &::std::ffi::CStr = c"OfxParamCoordinatesCanonical";
+/// @brief Define the normalised coordinate system
 pub const kOfxParamCoordinatesNormalised: &::std::ffi::CStr = c"OfxParamCoordinatesNormalised";
+/** @brief A flag to indicate if there is a host overlay UI handle for the given parameter.
+
+If set to 1, then the host is flagging that there is some sort of native user overlay interface handle available for the given parameter.
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxParamPropHasHostOverlayHandle: &::std::ffi::CStr = c"OfxParamPropHasHostOverlayHandle";
+/** @brief A flag to indicate that the host should use a native UI overlay handle for the given parameter.
+
+If set to 1, then a plugin is flaging to the host that the host should use a native UI overlay handle for the given parameter. A plugin can use this to keep a native look and feel for parameter handles. A plugin can use ::kOfxParamPropHasHostOverlayHandle to see if handles are available on the given parameter.
+    @propdef
+    type: bool
+    dimension: 1
+    cname: kOfxParamPropUseHostOverlayHandle*/
 pub const kOfxParamPropUseHostOverlayHandle: &::std::ffi::CStr = c"kOfxParamPropUseHostOverlayHandle";
+/// @brief value for the ::kOfxParamInterpType property, indicating a constant/hold/step interpolation type. See \ref ::kOfxParamInterpType.
 pub const kOfxParamInterpTypeConstantStep: &::std::ffi::CStr = c"OfxParamInterpTypeConstantStep";
+/// @brief value for the ::kOfxParamInterpType property, indicating a linear interpolation type. See \ref ::kOfxParamInterpType.
 pub const kOfxParamInterpTypeLinear: &::std::ffi::CStr = c"OfxParamInterpTypeLinear";
+/// @brief value for the ::kOfxParamInterpType property, indicating some kind of smooth interpolation type. See \ref ::kOfxParamInterpType.
 pub const kOfxParamInterpTypeSmooth: &::std::ffi::CStr = c"OfxParamInterpTypeSmooth";
+/** @brief Sets the default interpolation type of a Integer or Double parameter.
+
+   - Type - C string X 1
+   - Default - ::kOfxParamInterpTypeLinear
+   - Property Set - 1D integer and double plugin parameter descriptor (read/write) and instance (read only)
+   - Valid Values - This must be one of
+      - ::kOfxParamInterpTypeConstantStep - constant/hold/step interpolation,
+      - ::kOfxParamInterpTypeLinear - linear interpolation,
+      - ::kOfxParamInterpTypeSmooth - some kind of smooth (bezier, hermite, cardinal, etc) interpolation
+
+This allows a plugin to indicate how a number-type parameter should be interpolated by default. This is useful if a parameter
+is used to encode a keyed set of interesting frame numbers to be used as markers or retime points without the host animating them.*/
 pub const kOfxParamInterpType: &::std::ffi::CStr = c"OfxParamInterpType";
+/** @brief Enables the display of a time marker on the host's time line to indicate the value of the absolute time param.
+
+If a double parameter is has ::kOfxParamPropDoubleType set to ::kOfxParamDoubleTypeAbsoluteTime, then this indicates whether
+any marker should be made visible on the host's time line.
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxParamPropShowTimeMarker: &::std::ffi::CStr = c"OfxParamPropShowTimeMarker";
+/** @brief Sets the parameter pages and order of pages.
+
+This property sets the preferred order of parameter pages on a host. If this is never set, the preferred order is the order the parameters were declared in.
+
+    - Valid Values - the names of any page param in the plugin
+    @propdef
+    type: string
+    dimension: N*/
 pub const kOfxPluginPropParamPageOrder: &::std::ffi::CStr = c"OfxPluginPropParamPageOrder";
+/** @brief The names of the parameters included in a page parameter.
+
+This is a property on parameters of type ::kOfxParamTypePage, and tells the page what parameters it contains. The parameters are added to the page from the top left, filling in columns as we go. The two pseudo param names ::kOfxParamPageSkipRow and ::kOfxParamPageSkipColumn are used to control layout.
+
+Note parameters can appear in more than one page.
+
+    - Valid Values - the names of any parameter that is not a group or page, as well as ::kOfxParamPageSkipRow and ::kOfxParamPageSkipColumn
+    @propdef
+    type: string
+    dimension: N*/
 pub const kOfxParamPropPageChild: &::std::ffi::CStr = c"OfxParamPropPageChild";
+/** @brief The name of a parameter's parent group.
+
+Hosts that have hierarchical layouts of their params use this to recursively group parameter.
+
+By default parameters are added in order of declaration to the 'root' hierarchy. This property is used to reparent params to a predefined param of type ::kOfxParamTypeGroup.
+
+    - Valid Values - the name of a parameter with type of ::kOfxParamTypeGroup
+    @propdef
+    type: string
+    dimension: 1*/
 pub const kOfxParamPropParent: &::std::ffi::CStr = c"OfxParamPropParent";
+/** @brief Whether the initial state of a group is open or closed in a hierarchical layout.
+
+This is a property on parameters of type ::kOfxParamTypeGroup, and tells the group whether it should be open or closed by default.
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxParamPropGroupOpen: &::std::ffi::CStr = c"OfxParamPropGroupOpen";
+/** @brief Used to enable a parameter in the user interface.
+
+When set to 0 a user should not be able to modify the value of the parameter. Note that the plug-in itself can still change the value of a disabled parameter.
+    @propdef
+    type: bool
+    dimension: 1
+    optional: true*/
 pub const kOfxParamPropEnabled: &::std::ffi::CStr = c"OfxParamPropEnabled";
+/** @brief A private data pointer that the plug-in can store its own data behind.
+
+This data pointer is unique to each parameter instance, so two instances of the same parameter do not share the same data pointer. Use it to hang any needed private data structures.
+
+    @propdef
+    type: pointer
+    dimension: 1*/
 pub const kOfxParamPropDataPtr: &::std::ffi::CStr = c"OfxParamPropDataPtr";
+/** @brief Set options of a choice parameter.
+
+This property contains the set of options that will be presented to a user
+from a choice parameter. See @ref ParametersChoice for more details.
+
+    @propdef
+    type: string
+    dimension: N*/
 pub const kOfxParamPropChoiceOption: &::std::ffi::CStr = c"OfxParamPropChoiceOption";
+/** @brief Set values the host should store for a choice parameter.
+
+(read/write),
+`OfxParamPropChoiceOption`
+
+This property specifies the order in which the options are presented.
+See @ref "Choice Parameters" for more details.
+This property is optional; if not set, the host will present the options in
+their natural order.
+
+This property is useful when changing order of choice param options, or adding
+new options in the middle, in a new version of the plugin.
+
+  @verbatim
+  Plugin v1:
+  Option = {"OptA", "OptB", "OptC"}
+  Order = {1, 2, 3}
+
+  Plugin v2:
+  // will be shown as OptA / OptB / NewOpt / OptC
+  Option = {"OptA", "OptB", "OptC", NewOpt"}
+  Order = {1, 2, 4, 3}
+  @endverbatim
+
+Note that this only affects the host UI's display order; the project still
+stores the index of the selected option as always. Plugins should never
+reorder existing options if they desire backward compatibility.
+
+Values may be arbitrary 32-bit integers. Behavior is undefined if the same
+value occurs twice in the list; plugins should not do that.
+
+\since Version 1.5
+
+    @propdef
+    type: int
+    dimension: N*/
 pub const kOfxParamPropChoiceOrder: &::std::ffi::CStr = c"OfxParamPropChoiceOrder";
+/** @brief Set a enumeration string in a StrChoice (string-valued choice) parameter.
+
+(read/write),
+This property contains the set of enumeration strings stored by the host in
+the project corresponding to the options that will be presented to a user
+from a StrChoice parameter. See @ref ParametersChoice for more details.
+
+\since Version 1.5
+
+    @propdef
+    type: bool
+    dimension: 1
+    added: "1.5"*/
 pub const kOfxParamPropChoiceEnum: &::std::ffi::CStr = c"OfxParamPropChoiceEnum";
+/** @brief Indicates if the host supports animation of string choice params.
+
+\since Version 1.5
+    @propdef
+    type: bool
+    dimension: 1
+    introduced: "1.5"*/
 pub const kOfxParamHostPropSupportsStrChoiceAnimation: &::std::ffi::CStr = c"OfxParamHostPropSupportsStrChoiceAnimation";
+/** @brief Indicates if the host supports the StrChoice param type.
+
+\since Version 1.5
+    @propdef
+    type: bool
+    dimension: 1
+    introduced: "1.5"*/
 pub const kOfxParamHostPropSupportsStrChoice: &::std::ffi::CStr = c"OfxParamHostPropSupportsStrChoice";
+/** @brief The minimum value for a numeric parameter.
+
+Setting this will also reset ::kOfxParamPropDisplayMin.
+
+    @propdef
+    type: [int, double]
+    dimension: N*/
 pub const kOfxParamPropMin: &::std::ffi::CStr = c"OfxParamPropMin";
+/** @brief The maximum value for a numeric parameter.
+
+Setting this will also reset ::kOfxParamPropDisplayMax.
+
+    @propdef
+    type: [int, double]
+    dimension: N*/
 pub const kOfxParamPropMax: &::std::ffi::CStr = c"OfxParamPropMax";
+/** @brief The minimum value for a numeric parameter on any user interface.
+
+If a user interface represents a parameter with a slider or similar, this should be the minimum bound on that slider.
+
+    @propdef
+    type: [int, double]
+    dimension: N*/
 pub const kOfxParamPropDisplayMin: &::std::ffi::CStr = c"OfxParamPropDisplayMin";
+/** @brief The maximum value for a numeric parameter on any user interface.
+
+If a user interface represents a parameter with a slider or similar, this should be the maximum bound on that slider.
+
+    @propdef
+    type: [int, double]
+    dimension: N*/
 pub const kOfxParamPropDisplayMax: &::std::ffi::CStr = c"OfxParamPropDisplayMax";
+/** @brief The granularity of a slider used to represent a numeric parameter.
+
+This value is always in canonical coordinates for double parameters that are normalised.
+
+    - Valid Values - any greater than 0.
+    @propdef
+    type: double
+    dimension: 1*/
 pub const kOfxParamPropIncrement: &::std::ffi::CStr = c"OfxParamPropIncrement";
+/** @brief How many digits after a decimal point to display for a double param in a GUI.
+
+This applies to double params of any dimension.
+
+    - Valid Values - any greater than 0.
+    @propdef
+    type: int
+    dimension: 1*/
 pub const kOfxParamPropDigits: &::std::ffi::CStr = c"OfxParamPropDigits";
+/** @brief Label for individual dimensions on a multidimensional numeric parameter.
+
+Use this on 2D and 3D double and integer parameters to change the label on an individual dimension in any GUI for that parameter.
+
+    - Valid Values - any
+    @propdef
+    type: string
+    dimension: 1*/
 pub const kOfxParamPropDimensionLabel: &::std::ffi::CStr = c"OfxParamPropDimensionLabel";
+/** @brief Will a value change on the parameter add automatic keyframes.
+
+This is set by the host simply to indicate the state of the property.
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxParamPropIsAutoKeying: &::std::ffi::CStr = c"OfxParamPropIsAutoKeying";
+/** @brief A pointer to a custom parameter's interpolation function.
+
+It is an error not to set this property in a custom parameter during a plugin's define call if the custom parameter declares itself to be an animating parameter.
+
+    - Valid Values - must point to a ::OfxCustomParamInterpFuncV1
+    @propdef
+    type: pointer
+    dimension: 1
+    cname: kOfxParamPropCustomInterpCallbackV1*/
 pub const kOfxParamPropCustomInterpCallbackV1: &::std::ffi::CStr = c"OfxParamPropCustomCallbackV1";
+/** @brief Used to indicate the type of a string parameter.
+
+    - Valid Values - This must be one of the following
+        - ::kOfxParamStringIsSingleLine
+        - ::kOfxParamStringIsMultiLine
+        - ::kOfxParamStringIsFilePath
+        - ::kOfxParamStringIsDirectoryPath
+        - ::kOfxParamStringIsLabel
+        - ::kOfxParamStringIsRichTextFormat
+    @propdef
+    type: enum
+    dimension: 1
+    values:
+      - OfxParamStringIsSingleLine
+      - OfxParamStringIsMultiLine
+      - OfxParamStringIsFilePath
+      - OfxParamStringIsDirectoryPath
+      - OfxParamStringIsLabel
+      - OfxParamStringIsRichTextFormat*/
 pub const kOfxParamPropStringMode: &::std::ffi::CStr = c"OfxParamPropStringMode";
+/** @brief Indicates string parameters of file or directory type need that file to exist already.
+
+If set to 0, it implies the user can specify a new file name, not just a pre-existing one.
+    @propdef
+    type: bool
+    dimension: 1*/
 pub const kOfxParamPropStringFilePathExists: &::std::ffi::CStr = c"OfxParamPropStringFilePathExists";
+/** @brief Used to set a string parameter to be single line,
+    value to be passed to a ::kOfxParamPropStringMode property*/
 pub const kOfxParamStringIsSingleLine: &::std::ffi::CStr = c"OfxParamStringIsSingleLine";
+/** @brief Used to set a string parameter to be multiple line,
+    value to be passed to a ::kOfxParamPropStringMode property*/
 pub const kOfxParamStringIsMultiLine: &::std::ffi::CStr = c"OfxParamStringIsMultiLine";
+/** @brief Used to set a string parameter to be a file path,
+    value to be passed to a ::kOfxParamPropStringMode property*/
 pub const kOfxParamStringIsFilePath: &::std::ffi::CStr = c"OfxParamStringIsFilePath";
+/** @brief Used to set a string parameter to be a directory path,
+    value to be passed to a ::kOfxParamPropStringMode property*/
 pub const kOfxParamStringIsDirectoryPath: &::std::ffi::CStr = c"OfxParamStringIsDirectoryPath";
+/** @brief Use to set a string parameter to be a simple label,
+    value to be passed to a ::kOfxParamPropStringMode property*/
 pub const kOfxParamStringIsLabel: &::std::ffi::CStr = c"OfxParamStringIsLabel";
+/** @brief String value on the ::kOfxParamPropStringMode property of a
+    string parameter (added in 1.3)*/
 pub const kOfxParamStringIsRichTextFormat: &::std::ffi::CStr = c"OfxParamStringIsRichTextFormat";
+/** @brief Used by interpolating custom parameters to get and set interpolated values.
+This property is on the \e inArgs property and \e outArgs property of a ::OfxCustomParamInterpFuncV1 and in both cases contains the encoded value of a custom parameter. As an \e inArgs property it will have two values, being the two keyframes to interpolate. As an \e outArgs property it will have a single value and the plugin should fill this with the encoded interpolated value of the parameter.
+
+    @propdef
+    type: string
+    dimension: 2*/
 pub const kOfxParamPropCustomValue: &::std::ffi::CStr = c"OfxParamPropCustomValue";
+/** @brief Used by interpolating custom parameters to indicate the time a key occurs at.
+
+The two values indicate the absolute times the surrounding keyframes occur at. The keyframes are encoded in a ::kOfxParamPropCustomValue property.
+
+   @propdef
+   type: double
+   dimension: 2*/
 pub const kOfxParamPropInterpolationTime: &::std::ffi::CStr = c"OfxParamPropInterpolationTime";
+/** @brief Property used by ::OfxCustomParamInterpFuncV1 to indicate the amount of interpolation to perform
+
+This property indicates how far between the two ::kOfxParamPropCustomValue keys to interpolate.
+
+   - Valid Values - from 0 to 1
+   @propdef
+   type: double
+   dimension: 1*/
 pub const kOfxParamPropInterpolationAmount: &::std::ffi::CStr = c"OfxParamPropInterpolationAmount";
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]

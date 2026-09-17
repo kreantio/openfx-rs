@@ -1,4 +1,5 @@
 use super::core::OfxStatus;
+/// @brief Name of the time line suite
 pub const kOfxTimeLineSuite: &::std::ffi::CStr = c"OfxTimeLineSuite";
 /** @brief Suite to control timelines
 

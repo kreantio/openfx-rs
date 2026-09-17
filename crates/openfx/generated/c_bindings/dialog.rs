@@ -1,5 +1,16 @@
 use super::core::OfxStatus;
+/** @brief The name of the Dialog suite, used to fetch from a host via
+    OfxHost::fetchSuite*/
 pub const kOfxDialogSuite: &::std::ffi::CStr = c"OfxDialogSuite";
+/** @brief Action called after a dialog has requested a 'Dialog'
+         The arguments to the action are:
+          \arg \c user_data Pointer which was provided when the plugin requested the Dialog
+
+	   When the plugin receives this action it is safe to popup a dialog.
+	   It runs in the host's UI thread, which may differ from the main OFX processing thread.
+	   Plugin should return from this action when all Dialog interactions are done.
+	   At that point the host will continue again.
+	   The host will not send any other messages asynchronous to this one.*/
 pub const kOfxActionDialog: &::std::ffi::CStr = c"OfxActionDialog";
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
