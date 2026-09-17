@@ -6,6 +6,7 @@ use crate::vibe_zone::deserializers::{
 };
 
 pub mod bindings_for_c_headers;
+pub mod doc_parsing;
 
 mod vibe_zone;
 
