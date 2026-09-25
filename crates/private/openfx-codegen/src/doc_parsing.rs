@@ -1041,7 +1041,7 @@ of their outputs. The basic scheme is simple....
             #[expect(non_snake_case)]
             fn $fn_name() -> Result<(), Error> {
                 let code = include_str!(concat!(
-                    "../../../openfx/vendor/openfx/include/",
+                    "../../../../vendor/openfx/include/",
                     stringify!($name),
                     ".h"
                 ));
