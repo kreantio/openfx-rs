@@ -135,7 +135,7 @@ Mutex = "OfxMutexHandle"
 ParamInteger = { is = "OfxParamHandle", set = "ParamByte", d = 1, ty = "Int" }           # I guess? 
 ParamDouble = { is = "OfxParamHandle", set = "ParamDouble1D", d = 1, ty = "Double" }
 ParamBoolean = { is = "OfxParamHandle", set = "ParamByte", d = 1, ty = "Bool" }          # I guess? 
-ParamChoice = { is = "OfxParamHandle", set = "ParamChoice", d = 1, ty = "Int" }          # I guess? 
+ParamChoice = { is = "OfxParamHandle", set = "ParamChoice", d = 1, ty = "Int" }
 ParamStrChoice = { is = "OfxParamHandle", set = "ParamStrChoice", d = 1, ty = "String" }
 ParamRGBA = { is = "OfxParamHandle", set = "ParamDouble2D3D", d = 4, ty = "Double" }
 ParamRGB = { is = "OfxParamHandle", set = "ParamDouble2D3D", d = 3, ty = "Double" }
