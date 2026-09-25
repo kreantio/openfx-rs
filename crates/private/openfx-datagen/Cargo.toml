@@ -1,0 +1,19 @@
+[package]
+name = "openfx-datagen"
+publish = false
+version.workspace = true
+edition = "2024"
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+lang-c.workspace = true
+regex.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+pretty_assertions.workspace = true
