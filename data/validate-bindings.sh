@@ -3,7 +3,7 @@
 set -euo pipefail
 
 for file in generated/bindings/*; do
-    cargo xtask jsonschema --schema ./bindings.schema.json --input "$file" &
+    cargo xtask jsonschema --schema generated/schemata/bindings.schema.json --input "$file" &
 done
 
 wait

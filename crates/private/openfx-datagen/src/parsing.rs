@@ -12,13 +12,13 @@ pub enum Error {
     UnaddressedSyntax { code: String },
 }
 
-#[derive(Debug, serde::Serialize)]
+#[derive(Debug, serde::Serialize, schemars::JsonSchema)]
 pub struct Bindings {
     copyright_comments: Vec<String>,
     items: Vec<RootItemWithCommentAbove>,
 }
 
-#[derive(Debug, serde::Serialize)]
+#[derive(Debug, serde::Serialize, schemars::JsonSchema)]
 #[serde(tag = "$type")]
 pub enum RootItemWithCommentAbove {
     Item {
@@ -31,7 +31,7 @@ pub enum RootItemWithCommentAbove {
     },
 }
 
-#[derive(Debug, serde::Serialize)]
+#[derive(Debug, serde::Serialize, schemars::JsonSchema)]
 #[serde(tag = "$type")]
 pub enum RootItem {
     Define {
@@ -48,7 +48,7 @@ pub enum RootItem {
 
 /// The value of a `#define` directive that appears in the C headers of the
 /// OpenFX standard.
-#[derive(Debug, PartialEq, Eq, serde::Serialize)]
+#[derive(Debug, PartialEq, Eq, serde::Serialize, schemars::JsonSchema)]
 #[serde(tag = "$type")]
 pub enum DefineValue {
     /// String literal inside the quotes. Its contents are guaranteed to be
@@ -78,7 +78,7 @@ pub enum DefineValue {
     Symbol { value: String },
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, schemars::JsonSchema)]
 pub enum TypedIntegerLiteralType {
     Int,
 }

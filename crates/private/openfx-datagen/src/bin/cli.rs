@@ -52,6 +52,8 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let output_bindings_path = args.output_data.join("bindings");
     std::fs::create_dir_all(&output_bindings_path)?;
+    let output_schemata_path = args.output_data.join("schemata");
+    std::fs::create_dir_all(&output_schemata_path)?;
 
     parsed_headers.par_iter().try_for_each(
         |(name, items)| -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -62,6 +64,19 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             Ok(())
         },
     )?;
+
+    let schema_generator = schemars::generate::SchemaSettings::default()
+        .with_transform(schemars::transform::RecursiveTransform(
+            |s: &mut schemars::Schema| {
+                s.remove("description");
+            },
+        ))
+        .into_generator();
+
+    let bindings_schema = schema_generator.into_root_schema_for::<Bindings>();
+    let output_bindings_schema_path = output_schemata_path.join("bindings.schema.json");
+    let file = std::fs::File::create(&output_bindings_schema_path)?;
+    serde_json::to_writer_pretty(file, &bindings_schema)?;
 
     Ok(())
 }

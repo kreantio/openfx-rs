@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bindings",
+  "type": "object",
+  "properties": {
+    "copyright_comments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/RootItemWithCommentAbove"
+      }
+    }
+  },
+  "required": [
+    "copyright_comments",
+    "items"
+  ],
+  "$defs": {
+    "RootItemWithCommentAbove": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "comment_above": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "item": {
+              "$ref": "#/$defs/RootItem"
+            },
+            "$type": {
+              "type": "string",
+              "const": "Item"
+            }
+          },
+          "required": [
+            "$type",
+            "item"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "comment": {
+              "type": "string"
+            },
+            "$type": {
+              "type": "string",
+              "const": "StandaloneComment"
+            }
+          },
+          "required": [
+            "$type",
+            "comment"
+          ]
+        }
+      ]
+    },
+    "RootItem": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/DefineValue"
+            },
+            "comment": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "$type": {
+              "type": "string",
+              "const": "Define"
+            }
+          },
+          "required": [
+            "$type",
+            "name",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "$type": {
+              "type": "string",
+              "const": "Todo"
+            }
+          },
+          "required": [
+            "$type",
+            "code"
+          ]
+        }
+      ]
+    },
+    "DefineValue": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string"
+            },
+            "$type": {
+              "type": "string",
+              "const": "StringLiteral"
+            }
+          },
+          "required": [
+            "$type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0
+            },
+            "$type": {
+              "type": "string",
+              "const": "IntegerLiteral"
+            }
+          },
+          "required": [
+            "$type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "boolean"
+            },
+            "$type": {
+              "type": "string",
+              "const": "BooleanLiteral"
+            }
+          },
+          "required": [
+            "$type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "ty": {
+              "$ref": "#/$defs/TypedIntegerLiteralType"
+            },
+            "value": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0
+            },
+            "$type": {
+              "type": "string",
+              "const": "TypedIntegerLiteral"
+            }
+          },
+          "required": [
+            "$type",
+            "ty",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string"
+            },
+            "$type": {
+              "type": "string",
+              "const": "Symbol"
+            }
+          },
+          "required": [
+            "$type",
+            "value"
+          ]
+        }
+      ]
+    },
+    "TypedIntegerLiteralType": {
+      "type": "string",
+      "enum": [
+        "Int"
+      ]
+    }
+  }
+}
