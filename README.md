@@ -1,5 +1,12 @@
 # OpenFX bindings and tools for Rust
 
+> [!NOTE]
+> Recently (2026/09/26), this project's git history was rewritten to remove some
+> files. See [this issue](https://github.com/kreantio/openfx-rs/issues/6) for
+> details. At the time, the project had 0 forks and 0 merged PRs, so no one
+> should be affected. Refs for branches and tags have been manually remapped.
+> Thanks for the understanding.
+
 See Also:
 
 - [ATTRIBUTION.md](./ATTRIBUTION.md)
