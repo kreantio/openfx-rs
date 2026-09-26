@@ -20,5 +20,9 @@ snafu.workspace = true
 syn = { workspace = true, features = ["full", "visit", "visit-mut"] }
 toml.workspace = true
 
+[[bin]]
+name = "cli"
+path = "src/bin/cli.rs"
+
 [lints]
 workspace = true

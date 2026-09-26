@@ -1,23 +1,25 @@
+use std::path::PathBuf;
+
 use clap::Parser;
 
 #[derive(Parser, Debug)]
 struct Args {
     #[arg(long)]
-    codegen_config: String,
+    codegen_config: PathBuf,
 
     /// the path to the input C headers directory
     #[arg(long)]
-    input_c_headers: String,
+    input_c_headers: PathBuf,
 
     /// the path to the output directory for generated bindings
     #[arg(long)]
-    output_c_bindings: String,
+    output_c_bindings: PathBuf,
 
     #[arg(long)]
-    output_code_from_c: String,
+    output_code_from_c: PathBuf,
 
     #[arg(long)]
-    output_intermediate: String,
+    output_intermediate: PathBuf,
 }
 
 pub fn main() {
@@ -32,10 +34,10 @@ pub fn main() {
     openfx_codegen::bindings_for_c_headers::generate_bindings_for_c_headers(
         openfx_codegen::bindings_for_c_headers::Options {
             config: codegen_config,
-            headers_folder: args.input_c_headers.into(),
-            output_folder: args.output_c_bindings.into(),
-            output_folder_c: args.output_code_from_c.into(),
-            output_folder_intermediate: args.output_intermediate.into(),
+            headers_folder: args.input_c_headers,
+            output_folder: args.output_c_bindings,
+            output_folder_c: args.output_code_from_c,
+            output_folder_intermediate: args.output_intermediate,
         },
     );
 }
