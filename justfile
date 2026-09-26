@@ -7,3 +7,6 @@ generate-data:
     cargo run --release --package openfx-datagen --bin cli -- \
         --input-c-headers "{{ vendor-c-path }}" \
         --output-data "{{ data-generated-path }}"
+
+test-data:
+    cd data && just test

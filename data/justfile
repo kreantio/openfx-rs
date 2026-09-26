@@ -1,0 +1,4 @@
+set fallback := true
+
+test:
+    ./validate-bindings.sh
