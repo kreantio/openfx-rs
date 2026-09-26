@@ -1,0 +1,128 @@
+{
+  "copyright_comments": [
+    "// Copyright OpenFX and contributors to the OpenFX project.",
+    "// SPDX-License-Identifier: BSD-3-Clause"
+  ],
+  "items": [
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief string value to the ::kOfxPropType property for all parameters */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxParametricParameterSuite",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxParametricParameterSuite"
+        }
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n   \\defgroup ParamTypeDefines Parameter Type definitions \n\nThese strings are used to identify the type of the parameter when it is defined, they are also on the ::kOfxParamPropType in any parameter instance.\n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@{*/"
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief String to identify a param as a single valued integer */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxParamTypeParametric",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxParamTypeParametric"
+        }
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@}*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n   \\addtogroup PropertiesAll\n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@{*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n   \\defgroup ParamPropDefines Parameter Property Definitions \n\nThese are the list of properties used by the parameters suite.\n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@{*/"
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief The dimension of a parametric param\n\nThis indicates the dimension of the parametric param.\n    \n    @propdef\n    type: int\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxParamPropParametricDimension",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxParamPropParametricDimension"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief The colour of parametric param curve interface in any UI.\n\n      being interpreted as R, G and B of the colour for each curve drawn in the UI.\n\nThis sets the colour of a parametric param curve drawn a host user interface. A colour triple\nis needed for each dimension of the oparametric param. \n\nIf not set, the host should generally draw these in white.\n    \n    @propdef\n    type: double\n    dimension: N\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxParamPropParametricUIColour",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxParamPropParametricUIColour"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Interact entry point to draw the background of a parametric parameter.\n \nDefines a pointer to an interact which will be used to draw the background of a parametric \nparameter's user interface.  None of the pen or keyboard actions can ever be called on the interact.\n \nThe openGL transform will be set so that it is an orthographic transform that maps directly to the\n'parametric' space, so that 'x' represents the parametric position and 'y' represents the evaluated\nvalue.\n    \n    @propdef\n    type: pointer\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxParamPropParametricInteractBackground",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxParamPropParametricInteractBackground"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Property on the host to indicate support for parametric parameter animation.\n    \n    - Valid Values\n      - 0 indicating the host does not support animation of parmetric params,\n      - 1 indicating the host does support animation of parmetric params,\n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxParamHostPropSupportsParametricAnimation",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxParamHostPropSupportsParametricAnimation"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Property to indicate the min and max range of the parametric input value.\n \nThis controls the min and max values that the parameter will be evaluated at.\n    \n    - Valid Values - any pair of numbers so that  the first is less than the second.\n    @propdef\n    type: double\n    dimension: 2\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxParamPropParametricRange",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxParamPropParametricRange"
+        }
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@}*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@}*/"
+    }
+  ]
+}

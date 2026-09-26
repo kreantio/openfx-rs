@@ -5,12 +5,24 @@ version.workspace = true
 edition = "2024"
 license.workspace = true
 repository.workspace = true
+default-run = "cli"
 
 [dependencies]
-lang-c.workspace = true
+clap = { workspace = true, features = ["derive"] }
+rayon.workspace = true
 regex.workspace = true
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+snafu.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
+tree-sitter.workspace = true
+tree-sitter-c.workspace = true
+treesitter-types-c.workspace = true
+
+[[bin]]
+name = "cli"
+path = "src/bin/cli.rs"
 
 [lints]
 workspace = true

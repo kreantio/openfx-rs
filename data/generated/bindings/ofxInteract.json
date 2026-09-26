@@ -1,0 +1,324 @@
+{
+  "copyright_comments": [
+    "// Copyright OpenFX and contributors to the OpenFX project.",
+    "// SPDX-License-Identifier: BSD-3-Clause"
+  ],
+  "items": [
+    {
+      "$type": "Item",
+      "comment_above": "/** @file ofxInteract.h\nContains the API for ofx plugin defined GUIs and interaction.\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractSuite",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractSuite"
+        }
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n   \\addtogroup PropertiesAll\n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@{*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n   \\defgroup PropertiesInteract Interact Property Definitions\n\nThese are the list of properties used by the Interact API documented in \\ref CustomInteractionPage.\n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@{*/"
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief The set of parameters on which a value change will trigger a redraw for an interact.\n\nIf the interact is representing the state of some set of OFX parameters, then is will\nneed to be redrawn if any of those parameters' values change. This multi-dimensional property\nlinks such parameters to the interact.\n\nThe interact can be slaved to multiple parameters (setting index 0, then index 1 etc...)\n   \n   - Valid Values - the name of any parameter associated with this interact.\n   @propdef\n   type: string\n   dimension: N\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractPropSlaveToParam",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractPropSlaveToParam"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief The size of a real screen pixel under the interact's canonical projection.\n   \n   @propdef\n   type: double\n   dimension: 2\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractPropPixelScale",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractPropPixelScale"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief The background colour of the application behind an interact instance\n\nThe components are in the order red, green then blue.\n    \n    - Valid Values - from 0 to 1\n    @propdef\n    type: double\n    dimension: 3\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractPropBackgroundColour",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractPropBackgroundColour"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief The suggested colour to draw a widget in an interact, typically for overlays.\n \nSome applications allow the user to specify colours of any overlay via a colour picker, this\nproperty represents the value of that colour. Plugins are at liberty to use this or not when\nthey draw an overlay.\n\nIf a host does not support such a colour, it should return kOfxStatReplyDefault\n    \n    - Valid Values - greater than or equal to 0.0\n    @propdef\n    type: double\n    dimension: 3\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractPropSuggestedColour",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractPropSuggestedColour"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief The position of the pen in an interact.\n\nThis value passes the position of the pen into an interact. This is in the interact's canonical coordinates.\n   \n   @propdef\n   type: double\n   dimension: 2\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractPropPenPosition",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractPropPenPosition"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief The position of the pen in an interact in viewport coordinates.\n\nThis value passes the position of the pen into an interact. This is in the interact's openGL viewport coordinates, with 0,0 being at the bottom left.\n   \n   @propdef\n   type: int\n   dimension: 2\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractPropPenViewportPosition",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractPropPenViewportPosition"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief The pressure of the pen in an interact.\n\nThis is used to indicate the status of the 'pen' in an interact. If a pen has only two states (eg: a mouse button), these should map to 0.0 and 1.0.\n   \n   - Valid Values - from 0 (no pressure) to 1 (maximum pressure)\n   @propdef\n   type: double\n   dimension: 1\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractPropPenPressure",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractPropPenPressure"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates the bits per component in the interact's openGL frame buffer\n   \n   @propdef\n   type: int\n   dimension: 1\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractPropBitDepth",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractPropBitDepth"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates whether the interact's frame buffer has an alpha component or not\n   \n   - Valid Values - This must be one of\n       - 0 indicates no alpha component\n       - 1 indicates an alpha component\n   @propdef\n   type: bool\n   dimension: 1\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractPropHasAlpha",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractPropHasAlpha"
+        }
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@}*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@}*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n   \\addtogroup ActionsAll\n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@{*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n   \\defgroup InteractActions Interact Actions\n\nThese are the list of actions passed to an interact's entry point function. For more details on how to deal with actions, see \\ref InteractActions.\n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@{*/"
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief\n\n This action is the first action passed to an interact. It is\n where an interact defines how it behaves and the resources it needs to\n function.\n If not trapped, the default action is for the host to carry on as normal\n Note that the handle passed in acts as a descriptor for, rather than an\n instance of the interact.\n\n @param  handle handle to the interact descriptor, cast to an \\ref OfxInteractHandle\n @param  inArgs is redundant and is set to NULL\n @param  outArgs is redundant and is set to NULL\n\n\n \\pre\n     - The plugin has been loaded and the effect described.\n\n @returns\n     -  \\ref kOfxStatOK the action was trapped and all was well\n     -  \\ref kOfxStatErrMemory in which case describe may be called again after a memory purge\n     -  \\ref kOfxStatFailed something was wrong, the host should ignore the interact\n     -  \\ref kOfxStatErrFatal\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxActionDescribeInteract",
+        "value": {
+          "$type": "Symbol",
+          "value": "kOfxActionDescribe"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief\n\n This action is the first action passed to an interact instance after its creation.\n It is there to allow a plugin to create any per-instance data structures it may need.\n\n @param  handle handle to the interact instance, cast to an \\ref OfxInteractHandle\n @param  inArgs is redundant and is set to NULL\n @param  outArgs is redundant and is set to NULL\n\n\n \\pre\n     - \\ref kOfxActionDescribe has been called on this interact\n\n \\post\n     -  the instance pointer will be valid until the \\ref kOfxActionDestroyInstance\n     action is passed to the plug-in with the same instance handle\n\n @returns\n     -  \\ref kOfxStatOK the action was trapped and all was well\n     -  \\ref kOfxStatReplyDefault the action was ignored, but all was well anyway\n     -  \\ref kOfxStatErrFatal\n     -  \\ref kOfxStatErrMemory in which case this may be called again after a memory purge\n     -  \\ref kOfxStatFailed in which case the host should ignore this interact\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxActionCreateInstanceInteract",
+        "value": {
+          "$type": "Symbol",
+          "value": "kOfxActionCreateInstance"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/**@brief\n\n This action is the last passed to an interact's instance before its\n destruction. It is there to allow a plugin to destroy any per-instance\n data structures it may have created.\n\n @param handle handle to the interact instance, cast to an \\ref OfxInteractHandle\n @param inArgs is redundant and is set to NULL\n @param outArgs is redundant and is set to NULL\n\n \\pre\n     - \\ref kOfxActionCreateInstance\n     has been called on the handle,\n     - the instance has not had any of its members destroyed yet\n\n \\post\n     -  the instance pointer is no longer valid and any operation on it will be undefined\n\n @returns\n     To some extent, what is returned is moot, a bit like throwing an\n     exception in a C++ destructor, so the host should continue destruction\n     of the instance regardless\n     - \\ref kOfxStatOK the action was trapped and all was well\n     - \\ref kOfxStatReplyDefault the action was ignored as the effect had nothing to do\n     - \\ref kOfxStatErrFatal\n     - \\ref kOfxStatFailed something went wrong, but no error code appropriate.\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxActionDestroyInstanceInteract",
+        "value": {
+          "$type": "Symbol",
+          "value": "kOfxActionDestroyInstance"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief\n\n This action is issued to an interact whenever the host needs the plugin\n to redraw the given interact.\n\n The interact should either issue OpenGL calls (if the plugin is using\n OverlayInteractV1) to draw itself, or use DrawSuite calls (if using\n OverlayInteractV2).\n\n If this is called via kOfxImageEffectPluginPropOverlayInteractV2, drawing MUST use DrawSuite.\n \n If this is called via kOfxImageEffectPluginPropOverlayInteractV1, drawing SHOULD use OpenGL. Some existing plugins may use DrawSuite via kOfxImageEffectPluginPropOverlayInteractV1 if it's supported by the host, but this is discouraged.  \n\n Note that the interact may (in the case of custom parameter GUIS) or may\n not (in the case of image effect overlays) be required to swap buffers,\n that is up to the kind of interact.\n\n @param  handle handle to an interact instance, cast to an \\ref OfxInteractHandle\n @param  inArgs has the following properties on an image effect plugin\n     - \\ref kOfxPropEffectInstance a handle to the effect for which the interact has been,\n     - \\ref kOfxInteractPropPixelScale the scale factor to convert canonical pixels to screen pixels\n     - \\ref kOfxInteractPropBackgroundColour the background colour of the application behind the current view\n     - \\ref kOfxPropTime the effect time at which changed occurred\n     - \\ref kOfxImageEffectPropRenderScale the render scale applied to any image fetched\n\n @param  outArgs is redundant and is set to NULL\n\n\\pre\n     - \\ref kOfxActionCreateInstance has been called on the instance handle\n     - the openGL context for this interact has been set\n     -  the projection matrix will correspond to the interact's canonical view\n\n @returns\n     - \\ref kOfxStatOK the action was trapped and all was well\n     - \\ref kOfxStatReplyDefault the action was ignored\n     - \\ref kOfxStatErrFatal\n     - \\ref kOfxStatFailed something went wrong, the host should ignore this interact in future\n \n    @actiondef\n    inArgs:\n      - OfxPropEffectInstance\n      - OfxInteractPropDrawContext\n      - OfxInteractPropPixelScale\n      - OfxInteractPropBackgroundColour\n      - OfxPropTime\n      - OfxImageEffectPropRenderScale\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractActionDraw",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractActionDraw"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief\n\n This action is issued whenever the pen moves an the interact's has\n focus. It should be issued whether the pen is currently up or down.\n No openGL calls should be issued by the plug-in during this action.\n\n\n @param  handle handle to an interact instance, cast to an \\ref OfxInteractHandle\n @param  inArgs has the following properties on an image effect plugin\n     - \\ref kOfxPropEffectInstance a handle to the effect for which the interact has been,\n     - \\ref kOfxInteractPropPixelScale the scale factor to convert canonical pixels to screen pixels\n     - \\ref kOfxInteractPropBackgroundColour the background colour of the application behind the current view\n     - \\ref kOfxPropTime the effect time at which changed occurred\n     - \\ref kOfxImageEffectPropRenderScale the render scale applied to any image fetched\n     - \\ref kOfxInteractPropPenPosition position of the pen in,\n     - \\ref kOfxInteractPropPenViewportPosition position of the pen in,\n     - \\ref kOfxInteractPropPenPressure the pressure of the pen,\n\n @param  outArgs is redundant and is set to NULL\n\n\\pre\n     - \\ref  kOfxActionCreateInstance\n     has been called on the instance handle\n     - the current instance handle has had\n     \\ref kOfxInteractActionGainFocus called on it\n\n\\post\n     -  if the instance returns \\ref kOfxStatOK the host should not\n     pass the pen motion to any other interactive object it may own that\n     shares the same view.\n\n @returns\n     -  \\ref kOfxStatOK the action was trapped and the host should not pass the event to other objects it may own\n     -  \\ref kOfxStatReplyDefault the action was not trapped and the host can deal with it if it wants\n \n    @actiondef\n    inArgs:\n      - OfxPropEffectInstance\n      - OfxInteractPropPixelScale\n      - OfxInteractPropBackgroundColour\n      - OfxPropTime\n      - OfxImageEffectPropRenderScale\n      - OfxInteractPropPenPosition\n      - OfxInteractPropPenViewportPosition\n      - OfxInteractPropPenPressure\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractActionPenMotion",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractActionPenMotion"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/**@brief\n\n This action is issued when a pen transitions for the 'up' to the 'down'\n state.\n No openGL calls should be issued by the plug-in during this action.\n\n\n @param  handle handle to an interact instance, cast to an \\ref OfxInteractHandle\n @param  inArgs has the following properties on an image effect plugin,\n     - \\ref kOfxPropEffectInstance a handle to the effect for which the interact has been,\n     - \\ref kOfxInteractPropPixelScale the scale factor to convert canonical pixels to screen pixels\n     - \\ref kOfxInteractPropBackgroundColour the background colour of the application behind the current view\n     - \\ref kOfxPropTime the effect time at which changed occurred\n     - \\ref kOfxImageEffectPropRenderScale the render scale applied to any image fetched\n     - \\ref kOfxInteractPropPenPosition position of the pen in\n     - \\ref kOfxInteractPropPenViewportPosition position of the pen in\n     - \\ref kOfxInteractPropPenPressure the pressure of the pen\n\n @param  outArgs is redundant and is set to NULL\n\n \\pre\n     -  \\ref kOfxActionCreateInstance\n     has been called on the instance handle,\n     -  the current instance handle has had\n     \\ref kOfxInteractActionGainFocus\n     called on it\n\n\\post\n     -  if the instance returns \\ref kOfxStatOK, the host should not\n     pass the pen motion to any other interactive object it may own that\n     shares the same view.\n\n @returns\n     -  \\ref kOfxStatOK, the action was trapped and the host should not pass the event to other objects it may own\n     -  \\ref kOfxStatReplyDefault , the action was not trapped and the host can deal with it if it wants\n \n    @actiondef\n    inArgs:\n      - OfxPropEffectInstance\n      - OfxInteractPropPixelScale\n      - OfxInteractPropBackgroundColour\n      - OfxPropTime\n      - OfxImageEffectPropRenderScale\n      - OfxInteractPropPenPosition\n      - OfxInteractPropPenViewportPosition\n      - OfxInteractPropPenPressure\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractActionPenDown",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractActionPenDown"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/**@brief\n\n This action is issued when a pen transitions for the 'down' to the 'up'\n state.\n No openGL calls should be issued by the plug-in during this action.\n\n @param  handle handle to an interact instance, cast to an \\ref OfxInteractHandle\n @param  inArgs has the following properties on an image effect plugin,\n - \\ref kOfxPropEffectInstance a handle to the effect for which the interact has been,\n - \\ref kOfxInteractPropPixelScale the scale factor to convert canonical pixels to screen pixels\n - \\ref kOfxInteractPropBackgroundColour the background colour of the application behind the current view\n - \\ref kOfxPropTime the effect time at which changed occurred\n - \\ref kOfxImageEffectPropRenderScale the render scale applied to any image fetched\n - \\ref kOfxInteractPropPenPosition position of the pen in\n - \\ref kOfxInteractPropPenViewportPosition position of the pen in\n - \\ref kOfxInteractPropPenPressure the pressure of the pen\n\n @param  outArgs is redundant and is set to NULL\n\n \\pre\n     -  \\ref kOfxActionCreateInstance\n     has been called on the instance handle,\n     -  the current instance handle has had\n     \\ref kOfxInteractActionGainFocus called on it\n\n \\post\n     -  if the instance returns \\ref kOfxStatOK, the host should not\n     pass the pen motion to any other interactive object it may own that\n     shares the same view.\n\n @returns\n     -  \\ref kOfxStatOK, the action was trapped and the host should not pass the event to other objects it may own\n     -  \\ref kOfxStatReplyDefault , the action was not trapped and the host can deal with it if it wants\n \n    @actiondef\n    inArgs:\n      - OfxPropEffectInstance\n      - OfxInteractPropPixelScale\n      - OfxInteractPropBackgroundColour\n      - OfxPropTime\n      - OfxImageEffectPropRenderScale\n      - OfxInteractPropPenPosition\n      - OfxInteractPropPenViewportPosition\n      - OfxInteractPropPenPressure\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractActionPenUp",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractActionPenUp"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/**@brief\n\n This action is issued when a key on the keyboard is depressed.\n No openGL calls should be issued by the plug-in during this action.\n\n @param handle handle to an interact instance, cast to an \\ref OfxInteractHandle\n @param inArgs has the following properties on an image effect plugin\n     -  \\ref kOfxPropEffectInstance a handle to the effect for which the interact has been,\n     - \\ref kOfxPropKeySym single integer value representing the key that was manipulated,\n     this may not have a UTF8 representation (eg: a return key)\n     -  \\ref kOfxPropKeyString UTF8 string representing a character key that was pressed, some\n     keys have no UTF8 encoding, in which case this is \"\"\n     -  \\ref kOfxPropTime the effect time at which changed occurred\n     - \\ref kOfxImageEffectPropRenderScale the render scale applied to any image fetched\n\n @param  outArgs is redundant and is set to NULL\n\n\\pre\n     - \\ref kOfxActionCreateInstance\n     has been called on the instance handle,\n     -  the current instance handle has had\n     \\ref kOfxInteractActionGainFocus called on it\n\n \\post\n     -  if the instance returns \\ref kOfxStatOK, the host should not\n     pass the pen motion to any other interactive object it may own that\n     shares the same focus.\n\n @returns\n     - \\ref kOfxStatOK , the action was trapped and the host should not pass the event to other objects it may own\n     - \\ref kOfxStatReplyDefault , the action was not trapped and the host can deal with it if it wants\n \n    @actiondef\n    inArgs:\n      - OfxPropEffectInstance\n      - kOfxPropKeySym\n      - kOfxPropKeyString\n      - OfxPropTime\n      - OfxImageEffectPropRenderScale\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractActionKeyDown",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractActionKeyDown"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/**@brief\n This action is issued when a key on the keyboard is released.\n No openGL calls should be issued by the plug-in during this action.\n\n @param handle handle to an interact instance, cast to an \\ref OfxInteractHandle\n @param inArgs has the following properties on an image effect plugin\n     -  \\ref kOfxPropEffectInstance a handle to the effect for which the interact has been,\n     - \\ref kOfxPropKeySym single integer value representing the key that was manipulated,\n     this may not have a UTF8 representation (eg: a return key)\n     -  \\ref kOfxPropKeyString UTF8 string representing a character key that was pressed, some\n     keys have no UTF8 encoding, in which case this is \"\"\n     -  \\ref kOfxPropTime the effect time at which changed occurred\n     - \\ref kOfxImageEffectPropRenderScale the render scale applied to any image fetched\n\n @param  outArgs is redundant and is set to NULL\n\n \\pre\n     - \\ref kOfxActionCreateInstance\n     has been called on the instance handle,\n     -  the current instance handle has had\n     \\ref kOfxInteractActionGainFocus called on it\n\n \\post\n     -  if the instance returns \\ref kOfxStatOK, the host should not\n     pass the pen motion to any other interactive object it may own that\n     shares the same focus.\n\n @returns\n     - \\ref kOfxStatOK , the action was trapped and the host should not pass the event to other objects it may own\n     - \\ref kOfxStatReplyDefault , the action was not trapped and the host can deal with it if it wants\n \n    @actiondef\n    inArgs:\n      - OfxPropEffectInstance\n      - kOfxPropKeySym\n      - kOfxPropKeyString\n      - OfxPropTime\n      - OfxImageEffectPropRenderScale\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractActionKeyUp",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractActionKeyUp"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/**@brief\n This action is issued when a key on the keyboard is repeated.\n No openGL calls should be issued by the plug-in during this action.\n\n @param handle handle to an interact instance, cast to an \\ref OfxInteractHandle\n @param inArgs has the following properties on an image effect plugin\n     -  \\ref kOfxPropEffectInstance a handle to the effect for which the interact has been,\n     - \\ref kOfxPropKeySym single integer value representing the key that was manipulated,\n     this may not have a UTF8 representation (eg: a return key)\n     -  \\ref kOfxPropKeyString UTF8 string representing a character key that was pressed, some\n     keys have no UTF8 encoding, in which case this is \"\"\n     -  \\ref kOfxPropTime the effect time at which changed occurred\n     - \\ref kOfxImageEffectPropRenderScale the render scale applied to any image fetched\n\n @param  outArgs is redundant and is set to NULL\n\n \\pre\n     - \\ref kOfxActionCreateInstance\n     has been called on the instance handle,\n     -  the current instance handle has had\n     \\ref kOfxInteractActionGainFocus called on it\n\n \\post\n     -  if the instance returns \\ref kOfxStatOK, the host should not\n     pass the pen motion to any other interactive object it may own that\n     shares the same focus.\n\n @returns\n     - \\ref kOfxStatOK , the action was trapped and the host should not pass the event to other objects it may own\n     - \\ref kOfxStatReplyDefault , the action was not trapped and the host can deal with it if it wants\n \n    @actiondef\n    inArgs:\n      - OfxPropEffectInstance\n      - kOfxPropKeySym\n      - kOfxPropKeyString\n      - OfxPropTime\n      - OfxImageEffectPropRenderScale\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractActionKeyRepeat",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractActionKeyRepeat"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/**@brief\n This action is issued when an interact gains input focus.\n No openGL calls should be issued by the plug-in during this action.\n\n @param handle handle to an interact instance, cast to an \\ref OfxInteractHandle\n @param inArgs has the following properties on an image effect plugin\n     - \\ref kOfxPropEffectInstance a handle to the effect for which the interact is being used on,\n     - \\ref kOfxInteractPropPixelScale the scale factor to convert canonical pixels to screen pixels,\n     - \\ref kOfxInteractPropBackgroundColour the background colour of the application behind the current view\n     - \\ref kOfxPropTime the effect time at which changed occurred\n     - \\ref kOfxImageEffectPropRenderScale the render scale applied to any image fetched\n\n @param  outArgs is redundant and is set to NULL\n\n \\pre\n     - \\ref kOfxActionCreateInstance\n has been called on the instance handle,\n\n\n @returns\n     - \\ref kOfxStatOK  the action was trapped\n     - \\ref kOfxStatReplyDefault  the action was not trapped\n \n    @actiondef\n    inArgs:\n      - OfxPropEffectInstance\n      - OfxInteractPropPixelScale\n      - OfxInteractPropBackgroundColour\n      - OfxPropTime\n      - OfxImageEffectPropRenderScale\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractActionGainFocus",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractActionGainFocus"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/**@brief\n This action is issued when an interact loses input focus.\n No openGL calls should be issued by the plug-in during this action.\n\n @param handle handle to an interact instance, cast to an \\ref OfxInteractHandle\n @param inArgs has the following properties on an image effect plugin\n     - \\ref kOfxPropEffectInstance a handle to the effect for which the interact is being used on,\n     - \\ref kOfxInteractPropPixelScale the scale factor to convert canonical pixels to screen pixels,\n     - \\ref kOfxInteractPropBackgroundColour the background colour of the application behind the current view\n     - \\ref kOfxPropTime the effect time at which changed occurred\n     - \\ref kOfxImageEffectPropRenderScale the render scale applied to any image fetched\n\n @param  outArgs is redundant and is set to NULL\n\n \\pre\n     - \\ref kOfxActionCreateInstance\n     has been called on the instance handle,\n\n\n @returns\n     - \\ref kOfxStatOK  the action was trapped\n     - \\ref kOfxStatReplyDefault  the action was not trapped\n \n    @actiondef\n    inArgs:\n      - OfxPropEffectInstance\n      - OfxInteractPropPixelScale\n      - OfxInteractPropBackgroundColour\n      - OfxPropTime\n      - OfxImageEffectPropRenderScale\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxInteractActionLoseFocus",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxInteractActionLoseFocus"
+        }
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@}*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@}*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/** @propset InteractDescriptor\n    write: host\n    props:\n      - OfxInteractPropHasAlpha\n      - OfxInteractPropBitDepth\n*/"
+    }
+  ]
+}

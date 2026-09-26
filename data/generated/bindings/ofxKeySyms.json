@@ -1,0 +1,4133 @@
+{
+  "copyright_comments": [
+    "// Copyright OpenFX and contributors to the OpenFX project.",
+    "// SPDX-License-Identifier: BSD-3-Clause",
+    "/*\nCopyright (c) 1987, 1994  X Consortium\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n\"Software\"), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be included\nin all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS\nOR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.\nIN NO EVENT SHALL THE X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR\nOTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,\nARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR\nOTHER DEALINGS IN THE SOFTWARE.\n\nExcept as contained in this notice, the name of the X Consortium shall\nnot be used in advertising or otherwise to promote the sale, use or\nother dealings in this Software without prior written authorization\nfrom the X Consortium.\n\n\nCopyright 1987 by Digital Equipment Corporation, Maynard, Massachusetts\n\n                        All Rights Reserved\n\nPermission to use, copy, modify, and distribute this software and its\ndocumentation for any purpose and without fee is hereby granted,\nprovided that the above copyright notice appear in all copies and that\nboth that copyright notice and this permission notice appear in\nsupporting documentation, and that the name of Digital not be\nused in advertising or publicity pertaining to distribution of the\nsoftware without specific, written prior permission.\n\nDIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING\nALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL\nDIGITAL BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR\nANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,\nWHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS\nSOFTWARE.\n\n**/"
+  ],
+  "items": [
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n   \\addtogroup PropertiesGeneral\n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@{*/"
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Property used to indicate which a key on the keyboard or a button on a button device has been pressed\n\nThis property represents a raw key press, it does not represent the 'character value' of the key. \n\nThis property is associated with a ::kOfxPropKeyString property, which encodes the UTF8\nvalue for the keypress/button press. Some keys (for example arrow keys) have no UTF8 equivalent.\n\nSome keys, especially on non-english language systems, may have a UTF8 value, but \\em not a keysym values, in these\ncases, the keysym will have a value of kOfxKey_Unknown, but the ::kOfxPropKeyString property will still be set with\nthe UTF8 value.\n  \n  - Valid Values - one of any specified by #defines in the file ofxKeySyms.h.\n  @propdef\n  type: int\n  dimension: 1\n  cname: kOfxPropKeySym\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropKeySym",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "kOfxPropKeySym"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief This property encodes a single keypresses that generates a unicode code point. The value is stored as a UTF8 string. \n\nThis property represents the UTF8 encode value of a single key press by a user in an OFX interact.\n\nThis property is associated with a ::kOfxPropKeySym which represents an integer value for the key press. Some keys (for example arrow keys) have no UTF8 equivalent, \nin which case this is set to the empty string \"\", and the associate ::kOfxPropKeySym is set to the equivalent raw key press.\n\nSome keys, especially on non-english language systems, may have a UTF8 value, but \\em not a keysym values, in these\ncases, the keysym will have a value of kOfxKey_Unknown, but the ::kOfxPropKeyString property will still be set with\nthe UTF8 value.\n  \n  - Valid Values - a UTF8 string representing a single character, or the empty string.\n  @propdef\n  type: string\n  dimension: 1\n  cname: kOfxPropKeyString\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropKeyString",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "kOfxPropKeyString"
+        }
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*\n  The keysyms below have been lifted wholesale out of the X-Windows key symbol header file. Only\n  the names have been changed to protect the innocent.\n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@}*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n   \\defgroup KeySyms OFX Key symbols\n\n   These keysymbols are used as values by the ::kOfxPropKeySym property to indicate the value\nof a key that has been pressed. A corresponding ::kOfxPropKeyString property is also set to\ncontain the unicode value of the key (if it has one).\n\n   The special keysym ::kOfxKey_Unknown is used to set the ::kOfxPropKeySym property in cases\nwhere the key has a UTF8 value which is not supported by the symbols below.\n\n*/"
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/*@{*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Unknown",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 0
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/*\n * TTY Functions, cleverly chosen to map to ascii, for convenience of\n * programming, but could have been arbitrary (at the cost of lookup\n * tables in client code.\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_BackSpace",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65288
+        },
+        "comment": "/* back space, back char */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Tab",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65289
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Linefeed",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65290
+        },
+        "comment": "/* Linefeed, LF */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Clear",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65291
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Return",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65293
+        },
+        "comment": "/* Return, enter */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Pause",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65299
+        },
+        "comment": "/* Pause, hold */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Scroll_Lock",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65300
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Sys_Req",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65301
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Escape",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65307
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Delete",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65535
+        },
+        "comment": "/* Delete, rubout */"
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/* International & multi-key character composition */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Multi_key",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65312
+        },
+        "comment": "/* Multi-key character compose */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_SingleCandidate",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65340
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_MultipleCandidate",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65341
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_PreviousCandidate",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65342
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/* Japanese keyboard support */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Kanji",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65313
+        },
+        "comment": "/* Kanji, Kanji convert */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Muhenkan",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65314
+        },
+        "comment": "/* Cancel Conversion */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Henkan_Mode",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65315
+        },
+        "comment": "/* Start/Stop Conversion */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Henkan",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65315
+        },
+        "comment": "/* Alias for Henkan_Mode */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Romaji",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65316
+        },
+        "comment": "/* to Romaji */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Hiragana",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65317
+        },
+        "comment": "/* to Hiragana */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Katakana",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65318
+        },
+        "comment": "/* to Katakana */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Hiragana_Katakana",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65319
+        },
+        "comment": "/* Hiragana/Katakana toggle */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Zenkaku",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65320
+        },
+        "comment": "/* to Zenkaku */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Hankaku",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65321
+        },
+        "comment": "/* to Hankaku */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Zenkaku_Hankaku",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65322
+        },
+        "comment": "/* Zenkaku/Hankaku toggle */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Touroku",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65323
+        },
+        "comment": "/* Add to Dictionary */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Massyo",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65324
+        },
+        "comment": "/* Delete from Dictionary */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Kana_Lock",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65325
+        },
+        "comment": "/* Kana Lock */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Kana_Shift",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65326
+        },
+        "comment": "/* Kana Shift */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Eisu_Shift",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65327
+        },
+        "comment": "/* Alphanumeric Shift */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Eisu_toggle",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65328
+        },
+        "comment": "/* Alphanumeric toggle */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Zen_Koho",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65341
+        },
+        "comment": "/* Multiple/All Candidate(s) */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Mae_Koho",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65342
+        },
+        "comment": "/* Previous Candidate */"
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/* Cursor control & motion */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Home",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65360
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Left",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65361
+        },
+        "comment": "/* Move left, left arrow */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Up",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65362
+        },
+        "comment": "/* Move up, up arrow */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Right",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65363
+        },
+        "comment": "/* Move right, right arrow */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Down",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65364
+        },
+        "comment": "/* Move down, down arrow */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Prior",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65365
+        },
+        "comment": "/* Prior, previous */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Page_Up",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65365
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Next",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65366
+        },
+        "comment": "/* Next */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Page_Down",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65366
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_End",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65367
+        },
+        "comment": "/* EOL */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Begin",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65368
+        },
+        "comment": "/* BOL */"
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/* Misc Functions */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Select",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65376
+        },
+        "comment": "/* Select, mark */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Print",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65377
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Execute",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65378
+        },
+        "comment": "/* Execute, run, do */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Insert",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65379
+        },
+        "comment": "/* Insert, insert here */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Undo",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65381
+        },
+        "comment": "/* Undo, oops */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Redo",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65382
+        },
+        "comment": "/* redo, again */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Menu",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65383
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Find",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65384
+        },
+        "comment": "/* Find, search */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Cancel",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65385
+        },
+        "comment": "/* Cancel, stop, abort, exit */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Help",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65386
+        },
+        "comment": "/* Help */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Break",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65387
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Mode_switch",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65406
+        },
+        "comment": "/* Character set switch */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_script_switch",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65406
+        },
+        "comment": "/* Alias for mode_switch */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Num_Lock",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65407
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/* Keypad Functions, keypad numbers cleverly chosen to map to ascii */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Space",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65408
+        },
+        "comment": "/* space */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Tab",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65417
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Enter",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65421
+        },
+        "comment": "/* enter */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_F1",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65425
+        },
+        "comment": "/* PF1, KP_A, ... */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_F2",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65426
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_F3",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65427
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_F4",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65428
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Home",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65429
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Left",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65430
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Up",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65431
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Right",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65432
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Down",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65433
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Prior",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65434
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Page_Up",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65434
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Next",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65435
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Page_Down",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65435
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_End",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65436
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Begin",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65437
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Insert",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65438
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Delete",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65439
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Equal",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65469
+        },
+        "comment": "/* equals */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Multiply",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65450
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Add",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65451
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Separator",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65452
+        },
+        "comment": "/* separator, often comma */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Subtract",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65453
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Decimal",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65454
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_Divide",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65455
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_0",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65456
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_1",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65457
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_2",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65458
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_3",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65459
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_4",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65460
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_5",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65461
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_6",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65462
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_7",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65463
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_8",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65464
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_KP_9",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65465
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/*\n * Auxiliary Functions; note the duplicate definitions for left and right\n * function keys;  Sun keyboards and a few other manufactures have such\n * function key groups on the left and/or right sides of the keyboard.\n * We've not found a keyboard with more than 35 function keys total.\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F1",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65470
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F2",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65471
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F3",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65472
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F4",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65473
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F5",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65474
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F6",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65475
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F7",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65476
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F8",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65477
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F9",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65478
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F10",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65479
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F11",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65480
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_L1",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65480
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F12",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65481
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_L2",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65481
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F13",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65482
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_L3",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65482
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F14",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65483
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_L4",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65483
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F15",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65484
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_L5",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65484
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F16",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65485
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_L6",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65485
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F17",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65486
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_L7",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65486
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F18",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65487
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_L8",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65487
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F19",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65488
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_L9",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65488
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F20",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65489
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_L10",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65489
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F21",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65490
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_R1",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65490
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F22",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65491
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_R2",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65491
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F23",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65492
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_R3",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65492
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F24",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65493
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_R4",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65493
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F25",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65494
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_R5",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65494
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F26",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65495
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_R6",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65495
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F27",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65496
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_R7",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65496
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F28",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65497
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_R8",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65497
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F29",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65498
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_R9",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65498
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F30",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65499
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_R10",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65499
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F31",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65500
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_R11",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65500
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F32",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65501
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_R12",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65501
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F33",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65502
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_R13",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65502
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F34",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65503
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_R14",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65503
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F35",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65504
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_R15",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65504
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/* Modifiers */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Shift_L",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65505
+        },
+        "comment": "/* Left shift */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Shift_R",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65506
+        },
+        "comment": "/* Right shift */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Control_L",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65507
+        },
+        "comment": "/* Left control */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Control_R",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65508
+        },
+        "comment": "/* Right control */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Caps_Lock",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65509
+        },
+        "comment": "/* Caps lock */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Shift_Lock",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65510
+        },
+        "comment": "/* Shift lock */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Meta_L",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65511
+        },
+        "comment": "/* Left meta */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Meta_R",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65512
+        },
+        "comment": "/* Right meta */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Alt_L",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65513
+        },
+        "comment": "/* Left alt */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Alt_R",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65514
+        },
+        "comment": "/* Right alt */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Super_L",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65515
+        },
+        "comment": "/* Left super */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Super_R",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65516
+        },
+        "comment": "/* Right super */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Hyper_L",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65517
+        },
+        "comment": "/* Left hyper */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Hyper_R",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65518
+        },
+        "comment": "/* Right hyper */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_space",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 32
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_exclam",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 33
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_quotedbl",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 34
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_numbersign",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 35
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_dollar",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 36
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_percent",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 37
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_ampersand",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 38
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_apostrophe",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 39
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_quoteright",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 39
+        },
+        "comment": "/* deprecated */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_parenleft",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 40
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_parenright",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 41
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_asterisk",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 42
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_plus",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 43
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_comma",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 44
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_minus",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 45
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_period",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 46
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_slash",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 47
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_0",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 48
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_1",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 49
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_2",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 50
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_3",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 51
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_4",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 52
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_5",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 53
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_6",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 54
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_7",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 55
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_8",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 56
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_9",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 57
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_colon",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 58
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_semicolon",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 59
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_less",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 60
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_equal",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 61
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_greater",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 62
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_question",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 63
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_at",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 64
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_A",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 65
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_B",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 66
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_C",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 67
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_D",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 68
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_E",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 69
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_F",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 70
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_G",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 71
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_H",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 72
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_I",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 73
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_J",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 74
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_K",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 75
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_L",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 76
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_M",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 77
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_N",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 78
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_O",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 79
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_P",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 80
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Q",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 81
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_R",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 82
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_S",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 83
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_T",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 84
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_U",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 85
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_V",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 86
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_W",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 87
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_X",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 88
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Y",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 89
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Z",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 90
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_bracketleft",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 91
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_backslash",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 92
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_bracketright",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 93
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_asciicircum",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 94
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_underscore",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 95
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_grave",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 96
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_quoteleft",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 96
+        },
+        "comment": "/* deprecated */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_a",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 97
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_b",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 98
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_c",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 99
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_d",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 100
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_e",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 101
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_f",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 102
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_g",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 103
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_h",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 104
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_i",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 105
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_j",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 106
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_k",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 107
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_l",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 108
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_m",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 109
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_n",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 110
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_o",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 111
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_p",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 112
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_q",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 113
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_r",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 114
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_s",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 115
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_t",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 116
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_u",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 117
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_v",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 118
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_w",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 119
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_x",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 120
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_y",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 121
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_z",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 122
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_braceleft",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 123
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_bar",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 124
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_braceright",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 125
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_asciitilde",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 126
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_nobreakspace",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 160
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_exclamdown",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 161
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_cent",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 162
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_sterling",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 163
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_currency",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 164
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_yen",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 165
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_brokenbar",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 166
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_section",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 167
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_diaeresis",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 168
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_copyright",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 169
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_ordfeminine",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 170
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_guillemotleft",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 171
+        },
+        "comment": "/* left angle quotation mark */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_notsign",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 172
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_hyphen",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 173
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_registered",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 174
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_macron",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 175
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_degree",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 176
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_plusminus",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 177
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_twosuperior",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 178
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_threesuperior",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 179
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_acute",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 180
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_mu",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 181
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_paragraph",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 182
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_periodcentered",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 183
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_cedilla",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 184
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_onesuperior",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 185
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_masculine",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 186
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_guillemotright",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 187
+        },
+        "comment": "/* right angle quotation mark */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_onequarter",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 188
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_onehalf",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 189
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_threequarters",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 190
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_questiondown",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 191
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Agrave",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 192
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Aacute",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 193
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Acircumflex",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 194
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Atilde",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 195
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Adiaeresis",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 196
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Aring",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 197
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_AE",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 198
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Ccedilla",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 199
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Egrave",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 200
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Eacute",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 201
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Ecircumflex",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 202
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Ediaeresis",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 203
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Igrave",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 204
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Iacute",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 205
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Icircumflex",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 206
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Idiaeresis",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 207
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_ETH",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 208
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Eth",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 208
+        },
+        "comment": "/* deprecated */"
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Ntilde",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 209
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Ograve",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 210
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Oacute",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 211
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Ocircumflex",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 212
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Otilde",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 213
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Odiaeresis",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 214
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_multiply",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 215
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Ooblique",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 216
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Ugrave",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 217
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Uacute",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 218
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Ucircumflex",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 219
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Udiaeresis",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 220
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_Yacute",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 221
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_THORN",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 222
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_ssharp",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 223
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_agrave",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 224
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_aacute",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 225
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_acircumflex",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 226
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_atilde",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 227
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_adiaeresis",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 228
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_aring",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 229
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_ae",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 230
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_ccedilla",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 231
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_egrave",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 232
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_eacute",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 233
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_ecircumflex",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 234
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_ediaeresis",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 235
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_igrave",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 236
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_iacute",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 237
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_icircumflex",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 238
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_idiaeresis",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 239
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_eth",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 240
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_ntilde",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 241
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_ograve",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 242
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_oacute",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 243
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_ocircumflex",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 244
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_otilde",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 245
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_odiaeresis",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 246
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_division",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 247
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_oslash",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 248
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_ugrave",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 249
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_uacute",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 250
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_ucircumflex",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 251
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_udiaeresis",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 252
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_yacute",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 253
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_thorn",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 254
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxKey_ydiaeresis",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 255
+        }
+      }
+    }
+  ]
+}

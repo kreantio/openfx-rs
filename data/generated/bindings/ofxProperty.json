@@ -1,0 +1,28 @@
+{
+  "copyright_comments": [
+    "// Copyright OpenFX and contributors to the OpenFX project.",
+    "// SPDX-License-Identifier: BSD-3-Clause"
+  ],
+  "items": [
+    {
+      "$type": "Item",
+      "comment_above": "/** @file ofxProperty.h\nContains the API for manipulating generic properties. For more details see \\ref PropertiesPage.\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropertySuite",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPropertySuite"
+        }
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n   \\addtogroup ErrorCodes \n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@{*/"
+    }
+  ]
+}

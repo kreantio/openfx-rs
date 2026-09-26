@@ -1,0 +1,20 @@
+{
+  "copyright_comments": [
+    "// Copyright OpenFX and contributors to the OpenFX project.",
+    "// SPDX-License-Identifier: BSD-3-Clause"
+  ],
+  "items": [
+    {
+      "$type": "Item",
+      "comment_above": "/** @file ofxMultiThread.h\n\n    This file contains the Host Suite for threading \n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxMultiThreadSuite",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxMultiThreadSuite"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,388 @@
+{
+  "copyright_comments": [
+    "// Copyright OpenFX and contributors to the OpenFX project.",
+    "// SPDX-License-Identifier: BSD-3-Clause"
+  ],
+  "items": [
+    {
+      "$type": "StandaloneComment",
+      "comment": "/** @defgroup OpenGLRenderSuite OpenGL Render Suite\n * @{\n */"
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief The name of the OpenGL render suite, used to fetch from a host\nvia OfxHost::fetchSuite\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxOpenGLRenderSuite",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectOpenGLRenderSuite"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates whether a host or plug-in can support OpenGL accelerated\nrendering\n\n   - Valid Values -\n     - \"false\"  - in which case the host or plug-in does not support OpenGL\n                  accelerated rendering\n     - \"true\"   - which means a host or plug-in can support OpenGL accelerated\n                  rendering, in the case of plug-ins this also means that it\n                  is capable of CPU based rendering in the absence of a GPU\n     - \"needed\" - only for plug-ins, this means that an plug-in has to have\n                  OpenGL support, without which it cannot work.\n\nV1.4: It is now expected from host reporting v1.4 that the plug-in can during instance change switch from true to false and false to true.\n\n    @propdef\n    type: enum\n    dimension: 1\n    values:\n      - \"false\"\n      - \"true\"\n      - needed\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxImageEffectPropOpenGLRenderSupported",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectPropOpenGLRenderSupported"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates the bit depths supported by a plug-in during OpenGL renders.\n\n    This is analogous to ::kOfxImageEffectPropSupportedPixelDepths. When a\n    plug-in sets this property, the host will try to provide buffers/textures\n    in one of the supported formats. Additionally, the target buffers where\n    the plug-in renders to will be set to one of the supported formats.\n\n    Unlike ::kOfxImageEffectPropSupportedPixelDepths, this property is\n    optional. Shader-based effects might not really care about any\n    format specifics when using OpenGL textures, so they can leave this unset\n    and allow the host the decide the format.\n\n   - Valid Values -\n       - ::kOfxBitDepthNone (implying a clip is unconnected, not valid for an\n         image)\n       - ::kOfxBitDepthByte\n       - ::kOfxBitDepthShort\n       - ::kOfxBitDepthHalf\n       - ::kOfxBitDepthFloat\n\n    @propdef\n    type: enum\n    dimension: N\n    values:\n      - OfxBitDepthNone\n      - OfxBitDepthByte\n      - OfxBitDepthShort\n      - OfxBitDepthHalf\n      - OfxBitDepthFloat\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxOpenGLPropPixelDepth",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxOpenGLPropPixelDepth"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates that a plug-in SHOULD use OpenGL acceleration in\nthe current action\n\n   When a plug-in and host have established they can both use OpenGL renders\n   then when this property has been set the host expects the plug-in to render\n   its result into the buffer it has setup before calling the render.  The\n   plug-in can then also safely use the 'OfxImageEffectOpenGLRenderSuite'\n\n   - Valid Values\n      - 0 indicates that the plug-in cannot use the OpenGL suite\n      - 1 indicates that the plug-in should render into the texture,\n          and may use the OpenGL suite functions.\n\n\\note Once this property is set, the host and plug-in have agreed to\nuse OpenGL, so the effect SHOULD access all its images through the\nOpenGL suite.\n\nv1.4:  kOfxImageEffectPropOpenGLEnabled should probably be checked in Instance Changed prior to try to read image via clipLoadTexture\n\n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxImageEffectPropOpenGLEnabled",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectPropOpenGLEnabled"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates the texture index of an image turned into an OpenGL\ntexture by the host\n\nThis value should be cast to a GLuint and used as the texture index when\nperforming OpenGL texture operations.\n\n   The property set of the following actions should contain this property:\n      - ::kOfxImageEffectActionRender\n      - ::kOfxImageEffectActionBeginSequenceRender\n      - ::kOfxImageEffectActionEndSequenceRender\n    \n    @propdef\n    type: int\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxImageEffectPropOpenGLTextureIndex",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectPropOpenGLTextureIndex"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates the texture target enumerator of an image turned into\n    an OpenGL texture by the host\n\nThis value should be cast to a GLenum and used as the texture target\nwhen performing OpenGL texture operations.\n\n   The property set of the following actions should contain this property:\n      - ::kOfxImageEffectActionRender\n      - ::kOfxImageEffectActionBeginSequenceRender\n      - ::kOfxImageEffectActionEndSequenceRender\n    \n    @propdef\n    type: int\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxImageEffectPropOpenGLTextureTarget",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectPropOpenGLTextureTarget"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates whether a host or plug-in can (or more importantly cannot)\n    support CPU rendering.\n\n  @version added in version 1.5.1.\n\n   - Valid Values -\n     - \"false\"  - in which case the host or plug-in does not support CPU\n                  rendering\n     - \"true\"   - which means a host or plug-in can support CPU rendering\n\n    @propdef\n    type: enum\n    dimension: 1\n    values:\n      - \"false\"\n      - \"true\"\n    introduced: \"1.5.1\"\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxImageEffectPropCPURenderSupported",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectPropCPURenderSupported"
+        }
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/** @name StatusReturnValues\nOfxStatus returns indicating that a OpenGL render error has occurred:\n\n - If a plug-in returns ::kOfxStatGLRenderFailed, the host should retry the\n   render with OpenGL rendering disabled.\n\n - If a plug-in returns ::kOfxStatGLOutOfMemory, the host may choose to free\n   resources on the GPU and retry the OpenGL render, rather than immediately\n   falling back to CPU rendering.\n */"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n * @{\n */"
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief GPU render ran out of memory */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatGPUOutOfMemory",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 1001
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief OpenGL render ran out of memory (same as ``kOfxStatGPUOutOfMemory``) */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatGLOutOfMemory",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 1001
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief GPU render failed in a non-memory-related way */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatGPURenderFailed",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 1002
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief OpenGL render failed in a non-memory-related way (same as ``kOfxStatGPURenderFailed``) */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatGLRenderFailed",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 1002
+        },
+        "comment": "/* for backward compatibility */"
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/** @} */"
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Action called when an effect has just been attached to an OpenGL\ncontext.\n\nThe purpose of this action is to allow a plug-in to set up any data it may need\nto do OpenGL rendering in an instance. For example...\n   - allocate a lookup table on a GPU,\n   - create an OpenCL or CUDA context that is bound to the host's OpenGL\n     context so it can share buffers.\n\nThe plug-in will be responsible for deallocating any such shared resource in the\n\\ref ::kOfxActionOpenGLContextDetached action.\n\nA host cannot call ::kOfxActionOpenGLContextAttached on the same instance\nwithout an intervening ::kOfxActionOpenGLContextDetached. A host can have a\nplug-in swap OpenGL contexts by issuing a attach/detach for the first context\nthen another attach for the next context.\n\nThe arguments to the action are...\n  \\arg \\c handle handle to the plug-in instance, cast to an\n  \\ref OfxImageEffectHandle\n  \\arg \\c inArgs is redundant and set to NULL\n  \\arg \\c outArgs is redundant and set to NULL\n\nA plug-in can return...\n  - ::kOfxStatOK, the action was trapped and all was well\n  - ::kOfxStatReplyDefault, the action was ignored, but all was well anyway\n  - ::kOfxStatErrMemory, in which case this may be called again after a memory\n    purge\n  - ::kOfxStatFailed, something went wrong, but no error code appropriate,\n    the plug-in should to post a message if possible and the host should not\n    attempt to run the plug-in in OpenGL render mode.\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxActionOpenGLContextAttached",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxActionOpenGLContextAttached"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Action called when an effect is about to be detached from an\nOpenGL context\n\nThe purpose of this action is to allow a plug-in to deallocate any resource\nallocated in \\ref ::kOfxActionOpenGLContextAttached just before the host\ndecouples a plug-in from an OpenGL context.\nThe host must call this with the same OpenGL context active as it\ncalled with the corresponding ::kOfxActionOpenGLContextAttached.\n\nThe arguments to the action are...\n  \\arg \\c handle handle to the plug-in instance, cast to an\n  \\ref OfxImageEffectHandle\n  \\arg \\c inArgs is redundant and set to NULL\n  \\arg \\c outArgs is redundant and set to NULL\n\nA plug-in can return...\n  - ::kOfxStatOK, the action was trapped and all was well\n  - ::kOfxStatReplyDefault, the action was ignored, but all was well anyway\n  - ::kOfxStatErrMemory, in which case this may be called again after a memory\n    purge\n  - ::kOfxStatFailed, something went wrong, but no error code appropriate,\n    the plug-in should to post a message if possible and the host should not\n    attempt to run the plug-in in OpenGL render mode.\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxActionOpenGLContextDetached",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "kOfxActionOpenGLContextDetached"
+        }
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/** @page ofxOpenGLRender OpenGL Acceleration of Rendering\n\n@section ofxOpenGLRenderIntro Introduction\n\nThe OfxOpenGLRenderSuite allows image effects to use OpenGL commands\n(hopefully backed by a GPU) to accelerate rendering\nof their outputs. The basic scheme is simple....\n  - An effect indicates it wants to use OpenGL acceleration by setting the\n    ::kOfxImageEffectPropOpenGLRenderSupported flag on its descriptor\n  - A host indicates it supports OpenGL acceleration by setting\n    ::kOfxImageEffectPropOpenGLRenderSupported on its descriptor\n  - In an effect's ::kOfxImageEffectActionGetClipPreferences action, an\n    effect indicates what clips it will be loading images from onto the GPU's\n    memory during an effect's ::kOfxImageEffectActionRender action.\n\n@section ofxOpenGLRenderHouseKeeping OpenGL House Keeping\n\nIf a host supports OpenGL rendering then it flags this with the string\nproperty ::kOfxImageEffectPropOpenGLRenderSupported on its descriptor property\nset. Effects that cannot run without OpenGL support should examine this in\n::kOfxActionDescribe action and return a ::kOfxStatErrMissingHostFeature\nstatus flag if it is not set to \"true\".\n\nEffects flag to a host that they support OpenGL rendering by setting the\nstring property ::kOfxImageEffectPropOpenGLRenderSupported on their effect\ndescriptor during the ::kOfxActionDescribe action. Effects can work in three\nways....\n  - purely on CPUs without any OpenGL support at all, in which case they\n    should set ::kOfxImageEffectPropOpenGLRenderSupported to be \"false\" (the\n    default),\n  - on CPUs but with optional OpenGL support, in which case they should set\n    ::kOfxImageEffectPropOpenGLRenderSupported to be \"true\",\n  - only with OpenGL support, in which case they should set\n    ::kOfxImageEffectPropOpenGLRenderSupported to be \"needed\".\n\nHosts can examine this flag and respond to it appropriately.\n\nEffects can use OpenGL accelerated rendering during the following\naction...\n  - ::kOfxImageEffectActionRender\n\nIf an effect has indicated that it optionally supports OpenGL acceleration,\nit should check the property ::kOfxImageEffectPropOpenGLEnabled\npassed as an in argument to the following actions,\n  - ::kOfxImageEffectActionRender\n  - ::kOfxImageEffectActionBeginSequenceRender\n  - ::kOfxImageEffectActionEndSequenceRender\n\nIf this property is set to 0, then it should not attempt to use any calls to\nthe OpenGL suite or OpenGL calls whilst rendering.\n\n\n@section ofxOpenGLRenderGettingTextures Getting Images as Textures\n\nAn effect could fetch an image into memory from a host via the standard\nImage Effect suite \"clipGetImage\" call, then create an OpenGL\ntexture from that. However as several buffer copies and various other bits\nof house keeping may need to happen to do this, it is more\nefficient for a host to create the texture directly.\n\nThe OfxOpenGLRenderSuiteV1::clipLoadTexture function does this. The\narguments and semantics are similar to the\nOfxImageEffectSuiteV2::clipGetImage function, with a few minor changes.\n\nThe effect is passed back a property handle describing the texture. Once the\ntexture is finished with, this should be disposed\nof via the OfxOpenGLRenderSuiteV1::clipFreeTexture function, which will also\ndelete the associated OpenGL texture (for source clips).\n\nThe returned handle has a set of properties on it, analogous to the\nproperties returned on the image handle by\nOfxImageEffectSuiteV2::clipGetImage. These are:\n    - ::kOfxImageEffectPropOpenGLTextureIndex\n    - ::kOfxImageEffectPropOpenGLTextureTarget\n    - ::kOfxImageEffectPropPixelDepth\n    - ::kOfxImageEffectPropComponents\n    - ::kOfxImageEffectPropPreMultiplication\n    - ::kOfxImageEffectPropRenderScale\n    - ::kOfxImagePropPixelAspectRatio\n    - ::kOfxImagePropBounds\n    - ::kOfxImagePropRegionOfDefinition\n    - ::kOfxImagePropRowBytes\n    - ::kOfxImagePropField\n    - ::kOfxImagePropUniqueIdentifier\n\nThe main difference between this and an image handle is that the\n::kOfxImagePropData property is replaced by the\nkOfxImageEffectPropOpenGLTextureIndex property.\nThis integer property should be cast to a GLuint and is the index to use for\nthe OpenGL texture.\nNext to texture handle the texture target enumerator is given in\nkOfxImageEffectPropOpenGLTextureTarget\n\nNote, because the image is being directly loaded into a texture by the host\nit need not obey the Clip Preferences action to remap the image to the pixel\ndepth the effect requested.\n\n@section ofxOpenGLRenderOutput Render Output Directly with OpenGL\n\nEffects can use the graphics context as they see fit. They may be doing\nseveral render passes with fetch back from the card to main memory\nvia 'render to texture' mechanisms interleaved with passes performed on the\nCPU. The effect must leave output on the graphics card in the provided output\nimage texture buffer.\n\nThe host will create a default OpenGL viewport that is the size of the\nrender window passed to the render action. The following\ncode snippet shows how the viewport should be rooted at the bottom left of\nthe output texture.\n\n\\verbatim\n  // set up the OpenGL context for the render to texture\n  ...\n\n  // figure the size of the render window\n  int dx = renderWindow.x2 - renderWindow.x1;\n  int dy = renderWindow.y2 - renderWindow.y2;\n\n  // setup the output viewport\n  glViewport(0, 0, dx, dy);\n\n\\endverbatim\n\nPrior to calling the render action the host may also choose to\nbind the output texture as the current color buffer (render target), or they\nmay defer doing this until clipLoadTexture is called for the output clip.\n\nAfter this, it is completely up to the effect to choose what OpenGL\noperations to render with, including projections and so on.\n\n@section ofxOpenGLRenderContext OpenGL Current Context\n\nThe host is only required to make the OpenGL context current (e.g.,\nusing wglMakeCurrent, for Windows) during the following actions:\n\n   - ::kOfxImageEffectActionRender\n   - ::kOfxImageEffectActionBeginSequenceRender\n   - ::kOfxImageEffectActionEndSequenceRender\n   - ::kOfxActionOpenGLContextAttached\n   - ::kOfxActionOpenGLContextDetached\n\nFor the first 3 actions, Render through EndSequenceRender, the host is only\nrequired to set the OpenGL context if ::kOfxImageEffectPropOpenGLEnabled is\nset.  In other words, a plug-in should not expect the OpenGL context to be\ncurrent for other OFX calls, such as ::kOfxImageEffectActionDescribeInContext.\n\n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/** @}*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "// end of OpenGLRender doc group"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n * @defgroup CudaRender CUDA Rendering\n * @version CUDA rendering was added in version 1.5.\n *\n * @{\n */"
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates whether a host or plug-in can support CUDA render\n\n    - Valid Values -\n      - \"false\"  - the host or plug-in does not support CUDA render\n      - \"true\"   - the host or plug-in can support CUDA render\n\n    @propdef\n    type: enum\n    dimension: 1\n    values:\n      - \"false\"\n      - \"true\"\n      - needed\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxImageEffectPropCudaRenderSupported",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectPropCudaRenderSupported"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates that a plug-in SHOULD use CUDA render in\nthe current action\n\n   If a plug-in and host have both set\n   kOfxImageEffectPropCudaRenderSupported=\"true\" then the host MAY set\n   this property to indicate that it is passing images as CUDA memory\n   pointers.\n\n   - Valid Values\n      - 0 indicates that the kOfxImagePropData of each image of each clip\n          is a CPU memory pointer.\n      - 1 indicates that the kOfxImagePropData of each image of each clip\n\t      is a CUDA memory pointer.\n\n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxImageEffectPropCudaEnabled",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectPropCudaEnabled"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/**  @brief Indicates whether a host or plug-in can support CUDA streams\n\n    - Valid Values -\n      - \"false\"  - in which case the host or plug-in does not support CUDA streams\n      - \"true\"   - which means a host or plug-in can support CUDA streams\n\n    @propdef\n    type: enum\n    dimension: 1\n    values:\n      - \"false\"\n      - \"true\"\n      - needed\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxImageEffectPropCudaStreamSupported",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectPropCudaStreamSupported"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/**  @brief The CUDA stream to be used for rendering\n\nThis property will only be set if the host and plug-in both support CUDA streams.\n\nIf set:\n\n- this property contains a pointer to the stream of CUDA render (cudaStream_t).\n  In order to use it, reinterpret_cast<cudaStream_t>(pointer) is needed.\n\n- the plug-in SHOULD ensure that its render action enqueues any\n  asynchronous CUDA operations onto the supplied queue.\n\n- the plug-in SHOULD NOT wait for final asynchronous operations to\n  complete before returning from the render action, and SHOULD NOT\n  call cudaDeviceSynchronize() at any time.\n\nIf not set:\n\n- the plug-in SHOULD ensure that any asynchronous operations it\n  enqueues have completed before returning from the render action.\n    \n    @propdef\n    type: pointer\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxImageEffectPropCudaStream",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectPropCudaStream"
+        }
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/** @}*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "// end CudaRender doc group"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n * @defgroup MetalRender Apple Metal Rendering\n * @version Metal rendering was added in version 1.5.\n * @{\n */"
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates whether a host or plug-in can support Metal render\n\n    - Valid Values -\n      - \"false\"  - the host or plug-in does not support Metal render\n      - \"true\"   - the host or plug-in can support Metal render\n\n    @propdef\n    type: enum\n    dimension: 1\n    values:\n      - \"false\"\n      - \"true\"\n      - needed\n    introduced: \"1.5\"\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxImageEffectPropMetalRenderSupported",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectPropMetalRenderSupported"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates that a plug-in SHOULD use Metal render in\nthe current action\n\n   If a plug-in and host have both set\n   kOfxImageEffectPropMetalRenderSupported=\"true\" then the host MAY\n   set this property to indicate that it is passing images as Metal\n   buffers.\n\n   - Valid Values\n      - 0 indicates that the kOfxImagePropData of each image of each clip\n          is a CPU memory pointer.\n      - 1 indicates that the kOfxImagePropData of each image of each clip\n\t      is a Metal id<MTLBuffer>.\n\n    @propdef\n    type: bool\n    dimension: 1\n    introduced: \"1.5\"\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxImageEffectPropMetalEnabled",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectPropMetalEnabled"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/**  @brief The command queue of Metal render\n\nThis property contains a pointer to the command queue to be used for\nMetal rendering (id<MTLCommandQueue>). In order to use it,\nreinterpret_cast<id<MTLCommandQueue>>(pointer) is needed.\n\nThe plug-in SHOULD ensure that its render action enqueues any\nasynchronous Metal operations onto the supplied queue.\n\nThe plug-in SHOULD NOT wait for final asynchronous operations to\ncomplete before returning from the render action.\n    \n    @propdef\n    type: pointer\n    dimension: 1\n    introduced: \"1.5\"\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxImageEffectPropMetalCommandQueue",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectPropMetalCommandQueue"
+        }
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/** @}*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "// end MetalRender doc group"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n * @defgroup OpenClRender OpenCL Rendering\n * @version OpenCL rendering was added in version 1.5.\n * @{\n */"
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates whether a host or plug-in can support OpenCL Buffers render\n\n    - Valid Values -\n      - \"false\"  - the host or plug-in does not support OpenCL Buffers render\n      - \"true\"   - the host or plug-in can support OpenCL Buffers render\n\n    @propdef\n    type: enum\n    dimension: 1\n    values:\n      - \"false\"\n      - \"true\"\n      - needed\n    introduced: \"1.5\"\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxImageEffectPropOpenCLRenderSupported",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectPropOpenCLRenderSupported"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates whether a host or plug-in can support OpenCL Images render\n\n    - Valid Values -\n      - \"false\"  - in which case the host or plug-in does not support OpenCL Images render\n      - \"true\"   - which means a host or plug-in can support OpenCL Images render\n\n    @propdef\n    type: enum\n    dimension: 1\n    values:\n      - \"false\"\n      - \"true\"\n    introduced: \"1.5\"\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxImageEffectPropOpenCLSupported",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectPropOpenCLSupported"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates that a plug-in SHOULD use OpenCL render in\nthe current action\n\n   If a plug-in and host have both set\n   kOfxImageEffectPropOpenCLRenderSupported=\"true\" or have both \n   set kOfxImageEffectPropOpenCLSupported=\"true\" then the host MAY\n   set this property to indicate that it is passing images as OpenCL\n   Buffers or Images.\n\n   When rendering using OpenCL Buffers, the cl_mem of the buffers are retrieved using ::kOfxImagePropData.\n   When rendering using OpenCL Images, the cl_mem of the images are retrieved using ::kOfxImageEffectPropOpenCLImage.\n   If both ::kOfxImageEffectPropOpenCLSupported (Buffers) and ::kOfxImageEffectPropOpenCLRenderSupported (Images) are\n   enabled by the plug-in, it should use ::kOfxImageEffectPropOpenCLImage to determine which is being used by the host.\n\n   - Valid Values\n      - 0 indicates that a plug-in SHOULD use OpenCL render in\n          the render action\n      - 1 indicates that a plug-in SHOULD NOT use OpenCL render in\n          the render action\n\n    @propdef\n    type: bool\n    dimension: 1\n    introduced: \"1.5\"\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxImageEffectPropOpenCLEnabled",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectPropOpenCLEnabled"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/**  @brief Indicates the OpenCL command queue that should be used for rendering\n\nThis property contains a pointer to the command queue to be used for\nOpenCL rendering (cl_command_queue). In order to use it,\nreinterpret_cast<cl_command_queue>(pointer) is needed.\n\nThe plug-in SHOULD ensure that its render action enqueues any\nasynchronous OpenCL operations onto the supplied queue.\n\nThe plug-in SHOULD NOT wait for final asynchronous operations to\ncomplete before returning from the render action.\n    \n    @propdef\n    type: pointer\n    dimension: 1\n    introduced: \"1.5\"\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxImageEffectPropOpenCLCommandQueue",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectPropOpenCLCommandQueue"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates the image handle of an image supplied as an OpenCL Image by the host\n\nThis value should be cast to a cl_mem and used as the image handle when performing\nOpenCL Images operations. The property should be used (not ::kOfxImagePropData) when\nrendering with OpenCL Images (::kOfxImageEffectPropOpenCLSupported), and should be used\nto determine whether Images or Buffers should be used if a plug-in supports both\n::kOfxImageEffectPropOpenCLSupported and ::kOfxImageEffectPropOpenCLRenderSupported.\nNote: the kOfxImagePropRowBytes property is not required to be set by the host, since\nOpenCL Images do not have the concept of row bytes.\n    \n    @propdef\n    type: pointer\n    dimension: 1\n    introduced: \"1.5\"\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxImageEffectPropOpenCLImage",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxImageEffectPropOpenCLImage"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxOpenCLProgramSuite",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxOpenCLProgramSuite"
+        }
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/** @page ofxOpenCLRender OpenCL Acceleration of Rendering\n\n@section ofxOpenCLRenderIntro Introduction\n\nThe OpenCL extension enables plug-ins to use OpenCL commands (typically backed by a GPU) to accelerate rendering of their outputs. The basic scheme is simple....\n- an plug-in indicates it wants to use OpenCL acceleration by setting the ::kOfxImageEffectPropOpenCLSupported (Images) and/or ::kOfxImageEffectPropOpenCLRenderSupported (Buffers) flags on it's descriptor.\n- a host indicates it supports OpenCL acceleration by setting ::kOfxImageEffectPropOpenCLSupported (Images) and/or ::kOfxImageEffectPropOpenCLRenderSupported (Buffers) on it's descriptor.\n- the host decides when to use OpenCL, and sets the ::kOfxImageEffectPropOpenCLEnabled property on the BeginRender/Render/EndRender calls to indicate this.\n- when OpenCL Images are being used (::kOfxImageEffectPropOpenCLSupported) the clip image property ::kOfxImageEffectPropOpenCLImage will be set and non-null.\n- when OpenCL Buffers are being used (::kOfxImageEffectPropOpenCLRenderSupported) the clip image property ::kOfxImagePropData will be set and non-null.\n\n@section ofxOpenCLRenderDiscoveryAndEnabling Discovery and Enabling\n\nIf a host supports OpenCL rendering then it flags with the string property ::kOfxImageEffectPropOpenCLSupported (Images) and/or\n::kOfxImageEffectPropOpenCLRenderSupported (Buffers) on its descriptor property set. Effects that cannot run without OpenCL support\nshould examine this in ::kOfxActionDescribe action and return a ::kOfxStatErrMissingHostFeature status flag if it is not set to \"true\".\n\nEffects flag to a host that they support OpenCL rendering by setting the string property ::kOfxImageEffectPropOpenCLSupported (Images)\nand/or ::kOfxImageEffectPropOpenCLRenderSupported (Buffers) on their effect descriptor during the ::kOfxActionDescribe action.\nEffects can work in two ways....\n- purely on CPUs without any OpenCL support at all, in which case they should set ::kOfxImageEffectPropOpenCLSupported (Images) and ::kOfxImageEffectPropOpenCLRenderSupported (Buffers) to be \"false\" (the default),\n- on CPUs but with optional OpenCL support, in which case they should set ::kOfxImageEffectPropOpenCLSupported (Images) and/or ::kOfxImageEffectPropOpenCLRenderSupported (Buffers) to be \"true\"\n\nHost may support just OpenCL Images, just OpenCL Buffers, or both, as indicated by which of these two properties they set \"true\".\nLikewise plug-ins may support just OpenCL Images, just OpenCL Buffers, or both, as indicated by which of these two properties they set \"true\".\nIf both host and plug-in support both, it is up to the host which it uses. Typically, it will be based on what it uses natively (to avoid an extra copy operation).\nIf a plug-in supports both, it must use ::kOfxImageEffectPropOpenCLImage to determine if Images or Buffers are being used for a given render action.\n\nEffects can use OpenCL render only during the following action:\n- ::kOfxImageEffectActionRender\n\nIf a plug-in has indicated that it optionally supports OpenCL acceleration, it should check the property ::kOfxImageEffectPropOpenCLEnabled\npassed as an in argument to the following actions,\n- ::kOfxImageEffectActionRender\n- ::kOfxImageEffectActionBeginSequenceRender\n- ::kOfxImageEffectActionEndSequenceRender\n\nIf this property is set to 0, then it must not attempt to use OpenCL while rendering.\nIf this property is set to 1, then it must use OpenCL buffers or images while rendering.\n\nIf a call using OpenCL rendering fails, the host may re-attempt using CPU buffers instead, but this is not required, and might not be efficient.\n\n@section ofxOpenCLRenderVersion OpenCL platform and device versions and feature support\n\nAssume an in-order command queue. Do not assume a profiling command queue.\n\nEffects should target OpenCL 1.1 API and OpenCL C kernel language support. Only minimum required features required\nin OpenCL 1.1 should be used (for example, see \"5.3.2.1 Minimum List of Supported Image Formats\" for the list\nof image types which can be expected to be supported across all devices). If you have specific requirements\nfor features beyond these minimums, you will need to check the device (e.g., using clGetDeviceInfo with\nCL_DEVICE_EXTENSIONS) to see if your feature is available, and have a fallback if it's not.\n\nTemporary buffers and images should not be kept past the render action. A separate extension for host managed caching is in the works.\n\nDo not retain OpenCL objects without a matching release within the render action.\n\n@section ofxOpenCLRenderMultipleDevices Multiple OpenCL Devices\n\nThis is very important: The host may support multiple OpenCL devices. Therefore the plug-in should keep a separate set of kernels per OpenCL content (e.g., using a map).\nThe OpenCL context can be found from the command queue using clGetCommandQueueInfo with CL_QUEUE_CONTEXT.\nFailure to do this will cause crashes or incorrect results when the host switches to another OpenCL device.\n\n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/** @}*/"
+    }
+  ]
+}

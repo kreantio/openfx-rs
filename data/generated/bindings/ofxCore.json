@@ -1,0 +1,747 @@
+{
+  "copyright_comments": [
+    "// Copyright OpenFX and contributors to the OpenFX project.",
+    "// SPDX-License-Identifier: BSD-3-Clause"
+  ],
+  "items": [
+    {
+      "$type": "StandaloneComment",
+      "comment": "/** @file ofxCore.h\nContains the core OFX architectural struct and function definitions. For more details on the basic OFX architecture, see \\ref Architecture.\n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n   \\defgroup ActionsAll OFX Actions\n\nThese are the actions passed to a plug-in's 'main' function\n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@{*/"
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief\n\n This action is the first action passed to a plug-in after the\n binary containing the plug-in has been loaded. It is there to allow a\n plug-in to create any global data structures it may need and is also\n when the plug-in should fetch suites from the host.\n\n The \\ref handle, \\ref inArgs and \\ref outArgs arguments to the \\ref mainEntry\n are redundant and should be set to NULL.\n\n \n\n \\pre\n - The plugin's \\ref OfxPlugin::setHost function has been called\n\n \\post\n This action will not be called again while the binary containing the plug-in remains loaded.\n\n @returns\n -  \\ref kOfxStatOK, the action was trapped and all was well,\n -  \\ref kOfxStatReplyDefault, the action was ignored,\n -  \\ref kOfxStatFailed, the load action failed, no further actions will be passed to the plug-in.\n Interpret if possible  kOfxStatFailed as plug-in indicating it does not want to load \n Do not create an entry in the host's UI for plug-in then.  \n Plug-in also has the option to return 0 for OfxGetNumberOfPlugins or kOfxStatFailed if host supports OfxSetHost in which case kOfxActionLoad will never be called.\n -  \\ref kOfxStatErrFatal, fatal error in the plug-in.\n \n    @actiondef\n    inArgs:\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxActionLoad",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxActionLoad"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief\n\n The kOfxActionDescribe is the second action passed to a plug-in. It is\n where a plugin defines how it behaves and the resources it needs to\n function.\n\n Note that the handle passed in acts as a descriptor for, rather than an\n instance of the plugin. The handle is global and unique. The plug-in is\n at liberty to cache the handle away for future reference until the\n plug-in is unloaded.\n\n Most importantly, the effect must set what image effect contexts it is\n capable of working in.\n\n This action *must* be trapped, it is not optional.\n\n\n @param handle handle to the plug-in descriptor, cast to an \\ref OfxImageEffectHandle\n @param inArgs is redundant and is set to NULL\n @param outArgs is redundant and is set to NULL\n\n \\pre\n     - \\ref kOfxActionLoad has been called\n\n \\post\n     -  \\ref kOfxActionDescribe will not be called again, unless it fails and\n     returns one of the error codes where the host is allowed to attempt\n     the action again\n     -  the handle argument, being the global plug-in description handle, is\n     a valid handle from the end of a successful describe action until the\n     end of the \\ref kOfxActionUnload action (ie: the plug-in can cache it away\n     without worrying about it changing between actions).\n     -  \\ref kOfxImageEffectActionDescribeInContext\n     will be called once for each context that the host and plug-in\n     mutually support.  If a plug-in does not report to support any context supported by host, \n\t host should not enable the plug-in.\n\n @returns\n     -  \\ref kOfxStatOK, the action was trapped and all was well\n     -  \\ref kOfxStatErrMissingHostFeature, in which the plugin will be unloaded\n     and ignored, plugin may post message\n     -  \\ref kOfxStatErrMemory, in which case describe may be called again after a\n     memory purge\n     -  \\ref kOfxStatFailed, something wrong, but no error code appropriate,\n     plugin to post message\n     -  \\ref kOfxStatErrFatal\n\n \n    @actiondef\n    inArgs:\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxActionDescribe",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxActionDescribe"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief\n\n This action is the last action passed to the plug-in before the\n binary containing the plug-in is unloaded. It is there to allow a\n plug-in to destroy any global data structures it may have created.\n\n The handle, inArgs and outArgs arguments to the main entry\n are redundant and should be set to NULL.\n\n \\pre\n     -  the \\ref kOfxActionLoad action has been called\n     -  all instances of a plugin have been destroyed\n\n \\post\n     - No other actions will be called.\n\n @returns\n     -  \\ref kOfxStatOK, the action was trapped all was well\n     -  \\ref kOfxStatReplyDefault, the action was ignored\n     -  \\ref kOfxStatErrFatal, in which case we the program will be forced to quit\n\n \n    @actiondef\n    inArgs:\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxActionUnload",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxActionUnload"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief\n\n This action is an action that may be passed to a plug-in\n instance from time to time in low memory situations. Instances receiving\n this action should destroy any data structures they may have and release\n the associated memory, they can later reconstruct this from the effect's\n parameter set and associated information.\n\n For Image Effects, it is generally a bad idea to call this after each\n render, but rather it should be called after\n \\ref kOfxImageEffectActionEndSequenceRender\n Some effects, typically those flagged with the\n \\ref kOfxImageEffectInstancePropSequentialRender\n property, may need to cache information from previously rendered frames\n to function correctly, or have data structures that are expensive to\n reconstruct at each frame (eg: a particle system). Ideally, such effect\n should free such structures during the\n \\ref kOfxImageEffectActionEndSequenceRender action.\n\n @param  handle handle to the plug-in instance, cast to an \\ref OfxImageEffectHandle\n @param  inArgs is redundant and is set to NULL\n @param  outArgs is redundant and is set to NULL\n\n \\pre\n     -  \\ref kOfxActionCreateInstance has been called on the instance handle,\n\n @returns\n     -  \\ref kOfxStatOK, the action was trapped and all was well\n     -  \\ref kOfxStatReplyDefault, the action was ignored\n     -  \\ref kOfxStatErrFatal,\n     -  \\ref kOfxStatFailed, something went wrong, but no error code appropriate,\n     the plugin should to post a message\n \n    @actiondef\n    inArgs:\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxActionPurgeCaches",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxActionPurgeCaches"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief\n\n This action is called when a plugin should synchronise any private data\n structures to its parameter set. This generally occurs when an effect is\n about to be saved or copied, but it could occur in other situations as\n well.\n\n @param  handle handle to the plug-in instance, cast to an \\ref OfxImageEffectHandle\n @param  inArgs is redundant and is set to NULL\n @param  outArgs is redundant and is set to NULL\n\n \\pre\n     - \\ref kOfxActionCreateInstance has been called on the instance handle,\n\n \\post\n     -  Any private state data can be reconstructed from the parameter set,\n\n @returns\n     -  \\ref kOfxStatOK, the action was trapped and all was well\n     -  \\ref kOfxStatReplyDefault, the action was ignored\n     -  \\ref kOfxStatErrFatal,\n     -  \\ref kOfxStatFailed, something went wrong, but no error code appropriate,\n     the plugin should to post a message\n \n    @actiondef\n    inArgs:\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxActionSyncPrivateData",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxActionSyncPrivateData"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief\n\n Called when an instance of a plugin is created by the host. The plugin can\n create any per-instance data structures it may need. Plugins may also\n enable/disable their params here, based on other param values or clips.\n\n When a host creates a plugin instance from a saved project with a connected\n clip, the host must either:\n\n  - connect all params and clips to an effect *before* calling createInstance,\n    and support the \\ref OfxTimeLineSuite so the effect can call\n    \\ref OfxTimeLineSuiteV1::getTime in createInstance (so the plugin can call\n    \\ref OfxImageEffectSuiteV1::clipGetRegionOfDefinition),\n\nOR:\n\n  - call `instanceChanged` after `createInstance` and after the host has\n    hooked up all clips, with property \\ref kOfxPropType = \\ref kOfxTypeClip and\n    \\ref kOfxPropChangeReason = \\ref kOfxChangeUserEdited, and ensure that\n    \\ref OfxImageEffectSuiteV1::clipGetRegionOfDefinition works in that action.\n\n @param  handle handle to the plug-in instance, cast to an \\ref OfxImageEffectHandle\n @param  inArgs is redundant and is set to NULL\n @param  outArgs is redundant and is set to NULL\n\n \\pre\n     -  \\ref kOfxActionDescribe has been called\n     -  the instance is fully constructed, with all objects requested in the\n     describe actions (eg, parameters and clips) have been constructed and\n     have had their initial values set. This means that if the values are\n     being loaded from an old setup, that load should have taken place\n     before the create instance action is called.\n\n \\post\n     -  the instance pointer will be valid until the\n     \\ref kOfxActionDestroyInstance\n     action is passed to the plug-in with the same instance handle\n\n @returns\n     -  \\ref kOfxStatOK, the action was trapped and all was well\n     -  \\ref kOfxStatReplyDefault, the action was ignored, but all was well anyway\n     -  \\ref kOfxStatErrFatal\n     -  \\ref kOfxStatErrMemory, in which case this may be called again after a\n     memory purge\n     -  \\ref kOfxStatFailed, something went wrong, but no error code appropriate,\n     the plugin should to post a message if possible and the host should\n     destroy the instanace handle and not attempt to proceed further\n \n    @actiondef\n    inArgs:\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxActionCreateInstance",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxActionCreateInstance"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief\n\n\n This action is the last passed to a plug-in's instance before its\n destruction. It is there to allow a plugin to destroy any per-instance\n data structures it may have created.\n\n @param  handle\n handle to the plug-in instance, cast to an \\ref OfxImageEffectHandle\n @param  inArgs is redundant and is set to NULL\n @param  outArgs is redundant and is set to NULL\n\n \\pre\n     -  \\ref kOfxActionCreateInstance\n     has been called on the handle,\n     -  the instance has not had any of its members destroyed yet,\n\n \\post\n     -  the instance pointer is no longer valid and any operation on it will\n     be undefined\n\n @returns\n     To some extent, what is returned is moot, a bit like throwing an\n     exception in a C++ destructor, so the host should continue destruction\n     of the instance regardless.\n\n     -  \\ref kOfxStatOK, the action was trapped and all was well,\n     -  \\ref kOfxStatReplyDefault, the action was ignored as the effect had nothing\n     to do,\n     -  \\ref kOfxStatErrFatal,\n     -  \\ref kOfxStatFailed, something went wrong, but no error code appropriate,\n     the plugin should to post a message.\n\n \n    @actiondef\n    inArgs:\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxActionDestroyInstance",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxActionDestroyInstance"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief\n\n This action signals that something has changed in a plugin's instance,\n either by user action, the host or the plugin itself. All change actions\n are bracketed by a pair of \\ref kOfxActionBeginInstanceChanged and\n \\ref kOfxActionEndInstanceChanged actions. The ``inArgs`` property set is\n used to determine what was the thing inside the instance that was\n changed.\n\n Note: when a host loads a plugin instance from a saved project, if the input\n clips are not connected at that time, the host must call `instanceChanged`\n after \\ref kOfxActionCreateInstance and after the host has hooked up all clips, with\n property \\ref kOfxPropType = \\ref kOfxTypeClip and \\ref kOfxPropChangeReason =\n \\ref kOfxChangePluginEdited, and ensure that \\ref OfxImageEffectSuiteV1::clipGetRegionOfDefinition works in\n this action.\n\n @param  handle handle to the plug-in instance, cast to an \\ref OfxImageEffectHandle\n @param  inArgs has the following properties\n     - \\ref  kOfxPropType The type of the thing that changed which will be one of..\n\n     - \\ref kOfxTypeParameter Indicating a parameter's value has changed\n     in some way\n     -  \\ref kOfxTypeClip A clip to an image effect has changed in some\n     way (for Image Effect Plugins only)\n\n     -  \\ref kOfxPropName the name of the thing that was changed in the instance\n     -  \\ref kOfxPropChangeReason what triggered the change, which will be one of...\n\n     -  \\ref kOfxChangeUserEdited - the user or host changed the instance\n     somehow and caused a change to something, this includes\n     undo/redos, resets and loading values from files or presets,\n\n     -  \\ref kOfxChangePluginEdited - the plugin itself has changed the\n     value of the instance in some action\n     -  \\ref kOfxChangeTime - the time has changed and this has affected the\n     value of the object because it varies over time\n\n     -  \\ref kOfxPropTime\n     - the effect time at which the chang occurred (for Image Effect Plugins only)\n     -  \\ref kOfxImageEffectPropRenderScale\n     - the render scale currently being applied to any image fetched\n     from a clip (for Image Effect Plugins only)\n     - \\ref kOfxImageEffectPropThumbnailRender (optional) if the host considers this render a \"thumbnail\"\n\n @param  outArgs is redundant and is set to NULL\n\n \\pre\n     -  \\ref kOfxActionCreateInstance has been called on the instance handle,\n     -  \\ref kOfxActionBeginInstanceChanged has been called on the instance\n     handle.\n\n \\post\n     -  \\ref kOfxActionEndInstanceChanged will be called on the instance handle.\n\n @returns\n     -  \\ref kOfxStatOK, the action was trapped and all was well\n     -  \\ref kOfxStatReplyDefault, the action was ignored\n     -  \\ref kOfxStatErrFatal,\n     -  \\ref kOfxStatFailed, something went wrong, but no error code appropriate,\n     the plugin should to post a message\n\n \n    @actiondef\n    inArgs:\n      - OfxPropType\n      - OfxPropName\n      - OfxPropChangeReason\n      - OfxPropTime\n      - OfxImageEffectPropRenderScale\n      - OfxImageEffectPropThumbnailRender\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxActionInstanceChanged",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxActionInstanceChanged"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief\n\n The \\ref kOfxActionBeginInstanceChanged and \\ref kOfxActionEndInstanceChanged actions\n are used to bracket all \\ref kOfxActionInstanceChanged actions, whether a\n single change or multiple changes. Some changes to a plugin instance can\n be grouped logically (eg: a 'reset all' button resetting all the\n instance's parameters), the begin/end instance changed actions allow a\n plugin to respond appropriately to a large set of changes. For example,\n a plugin that maintains a complex internal state can delay any changes\n to that state until all parameter changes have completed.\n\n @param  handle\n handle to the plug-in instance, cast to an \\ref OfxImageEffectHandle\n @param  inArgs has the following properties\n     -  \\ref kOfxPropChangeReason what triggered the change, which will be one of...\n     -  \\ref kOfxChangeUserEdited - the user or host changed the instance\n     somehow and caused a change to something, this includes\n     undo/redos, resets and loading values from files or presets,\n     -  \\ref kOfxChangePluginEdited - the plugin itself has changed the\n     value of the instance in some action\n     -  \\ref kOfxChangeTime - the time has changed and this has affected the\n     value of the object because it varies over time\n\n @param  outArgs is redundant and is set to NULL\n\n \\post\n     - For \\ref kOfxActionBeginInstanceChanged , \\ref kOfxActionCreateInstance has been called on the instance handle.\n     - For \\ref kOfxActionEndInstanceChanged , \\ref kOfxActionBeginInstanceChanged has been called on the instance handle.\n     - \\ref kOfxActionCreateInstance has been called on the instance handle.\n\n \\post\n     - For \\ref kOfxActionBeginInstanceChanged, \\ref kOfxActionInstanceChanged will be called at least once on the instance handle.\n     - \\ref kOfxActionEndInstanceChanged will be called on the instance handle.\n\n @returns\n     -  \\ref kOfxStatOK, the action was trapped and all was well\n     -  \\ref kOfxStatReplyDefault, the action was ignored\n     -  \\ref kOfxStatErrFatal,\n     -  \\ref kOfxStatFailed, something went wrong, but no error code appropriate,\n     the plugin should to post a message\n\n    @actiondef\n    inArgs:\n      - OfxPropChangeReason\n      - OfxImageEffectPropThumbnailRender\n    outArgs: []\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxActionBeginInstanceChanged",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxActionBeginInstanceChanged"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Action called after the end of a set of \\ref kOfxActionEndInstanceChanged actions, used with ::kOfxActionBeginInstanceChanged to bracket a grouped set of changes,  see \\ref kOfxActionBeginInstanceChanged\n    @actiondef\n    inArgs:\n      - OfxPropChangeReason\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxActionEndInstanceChanged",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxActionEndInstanceChanged"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief\n\n This is called when an instance is *first* actively edited by a user,\n ie: and interface is open and parameter values and input clips can be\n modified. It is there so that effects can create private user interface\n structures when necassary. Note that some hosts can have multiple\n editors open on the same effect instance simulateously.\n\n\n @param  handle handle to the plug-in instance, cast to an \\ref OfxImageEffectHandle\n @param  inArgs is redundant and is set to NULL\n @param  outArgs is redundant and is set to NULL\n\n \\pre\n     -  \\ref kOfxActionCreateInstance has been called on the instance handle,\n\n \\post\n     -  \\ref kOfxActionEndInstanceEdit will be called when the last editor is\n     closed on the instance\n\n @returns\n     -  \\ref kOfxStatOK, the action was trapped and all was well\n     -  \\ref kOfxStatReplyDefault, the action was ignored\n     -  \\ref kOfxStatErrFatal,\n     -  \\ref kOfxStatFailed, something went wrong, but no error code appropriate,\n     the plugin should to post a message\n \n    @actiondef\n    inArgs:\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxActionBeginInstanceEdit",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxActionBeginInstanceEdit"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief\n\n This is called when the *last* user interface on an instance closed. It\n is there so that effects can destroy private user interface structures\n when necassary. Note that some hosts can have multiple editors open on\n the same effect instance simulateously, this will only be called when\n the last of those editors are closed.\n\n @param  handle handle to the plug-in instance, cast to an \\ref OfxImageEffectHandle\n @param  inArgs is redundant and is set to NULL\n @param  outArgs is redundant and is set to NULL\n\n \\pre\n     -  \\ref kOfxActionBeginInstanceEdit has been called on the instance handle,\n\n \\post\n     -  no user interface is open on the instance\n\n @returns\n     -  \\ref kOfxStatOK, the action was trapped and all was well\n     -  \\ref kOfxStatReplyDefault, the action was ignored\n     -  \\ref kOfxStatErrFatal,\n     -  \\ref kOfxStatFailed, something went wrong, but no error code appropriate,\n     the plugin should to post a message\n \n    @actiondef\n    inArgs:\n    outArgs:\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxActionEndInstanceEdit",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxActionEndInstanceEdit"
+        }
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@}*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n   \\defgroup PropertiesAll Ofx Properties\n\nThese strings are used to identify properties within OFX, they are broken up by the host suite or API they relate to.\n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@{*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n   \\defgroup PropertiesGeneral General Properties\n\nThese properties are general properties and  apply to may objects across OFX\n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@{*/"
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Property on the host descriptor, saying what API version of the API is being implemented\n\nThis is a version string that will specify which version of the API is being implemented by a host. It\ncan have multiple values. For example \"1.0\", \"1.2.4\" etc.....\n\nIf this is not present, it is safe to assume that the version of the API is \"1.0\".\n    \n    @propdef\n    type: int\n    dimension: N\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropAPIVersion",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPropAPIVersion"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief General property used to get/set the time of something.\n    \n    @propdef\n    type: double\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropTime",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPropTime"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates if a host is actively editing the effect with some GUI.\n\nIf false, the effect currently has no interface.  This may be because the effect is loaded in a background render host, or it may be loaded on an interactive host that has not yet opened an editor for the effect.\n\nThe output of an effect should only ever depend on the state of its parameters, not on the interactive flag. The interactive flag is more a courtesy flag to let a plugin know that it has an interface. If a plugin wants to have its behaviour depend on the interactive flag, it should make a secret parameter which shadows the state of the flag.\n\n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropIsInteractive",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPropIsInteractive"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief The file path to the plugin.\n\nThis is a string that indicates the file path where the plug-in was found by the host. The path is in the native\npath format for the host OS (eg:  UNIX directory separators are forward slashes, Windows ones are backslashes).\n\nThe path is to the bundle location, see \\ref InstallationLocation.\neg:  '/usr/OFX/Plugins/AcmePlugins/AcmeFantasticPlugin.ofx.bundle'\n    \n    @propdef\n    type: string\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPluginPropFilePath",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPluginPropFilePath"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief  A private data pointer that the plug-in can store its own data behind.\n\nThis data pointer is unique to each plug-in instance, so two instances of the same plug-in do not share the same data pointer. Use it to hang any needed private data structures.\n    \n    @propdef\n    type: pointer\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropInstanceData",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPropInstanceData"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief General property, used to identify the kind of an object behind a handle\n    \n    - Valid Values - currently this can be...\n       - ::kOfxTypeImageEffectHost\n       - ::kOfxTypeImageEffect\n       - ::kOfxTypeImageEffectInstance\n       - ::kOfxTypeParameter\n       - ::kOfxTypeParameterInstance\n       - ::kOfxTypeClip\n       - ::kOfxTypeImage\n    @propdef\n    type: string\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropType",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPropType"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Unique name of an object.\n\nThis property is used to label objects uniquely among objects of that type. It is typically set when a plugin creates a new object with a function that takes a name.\n    \n    @propdef\n    type: string\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropName",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPropName"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Identifies a specific version of a host or plugin.\n\nThis is a multi dimensional integer property that represents the version of a host (host descriptor), or plugin (plugin descriptor). These represent a version number of the form '1.2.3.4', with each dimension adding another 'dot' on the right.\n\nA version is considered to be more recent than another if its ordered set of values is lexicographically greater than another, reading left to right. (ie: 1.2.4 is smaller than 1.2.6). Also, if the number of dimensions is different, then the values of the missing dimensions are considered to be zero (so 1.2.4 is greater than 1.2).\n    \n    - Valid Values - positive integers\n    @propdef\n    type: int\n    dimension: N\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropVersion",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPropVersion"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Unique user readable version string of a plugin or host.\n\nThis is purely for user feedback, a plugin or host should use ::kOfxPropVersion if they need\nto check for specific versions.\n    \n    - Valid Values - ASCII string\n    @propdef\n    type: string\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropVersionLabel",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPropVersionLabel"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Description of the plug-in to a user.\n\nThis is a string giving a potentially verbose description of the effect.\n    \n    - Valid Values - UTF8 string\n    @propdef\n    type: string\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropPluginDescription",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPropPluginDescription"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief User visible name of an object.\n\nThe label is what a user sees on any interface in place of the object's name.\n\nNote that resetting this will also reset ::kOfxPropShortLabel and ::kOfxPropLongLabel.\n    \n    @propdef\n    type: string\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropLabel",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPropLabel"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief If set this tells the host to use an icon instead of a label for some object in the interface.\n\nThe value is a path is defined relative to the Resource folder that points to an SVG or PNG file containing the icon.\n\nThe first dimension, if set, will the name of and SVG file, the second a PNG file.\n    \n    - Valid Values - ASCII string\n    @propdef\n    type: string\n    dimension: 2\n    hostOptional: true\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropIcon",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPropIcon"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Short user visible name of an object.\n\nThis is a shorter version of the label, typically 13 character glyphs or less. Hosts should use this if they have limited display space for their object labels.\n    \n    @propdef\n    type: string\n    dimension: 1\n    hostOptional: true\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropShortLabel",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPropShortLabel"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Long user visible name of an object.\n\nThis is a longer version of the label, typically 32 character glyphs or so. Hosts should use this if they have mucg display space for their object labels.\n    \n    @propdef\n    type: string\n    dimension: 1\n    hostOptional: true\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropLongLabel",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPropLongLabel"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Indicates why a plug-in changed.\n\nArgument property for the ::kOfxActionInstanceChanged action.\n    \n    - Valid Values - this can be...\n       - ::kOfxChangeUserEdited - the user directly edited the instance somehow and caused a change to something, this includes undo/redos and resets\n       - ::kOfxChangePluginEdited - the plug-in itself has changed the value of the object in some action\n       - ::kOfxChangeTime - the time has changed and this has affected the value of the object because it varies over time\n    @propdef\n    type: enum\n    dimension: 1\n    values:\n      - OfxChangeUserEdited\n      - OfxChangePluginEdited\n      - OfxChangeTime\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropChangeReason",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPropChangeReason"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief A pointer to an effect instance.\n\nThis property is used to link an object to the effect. For example if the plug-in supplies an openGL overlay for an image effect,\nthe interact instance will have one of these so that the plug-in can connect back to the effect the GUI links to.\n    \n    @propdef\n    type: pointer\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropEffectInstance",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPropEffectInstance"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief A pointer to an operating system specific application handle.\n\nSome plug-in vendor want raw OS specific handles back from the host so they can do interesting things with host OS APIs. Typically this is to control windowing properly on Microsoft Windows. This property returns the appropriate 'root' window handle on the current operating system. So on Windows this would be the hWnd of the application main window.\n    \n    @propdef\n    type: pointer\n    dimension: 1\n*/",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxPropHostOSHandle",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxPropHostOSHandle"
+        }
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@}*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@}*/"
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief String used as a value to ::kOfxPropChangeReason to indicate a user has changed something */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxChangeUserEdited",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxChangeUserEdited"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief String used as a value to ::kOfxPropChangeReason to indicate the plug-in itself has changed something */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxChangePluginEdited",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxChangePluginEdited"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief String used as a value to ::kOfxPropChangeReason to a time varying object has changed due to a time change */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxChangeTime",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxChangeTime"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Used to flag infinite rects. Set minimums to this to indicate infinite\n\nThis is effectively INT_MAX.\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxFlagInfiniteMax",
+        "value": {
+          "$type": "Symbol",
+          "value": "INT_MAX"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Used to flag infinite rects. Set minimums to this to indicate infinite.\n\nThis is effectively INT_MIN\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxFlagInfiniteMin",
+        "value": {
+          "$type": "Symbol",
+          "value": "INT_MIN"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief String used to label unset bitdepths */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxBitDepthNone",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxBitDepthNone"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief String used to label unsigned 8 bit integer samples */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxBitDepthByte",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxBitDepthByte"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief String used to label unsigned 16 bit integer samples */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxBitDepthShort",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxBitDepthShort"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief String used to label half-float (16 bit floating point) samples\n *  \\version Added in Version 1.4. Was in ofxOpenGLRender.h before.\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxBitDepthHalf",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxBitDepthHalf"
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief String used to label signed 32 bit floating point samples */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxBitDepthFloat",
+        "value": {
+          "$type": "StringLiteral",
+          "value": "OfxBitDepthFloat"
+        }
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n   \\defgroup StatusCodes Status Codes\n\nThese strings are used to identify error states within ofx, they are returned\nby various host suite functions, as well as plug-in functions. The valid return codes\nfor each function are documented with that function.\n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@{*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/**\n   \\defgroup StatusCodesGeneral General Status Codes\n\nGeneral status codes start at 1 and continue until 999\n\n*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@{*/"
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Status code indicating all was fine */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatOK",
+        "value": {
+          "$type": "IntegerLiteral",
+          "value": 0
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Status error code for a failed operation. */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatFailed",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 1
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Status error code for a fatal error\n\n  Only returned in the case where the plug-in or host cannot continue to function and needs to be restarted.\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatErrFatal",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 2
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Status error code for an operation on or request for an unknown object */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatErrUnknown",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 3
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Status error code returned by plug-ins when they are missing host functionality, either an API or some optional functionality (eg: custom params).\n\n    Plug-Ins returning this should post an appropriate error message stating what they are missing.\n */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatErrMissingHostFeature",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 4
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Status error code for an unsupported feature/operation */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatErrUnsupported",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 5
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Status error code for an operation attempting to create something that exists */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatErrExists",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 6
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Status error code for an incorrect format */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatErrFormat",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 7
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Status error code indicating that something failed due to memory shortage */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatErrMemory",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 8
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Status error code for an operation on a bad handle */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatErrBadHandle",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 9
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Status error code indicating that a given index was invalid or unavailable */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatErrBadIndex",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 10
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief Status error code indicating that something failed due an illegal value */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatErrValue",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 11
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief OfxStatus returned indicating a 'yes' */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatReplyYes",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 12
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief OfxStatus returned indicating a 'no' */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatReplyNo",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 13
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief OfxStatus returned indicating that a default action should be performed */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatReplyDefault",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 14
+        }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "/** @brief OfxStatus returned indicating that the plug-in is unlicensed (see \\ref kOfxImageEffectPropBehaviourWhenUnlicensed) */",
+      "item": {
+        "$type": "Define",
+        "name": "kOfxStatUnlicensed",
+        "value": {
+          "$type": "TypedIntegerLiteral",
+          "ty": "Int",
+          "value": 15
+        }
+      }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@}*/"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "/*@}*/"
+    }
+  ]
+}

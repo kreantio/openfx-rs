@@ -26,10 +26,15 @@ pub mod real_c_headers {
     include_c_header!(OFX_PROPERTY, "ofxProperty.h");
     include_c_header!(OFX_TIME_LINE, "ofxTimeLine.h");
 
+    include_c_header!(
+        OFX_DEFAULT_COLORSPACE,
+        "ofx-native-v1.5_aces-v1.3_ocio-v2.3.h"
+    );
+
     macro_rules! make_test_real_file {
         ($tester_name:path, $fn_name: ident, $static_name:ident) => {
             #[test]
-            #[expect(non_snake_case)]
+            #[allow(non_snake_case)]
             fn $fn_name() {
                 $tester_name(crate::test_fixtures::real_c_headers::$static_name);
             }
@@ -132,6 +137,12 @@ pub mod real_c_headers {
                 $tester_name,
                 test_real_file_ofxTimeLine,
                 OFX_TIME_LINE
+            );
+
+            crate::test_fixtures::real_c_headers::make_test_real_file!(
+                $tester_name,
+                test_real_file_ofx_default_colorspace,
+                OFX_DEFAULT_COLORSPACE
             );
         };
     }
