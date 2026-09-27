@@ -1,14 +1,16 @@
 use std::sync::LazyLock;
 
 use regex::Regex;
-use treesitter_types_c::{FromNode, TranslationUnitChildren};
+use treesitter_types_c::{FromNode, Spanned, TranslationUnitChildren};
 
 use crate::parsing::{
     preprocessing::preprocess_for_tree_sitter,
+    treesitter_utils::extract_name_from_declaration,
     utils::{clean_comment, parse_define_value},
 };
 
 mod preprocessing;
+mod treesitter_utils;
 mod utils;
 
 #[derive(Debug, snafu::Snafu)]
@@ -138,7 +140,7 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
                 .to_owned()
         };
     }
-    macro_rules! text_fromspan {
+    macro_rules! text_from_span {
         ($span:expr) => {
             code[$span.start_byte..$span.end_byte].to_owned()
         };
@@ -206,14 +208,31 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
         };
 
         let item = match node {
-            TranslationUnitChildren::Declaration(declaration) => RootItem::Todo {
-                kind: "Declaration".to_owned(),
-                code: text!(raw_node),
-            },
-            TranslationUnitChildren::PreprocCall(preproc_call) => RootItem::Todo {
-                kind: "PreprocCall".to_owned(),
-                code: text!(raw_node),
-            },
+            TranslationUnitChildren::Declaration(declaration) => {
+                let Ok(name_span) = extract_name_from_declaration(&declaration) else {
+                    continue_unaddressed!(comment_above, raw_node);
+                };
+                let name = text_from_span!(name_span);
+                if ["OfxGetPlugin", "OfxGetNumberOfPlugins", "OfxSetHost"].contains(&name.as_str())
+                {
+                    // No idea what to do with them, so just skip them.
+                    // TODO: don't skip them?
+                    continue;
+                } else {
+                    continue_unaddressed!(comment_above, raw_node);
+                }
+            }
+            TranslationUnitChildren::PreprocCall(preproc_call) => {
+                if text_from_span!(preproc_call.directive.span).trim() == "#pragma"
+                    && preproc_call
+                        .argument
+                        .is_some_and(|a| text_from_span!(a.span).trim() == "once")
+                {
+                    continue;
+                } else {
+                    continue_unaddressed!(comment_above, raw_node);
+                }
+            }
             TranslationUnitChildren::PreprocDef(preproc_def) => {
                 let mut cursor = raw_node.walk();
                 let comments = raw_node
@@ -228,7 +247,7 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
                     continue_unaddressed!(comment_above, raw_node);
                 }
 
-                let value_str = text_fromspan!(value.span);
+                let value_str = text_from_span!(value.span);
                 let Ok(value) = parse_define_value(value_str.trim()) else {
                     continue_unaddressed!(
                         comment_above,
@@ -238,19 +257,39 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
                 };
 
                 RootItem::Define {
-                    name: text_fromspan!(preproc_def.name.span),
+                    name: text_from_span!(preproc_def.name.span),
                     value,
                     comment: comments.first().map(|node| text!(node)),
                 }
             }
-            TranslationUnitChildren::PreprocIf(preproc_if) => RootItem::Todo {
-                kind: "PreprocIf".to_owned(),
-                code: text!(raw_node),
-            },
-            TranslationUnitChildren::PreprocIfdef(preproc_ifdef) => RootItem::Todo {
-                kind: "PreprocIfdef".to_owned(),
-                code: text!(raw_node),
-            },
+            TranslationUnitChildren::PreprocIf(preproc_if) => {
+                if text_from_span!(preproc_if.condition.span()).trim() == "defined(_WIN32)" {
+                    continue;
+                } else {
+                    continue_unaddressed!(comment_above, raw_node);
+                }
+            }
+            TranslationUnitChildren::PreprocIfdef(preproc_ifdef) => {
+                if text_from_span!(preproc_ifdef.span)
+                    .split_whitespace()
+                    .next()
+                    .is_some_and(|dir| dir == "#ifndef")
+                    && ["OFX_NO_DEFAULT_COLORSPACE_HEADER", "kOfxBitDepthHalf"]
+                        .contains(&text_from_span!(preproc_ifdef.name.span).trim())
+                {
+                    // `OFX_NO_DEFAULT_COLORSPACE_HEADER` (in `ofxColour.h`): It
+                    // just includes `ofx-native-v1.5_aces-v1.3_ocio-v2.3.h` and
+                    // doesn't use anything from that header afterwards. In our
+                    // bindings, we can just generate bindings for that header
+                    // and let users import it if they need it.
+
+                    // `kOfxBitDepthHalf` (in `ofxGPURender.h`): It already
+                    // exists in `ofxCore.h`.
+                    continue;
+                } else {
+                    continue_unaddressed!(comment_above, raw_node);
+                }
+            }
             TranslationUnitChildren::PreprocInclude(preproc_include) => RootItem::Todo {
                 kind: "PreprocInclude".to_owned(),
                 code: text!(raw_node),
