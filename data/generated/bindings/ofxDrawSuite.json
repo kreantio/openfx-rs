@@ -1,16 +1,16 @@
 {
   "copyright_comments": [
-    "// Copyright OpenFX and contributors to the OpenFX project.",
-    "// SPDX-License-Identifier: BSD-3-Clause"
+    "Copyright OpenFX and contributors to the OpenFX project.",
+    "SPDX-License-Identifier: BSD-3-Clause"
   ],
   "items": [
     {
       "$type": "StandaloneComment",
-      "comment": "/** @file ofxDrawSuite.h\nAPI for host- and GPU API-independent drawing.\n@version Added in OpenFX 1.5\n*/"
+      "comment": "@file ofxDrawSuite.h\nAPI for host- and GPU API-independent drawing.\n@version Added in OpenFX 1.5"
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief the string that names the DrawSuite, passed to OfxHost::fetchSuite */",
+      "comment_above": "@brief the string that names the DrawSuite, passed to OfxHost::fetchSuite",
       "item": {
         "$type": "Define",
         "name": "kOfxDrawSuite",
@@ -22,7 +22,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The Draw Context handle\n \n @propdef\n type: pointer\n dimension: 1\n */",
+      "comment_above": "@brief The Draw Context handle\n \n @propdef\n type: pointer\n dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxInteractPropDrawContext",

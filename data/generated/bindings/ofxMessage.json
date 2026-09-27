@@ -1,7 +1,7 @@
 {
   "copyright_comments": [
-    "// Copyright OpenFX and contributors to the OpenFX project.",
-    "// SPDX-License-Identifier: BSD-3-Clause"
+    "Copyright OpenFX and contributors to the OpenFX project.",
+    "SPDX-License-Identifier: BSD-3-Clause"
   ],
   "items": [
     {
@@ -17,7 +17,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String used to type fatal error messages\n\n    Fatal error messages should only be posted by a plugin when it can no longer continue operation.\n */",
+      "comment_above": "@brief String used to type fatal error messages\n\n    Fatal error messages should only be posted by a plugin when it can no longer continue operation.",
       "item": {
         "$type": "Define",
         "name": "kOfxMessageFatal",
@@ -29,7 +29,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String used to type error messages \n\n    Ordinary error messages should be posted when there is an error in operation that is recoverable by\n    user intervention.\n*/",
+      "comment_above": "@brief String used to type error messages \n\n    Ordinary error messages should be posted when there is an error in operation that is recoverable by\n    user intervention.",
       "item": {
         "$type": "Define",
         "name": "kOfxMessageError",
@@ -41,7 +41,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String used to type warning messages \n\n    Warnings indicate states that allow for operations to proceed, but are not necessarily optimal.\n*/",
+      "comment_above": "@brief String used to type warning messages \n\n    Warnings indicate states that allow for operations to proceed, but are not necessarily optimal.",
       "item": {
         "$type": "Define",
         "name": "kOfxMessageWarning",
@@ -53,7 +53,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String used to type simple ordinary messages \n\n    Ordinary messages simply convey information from the plugin directly to the user.\n*/",
+      "comment_above": "@brief String used to type simple ordinary messages \n\n    Ordinary messages simply convey information from the plugin directly to the user.",
       "item": {
         "$type": "Define",
         "name": "kOfxMessageMessage",
@@ -65,7 +65,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String used to type log messages \n\n    Log messages are written out to a log and not to the end user.\n*/",
+      "comment_above": "@brief String used to type log messages \n\n    Log messages are written out to a log and not to the end user.",
       "item": {
         "$type": "Define",
         "name": "kOfxMessageLog",
@@ -77,7 +77,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String used to type yes/no messages\n\n    The host is to enter a modal state which waits for the user to respond yes or no. \nThe OfxMessageSuiteV1::message function which posted the message will only return after \nthe user responds. When asking a question, the OfxStatus code returned by the message function will be,\n    - kOfxStatReplyYes - if the user replied 'yes' to the question\n    - kOfxStatReplyNo - if the user replied 'no' to the question\n    - some error code if an error was encounterred\n\n    It is an error to post a question message if the plugin is not in an interactive session.\n */",
+      "comment_above": "@brief String used to type yes/no messages\n\n    The host is to enter a modal state which waits for the user to respond yes or no. \nThe OfxMessageSuiteV1::message function which posted the message will only return after \nthe user responds. When asking a question, the OfxStatus code returned by the message function will be,\n    - kOfxStatReplyYes - if the user replied 'yes' to the question\n    - kOfxStatReplyNo - if the user replied 'no' to the question\n    - some error code if an error was encounterred\n\n    It is an error to post a question message if the plugin is not in an interactive session.",
       "item": {
         "$type": "Define",
         "name": "kOfxMessageQuestion",
@@ -86,6 +86,10 @@
           "value": "OfxMessageQuestion"
         }
       }
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "@file ofxMessage.h\n    This file contains the Host API for end user message communication."
     }
   ]
 }

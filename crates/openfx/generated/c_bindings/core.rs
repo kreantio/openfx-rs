@@ -716,9 +716,6 @@ pub const kOfxBitDepthShort: &::std::ffi::CStr = c"OfxBitDepthShort";
 /// ```doxygen
 /// @brief String used to label half-float (16 bit floating point) samples
 ///  \version Added in Version 1.4. Was in ofxOpenGLRender.h before.
-///
-/// @brief String used to label the OpenGL half float (16 bit floating
-/// point) sample format
 /// ```
 pub const kOfxBitDepthHalf: &::std::ffi::CStr = c"OfxBitDepthHalf";
 /// ```doxygen

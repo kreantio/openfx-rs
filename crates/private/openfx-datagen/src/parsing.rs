@@ -1,6 +1,12 @@
+use std::sync::LazyLock;
+
+use regex::Regex;
 use treesitter_types_c::{FromNode, TranslationUnitChildren};
 
-use crate::parsing::{preprocessing::preprocess_for_tree_sitter, utils::parse_define_value};
+use crate::parsing::{
+    preprocessing::preprocess_for_tree_sitter,
+    utils::{clean_comment, parse_define_value},
+};
 
 mod preprocessing;
 mod utils;
@@ -12,13 +18,13 @@ pub enum Error {
     UnaddressedSyntax { code: String },
 }
 
-#[derive(Debug, serde::Serialize, schemars::JsonSchema)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 pub struct Bindings {
-    copyright_comments: Vec<String>,
-    items: Vec<RootItemWithCommentAbove>,
+    pub copyright_comments: Vec<String>,
+    pub items: Vec<RootItemWithCommentAbove>,
 }
 
-#[derive(Debug, serde::Serialize, schemars::JsonSchema)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 #[serde(tag = "$type")]
 pub enum RootItemWithCommentAbove {
     Item {
@@ -31,7 +37,7 @@ pub enum RootItemWithCommentAbove {
     },
 }
 
-#[derive(Debug, serde::Serialize, schemars::JsonSchema)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 #[serde(tag = "$type")]
 pub enum RootItem {
     Define {
@@ -46,9 +52,18 @@ pub enum RootItem {
     },
 }
 
+impl RootItem {
+    pub fn name(&self) -> &str {
+        match self {
+            RootItem::Define { name, .. } => name,
+            _ => todo!(),
+        }
+    }
+}
+
 /// The value of a `#define` directive that appears in the C headers of the
 /// OpenFX standard.
-#[derive(Debug, PartialEq, Eq, serde::Serialize, schemars::JsonSchema)]
+#[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 #[serde(tag = "$type")]
 pub enum DefineValue {
     /// String literal inside the quotes. Its contents are guaranteed to be
@@ -78,7 +93,9 @@ pub enum DefineValue {
     Symbol { value: String },
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, schemars::JsonSchema)]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize, schemars::JsonSchema,
+)]
 pub enum TypedIntegerLiteralType {
     Int,
 }
@@ -125,12 +142,25 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
                 || text.contains("Copyright")
                 || text.contains("SPDX-License-Identifier")
             {
-                copyright_comments.push(text);
-            } else {
+                copyright_comments.push(clean_comment(&text));
+            } else if let text = text.trim_start()
+                && text.starts_with("/**")
+            {
+                static SPECIAL_RE: LazyLock<Regex> = LazyLock::new(|| {
+                    Regex::new(r#"(@(mainpage|page|file)|\\(defgroup|addtogroup))\b"#).unwrap()
+                });
+
                 if let Some(comment) = last_comment.take() {
                     items.push(RootItemWithCommentAbove::StandaloneComment { comment });
                 }
-                last_comment = Some(text!(raw_node));
+
+                if SPECIAL_RE.is_match(text) {
+                    items.push(RootItemWithCommentAbove::StandaloneComment {
+                        comment: clean_comment(text),
+                    });
+                } else {
+                    last_comment = Some(clean_comment(text));
+                }
             }
 
             continue;

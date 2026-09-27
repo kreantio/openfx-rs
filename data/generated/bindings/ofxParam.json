@@ -1,12 +1,12 @@
 {
   "copyright_comments": [
-    "// Copyright OpenFX and contributors to the OpenFX project.",
-    "// SPDX-License-Identifier: BSD-3-Clause"
+    "Copyright OpenFX and contributors to the OpenFX project.",
+    "SPDX-License-Identifier: BSD-3-Clause"
   ],
   "items": [
     {
       "$type": "Item",
-      "comment_above": "/** @brief string value to the ::kOfxPropType property for all parameters */",
+      "comment_above": "@brief string value to the ::kOfxPropType property for all parameters",
       "item": {
         "$type": "Define",
         "name": "kOfxParameterSuite",
@@ -18,7 +18,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief string value on the ::kOfxPropType property for all parameter definitions (ie: the handle returned in describe) */",
+      "comment_above": "@brief string value on the ::kOfxPropType property for all parameter definitions (ie: the handle returned in describe)",
       "item": {
         "$type": "Define",
         "name": "kOfxTypeParameter",
@@ -30,7 +30,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief string value on the ::kOfxPropType property for all parameter instances */",
+      "comment_above": "@brief string value on the ::kOfxPropType property for all parameter instances",
       "item": {
         "$type": "Define",
         "name": "kOfxTypeParameterInstance",
@@ -42,15 +42,11 @@
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/**\n   \\defgroup ParamTypeDefines Parameter Type definitions \n\nThese strings are used to identify the type of the parameter when it is defined, they are also on the ::kOfxParamPropType in any parameter instance.\n*/"
-    },
-    {
-      "$type": "StandaloneComment",
-      "comment": "/*@{*/"
+      "comment": "\\defgroup ParamTypeDefines Parameter Type definitions \n\nThese strings are used to identify the type of the parameter when it is defined, they are also on the ::kOfxParamPropType in any parameter instance."
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to identify a param as a single valued integer */",
+      "comment_above": "@brief String to identify a param as a single valued integer",
       "item": {
         "$type": "Define",
         "name": "kOfxParamTypeInteger",
@@ -62,7 +58,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to identify a param as a Single valued floating point parameter  */",
+      "comment_above": "@brief String to identify a param as a Single valued floating point parameter",
       "item": {
         "$type": "Define",
         "name": "kOfxParamTypeDouble",
@@ -74,7 +70,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to identify a param as a Single valued boolean parameter */",
+      "comment_above": "@brief String to identify a param as a Single valued boolean parameter",
       "item": {
         "$type": "Define",
         "name": "kOfxParamTypeBoolean",
@@ -86,7 +82,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to identify a param as a Single valued, 'one-of-many' parameter */",
+      "comment_above": "@brief String to identify a param as a Single valued, 'one-of-many' parameter",
       "item": {
         "$type": "Define",
         "name": "kOfxParamTypeChoice",
@@ -98,7 +94,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to identify a param as a string-valued 'one-of-many' parameter. \\since Version 1.5 */",
+      "comment_above": "@brief String to identify a param as a string-valued 'one-of-many' parameter. \\since Version 1.5",
       "item": {
         "$type": "Define",
         "name": "kOfxParamTypeStrChoice",
@@ -110,7 +106,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to identify a param as a Red, Green, Blue and Alpha colour parameter */",
+      "comment_above": "@brief String to identify a param as a Red, Green, Blue and Alpha colour parameter",
       "item": {
         "$type": "Define",
         "name": "kOfxParamTypeRGBA",
@@ -122,7 +118,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to identify a param as a Red, Green and Blue colour parameter */",
+      "comment_above": "@brief String to identify a param as a Red, Green and Blue colour parameter",
       "item": {
         "$type": "Define",
         "name": "kOfxParamTypeRGB",
@@ -134,7 +130,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to identify a param as a Two dimensional floating point parameter */",
+      "comment_above": "@brief String to identify a param as a Two dimensional floating point parameter",
       "item": {
         "$type": "Define",
         "name": "kOfxParamTypeDouble2D",
@@ -146,7 +142,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to identify a param as a Two dimensional integer point parameter */",
+      "comment_above": "@brief String to identify a param as a Two dimensional integer point parameter",
       "item": {
         "$type": "Define",
         "name": "kOfxParamTypeInteger2D",
@@ -158,7 +154,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to identify a param as a Three dimensional floating point parameter */",
+      "comment_above": "@brief String to identify a param as a Three dimensional floating point parameter",
       "item": {
         "$type": "Define",
         "name": "kOfxParamTypeDouble3D",
@@ -170,7 +166,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to identify a param as a Three dimensional integer parameter */",
+      "comment_above": "@brief String to identify a param as a Three dimensional integer parameter",
       "item": {
         "$type": "Define",
         "name": "kOfxParamTypeInteger3D",
@@ -182,7 +178,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to identify a param as a String (UTF8) parameter */",
+      "comment_above": "@brief String to identify a param as a String (UTF8) parameter",
       "item": {
         "$type": "Define",
         "name": "kOfxParamTypeString",
@@ -194,7 +190,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to identify a param as a Plug-in defined parameter */",
+      "comment_above": "@brief String to identify a param as a Plug-in defined parameter",
       "item": {
         "$type": "Define",
         "name": "kOfxParamTypeCustom",
@@ -206,7 +202,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to identify a param as a Plug-in defined opaque data parameter */",
+      "comment_above": "@brief String to identify a param as a Plug-in defined opaque data parameter",
       "item": {
         "$type": "Define",
         "name": "kOfxParamTypeBytes",
@@ -218,7 +214,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to identify a param as a Grouping parameter */",
+      "comment_above": "@brief String to identify a param as a Grouping parameter",
       "item": {
         "$type": "Define",
         "name": "kOfxParamTypeGroup",
@@ -230,7 +226,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to identify a param as a page parameter */",
+      "comment_above": "@brief String to identify a param as a page parameter",
       "item": {
         "$type": "Define",
         "name": "kOfxParamTypePage",
@@ -242,7 +238,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to identify a param as a PushButton parameter */",
+      "comment_above": "@brief String to identify a param as a PushButton parameter",
       "item": {
         "$type": "Define",
         "name": "kOfxParamTypePushButton",
@@ -254,27 +250,15 @@
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/*@}*/"
+      "comment": "\\addtogroup PropertiesAll"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/**\n   \\addtogroup PropertiesAll\n*/"
-    },
-    {
-      "$type": "StandaloneComment",
-      "comment": "/*@{*/"
-    },
-    {
-      "$type": "StandaloneComment",
-      "comment": "/**\n   \\defgroup ParamPropDefines Parameter Property Definitions \n\nThese are the list of properties used by the parameters suite.\n*/"
-    },
-    {
-      "$type": "StandaloneComment",
-      "comment": "/*@{*/"
+      "comment": "\\defgroup ParamPropDefines Parameter Property Definitions \n\nThese are the list of properties used by the parameters suite."
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Indicates if the host supports animation of custom parameters \n    \n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "comment_above": "@brief Indicates if the host supports animation of custom parameters \n    \n    @propdef\n    type: bool\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamHostPropSupportsCustomAnimation",
@@ -286,7 +270,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Indicates if the host supports animation of string params \n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "comment_above": "@brief Indicates if the host supports animation of string params \n    @propdef\n    type: bool\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamHostPropSupportsStringAnimation",
@@ -298,7 +282,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Indicates if the host supports animation of boolean params\n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "comment_above": "@brief Indicates if the host supports animation of boolean params\n    @propdef\n    type: bool\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamHostPropSupportsBooleanAnimation",
@@ -310,7 +294,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Indicates if the host supports animation of choice params \n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "comment_above": "@brief Indicates if the host supports animation of choice params \n    @propdef\n    type: bool\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamHostPropSupportsChoiceAnimation",
@@ -322,7 +306,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Indicates if the host supports custom interacts for parameters\n\nCurrently custom interacts for parameters can only be drawn using OpenGL.\nAPIs will be added later to support using the new Draw Suite.\n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "comment_above": "@brief Indicates if the host supports custom interacts for parameters\n\nCurrently custom interacts for parameters can only be drawn using OpenGL.\nAPIs will be added later to support using the new Draw Suite.\n    @propdef\n    type: bool\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamHostPropSupportsCustomInteract",
@@ -334,7 +318,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Indicates the maximum numbers of parameters available on the host.\n\nIf set to -1 it implies unlimited number of parameters.\n    \n    @propdef\n    type: int\n    dimension: 1\n*/",
+      "comment_above": "@brief Indicates the maximum numbers of parameters available on the host.\n\nIf set to -1 it implies unlimited number of parameters.\n    \n    @propdef\n    type: int\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamHostPropMaxParameters",
@@ -346,7 +330,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Indicates the maximum number of parameter pages.\n\n    If there is no limit to the number of pages on a host, set this to -1.\n    \nHosts that do not support paged parameter layout should set this to zero.\n    \n    @propdef\n    type: int\n    dimension: 1\n*/",
+      "comment_above": "@brief Indicates the maximum number of parameter pages.\n\n    If there is no limit to the number of pages on a host, set this to -1.\n    \nHosts that do not support paged parameter layout should set this to zero.\n    \n    @propdef\n    type: int\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamHostPropMaxPages",
@@ -358,7 +342,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief This indicates the number of parameter rows and columns on a page.\n\nIf the host has supports paged parameter layout, used dimension 0 as the number of columns per page and dimension 1 as the number of rows per page.\n    \n    @propdef\n    type: int\n    dimension: 2\n*/",
+      "comment_above": "@brief This indicates the number of parameter rows and columns on a page.\n\nIf the host has supports paged parameter layout, used dimension 0 as the number of columns per page and dimension 1 as the number of rows per page.\n    \n    @propdef\n    type: int\n    dimension: 2",
       "item": {
         "$type": "Define",
         "name": "kOfxParamHostPropPageRowColumnCount",
@@ -370,7 +354,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Pseudo parameter name used to skip a row in a page layout.\n\nPassed as a value to the \\ref kOfxParamPropPageChild property.\n\nSee \\ref ParametersInterfacesPagedLayouts for more details.\n*/",
+      "comment_above": "@brief Pseudo parameter name used to skip a row in a page layout.\n\nPassed as a value to the \\ref kOfxParamPropPageChild property.\n\nSee \\ref ParametersInterfacesPagedLayouts for more details.",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPageSkipRow",
@@ -382,7 +366,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Pseudo parameter name used to skip a row in a page layout.\n\nPassed as a value to the \\ref kOfxParamPropPageChild property.\n\nSee \\ref ParametersInterfacesPagedLayouts for more details.\n*/",
+      "comment_above": "@brief Pseudo parameter name used to skip a row in a page layout.\n\nPassed as a value to the \\ref kOfxParamPropPageChild property.\n\nSee \\ref ParametersInterfacesPagedLayouts for more details.",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPageSkipColumn",
@@ -394,7 +378,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Overrides the parameter's standard user interface with the given interact.\n\nIf set, the parameter's normal interface is replaced completely by the interact gui.\n\nCurrently custom interacts for parameters can only be drawn using OpenGL.\nAPIs will be added later to support using the new Draw Suite.\n    \n    - Valid Values -  must point to a OfxPluginEntryPoint\n    @propdef\n    type: pointer\n    dimension: 1\n*/",
+      "comment_above": "@brief Overrides the parameter's standard user interface with the given interact.\n\nIf set, the parameter's normal interface is replaced completely by the interact gui.\n\nCurrently custom interacts for parameters can only be drawn using OpenGL.\nAPIs will be added later to support using the new Draw Suite.\n    \n    - Valid Values -  must point to a OfxPluginEntryPoint\n    @propdef\n    type: pointer\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropInteractV1",
@@ -406,7 +390,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The size of a parameter instance's custom interface in screen pixels.\n  \nThis is set by a host to indicate the current size of a custom interface if the plug-in has one. If not this is set to (0,0).\n  \n  @propdef\n  type: double\n  dimension: 2\n*/",
+      "comment_above": "@brief The size of a parameter instance's custom interface in screen pixels.\n  \nThis is set by a host to indicate the current size of a custom interface if the plug-in has one. If not this is set to (0,0).\n  \n  @propdef\n  type: double\n  dimension: 2",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropInteractSize",
@@ -418,7 +402,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The preferred aspect ratio of a parameter's custom interface.\n\nIf set to anything other than 0.0, the custom interface for this parameter will be of a size with this aspect ratio (x size/y size).\n    \n    - Valid Values - greater than or equal to 0.0\n    @propdef\n    type: double\n    dimension: 1\n*/",
+      "comment_above": "@brief The preferred aspect ratio of a parameter's custom interface.\n\nIf set to anything other than 0.0, the custom interface for this parameter will be of a size with this aspect ratio (x size/y size).\n    \n    - Valid Values - greater than or equal to 0.0\n    @propdef\n    type: double\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropInteractSizeAspect",
@@ -430,7 +414,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The minimum size of a parameter's custom interface, in screen pixels.\n\nAny custom interface will not be less than this size.\n    \n    - Valid Values - greater than (0, 0)\n    @propdef\n    type: double\n    dimension: 2\n*/",
+      "comment_above": "@brief The minimum size of a parameter's custom interface, in screen pixels.\n\nAny custom interface will not be less than this size.\n    \n    - Valid Values - greater than (0, 0)\n    @propdef\n    type: double\n    dimension: 2",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropInteractMinimumSize",
@@ -442,7 +426,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The preferred size of a parameter's custom interface.\n\n  A host should attempt to set a parameter's custom interface on a parameter to be this size if possible, otherwise it will be of ::kOfxParamPropInteractSizeAspect aspect but larger than ::kOfxParamPropInteractMinimumSize.\n    \n    - Valid Values - greater than (0, 0)\n    @propdef\n    type: int\n    dimension: 2\n*/",
+      "comment_above": "@brief The preferred size of a parameter's custom interface.\n\n  A host should attempt to set a parameter's custom interface on a parameter to be this size if possible, otherwise it will be of ::kOfxParamPropInteractSizeAspect aspect but larger than ::kOfxParamPropInteractMinimumSize.\n    \n    - Valid Values - greater than (0, 0)\n    @propdef\n    type: int\n    dimension: 2",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropInteractPreferedSize",
@@ -454,7 +438,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The type of a parameter.\n\nThis string will be set to the type that the parameter was create with.\n   \n   @propdef\n   type: string\n   dimension: 1\n*/",
+      "comment_above": "@brief The type of a parameter.\n\nThis string will be set to the type that the parameter was create with.\n   \n   @propdef\n   type: string\n   dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropType",
@@ -466,7 +450,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Flags whether a parameter can animate.\n\nA plug-in uses this property to indicate if a parameter is able to animate.\n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "comment_above": "@brief Flags whether a parameter can animate.\n\nA plug-in uses this property to indicate if a parameter is able to animate.\n    @propdef\n    type: bool\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropAnimates",
@@ -478,7 +462,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Flags whether changes to a parameter should be put on the undo/redo stack\n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "comment_above": "@brief Flags whether changes to a parameter should be put on the undo/redo stack\n    @propdef\n    type: bool\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropCanUndo",
@@ -490,7 +474,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief States whether the plugin needs to resync its private data\n\nThe plugin should set this flag to true whenever any internal state has not\nbeen flushed to the set of params.\n\nThe host will examine this property each time it does a copy or save\noperation on the instance.\n * If it is set to 1, the host will call SyncPrivateData and then set\n   it to zero before doing the copy/save.\n * If it is set to 0, the host will assume that the param data\n   correctly represents the private state, and will not call\n   SyncPrivateData before copying/saving.\n * If this property is not set, the host will always call\n   SyncPrivateData before copying or saving the effect (as if the\n   property were set to 1 -- but the host will not create or\n   modify the property).\n    \n    - Valid Values -\n        - 0 - no need to sync\n        - 1 - paramset is not synced\n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "comment_above": "@brief States whether the plugin needs to resync its private data\n\nThe plugin should set this flag to true whenever any internal state has not\nbeen flushed to the set of params.\n\nThe host will examine this property each time it does a copy or save\noperation on the instance.\nIf it is set to 1, the host will call SyncPrivateData and then set\n   it to zero before doing the copy/save.\nIf it is set to 0, the host will assume that the param data\n   correctly represents the private state, and will not call\n   SyncPrivateData before copying/saving.\nIf this property is not set, the host will always call\n   SyncPrivateData before copying or saving the effect (as if the\n   property were set to 1 -- but the host will not create or\n   modify the property).\n    \n    - Valid Values -\n        - 0 - no need to sync\n        - 1 - paramset is not synced\n    @propdef\n    type: bool\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxPropParamSetNeedsSyncing",
@@ -502,7 +486,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Flags whether a parameter is currently animating.\n\nSet by a host on a parameter instance to indicate if the parameter has a non-constant value set on it. This can\nbe as a consequence of animation or of scripting modifying the value, or of a parameter being connected to\nan expression in the host.\n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "comment_above": "@brief Flags whether a parameter is currently animating.\n\nSet by a host on a parameter instance to indicate if the parameter has a non-constant value set on it. This can\nbe as a consequence of animation or of scripting modifying the value, or of a parameter being connected to\nan expression in the host.\n    @propdef\n    type: bool\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropIsAnimating",
@@ -514,7 +498,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Flags whether the plugin will attempt to set the value of a parameter in some callback or analysis pass\n\nThis is used to tell the host whether the plug-in is going to attempt to set the value of the parameter.\n\n@deprecated - v1.4: deprecated - to be removed in 1.5\n    @propdef\n    type: bool\n    dimension: 1\n    deprecated: \"1.4\"\n*/",
+      "comment_above": "@brief Flags whether the plugin will attempt to set the value of a parameter in some callback or analysis pass\n\nThis is used to tell the host whether the plug-in is going to attempt to set the value of the parameter.\n\n@deprecated - v1.4: deprecated - to be removed in 1.5\n    @propdef\n    type: bool\n    dimension: 1\n    deprecated: \"1.4\"",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropPluginMayWrite",
@@ -526,7 +510,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Flags whether the value of a parameter should persist.\n\nThis is used to tell the host whether the value of the parameter is important and should be save in any description of the plug-in.\n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "comment_above": "@brief Flags whether the value of a parameter should persist.\n\nThis is used to tell the host whether the value of the parameter is important and should be save in any description of the plug-in.\n    @propdef\n    type: bool\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropPersistant",
@@ -538,7 +522,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Flags whether changing a parameter's value forces an evaluation (ie: render),\n\nThis is used to indicate if the value of a parameter has any affect on an effect's output, eg: the parameter may be purely for GUI purposes, and so changing its value should not trigger a re-render.\n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "comment_above": "@brief Flags whether changing a parameter's value forces an evaluation (ie: render),\n\nThis is used to indicate if the value of a parameter has any affect on an effect's output, eg: the parameter may be purely for GUI purposes, and so changing its value should not trigger a re-render.\n    @propdef\n    type: bool\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropEvaluateOnChange",
@@ -550,7 +534,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Flags whether a parameter should be exposed to a user,\n\nIf secret, a parameter is not exposed to a user in any interface, but should otherwise behave as a normal parameter.\n\nSecret params are typically used to hide important state detail that would otherwise be unintelligible to a user, for example the result of a statical analysis that might need many parameters to store.\n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "comment_above": "@brief Flags whether a parameter should be exposed to a user,\n\nIf secret, a parameter is not exposed to a user in any interface, but should otherwise behave as a normal parameter.\n\nSecret params are typically used to hide important state detail that would otherwise be unintelligible to a user, for example the result of a statical analysis that might need many parameters to store.\n    @propdef\n    type: bool\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropSecret",
@@ -562,7 +546,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The value to be used as the id of the parameter in a host scripting language.\n\nMany hosts have a scripting language that they use to set values of parameters and more. If so, this is the name of a parameter in such scripts.\n    \n    - Valid Values - ASCII string unique to all parameters in the plug-in.\n    @propdef\n    type: string\n    dimension: 1\n*/",
+      "comment_above": "@brief The value to be used as the id of the parameter in a host scripting language.\n\nMany hosts have a scripting language that they use to set values of parameters and more. If so, this is the name of a parameter in such scripts.\n    \n    - Valid Values - ASCII string unique to all parameters in the plug-in.\n    @propdef\n    type: string\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropScriptName",
@@ -574,7 +558,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Specifies how modifying the value of a param will affect any output of an effect over time.\n\nImagine an effect with an animating parameter in a host that caches\nrendered output. Think of the what happens when you add a new key frame.\n -If the parameter represents something like an absolute position, the cache will only need to be invalidated for the range of frames that keyframe affects.\n- If the parameter represents something like a speed which is integrated, the cache will be invalidated from the keyframe until the end of the clip.\n- There are potentially other situations where the entire cache will need to be invalidated (though I can't think of one off the top of my head).\n   \n   - Valid Values - This must be one of\n       - ::kOfxParamInvalidateValueChange\n       - ::kOfxParamInvalidateValueChangeToEnd\n       - ::kOfxParamInvalidateAll\n   @propdef\n   type: enum\n   dimension: 1\n   values:\n     - OfxParamInvalidateValueChange\n     - OfxParamInvalidateValueChangeToEnd\n     - OfxParamInvalidateAll\n*/",
+      "comment_above": "@brief Specifies how modifying the value of a param will affect any output of an effect over time.\n\nImagine an effect with an animating parameter in a host that caches\nrendered output. Think of the what happens when you add a new key frame.\n -If the parameter represents something like an absolute position, the cache will only need to be invalidated for the range of frames that keyframe affects.\n- If the parameter represents something like a speed which is integrated, the cache will be invalidated from the keyframe until the end of the clip.\n- There are potentially other situations where the entire cache will need to be invalidated (though I can't think of one off the top of my head).\n   \n   - Valid Values - This must be one of\n       - ::kOfxParamInvalidateValueChange\n       - ::kOfxParamInvalidateValueChangeToEnd\n       - ::kOfxParamInvalidateAll\n   @propdef\n   type: enum\n   dimension: 1\n   values:\n     - OfxParamInvalidateValueChange\n     - OfxParamInvalidateValueChangeToEnd\n     - OfxParamInvalidateAll",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropCacheInvalidation",
@@ -586,7 +570,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Used as a value for the ::kOfxParamPropCacheInvalidation property */",
+      "comment_above": "@brief Used as a value for the ::kOfxParamPropCacheInvalidation property",
       "item": {
         "$type": "Define",
         "name": "kOfxParamInvalidateValueChange",
@@ -598,7 +582,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Used as a value for the ::kOfxParamPropCacheInvalidation property */",
+      "comment_above": "@brief Used as a value for the ::kOfxParamPropCacheInvalidation property",
       "item": {
         "$type": "Define",
         "name": "kOfxParamInvalidateValueChangeToEnd",
@@ -610,7 +594,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Used as a value for the ::kOfxParamPropCacheInvalidation property */",
+      "comment_above": "@brief Used as a value for the ::kOfxParamPropCacheInvalidation property",
       "item": {
         "$type": "Define",
         "name": "kOfxParamInvalidateAll",
@@ -622,7 +606,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief A hint to the user as to how the parameter is to be used.\n   \n   @propdef\n   type: string\n   dimension: 1\n*/",
+      "comment_above": "@brief A hint to the user as to how the parameter is to be used.\n   \n   @propdef\n   type: string\n   dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropHint",
@@ -634,7 +618,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The default value of a parameter.\n\nThe exact type and dimension is dependent on the type of the parameter. These are....\n  - ::kOfxParamTypeInteger - integer property of one dimension\n  - ::kOfxParamTypeDouble - double property of one dimension\n  - ::kOfxParamTypeBoolean - integer property of one dimension\n  - ::kOfxParamTypeChoice - integer property of one dimension\n  - ::kOfxParamTypeStrChoice - string property of one dimension\n  - ::kOfxParamTypeRGBA - double property of four dimensions\n  - ::kOfxParamTypeRGB - double property of three dimensions\n  - ::kOfxParamTypeDouble2D - double property of two dimensions\n  - ::kOfxParamTypeInteger2D - integer property of two dimensions\n  - ::kOfxParamTypeDouble3D - double property of three dimensions\n  - ::kOfxParamTypeInteger3D - integer property of three dimensions\n  - ::kOfxParamTypeString - string property of one dimension\n  - ::kOfxParamTypeCustom - string property of one dimension\n  - ::kOfxParamTypeBytes - pointer to OfxBytes struct of one dimension, or nullptr\n  - ::kOfxParamTypeGroup - does not have this property\n  - ::kOfxParamTypePage - does not have this property\n  - ::kOfxParamTypePushButton - does not have this property\n   \n   @propdef\n   type: [int, double, string, pointer]\n   dimension: N\n */",
+      "comment_above": "@brief The default value of a parameter.\n\nThe exact type and dimension is dependent on the type of the parameter. These are....\n  - ::kOfxParamTypeInteger - integer property of one dimension\n  - ::kOfxParamTypeDouble - double property of one dimension\n  - ::kOfxParamTypeBoolean - integer property of one dimension\n  - ::kOfxParamTypeChoice - integer property of one dimension\n  - ::kOfxParamTypeStrChoice - string property of one dimension\n  - ::kOfxParamTypeRGBA - double property of four dimensions\n  - ::kOfxParamTypeRGB - double property of three dimensions\n  - ::kOfxParamTypeDouble2D - double property of two dimensions\n  - ::kOfxParamTypeInteger2D - integer property of two dimensions\n  - ::kOfxParamTypeDouble3D - double property of three dimensions\n  - ::kOfxParamTypeInteger3D - integer property of three dimensions\n  - ::kOfxParamTypeString - string property of one dimension\n  - ::kOfxParamTypeCustom - string property of one dimension\n  - ::kOfxParamTypeBytes - pointer to OfxBytes struct of one dimension, or nullptr\n  - ::kOfxParamTypeGroup - does not have this property\n  - ::kOfxParamTypePage - does not have this property\n  - ::kOfxParamTypePushButton - does not have this property\n   \n   @propdef\n   type: [int, double, string, pointer]\n   dimension: N",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropDefault",
@@ -646,7 +630,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Describes how the double parameter should be interpreted by a host.\n\n   - Valid Values -This must be one of\n      - ::kOfxParamDoubleTypePlain - parameter has no special interpretation,\n      - ::kOfxParamDoubleTypeAngle - parameter is to be interpreted as an angle,\n      - ::kOfxParamDoubleTypeScale - parameter is to be interpreted as a scale factor,\n      - ::kOfxParamDoubleTypeTime  - parameter represents a time value (1D only),\n      - ::kOfxParamDoubleTypeAbsoluteTime  - parameter represents an absolute time value (1D only),\n\n      - ::kOfxParamDoubleTypeX - size wrt to the project's X dimension (1D only), in canonical coordinates,\n      - ::kOfxParamDoubleTypeXAbsolute - absolute position on the X axis (1D only), in canonical coordinates,\n      - ::kOfxParamDoubleTypeY - size wrt to the project's Y dimension(1D only), in canonical coordinates,\n      - ::kOfxParamDoubleTypeYAbsolute - absolute position on the Y axis (1D only), in canonical coordinates,\n      - ::kOfxParamDoubleTypeXY - size in 2D (2D only), in canonical coordinates,\n      - ::kOfxParamDoubleTypeXYAbsolute - an absolute position on the image plane, in canonical coordinates.\n\nDouble parameters can be interpreted in several different ways, this property tells the host how to do so and thus gives hints\nas to the interface of the parameter.\n   @propdef\n   type: enum\n   dimension: 1\n   values:\n     - OfxParamDoubleTypePlain\n     - OfxParamDoubleTypeAngle\n     - OfxParamDoubleTypeScale\n     - OfxParamDoubleTypeTime\n     - OfxParamDoubleTypeAbsoluteTime\n     - OfxParamDoubleTypeX\n     - OfxParamDoubleTypeXAbsolute\n     - OfxParamDoubleTypeY\n     - OfxParamDoubleTypeYAbsolute\n     - OfxParamDoubleTypeXY\n     - OfxParamDoubleTypeXYAbsolute\n*/",
+      "comment_above": "@brief Describes how the double parameter should be interpreted by a host.\n\n   - Valid Values -This must be one of\n      - ::kOfxParamDoubleTypePlain - parameter has no special interpretation,\n      - ::kOfxParamDoubleTypeAngle - parameter is to be interpreted as an angle,\n      - ::kOfxParamDoubleTypeScale - parameter is to be interpreted as a scale factor,\n      - ::kOfxParamDoubleTypeTime  - parameter represents a time value (1D only),\n      - ::kOfxParamDoubleTypeAbsoluteTime  - parameter represents an absolute time value (1D only),\n\n      - ::kOfxParamDoubleTypeX - size wrt to the project's X dimension (1D only), in canonical coordinates,\n      - ::kOfxParamDoubleTypeXAbsolute - absolute position on the X axis (1D only), in canonical coordinates,\n      - ::kOfxParamDoubleTypeY - size wrt to the project's Y dimension(1D only), in canonical coordinates,\n      - ::kOfxParamDoubleTypeYAbsolute - absolute position on the Y axis (1D only), in canonical coordinates,\n      - ::kOfxParamDoubleTypeXY - size in 2D (2D only), in canonical coordinates,\n      - ::kOfxParamDoubleTypeXYAbsolute - an absolute position on the image plane, in canonical coordinates.\n\nDouble parameters can be interpreted in several different ways, this property tells the host how to do so and thus gives hints\nas to the interface of the parameter.\n   @propdef\n   type: enum\n   dimension: 1\n   values:\n     - OfxParamDoubleTypePlain\n     - OfxParamDoubleTypeAngle\n     - OfxParamDoubleTypeScale\n     - OfxParamDoubleTypeTime\n     - OfxParamDoubleTypeAbsoluteTime\n     - OfxParamDoubleTypeX\n     - OfxParamDoubleTypeXAbsolute\n     - OfxParamDoubleTypeY\n     - OfxParamDoubleTypeYAbsolute\n     - OfxParamDoubleTypeXY\n     - OfxParamDoubleTypeXYAbsolute",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropDoubleType",
@@ -658,7 +642,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamPropDoubleType property, indicating the parameter has no special interpretation and should be interpreted as a raw numeric value. */",
+      "comment_above": "@brief value for the ::kOfxParamPropDoubleType property, indicating the parameter has no special interpretation and should be interpreted as a raw numeric value.",
       "item": {
         "$type": "Define",
         "name": "kOfxParamDoubleTypePlain",
@@ -670,7 +654,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamPropDoubleType property, indicating the parameter is to be interpreted as a scale factor. See \\ref ::kOfxParamPropDoubleType. */",
+      "comment_above": "@brief value for the ::kOfxParamPropDoubleType property, indicating the parameter is to be interpreted as a scale factor. See \\ref ::kOfxParamPropDoubleType.",
       "item": {
         "$type": "Define",
         "name": "kOfxParamDoubleTypeScale",
@@ -682,7 +666,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamDoubleTypeAngle property, indicating the parameter is to be interpreted as an angle. See \\ref ::kOfxParamPropDoubleType.  */",
+      "comment_above": "@brief value for the ::kOfxParamDoubleTypeAngle property, indicating the parameter is to be interpreted as an angle. See \\ref ::kOfxParamPropDoubleType.",
       "item": {
         "$type": "Define",
         "name": "kOfxParamDoubleTypeAngle",
@@ -694,7 +678,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamDoubleTypeAngle property, indicating the parameter is to be interpreted as a time. See \\ref ::kOfxParamPropDoubleType. */",
+      "comment_above": "@brief value for the ::kOfxParamDoubleTypeAngle property, indicating the parameter is to be interpreted as a time. See \\ref ::kOfxParamPropDoubleType.",
       "item": {
         "$type": "Define",
         "name": "kOfxParamDoubleTypeTime",
@@ -706,7 +690,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamDoubleTypeAngle property, indicating the parameter is to be interpreted as an absolute time from the start of the effect. See \\ref ::kOfxParamPropDoubleType. */",
+      "comment_above": "@brief value for the ::kOfxParamDoubleTypeAngle property, indicating the parameter is to be interpreted as an absolute time from the start of the effect. See \\ref ::kOfxParamPropDoubleType.",
       "item": {
         "$type": "Define",
         "name": "kOfxParamDoubleTypeAbsoluteTime",
@@ -718,7 +702,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamPropDoubleType property, indicating a size in canonical coords in the X dimension. See \\ref ::kOfxParamPropDoubleType. */",
+      "comment_above": "@brief value for the ::kOfxParamPropDoubleType property, indicating a size in canonical coords in the X dimension. See \\ref ::kOfxParamPropDoubleType.",
       "item": {
         "$type": "Define",
         "name": "kOfxParamDoubleTypeX",
@@ -730,7 +714,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamPropDoubleType property, indicating a size in canonical coords in the Y dimension. See \\ref ::kOfxParamPropDoubleType. */",
+      "comment_above": "@brief value for the ::kOfxParamPropDoubleType property, indicating a size in canonical coords in the Y dimension. See \\ref ::kOfxParamPropDoubleType.",
       "item": {
         "$type": "Define",
         "name": "kOfxParamDoubleTypeY",
@@ -742,7 +726,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamPropDoubleType property, indicating an absolute position in canonical coords in the X dimension. See \\ref ::kOfxParamPropDoubleType. */",
+      "comment_above": "@brief value for the ::kOfxParamPropDoubleType property, indicating an absolute position in canonical coords in the X dimension. See \\ref ::kOfxParamPropDoubleType.",
       "item": {
         "$type": "Define",
         "name": "kOfxParamDoubleTypeXAbsolute",
@@ -754,7 +738,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamPropDoubleType property, indicating an absolute position in canonical coords in the Y dimension. See \\ref ::kOfxParamPropDoubleType. */",
+      "comment_above": "@brief value for the ::kOfxParamPropDoubleType property, indicating an absolute position in canonical coords in the Y dimension. See \\ref ::kOfxParamPropDoubleType.",
       "item": {
         "$type": "Define",
         "name": "kOfxParamDoubleTypeYAbsolute",
@@ -766,7 +750,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamPropDoubleType property, indicating a 2D size in canonical coords. See \\ref ::kOfxParamPropDoubleType. */",
+      "comment_above": "@brief value for the ::kOfxParamPropDoubleType property, indicating a 2D size in canonical coords. See \\ref ::kOfxParamPropDoubleType.",
       "item": {
         "$type": "Define",
         "name": "kOfxParamDoubleTypeXY",
@@ -778,7 +762,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamPropDoubleType property, indicating a 2D position in canonical coords. See \\ref ::kOfxParamPropDoubleType. */",
+      "comment_above": "@brief value for the ::kOfxParamPropDoubleType property, indicating a 2D position in canonical coords. See \\ref ::kOfxParamPropDoubleType.",
       "item": {
         "$type": "Define",
         "name": "kOfxParamDoubleTypeXYAbsolute",
@@ -790,7 +774,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Describes in which coordinate system a spatial double parameter's default value is specified.\n\nThis allows a spatial param to specify what its default is, so by saying normalised and \"0.5\" it would be in the 'middle', by saying canonical and 100 it would be at value 100 independent of the size of the image being applied to.\n   \n   - Valid Values - This must be one of\n      - kOfxParamCoordinatesCanonical - the default is in canonical coords\n      - kOfxParamCoordinatesNormalised - the default is in normalised coordinates\n   @propdef\n   type: enum\n   dimension: 1\n   values:\n     - OfxParamCoordinatesCanonical\n     - OfxParamCoordinatesNormalised\n*/",
+      "comment_above": "@brief Describes in which coordinate system a spatial double parameter's default value is specified.\n\nThis allows a spatial param to specify what its default is, so by saying normalised and \"0.5\" it would be in the 'middle', by saying canonical and 100 it would be at value 100 independent of the size of the image being applied to.\n   \n   - Valid Values - This must be one of\n      - kOfxParamCoordinatesCanonical - the default is in canonical coords\n      - kOfxParamCoordinatesNormalised - the default is in normalised coordinates\n   @propdef\n   type: enum\n   dimension: 1\n   values:\n     - OfxParamCoordinatesCanonical\n     - OfxParamCoordinatesNormalised",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropDefaultCoordinateSystem",
@@ -802,7 +786,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Define the canonical coordinate system */",
+      "comment_above": "@brief Define the canonical coordinate system",
       "item": {
         "$type": "Define",
         "name": "kOfxParamCoordinatesCanonical",
@@ -814,7 +798,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Define the normalised coordinate system */",
+      "comment_above": "@brief Define the normalised coordinate system",
       "item": {
         "$type": "Define",
         "name": "kOfxParamCoordinatesNormalised",
@@ -826,7 +810,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief A flag to indicate if there is a host overlay UI handle for the given parameter.\n\nIf set to 1, then the host is flagging that there is some sort of native user overlay interface handle available for the given parameter.\n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "comment_above": "@brief A flag to indicate if there is a host overlay UI handle for the given parameter.\n\nIf set to 1, then the host is flagging that there is some sort of native user overlay interface handle available for the given parameter.\n    @propdef\n    type: bool\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropHasHostOverlayHandle",
@@ -838,7 +822,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief A flag to indicate that the host should use a native UI overlay handle for the given parameter.\n\nIf set to 1, then a plugin is flaging to the host that the host should use a native UI overlay handle for the given parameter. A plugin can use this to keep a native look and feel for parameter handles. A plugin can use ::kOfxParamPropHasHostOverlayHandle to see if handles are available on the given parameter.\n    @propdef\n    type: bool\n    dimension: 1\n    cname: kOfxParamPropUseHostOverlayHandle\n*/",
+      "comment_above": "@brief A flag to indicate that the host should use a native UI overlay handle for the given parameter.\n\nIf set to 1, then a plugin is flaging to the host that the host should use a native UI overlay handle for the given parameter. A plugin can use this to keep a native look and feel for parameter handles. A plugin can use ::kOfxParamPropHasHostOverlayHandle to see if handles are available on the given parameter.\n    @propdef\n    type: bool\n    dimension: 1\n    cname: kOfxParamPropUseHostOverlayHandle",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropUseHostOverlayHandle",
@@ -850,7 +834,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamInterpType property, indicating a constant/hold/step interpolation type. See \\ref ::kOfxParamInterpType. */",
+      "comment_above": "@brief value for the ::kOfxParamInterpType property, indicating a constant/hold/step interpolation type. See \\ref ::kOfxParamInterpType.",
       "item": {
         "$type": "Define",
         "name": "kOfxParamInterpTypeConstantStep",
@@ -862,7 +846,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamInterpType property, indicating a linear interpolation type. See \\ref ::kOfxParamInterpType. */",
+      "comment_above": "@brief value for the ::kOfxParamInterpType property, indicating a linear interpolation type. See \\ref ::kOfxParamInterpType.",
       "item": {
         "$type": "Define",
         "name": "kOfxParamInterpTypeLinear",
@@ -874,7 +858,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamInterpType property, indicating some kind of smooth interpolation type. See \\ref ::kOfxParamInterpType. */",
+      "comment_above": "@brief value for the ::kOfxParamInterpType property, indicating some kind of smooth interpolation type. See \\ref ::kOfxParamInterpType.",
       "item": {
         "$type": "Define",
         "name": "kOfxParamInterpTypeSmooth",
@@ -886,7 +870,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Sets the default interpolation type of a Integer or Double parameter.\n\n   - Type - C string X 1\n   - Default - ::kOfxParamInterpTypeLinear\n   - Property Set - 1D integer and double plugin parameter descriptor (read/write) and instance (read only)\n   - Valid Values - This must be one of\n      - ::kOfxParamInterpTypeConstantStep - constant/hold/step interpolation,\n      - ::kOfxParamInterpTypeLinear - linear interpolation,\n      - ::kOfxParamInterpTypeSmooth - some kind of smooth (bezier, hermite, cardinal, etc) interpolation\n\nThis allows a plugin to indicate how a number-type parameter should be interpolated by default. This is useful if a parameter\nis used to encode a keyed set of interesting frame numbers to be used as markers or retime points without the host animating them.\n*/",
+      "comment_above": "@brief Sets the default interpolation type of a Integer or Double parameter.\n\n   - Type - C string X 1\n   - Default - ::kOfxParamInterpTypeLinear\n   - Property Set - 1D integer and double plugin parameter descriptor (read/write) and instance (read only)\n   - Valid Values - This must be one of\n      - ::kOfxParamInterpTypeConstantStep - constant/hold/step interpolation,\n      - ::kOfxParamInterpTypeLinear - linear interpolation,\n      - ::kOfxParamInterpTypeSmooth - some kind of smooth (bezier, hermite, cardinal, etc) interpolation\n\nThis allows a plugin to indicate how a number-type parameter should be interpolated by default. This is useful if a parameter\nis used to encode a keyed set of interesting frame numbers to be used as markers or retime points without the host animating them.",
       "item": {
         "$type": "Define",
         "name": "kOfxParamInterpType",
@@ -898,7 +882,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Enables the display of a time marker on the host's time line to indicate the value of the absolute time param.\n\nIf a double parameter is has ::kOfxParamPropDoubleType set to ::kOfxParamDoubleTypeAbsoluteTime, then this indicates whether \nany marker should be made visible on the host's time line.\n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "comment_above": "@brief Enables the display of a time marker on the host's time line to indicate the value of the absolute time param.\n\nIf a double parameter is has ::kOfxParamPropDoubleType set to ::kOfxParamDoubleTypeAbsoluteTime, then this indicates whether \nany marker should be made visible on the host's time line.\n    @propdef\n    type: bool\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropShowTimeMarker",
@@ -910,7 +894,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Sets the parameter pages and order of pages.\n\nThis property sets the preferred order of parameter pages on a host. If this is never set, the preferred order is the order the parameters were declared in.\n    \n    - Valid Values - the names of any page param in the plugin\n    @propdef\n    type: string\n    dimension: N\n*/",
+      "comment_above": "@brief Sets the parameter pages and order of pages.\n\nThis property sets the preferred order of parameter pages on a host. If this is never set, the preferred order is the order the parameters were declared in.\n    \n    - Valid Values - the names of any page param in the plugin\n    @propdef\n    type: string\n    dimension: N",
       "item": {
         "$type": "Define",
         "name": "kOfxPluginPropParamPageOrder",
@@ -922,7 +906,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The names of the parameters included in a page parameter.\n\nThis is a property on parameters of type ::kOfxParamTypePage, and tells the page what parameters it contains. The parameters are added to the page from the top left, filling in columns as we go. The two pseudo param names ::kOfxParamPageSkipRow and ::kOfxParamPageSkipColumn are used to control layout.\n\nNote parameters can appear in more than one page.\n    \n    - Valid Values - the names of any parameter that is not a group or page, as well as ::kOfxParamPageSkipRow and ::kOfxParamPageSkipColumn\n    @propdef\n    type: string\n    dimension: N\n*/",
+      "comment_above": "@brief The names of the parameters included in a page parameter.\n\nThis is a property on parameters of type ::kOfxParamTypePage, and tells the page what parameters it contains. The parameters are added to the page from the top left, filling in columns as we go. The two pseudo param names ::kOfxParamPageSkipRow and ::kOfxParamPageSkipColumn are used to control layout.\n\nNote parameters can appear in more than one page.\n    \n    - Valid Values - the names of any parameter that is not a group or page, as well as ::kOfxParamPageSkipRow and ::kOfxParamPageSkipColumn\n    @propdef\n    type: string\n    dimension: N",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropPageChild",
@@ -934,7 +918,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The name of a parameter's parent group.\n\nHosts that have hierarchical layouts of their params use this to recursively group parameter.\n\nBy default parameters are added in order of declaration to the 'root' hierarchy. This property is used to reparent params to a predefined param of type ::kOfxParamTypeGroup.\n    \n    - Valid Values - the name of a parameter with type of ::kOfxParamTypeGroup\n    @propdef\n    type: string\n    dimension: 1\n*/",
+      "comment_above": "@brief The name of a parameter's parent group.\n\nHosts that have hierarchical layouts of their params use this to recursively group parameter.\n\nBy default parameters are added in order of declaration to the 'root' hierarchy. This property is used to reparent params to a predefined param of type ::kOfxParamTypeGroup.\n    \n    - Valid Values - the name of a parameter with type of ::kOfxParamTypeGroup\n    @propdef\n    type: string\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropParent",
@@ -946,7 +930,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Whether the initial state of a group is open or closed in a hierarchical layout. \n\nThis is a property on parameters of type ::kOfxParamTypeGroup, and tells the group whether it should be open or closed by default.\n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "comment_above": "@brief Whether the initial state of a group is open or closed in a hierarchical layout. \n\nThis is a property on parameters of type ::kOfxParamTypeGroup, and tells the group whether it should be open or closed by default.\n    @propdef\n    type: bool\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropGroupOpen",
@@ -958,7 +942,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Used to enable a parameter in the user interface.\n\nWhen set to 0 a user should not be able to modify the value of the parameter. Note that the plug-in itself can still change the value of a disabled parameter.\n    @propdef\n    type: bool\n    dimension: 1\n    optional: true\n*/",
+      "comment_above": "@brief Used to enable a parameter in the user interface.\n\nWhen set to 0 a user should not be able to modify the value of the parameter. Note that the plug-in itself can still change the value of a disabled parameter.\n    @propdef\n    type: bool\n    dimension: 1\n    optional: true",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropEnabled",
@@ -970,7 +954,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief A private data pointer that the plug-in can store its own data behind.\n\nThis data pointer is unique to each parameter instance, so two instances of the same parameter do not share the same data pointer. Use it to hang any needed private data structures.\n    \n    @propdef\n    type: pointer\n    dimension: 1\n */",
+      "comment_above": "@brief A private data pointer that the plug-in can store its own data behind.\n\nThis data pointer is unique to each parameter instance, so two instances of the same parameter do not share the same data pointer. Use it to hang any needed private data structures.\n    \n    @propdef\n    type: pointer\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropDataPtr",
@@ -982,7 +966,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Set options of a choice parameter.\n\nThis property contains the set of options that will be presented to a user\nfrom a choice parameter. See @ref ParametersChoice for more details.\n    \n    @propdef\n    type: string\n    dimension: N\n*/",
+      "comment_above": "@brief Set options of a choice parameter.\n\nThis property contains the set of options that will be presented to a user\nfrom a choice parameter. See @ref ParametersChoice for more details.\n    \n    @propdef\n    type: string\n    dimension: N",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropChoiceOption",
@@ -994,7 +978,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Set values the host should store for a choice parameter.\n\n(read/write),\n`OfxParamPropChoiceOption`\n\nThis property specifies the order in which the options are presented.\nSee @ref \"Choice Parameters\" for more details.\nThis property is optional; if not set, the host will present the options in\ntheir natural order.\n\nThis property is useful when changing order of choice param options, or adding\nnew options in the middle, in a new version of the plugin.\n\n  @verbatim\n  Plugin v1:\n  Option = {\"OptA\", \"OptB\", \"OptC\"}\n  Order = {1, 2, 3}\n\n  Plugin v2:\n  // will be shown as OptA / OptB / NewOpt / OptC\n  Option = {\"OptA\", \"OptB\", \"OptC\", NewOpt\"}\n  Order = {1, 2, 4, 3}\n  @endverbatim\n\nNote that this only affects the host UI's display order; the project still\nstores the index of the selected option as always. Plugins should never\nreorder existing options if they desire backward compatibility.\n\nValues may be arbitrary 32-bit integers. Behavior is undefined if the same\nvalue occurs twice in the list; plugins should not do that.\n\n\\since Version 1.5\n    \n    @propdef\n    type: int\n    dimension: N\n*/",
+      "comment_above": "@brief Set values the host should store for a choice parameter.\n\n(read/write),\n`OfxParamPropChoiceOption`\n\nThis property specifies the order in which the options are presented.\nSee @ref \"Choice Parameters\" for more details.\nThis property is optional; if not set, the host will present the options in\ntheir natural order.\n\nThis property is useful when changing order of choice param options, or adding\nnew options in the middle, in a new version of the plugin.\n\n  @verbatim\n  Plugin v1:\n  Option = {\"OptA\", \"OptB\", \"OptC\"}\n  Order = {1, 2, 3}\n\n  Plugin v2:\n  // will be shown as OptA / OptB / NewOpt / OptC\n  Option = {\"OptA\", \"OptB\", \"OptC\", NewOpt\"}\n  Order = {1, 2, 4, 3}\n  @endverbatim\n\nNote that this only affects the host UI's display order; the project still\nstores the index of the selected option as always. Plugins should never\nreorder existing options if they desire backward compatibility.\n\nValues may be arbitrary 32-bit integers. Behavior is undefined if the same\nvalue occurs twice in the list; plugins should not do that.\n\n\\since Version 1.5\n    \n    @propdef\n    type: int\n    dimension: N",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropChoiceOrder",
@@ -1006,7 +990,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Set a enumeration string in a StrChoice (string-valued choice) parameter.\n\n(read/write),\nThis property contains the set of enumeration strings stored by the host in\nthe project corresponding to the options that will be presented to a user\nfrom a StrChoice parameter. See @ref ParametersChoice for more details.\n\n\\since Version 1.5\n    \n    @propdef\n    type: bool\n    dimension: 1\n    added: \"1.5\"\n*/",
+      "comment_above": "@brief Set a enumeration string in a StrChoice (string-valued choice) parameter.\n\n(read/write),\nThis property contains the set of enumeration strings stored by the host in\nthe project corresponding to the options that will be presented to a user\nfrom a StrChoice parameter. See @ref ParametersChoice for more details.\n\n\\since Version 1.5\n    \n    @propdef\n    type: bool\n    dimension: 1\n    added: \"1.5\"",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropChoiceEnum",
@@ -1018,7 +1002,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Indicates if the host supports animation of string choice params.\n\n\\since Version 1.5\n    @propdef\n    type: bool\n    dimension: 1\n    introduced: \"1.5\"\n*/",
+      "comment_above": "@brief Indicates if the host supports animation of string choice params.\n\n\\since Version 1.5\n    @propdef\n    type: bool\n    dimension: 1\n    introduced: \"1.5\"",
       "item": {
         "$type": "Define",
         "name": "kOfxParamHostPropSupportsStrChoiceAnimation",
@@ -1030,7 +1014,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Indicates if the host supports the StrChoice param type.\n\n\\since Version 1.5\n    @propdef\n    type: bool\n    dimension: 1\n    introduced: \"1.5\"\n*/",
+      "comment_above": "@brief Indicates if the host supports the StrChoice param type.\n\n\\since Version 1.5\n    @propdef\n    type: bool\n    dimension: 1\n    introduced: \"1.5\"",
       "item": {
         "$type": "Define",
         "name": "kOfxParamHostPropSupportsStrChoice",
@@ -1042,7 +1026,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The minimum value for a numeric parameter.\n\nSetting this will also reset ::kOfxParamPropDisplayMin.\n    \n    @propdef\n    type: [int, double]\n    dimension: N\n*/",
+      "comment_above": "@brief The minimum value for a numeric parameter.\n\nSetting this will also reset ::kOfxParamPropDisplayMin.\n    \n    @propdef\n    type: [int, double]\n    dimension: N",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropMin",
@@ -1054,7 +1038,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The maximum value for a numeric parameter.\n\nSetting this will also reset ::kOfxParamPropDisplayMax.\n    \n    @propdef\n    type: [int, double]\n    dimension: N\n*/",
+      "comment_above": "@brief The maximum value for a numeric parameter.\n\nSetting this will also reset ::kOfxParamPropDisplayMax.\n    \n    @propdef\n    type: [int, double]\n    dimension: N",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropMax",
@@ -1066,7 +1050,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The minimum value for a numeric parameter on any user interface.\n\nIf a user interface represents a parameter with a slider or similar, this should be the minimum bound on that slider.\n    \n    @propdef\n    type: [int, double]\n    dimension: N\n*/",
+      "comment_above": "@brief The minimum value for a numeric parameter on any user interface.\n\nIf a user interface represents a parameter with a slider or similar, this should be the minimum bound on that slider.\n    \n    @propdef\n    type: [int, double]\n    dimension: N",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropDisplayMin",
@@ -1078,7 +1062,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The maximum value for a numeric parameter on any user interface.\n\nIf a user interface represents a parameter with a slider or similar, this should be the maximum bound on that slider.\n    \n    @propdef\n    type: [int, double]\n    dimension: N\n*/",
+      "comment_above": "@brief The maximum value for a numeric parameter on any user interface.\n\nIf a user interface represents a parameter with a slider or similar, this should be the maximum bound on that slider.\n    \n    @propdef\n    type: [int, double]\n    dimension: N",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropDisplayMax",
@@ -1090,7 +1074,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The granularity of a slider used to represent a numeric parameter.\n\nThis value is always in canonical coordinates for double parameters that are normalised.\n    \n    - Valid Values - any greater than 0.\n    @propdef\n    type: double\n    dimension: 1\n*/",
+      "comment_above": "@brief The granularity of a slider used to represent a numeric parameter.\n\nThis value is always in canonical coordinates for double parameters that are normalised.\n    \n    - Valid Values - any greater than 0.\n    @propdef\n    type: double\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropIncrement",
@@ -1102,7 +1086,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief How many digits after a decimal point to display for a double param in a GUI.\n\nThis applies to double params of any dimension.\n    \n    - Valid Values - any greater than 0.\n    @propdef\n    type: int\n    dimension: 1\n*/",
+      "comment_above": "@brief How many digits after a decimal point to display for a double param in a GUI.\n\nThis applies to double params of any dimension.\n    \n    - Valid Values - any greater than 0.\n    @propdef\n    type: int\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropDigits",
@@ -1114,7 +1098,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Label for individual dimensions on a multidimensional numeric parameter.\n\nUse this on 2D and 3D double and integer parameters to change the label on an individual dimension in any GUI for that parameter.\n    \n    - Valid Values - any\n    @propdef\n    type: string\n    dimension: 1\n*/",
+      "comment_above": "@brief Label for individual dimensions on a multidimensional numeric parameter.\n\nUse this on 2D and 3D double and integer parameters to change the label on an individual dimension in any GUI for that parameter.\n    \n    - Valid Values - any\n    @propdef\n    type: string\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropDimensionLabel",
@@ -1126,7 +1110,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Will a value change on the parameter add automatic keyframes.\n\nThis is set by the host simply to indicate the state of the property.\n    @propdef\n    type: bool\n    dimension: 1\n*/",
+      "comment_above": "@brief Will a value change on the parameter add automatic keyframes.\n\nThis is set by the host simply to indicate the state of the property.\n    @propdef\n    type: bool\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropIsAutoKeying",
@@ -1138,7 +1122,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief A pointer to a custom parameter's interpolation function.\n\nIt is an error not to set this property in a custom parameter during a plugin's define call if the custom parameter declares itself to be an animating parameter.\n    \n    - Valid Values - must point to a ::OfxCustomParamInterpFuncV1\n    @propdef\n    type: pointer\n    dimension: 1\n    cname: kOfxParamPropCustomInterpCallbackV1\n */",
+      "comment_above": "@brief A pointer to a custom parameter's interpolation function.\n\nIt is an error not to set this property in a custom parameter during a plugin's define call if the custom parameter declares itself to be an animating parameter.\n    \n    - Valid Values - must point to a ::OfxCustomParamInterpFuncV1\n    @propdef\n    type: pointer\n    dimension: 1\n    cname: kOfxParamPropCustomInterpCallbackV1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropCustomInterpCallbackV1",
@@ -1150,7 +1134,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Used to indicate the type of a string parameter.\n    \n    - Valid Values - This must be one of the following\n        - ::kOfxParamStringIsSingleLine\n        - ::kOfxParamStringIsMultiLine\n        - ::kOfxParamStringIsFilePath\n        - ::kOfxParamStringIsDirectoryPath\n        - ::kOfxParamStringIsLabel\n        - ::kOfxParamStringIsRichTextFormat\n    @propdef\n    type: enum\n    dimension: 1\n    values:\n      - OfxParamStringIsSingleLine\n      - OfxParamStringIsMultiLine\n      - OfxParamStringIsFilePath\n      - OfxParamStringIsDirectoryPath\n      - OfxParamStringIsLabel\n      - OfxParamStringIsRichTextFormat\n*/",
+      "comment_above": "@brief Used to indicate the type of a string parameter.\n    \n    - Valid Values - This must be one of the following\n        - ::kOfxParamStringIsSingleLine\n        - ::kOfxParamStringIsMultiLine\n        - ::kOfxParamStringIsFilePath\n        - ::kOfxParamStringIsDirectoryPath\n        - ::kOfxParamStringIsLabel\n        - ::kOfxParamStringIsRichTextFormat\n    @propdef\n    type: enum\n    dimension: 1\n    values:\n      - OfxParamStringIsSingleLine\n      - OfxParamStringIsMultiLine\n      - OfxParamStringIsFilePath\n      - OfxParamStringIsDirectoryPath\n      - OfxParamStringIsLabel\n      - OfxParamStringIsRichTextFormat",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropStringMode",
@@ -1162,7 +1146,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Indicates string parameters of file or directory type need that file to exist already.\n\nIf set to 0, it implies the user can specify a new file name, not just a pre-existing one.\n    @propdef\n    type: bool\n    dimension: 1\n */",
+      "comment_above": "@brief Indicates string parameters of file or directory type need that file to exist already.\n\nIf set to 0, it implies the user can specify a new file name, not just a pre-existing one.\n    @propdef\n    type: bool\n    dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropStringFilePathExists",
@@ -1174,7 +1158,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Used to set a string parameter to be single line, \n    value to be passed to a ::kOfxParamPropStringMode property */",
+      "comment_above": "@brief Used to set a string parameter to be single line, \n    value to be passed to a ::kOfxParamPropStringMode property",
       "item": {
         "$type": "Define",
         "name": "kOfxParamStringIsSingleLine",
@@ -1186,7 +1170,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Used to set a string parameter to be multiple line, \n    value to be passed to a ::kOfxParamPropStringMode property */",
+      "comment_above": "@brief Used to set a string parameter to be multiple line, \n    value to be passed to a ::kOfxParamPropStringMode property",
       "item": {
         "$type": "Define",
         "name": "kOfxParamStringIsMultiLine",
@@ -1198,7 +1182,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Used to set a string parameter to be a file path,\n    value to be passed to a ::kOfxParamPropStringMode property */",
+      "comment_above": "@brief Used to set a string parameter to be a file path,\n    value to be passed to a ::kOfxParamPropStringMode property",
       "item": {
         "$type": "Define",
         "name": "kOfxParamStringIsFilePath",
@@ -1210,7 +1194,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Used to set a string parameter to be a directory path,\n    value to be passed to a ::kOfxParamPropStringMode property */",
+      "comment_above": "@brief Used to set a string parameter to be a directory path,\n    value to be passed to a ::kOfxParamPropStringMode property",
       "item": {
         "$type": "Define",
         "name": "kOfxParamStringIsDirectoryPath",
@@ -1222,7 +1206,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Use to set a string parameter to be a simple label, \n    value to be passed to a ::kOfxParamPropStringMode property  */",
+      "comment_above": "@brief Use to set a string parameter to be a simple label, \n    value to be passed to a ::kOfxParamPropStringMode property",
       "item": {
         "$type": "Define",
         "name": "kOfxParamStringIsLabel",
@@ -1234,7 +1218,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief String value on the ::kOfxParamPropStringMode property of a\n    string parameter (added in 1.3) */",
+      "comment_above": "@brief String value on the ::kOfxParamPropStringMode property of a\n    string parameter (added in 1.3)",
       "item": {
         "$type": "Define",
         "name": "kOfxParamStringIsRichTextFormat",
@@ -1246,7 +1230,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Used by interpolating custom parameters to get and set interpolated values.\nThis property is on the \\e inArgs property and \\e outArgs property of a ::OfxCustomParamInterpFuncV1 and in both cases contains the encoded value of a custom parameter. As an \\e inArgs property it will have two values, being the two keyframes to interpolate. As an \\e outArgs property it will have a single value and the plugin should fill this with the encoded interpolated value of the parameter.\n    \n    @propdef\n    type: string\n    dimension: 2\n */",
+      "comment_above": "@brief Used by interpolating custom parameters to get and set interpolated values.\nThis property is on the \\e inArgs property and \\e outArgs property of a ::OfxCustomParamInterpFuncV1 and in both cases contains the encoded value of a custom parameter. As an \\e inArgs property it will have two values, being the two keyframes to interpolate. As an \\e outArgs property it will have a single value and the plugin should fill this with the encoded interpolated value of the parameter.\n    \n    @propdef\n    type: string\n    dimension: 2",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropCustomValue",
@@ -1258,7 +1242,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Used by interpolating custom parameters to indicate the time a key occurs at.\n\nThe two values indicate the absolute times the surrounding keyframes occur at. The keyframes are encoded in a ::kOfxParamPropCustomValue property.\n   \n   @propdef\n   type: double\n   dimension: 2\n */",
+      "comment_above": "@brief Used by interpolating custom parameters to indicate the time a key occurs at.\n\nThe two values indicate the absolute times the surrounding keyframes occur at. The keyframes are encoded in a ::kOfxParamPropCustomValue property.\n   \n   @propdef\n   type: double\n   dimension: 2",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropInterpolationTime",
@@ -1270,7 +1254,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Property used by ::OfxCustomParamInterpFuncV1 to indicate the amount of interpolation to perform\n\nThis property indicates how far between the two ::kOfxParamPropCustomValue keys to interpolate.\n   \n   - Valid Values - from 0 to 1\n   @propdef\n   type: double\n   dimension: 1\n */",
+      "comment_above": "@brief Property used by ::OfxCustomParamInterpFuncV1 to indicate the amount of interpolation to perform\n\nThis property indicates how far between the two ::kOfxParamPropCustomValue keys to interpolate.\n   \n   - Valid Values - from 0 to 1\n   @propdef\n   type: double\n   dimension: 1",
       "item": {
         "$type": "Define",
         "name": "kOfxParamPropInterpolationAmount",
@@ -1282,83 +1266,75 @@
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/*@}*/"
+      "comment": "@file ofxParam.h\n \n  This header contains the suite definition to manipulate host side parameters.\n\n  For more details go see @ref ParametersPage"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/*@}*/"
+      "comment": "@propset ParameterSet\n    write: plugin\n    props:\n      - OfxPropParamSetNeedsSyncing\n      - OfxPluginPropParamPageOrder"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/** @file ofxParam.h\n \n  This header contains the suite definition to manipulate host side parameters.\n\n  For more details go see @ref ParametersPage\n*/"
+      "comment": "@propsetdef ParamsCommon\n    - OfxPropType\n    - OfxPropName\n    - OfxPropLabel\n    - OfxPropShortLabel\n    - OfxPropLongLabel\n    - OfxParamPropType\n    - OfxParamPropSecret\n    - OfxParamPropHint\n    - OfxParamPropScriptName\n    - OfxParamPropParent\n    - OfxParamPropEnabled\n    - OfxParamPropDataPtr\n    - OfxPropIcon"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/** @propset ParameterSet\n    write: plugin\n    props:\n      - OfxPropParamSetNeedsSyncing\n      - OfxPluginPropParamPageOrder\n*/"
+      "comment": "@propsetdef ParamsAllButGroupPage\n    - OfxParamPropInteractV1\n    - OfxParamPropInteractSize\n    - OfxParamPropInteractSizeAspect\n    - OfxParamPropInteractMinimumSize\n    - OfxParamPropInteractPreferedSize\n    - OfxParamPropHasHostOverlayHandle\n    - kOfxParamPropUseHostOverlayHandle"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/** @propsetdef ParamsCommon\n    - OfxPropType\n    - OfxPropName\n    - OfxPropLabel\n    - OfxPropShortLabel\n    - OfxPropLongLabel\n    - OfxParamPropType\n    - OfxParamPropSecret\n    - OfxParamPropHint\n    - OfxParamPropScriptName\n    - OfxParamPropParent\n    - OfxParamPropEnabled\n    - OfxParamPropDataPtr\n    - OfxPropIcon\n*/"
+      "comment": "@propsetdef ParamsValue\n    - OfxParamPropDefault\n    - OfxParamPropAnimates\n    - OfxParamPropIsAnimating | write=host\n    - OfxParamPropIsAutoKeying | write=host\n    - OfxParamPropPersistant\n    - OfxParamPropEvaluateOnChange\n    - OfxParamPropPluginMayWrite\n    - OfxParamPropCacheInvalidation\n    - OfxParamPropCanUndo"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/** @propsetdef ParamsAllButGroupPage\n    - OfxParamPropInteractV1\n    - OfxParamPropInteractSize\n    - OfxParamPropInteractSizeAspect\n    - OfxParamPropInteractMinimumSize\n    - OfxParamPropInteractPreferedSize\n    - OfxParamPropHasHostOverlayHandle\n    - kOfxParamPropUseHostOverlayHandle\n*/"
+      "comment": "@propsetdef ParamsNumeric\n    - OfxParamPropMin\n    - OfxParamPropMax\n    - OfxParamPropDisplayMin\n    - OfxParamPropDisplayMax"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/** @propsetdef ParamsValue\n    - OfxParamPropDefault\n    - OfxParamPropAnimates\n    - OfxParamPropIsAnimating | write=host\n    - OfxParamPropIsAutoKeying | write=host\n    - OfxParamPropPersistant\n    - OfxParamPropEvaluateOnChange\n    - OfxParamPropPluginMayWrite\n    - OfxParamPropCacheInvalidation\n    - OfxParamPropCanUndo\n*/"
+      "comment": "@propsetdef ParamsDouble\n    - OfxParamPropIncrement\n    - OfxParamPropDigits"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/** @propsetdef ParamsNumeric\n    - OfxParamPropMin\n    - OfxParamPropMax\n    - OfxParamPropDisplayMin\n    - OfxParamPropDisplayMax\n*/"
+      "comment": "@propset ParamsGroup\n    write: plugin\n    props:\n      - OfxParamPropGroupOpen\n      - ParamsCommon_REF"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/** @propsetdef ParamsDouble\n    - OfxParamPropIncrement\n    - OfxParamPropDigits\n*/"
+      "comment": "@propset ParamDouble1D\n    write: plugin\n    props:\n      - OfxParamPropShowTimeMarker\n      - OfxParamPropDoubleType\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF\n      - ParamsNumeric_REF\n      - ParamsDouble_REF"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/** @propset ParamsGroup\n    write: plugin\n    props:\n      - OfxParamPropGroupOpen\n      - ParamsCommon_REF\n*/"
+      "comment": "@propset ParamsDouble2D3D\n    write: plugin\n    props:\n      - OfxParamPropDoubleType\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF\n      - ParamsNumeric_REF\n      - ParamsDouble_REF"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/** @propset ParamDouble1D\n    write: plugin\n    props:\n      - OfxParamPropShowTimeMarker\n      - OfxParamPropDoubleType\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF\n      - ParamsNumeric_REF\n      - ParamsDouble_REF\n*/"
+      "comment": "@propset ParamsNormalizedSpatial\n    write: plugin\n    props:\n      - OfxParamPropDefaultCoordinateSystem\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF\n      - ParamsNumeric_REF\n      - ParamsDouble_REF"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/** @propset ParamsDouble2D3D\n    write: plugin\n    props:\n      - OfxParamPropDoubleType\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF\n      - ParamsNumeric_REF\n      - ParamsDouble_REF\n*/"
+      "comment": "@propset ParamsInt2D3D\n    write: plugin\n    props:\n      - OfxParamPropDimensionLabel\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF\n      - ParamsNumeric_REF"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/** @propset ParamsNormalizedSpatial\n    write: plugin\n    props:\n      - OfxParamPropDefaultCoordinateSystem\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF\n      - ParamsNumeric_REF\n      - ParamsDouble_REF\n*/"
+      "comment": "@propset ParamsString\n    write: plugin\n    props:\n      - OfxParamPropStringMode\n      - OfxParamPropStringFilePathExists\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF\n      - ParamsNumeric_REF"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/** @propset ParamsInt2D3D\n    write: plugin\n    props:\n      - OfxParamPropDimensionLabel\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF\n      - ParamsNumeric_REF\n*/"
+      "comment": "@propset ParamsByte\n    write: plugin\n    props:\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF\n      - ParamsNumeric_REF"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/** @propset ParamsString\n    write: plugin\n    props:\n      - OfxParamPropStringMode\n      - OfxParamPropStringFilePathExists\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF\n      - ParamsNumeric_REF\n*/"
+      "comment": "@propset ParamsChoice\n    write: plugin\n    props:\n      - OfxParamPropChoiceOption\n      - OfxParamPropChoiceOrder\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/** @propset ParamsByte\n    write: plugin\n    props:\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF\n      - ParamsNumeric_REF\n*/"
+      "comment": "@propset ParamsStrChoice\n    write: plugin\n    props:\n      - OfxParamPropChoiceOption\n      - OfxParamPropChoiceEnum\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/** @propset ParamsChoice\n    write: plugin\n    props:\n      - OfxParamPropChoiceOption\n      - OfxParamPropChoiceOrder\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF\n*/"
+      "comment": "@propset ParamsCustom\n    write: plugin\n    props:\n      - OfxParamPropCustomCallbackV1\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF"
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/** @propset ParamsStrChoice\n    write: plugin\n    props:\n      - OfxParamPropChoiceOption\n      - OfxParamPropChoiceEnum\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF\n*/"
-    },
-    {
-      "$type": "StandaloneComment",
-      "comment": "/** @propset ParamsCustom\n    write: plugin\n    props:\n      - OfxParamPropCustomCallbackV1\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF\n*/"
-    },
-    {
-      "$type": "StandaloneComment",
-      "comment": "/** @propset ParamsPage\n    write: plugin\n    props:\n      - OfxParamPropPageChild\n      - ParamsCommon_REF\n*/"
+      "comment": "@propset ParamsPage\n    write: plugin\n    props:\n      - OfxParamPropPageChild\n      - ParamsCommon_REF"
     }
   ]
 }

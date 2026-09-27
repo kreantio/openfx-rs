@@ -1,7 +1,12 @@
 //! Author: GitHub Copilot / Kimi K3 (High)
 
-use crate::doc_parsing::DocEntry;
 use std::collections::HashMap;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DocEntry {
+    pub name: String,
+    pub content: String,
+}
 
 pub struct DocRegulator<'a> {
     pub doc_entries: &'a HashMap<String, Vec<DocEntry>>,
@@ -41,7 +46,7 @@ impl DocRegulator<'_> {
             };
             entries
                 .iter()
-                .map(|e| e.content.to_string())
+                .map(|e| e.content.clone())
                 .collect::<Vec<_>>()
                 .join("\n\n")
         } else {

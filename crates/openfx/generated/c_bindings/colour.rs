@@ -1,4 +1,8 @@
 pub const kOfxConfigIdentifier: &::std::ffi::CStr = c"ofx-native-v1.5_aces-v1.3_ocio-v2.3";
+/// ```doxygen
+/// @brief ofx_display_hdr
+/// Any display-referred HDR video such as Rec. 2100 HLG or PQ.
+/// ```
 pub const kOfxColourspaceOfxDisplayHdr: &::std::ffi::CStr = c"ofx_display_hdr";
 pub const kOfxColourspaceOfxDisplayHdrLabel: &::std::ffi::CStr = c"OFX generic display HDR";
 pub const kOfxColourspaceOfxDisplayHdrEncoding: &::std::ffi::CStr = c"hdr-video";
@@ -6,6 +10,10 @@ pub const kOfxColourspaceOfxDisplayHdrIsData: u32 = 0;
 pub const kOfxColourspaceOfxDisplayHdrIsBasic: u32 = 1;
 pub const kOfxColourspaceOfxDisplayHdrIsCore: u32 = 1;
 pub const kOfxColourspaceOfxDisplayHdrIsDisplay: u32 = 1;
+/// ```doxygen
+/// @brief ofx_display_sdr
+/// Any display-referred SDR video such as Rec. 709.
+/// ```
 pub const kOfxColourspaceOfxDisplaySdr: &::std::ffi::CStr = c"ofx_display_sdr";
 pub const kOfxColourspaceOfxDisplaySdrLabel: &::std::ffi::CStr = c"OFX generic display SDR";
 pub const kOfxColourspaceOfxDisplaySdrEncoding: &::std::ffi::CStr = c"sdr-video";
@@ -13,6 +21,10 @@ pub const kOfxColourspaceOfxDisplaySdrIsData: u32 = 0;
 pub const kOfxColourspaceOfxDisplaySdrIsBasic: u32 = 1;
 pub const kOfxColourspaceOfxDisplaySdrIsCore: u32 = 1;
 pub const kOfxColourspaceOfxDisplaySdrIsDisplay: u32 = 1;
+/// ```doxygen
+/// @brief ofx_raw
+/// Image values should not be treated as colour, e.g. motion vectors or masks.
+/// ```
 pub const kOfxColourspaceOfxRaw: &::std::ffi::CStr = c"ofx_raw";
 pub const kOfxColourspaceOfxRawLabel: &::std::ffi::CStr = c"OFX generic raw";
 pub const kOfxColourspaceOfxRawEncoding: &::std::ffi::CStr = c"";
@@ -20,6 +32,10 @@ pub const kOfxColourspaceOfxRawIsData: u32 = 1;
 pub const kOfxColourspaceOfxRawIsBasic: u32 = 1;
 pub const kOfxColourspaceOfxRawIsCore: u32 = 1;
 pub const kOfxColourspaceOfxRawIsDisplay: u32 = 0;
+/// ```doxygen
+/// @brief ofx_scene_linear
+/// Any scene-referred linear colourspace.
+/// ```
 pub const kOfxColourspaceOfxSceneLinear: &::std::ffi::CStr = c"ofx_scene_linear";
 pub const kOfxColourspaceOfxSceneLinearLabel: &::std::ffi::CStr = c"OFX generic scene linear";
 pub const kOfxColourspaceOfxSceneLinearEncoding: &::std::ffi::CStr = c"scene-linear";
@@ -27,6 +43,10 @@ pub const kOfxColourspaceOfxSceneLinearIsData: u32 = 0;
 pub const kOfxColourspaceOfxSceneLinearIsBasic: u32 = 1;
 pub const kOfxColourspaceOfxSceneLinearIsCore: u32 = 1;
 pub const kOfxColourspaceOfxSceneLinearIsDisplay: u32 = 0;
+/// ```doxygen
+/// @brief ofx_scene_log
+/// Any scene-referred colourspace with a log transfer function.
+/// ```
 pub const kOfxColourspaceOfxSceneLog: &::std::ffi::CStr = c"ofx_scene_log";
 pub const kOfxColourspaceOfxSceneLogLabel: &::std::ffi::CStr = c"OFX generic scene log";
 pub const kOfxColourspaceOfxSceneLogEncoding: &::std::ffi::CStr = c"log";
@@ -398,30 +418,66 @@ pub const kOfxColourspaceCameraRec709IsData: u32 = 0;
 pub const kOfxColourspaceCameraRec709IsBasic: u32 = 0;
 pub const kOfxColourspaceCameraRec709IsCore: u32 = 0;
 pub const kOfxColourspaceCameraRec709IsDisplay: u32 = 0;
+/// ```doxygen
+/// @brief aces_interchange
+/// Guaranteed to be ACES2065-1.
+/// ```
 pub const kOfxColourspaceRoleAcesInterchange: &::std::ffi::CStr = c"aces_interchange";
 pub const kOfxColourspaceRoleAcesInterchangeIsBasic: u32 = 0;
 pub const kOfxColourspaceRoleAcesInterchangeIsCore: u32 = 1;
+/// ```doxygen
+/// @brief cie_xyz_d65_interchange
+/// CIE XYZ colorimetry with the neutral axis at D65.
+/// ```
 pub const kOfxColourspaceRoleCieXyzD65Interchange: &::std::ffi::CStr = c"cie_xyz_d65_interchange";
 pub const kOfxColourspaceRoleCieXyzD65InterchangeIsBasic: u32 = 0;
 pub const kOfxColourspaceRoleCieXyzD65InterchangeIsCore: u32 = 1;
+/// ```doxygen
+/// @brief color_picking
+/// The colourspace to use for colour pickers, typically a display colourspace.
+/// ```
 pub const kOfxColourspaceRoleColorPicking: &::std::ffi::CStr = c"color_picking";
 pub const kOfxColourspaceRoleColorPickingIsBasic: u32 = 0;
 pub const kOfxColourspaceRoleColorPickingIsCore: u32 = 1;
+/// ```doxygen
+/// @brief color_timing
+/// A colourspace suitable for colour grading, typically a log colourspace.
+/// ```
 pub const kOfxColourspaceRoleColorTiming: &::std::ffi::CStr = c"color_timing";
 pub const kOfxColourspaceRoleColorTimingIsBasic: u32 = 0;
 pub const kOfxColourspaceRoleColorTimingIsCore: u32 = 1;
+/// ```doxygen
+/// @brief compositing_log
+/// Any scene-referred colourspace with a log transfer function.
+/// ```
 pub const kOfxColourspaceRoleCompositingLog: &::std::ffi::CStr = c"compositing_log";
 pub const kOfxColourspaceRoleCompositingLogIsBasic: u32 = 0;
 pub const kOfxColourspaceRoleCompositingLogIsCore: u32 = 1;
+/// ```doxygen
+/// @brief data
+/// Image values should not be treated as colour, e.g. motion vectors or masks. Mapped to the raw colourspace.
+/// ```
 pub const kOfxColourspaceRoleData: &::std::ffi::CStr = c"data";
 pub const kOfxColourspaceRoleDataIsBasic: u32 = 0;
 pub const kOfxColourspaceRoleDataIsCore: u32 = 1;
+/// ```doxygen
+/// @brief matte_paint
+/// A colourspace suitable for matte painting.
+/// ```
 pub const kOfxColourspaceRoleMattePaint: &::std::ffi::CStr = c"matte_paint";
 pub const kOfxColourspaceRoleMattePaintIsBasic: u32 = 0;
 pub const kOfxColourspaceRoleMattePaintIsCore: u32 = 1;
+/// ```doxygen
+/// @brief scene_linear
+/// Any scene-referred linear colourspace.
+/// ```
 pub const kOfxColourspaceRoleSceneLinear: &::std::ffi::CStr = c"scene_linear";
 pub const kOfxColourspaceRoleSceneLinearIsBasic: u32 = 0;
 pub const kOfxColourspaceRoleSceneLinearIsCore: u32 = 1;
+/// ```doxygen
+/// @brief texture_paint
+/// A colourspace suitable for texture painting, typically sRGB.
+/// ```
 pub const kOfxColourspaceRoleTexturePaint: &::std::ffi::CStr = c"texture_paint";
 pub const kOfxColourspaceRoleTexturePaintIsBasic: u32 = 0;
 pub const kOfxColourspaceRoleTexturePaintIsCore: u32 = 1;

@@ -1,21 +1,17 @@
 {
   "copyright_comments": [
-    "// Copyright OpenFX and contributors to the OpenFX project.",
-    "// SPDX-License-Identifier: BSD-3-Clause",
-    "/*\nCopyright (c) 1987, 1994  X Consortium\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n\"Software\"), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be included\nin all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS\nOR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.\nIN NO EVENT SHALL THE X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR\nOTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,\nARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR\nOTHER DEALINGS IN THE SOFTWARE.\n\nExcept as contained in this notice, the name of the X Consortium shall\nnot be used in advertising or otherwise to promote the sale, use or\nother dealings in this Software without prior written authorization\nfrom the X Consortium.\n\n\nCopyright 1987 by Digital Equipment Corporation, Maynard, Massachusetts\n\n                        All Rights Reserved\n\nPermission to use, copy, modify, and distribute this software and its\ndocumentation for any purpose and without fee is hereby granted,\nprovided that the above copyright notice appear in all copies and that\nboth that copyright notice and this permission notice appear in\nsupporting documentation, and that the name of Digital not be\nused in advertising or publicity pertaining to distribution of the\nsoftware without specific, written prior permission.\n\nDIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING\nALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL\nDIGITAL BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR\nANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,\nWHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS\nSOFTWARE.\n\n**/"
+    "Copyright OpenFX and contributors to the OpenFX project.",
+    "SPDX-License-Identifier: BSD-3-Clause",
+    "Copyright (c) 1987, 1994  X Consortium\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n\"Software\"), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be included\nin all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS\nOR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.\nIN NO EVENT SHALL THE X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR\nOTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,\nARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR\nOTHER DEALINGS IN THE SOFTWARE.\n\nExcept as contained in this notice, the name of the X Consortium shall\nnot be used in advertising or otherwise to promote the sale, use or\nother dealings in this Software without prior written authorization\nfrom the X Consortium.\n\n\nCopyright 1987 by Digital Equipment Corporation, Maynard, Massachusetts\n\n                        All Rights Reserved\n\nPermission to use, copy, modify, and distribute this software and its\ndocumentation for any purpose and without fee is hereby granted,\nprovided that the above copyright notice appear in all copies and that\nboth that copyright notice and this permission notice appear in\nsupporting documentation, and that the name of Digital not be\nused in advertising or publicity pertaining to distribution of the\nsoftware without specific, written prior permission.\n\nDIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING\nALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL\nDIGITAL BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR\nANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,\nWHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS\nSOFTWARE.\n\n*"
   ],
   "items": [
     {
       "$type": "StandaloneComment",
-      "comment": "/**\n   \\addtogroup PropertiesGeneral\n*/"
-    },
-    {
-      "$type": "StandaloneComment",
-      "comment": "/*@{*/"
+      "comment": "\\addtogroup PropertiesGeneral"
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Property used to indicate which a key on the keyboard or a button on a button device has been pressed\n\nThis property represents a raw key press, it does not represent the 'character value' of the key. \n\nThis property is associated with a ::kOfxPropKeyString property, which encodes the UTF8\nvalue for the keypress/button press. Some keys (for example arrow keys) have no UTF8 equivalent.\n\nSome keys, especially on non-english language systems, may have a UTF8 value, but \\em not a keysym values, in these\ncases, the keysym will have a value of kOfxKey_Unknown, but the ::kOfxPropKeyString property will still be set with\nthe UTF8 value.\n  \n  - Valid Values - one of any specified by #defines in the file ofxKeySyms.h.\n  @propdef\n  type: int\n  dimension: 1\n  cname: kOfxPropKeySym\n */",
+      "comment_above": "@brief Property used to indicate which a key on the keyboard or a button on a button device has been pressed\n\nThis property represents a raw key press, it does not represent the 'character value' of the key. \n\nThis property is associated with a ::kOfxPropKeyString property, which encodes the UTF8\nvalue for the keypress/button press. Some keys (for example arrow keys) have no UTF8 equivalent.\n\nSome keys, especially on non-english language systems, may have a UTF8 value, but \\em not a keysym values, in these\ncases, the keysym will have a value of kOfxKey_Unknown, but the ::kOfxPropKeyString property will still be set with\nthe UTF8 value.\n  \n  - Valid Values - one of any specified by #defines in the file ofxKeySyms.h.\n  @propdef\n  type: int\n  dimension: 1\n  cname: kOfxPropKeySym",
       "item": {
         "$type": "Define",
         "name": "kOfxPropKeySym",
@@ -27,7 +23,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief This property encodes a single keypresses that generates a unicode code point. The value is stored as a UTF8 string. \n\nThis property represents the UTF8 encode value of a single key press by a user in an OFX interact.\n\nThis property is associated with a ::kOfxPropKeySym which represents an integer value for the key press. Some keys (for example arrow keys) have no UTF8 equivalent, \nin which case this is set to the empty string \"\", and the associate ::kOfxPropKeySym is set to the equivalent raw key press.\n\nSome keys, especially on non-english language systems, may have a UTF8 value, but \\em not a keysym values, in these\ncases, the keysym will have a value of kOfxKey_Unknown, but the ::kOfxPropKeyString property will still be set with\nthe UTF8 value.\n  \n  - Valid Values - a UTF8 string representing a single character, or the empty string.\n  @propdef\n  type: string\n  dimension: 1\n  cname: kOfxPropKeyString\n*/",
+      "comment_above": "@brief This property encodes a single keypresses that generates a unicode code point. The value is stored as a UTF8 string. \n\nThis property represents the UTF8 encode value of a single key press by a user in an OFX interact.\n\nThis property is associated with a ::kOfxPropKeySym which represents an integer value for the key press. Some keys (for example arrow keys) have no UTF8 equivalent, \nin which case this is set to the empty string \"\", and the associate ::kOfxPropKeySym is set to the equivalent raw key press.\n\nSome keys, especially on non-english language systems, may have a UTF8 value, but \\em not a keysym values, in these\ncases, the keysym will have a value of kOfxKey_Unknown, but the ::kOfxPropKeyString property will still be set with\nthe UTF8 value.\n  \n  - Valid Values - a UTF8 string representing a single character, or the empty string.\n  @propdef\n  type: string\n  dimension: 1\n  cname: kOfxPropKeyString",
       "item": {
         "$type": "Define",
         "name": "kOfxPropKeyString",
@@ -39,19 +35,10 @@
     },
     {
       "$type": "StandaloneComment",
-      "comment": "/*\n  The keysyms below have been lifted wholesale out of the X-Windows key symbol header file. Only\n  the names have been changed to protect the innocent.\n*/"
-    },
-    {
-      "$type": "StandaloneComment",
-      "comment": "/*@}*/"
-    },
-    {
-      "$type": "StandaloneComment",
-      "comment": "/**\n   \\defgroup KeySyms OFX Key symbols\n\n   These keysymbols are used as values by the ::kOfxPropKeySym property to indicate the value\nof a key that has been pressed. A corresponding ::kOfxPropKeyString property is also set to\ncontain the unicode value of the key (if it has one).\n\n   The special keysym ::kOfxKey_Unknown is used to set the ::kOfxPropKeySym property in cases\nwhere the key has a UTF8 value which is not supported by the symbols below.\n\n*/"
+      "comment": "\\defgroup KeySyms OFX Key symbols\n\n   These keysymbols are used as values by the ::kOfxPropKeySym property to indicate the value\nof a key that has been pressed. A corresponding ::kOfxPropKeyString property is also set to\ncontain the unicode value of the key (if it has one).\n\n   The special keysym ::kOfxKey_Unknown is used to set the ::kOfxPropKeySym property in cases\nwhere the key has a UTF8 value which is not supported by the symbols below."
     },
     {
       "$type": "Item",
-      "comment_above": "/*@{*/",
       "item": {
         "$type": "Define",
         "name": "kOfxKey_Unknown",
@@ -63,7 +50,6 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/*\n * TTY Functions, cleverly chosen to map to ascii, for convenience of\n * programming, but could have been arbitrary (at the cost of lookup\n * tables in client code.\n */",
       "item": {
         "$type": "Define",
         "name": "kOfxKey_BackSpace",
@@ -179,7 +165,6 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/* International & multi-key character composition */",
       "item": {
         "$type": "Define",
         "name": "kOfxKey_Multi_key",
@@ -225,7 +210,6 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/* Japanese keyboard support */",
       "item": {
         "$type": "Define",
         "name": "kOfxKey_Kanji",
@@ -454,7 +438,6 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/* Cursor control & motion */",
       "item": {
         "$type": "Define",
         "name": "kOfxKey_Home",
@@ -584,7 +567,6 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/* Misc Functions */",
       "item": {
         "$type": "Define",
         "name": "kOfxKey_Select",
@@ -749,7 +731,6 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/* Keypad Functions, keypad numbers cleverly chosen to map to ascii */",
       "item": {
         "$type": "Define",
         "name": "kOfxKey_KP_Space",
@@ -1162,7 +1143,6 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/*\n * Auxiliary Functions; note the duplicate definitions for left and right\n * function keys;  Sun keyboards and a few other manufactures have such\n * function key groups on the left and/or right sides of the keyboard.\n * We've not found a keyboard with more than 35 function keys total.\n */",
       "item": {
         "$type": "Define",
         "name": "kOfxKey_F1",
@@ -1823,7 +1803,6 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/* Modifiers */",
       "item": {
         "$type": "Define",
         "name": "kOfxKey_Shift_L",

@@ -4,14 +4,15 @@ use std::{
 };
 
 use convert_case::Casing as _;
+use openfx_datagen::parsing::RootItemWithCommentAbove;
 use quote::{ToTokens as _, quote};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator as _};
 
 use crate::{
     CodegenConfig,
-    doc_parsing::{CHeaderDocParseOutput, DocEntry, parse_docs},
+    input_data::InputData,
     vibe_zone::{
-        syn_visitors::DocRegulator,
+        syn_visitors::{DocEntry, DocRegulator},
         utils::algorithms_by_llms::{
             DependencySortable, sort_by_dependencies, strip_common_prefix,
         },
@@ -20,6 +21,7 @@ use crate::{
 
 pub struct Options {
     pub config: CodegenConfig,
+    pub input_data: InputData,
     pub headers_folder: PathBuf,
     pub output_folder: PathBuf,
     pub output_folder_c: PathBuf,
@@ -80,8 +82,12 @@ fn generate_bindings_for_c_headers_inner(opts: Options) -> Result<(), Box<dyn st
 
     std::fs::create_dir_all(&opts.output_folder_c)?;
 
-    let GenCBindingsOutput { statuses } =
-        gen_c_bindings(&opts.output_folder, &headers, &deduplicated_syn_files)?;
+    let GenCBindingsOutput { statuses } = gen_c_bindings(
+        &opts.input_data,
+        &opts.output_folder,
+        &headers,
+        &deduplicated_syn_files,
+    )?;
     gen_c_bindings_checks(&opts.output_folder, &headers, &checks_syn_files)?;
 
     gen_low_statuses(&opts.output_folder_c, statuses)?;
@@ -106,6 +112,7 @@ struct GenCBindingsOutput {
 }
 
 fn gen_c_bindings(
+    input_data: &InputData,
     output_folder: &Path,
     headers: &[Header],
     deduplicated_syn_files: &std::collections::HashMap<String, syn::File>,
@@ -113,16 +120,31 @@ fn gen_c_bindings(
     let mut statuses: HashSet<String> = HashSet::new();
 
     let mut doc_entries = HashMap::<String, Vec<DocEntry>>::new();
-    for header in headers {
-        for (name, entry) in header.docs.entries.iter() {
-            match doc_entries.entry(name.clone()) {
+    for bindings in input_data.bindings.values() {
+        for item in &bindings.items {
+            let RootItemWithCommentAbove::Item {
+                comment_above,
+                item,
+            } = item
+            else {
+                continue;
+            };
+            let Some(comment_above) = comment_above else {
+                continue;
+            };
+            let name = item.name();
+            let entry = DocEntry {
+                name: name.to_owned(),
+                content: comment_above.to_owned(),
+            };
+            match doc_entries.entry(name.to_owned()) {
                 std::collections::hash_map::Entry::Vacant(e) => {
-                    e.insert(vec![entry.clone()]);
+                    e.insert(vec![entry]);
                 }
                 std::collections::hash_map::Entry::Occupied(mut e) => {
                     // return Err(format!("Duplicate doc entry found for `{}`", name).into());
                     let mut v = e.get().clone();
-                    v.push(entry.clone());
+                    v.push(entry);
                     e.insert(v);
                 }
             }
@@ -510,8 +532,6 @@ pub(crate) struct Header {
     /// `syn` or `proc_macro2` values across threads.
     pub bindgen_generated_rust_code: String,
 
-    pub docs: CHeaderDocParseOutput,
-
     pub additional_rust_code: Option<String>,
     pub additional_info: AdditionalInfo,
 }
@@ -571,8 +591,6 @@ impl Header {
             .unwrap()
             .to_case(convert_case::Case::Snake);
 
-        let docs = parse_docs(c_code)?;
-
         let mut info: AdditionalInfo = Default::default();
 
         let mut included_headers = HashSet::new();
@@ -614,7 +632,6 @@ impl Header {
                 .generate_cstr(true)
                 .generate()?
                 .to_string(),
-            docs,
             additional_rust_code,
             additional_info: info,
         })

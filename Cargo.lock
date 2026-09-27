@@ -1183,6 +1183,7 @@ dependencies = [
  "bindgen",
  "clap",
  "convert_case",
+ "openfx-datagen",
  "prettyplease 0.3.0",
  "proc-macro2",
  "quote",

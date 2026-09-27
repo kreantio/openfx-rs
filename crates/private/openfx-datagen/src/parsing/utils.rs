@@ -129,6 +129,39 @@ pub fn parse_define_value(value: &str) -> Result<DefineValue, ()> {
     }
 }
 
+pub fn clean_comment(comment: &str) -> String {
+    let comment = comment.trim();
+
+    if let Some(stripped) = comment.strip_prefix("//") {
+        return stripped.trim_start().to_owned();
+    }
+
+    let comment = comment
+        .strip_prefix("/*")
+        .expect("`comment` should start with be a comment.");
+    let comment = comment.trim_start_matches("*");
+    let comment = comment
+        .strip_suffix("*/")
+        .expect("a multi-line comment should end with */");
+
+    let mut lines: Vec<String> = comment.lines().map(String::from).collect();
+    if lines.len() == 1 {
+        return lines[0].trim().to_owned();
+    }
+    let range = 1..(lines.len() - 1);
+    for line in &mut lines[range] {
+        let l = line.trim_start().to_owned();
+        if l.is_empty() {
+        } else if l.trim_end() == "*" {
+            *line = String::new();
+        } else if let Some(stripped) = l.strip_prefix("* ") {
+            *line = stripped.to_owned();
+        }
+    }
+
+    lines.join("\n").trim().to_owned()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -169,6 +202,72 @@ mod tests {
 
         for (input, expected) in cases {
             pretty_assertions::assert_eq!(parse_define_value(input), Ok(expected));
+        }
+    }
+
+    #[test]
+    fn test_clean_comment() {
+        let cases = [
+            (
+                r#"// Copyright OpenFX and contributors to the OpenFX project."#,
+                r#"Copyright OpenFX and contributors to the OpenFX project."#,
+            ),
+            (r#"/*@{*/"#, r#"@{"#),
+            (
+                r#"/** @brief How time is specified within the OFX API */"#,
+                r#"@brief How time is specified within the OFX API"#,
+            ),
+            (
+                r#"/** @brief Blind declaration of an OFX image effect
+*/"#,
+                r#"@brief Blind declaration of an OFX image effect"#,
+            ),
+            (
+                r#"/** @brief OFX suite that allows an effect to interact with an openGL window so as to provide custom interfaces.
+
+*/"#,
+                r#"@brief OFX suite that allows an effect to interact with an openGL window so as to provide custom interfaces."#,
+            ),
+            (
+                r#"/** @brief Description of the plug-in to a user.
+
+This is a string giving a potentially verbose description of the effect.
+    
+    - Valid Values - UTF8 string
+    @propdef
+    type: string
+    dimension: 1
+*/"#,
+                r#"@brief Description of the plug-in to a user.
+
+This is a string giving a potentially verbose description of the effect.
+    
+    - Valid Values - UTF8 string
+    @propdef
+    type: string
+    dimension: 1"#,
+            ),
+            (
+                r#"/** @brief Platform independent export macro.
+ *
+ * This macro is to be used before any symbol that is to be
+ * exported from a plug-in. This is OS/compiler dependent.
+ */"#,
+                r#"@brief Platform independent export macro.
+
+This macro is to be used before any symbol that is to be
+exported from a plug-in. This is OS/compiler dependent."#,
+            ),
+            (
+                r#"/**
+   \addtogroup PropertiesGeneral
+*/"#,
+                r#"\addtogroup PropertiesGeneral"#,
+            ),
+        ];
+
+        for (input, expected) in cases {
+            pretty_assertions::assert_eq!(clean_comment(input), expected);
         }
     }
 }

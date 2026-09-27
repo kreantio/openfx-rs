@@ -11,6 +11,9 @@ struct Args {
     #[arg(long)]
     input_c_headers: PathBuf,
 
+    #[arg(long)]
+    input_data: PathBuf,
+
     /// the path to the output directory for generated bindings
     #[arg(long)]
     output_c_bindings: PathBuf,
@@ -31,9 +34,13 @@ pub fn main() {
         openfx_codegen::CodegenConfig::from_toml_str(&codegen_config_str)
             .expect("Failed to parse codegen config file");
 
+    let input_data = openfx_codegen::input_data::load_input_data(args.input_data)
+        .expect("Failed to load input data");
+
     openfx_codegen::bindings_for_c_headers::generate_bindings_for_c_headers(
         openfx_codegen::bindings_for_c_headers::Options {
             config: codegen_config,
+            input_data,
             headers_folder: args.input_c_headers,
             output_folder: args.output_c_bindings,
             output_folder_c: args.output_code_from_c,

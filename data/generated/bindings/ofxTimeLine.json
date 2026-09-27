@@ -1,12 +1,12 @@
 {
   "copyright_comments": [
-    "// Copyright OpenFX and contributors to the OpenFX project.",
-    "// SPDX-License-Identifier: BSD-3-Clause"
+    "Copyright OpenFX and contributors to the OpenFX project.",
+    "SPDX-License-Identifier: BSD-3-Clause"
   ],
   "items": [
     {
       "$type": "Item",
-      "comment_above": "/** @brief Name of the time line suite */",
+      "comment_above": "@brief Name of the time line suite",
       "item": {
         "$type": "Define",
         "name": "kOfxTimeLineSuite",

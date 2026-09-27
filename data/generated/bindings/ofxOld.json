@@ -1,12 +1,12 @@
 {
   "copyright_comments": [
-    "// Copyright OpenFX and contributors to the OpenFX project.",
-    "// SPDX-License-Identifier: BSD-3-Clause"
+    "Copyright OpenFX and contributors to the OpenFX project.",
+    "SPDX-License-Identifier: BSD-3-Clause"
   ],
   "items": [
     {
       "$type": "Item",
-      "comment_above": "/** @brief String to label images with YUVA components\n--ofxImageEffects.h\n@deprecated - removed in v1.4. Note, this has been deprecated in v1.3\n\n */",
+      "comment_above": "@brief String to label images with YUVA components\n--ofxImageEffects.h\n@deprecated - removed in v1.4. Note, this has been deprecated in v1.3",
       "item": {
         "$type": "Define",
         "name": "kOfxImageComponentYUVA",
@@ -18,7 +18,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Indicates whether an effect is performing an analysis pass.\n--ofxImageEffects.h\n@deprecated - This feature has been deprecated - officially commented out v1.4.\n    \n    @propdef\n    type: bool\n    dimension: 1\n    deprecated: \"1.4\"\n*/",
+      "comment_above": "@brief Indicates whether an effect is performing an analysis pass.\n--ofxImageEffects.h\n@deprecated - This feature has been deprecated - officially commented out v1.4.\n    \n    @propdef\n    type: bool\n    dimension: 1\n    deprecated: \"1.4\"",
       "item": {
         "$type": "Define",
         "name": "kOfxImageEffectPropInAnalysis",
@@ -30,7 +30,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The size of an interact's openGL viewport\n-- ofxInteract.h\n@deprecated - V1.3: This property is the redundant and its use will be deprecated in future releases.\nV1.4: Removed\n    \n    @propdef\n    type: int\n    dimension: 2\n    cname: kOfxInteractPropViewportSize\n    deprecated: \"1.3\"\n */",
+      "comment_above": "@brief The size of an interact's openGL viewport\n-- ofxInteract.h\n@deprecated - V1.3: This property is the redundant and its use will be deprecated in future releases.\nV1.4: Removed\n    \n    @propdef\n    type: int\n    dimension: 2\n    cname: kOfxInteractPropViewportSize\n    deprecated: \"1.3\"",
       "item": {
         "$type": "Define",
         "name": "kOfxInteractPropViewportSize",
@@ -42,7 +42,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamPropDoubleType property, indicating a size normalised to the X dimension. See \\ref ::kOfxParamPropDoubleType.\n-- ofxParam.h\n@deprecated - V1.3: Deprecated in favour of ::OfxParamDoubleTypeX\nV1.4: Removed\n */",
+      "comment_above": "@brief value for the ::kOfxParamPropDoubleType property, indicating a size normalised to the X dimension. See \\ref ::kOfxParamPropDoubleType.\n-- ofxParam.h\n@deprecated - V1.3: Deprecated in favour of ::OfxParamDoubleTypeX\nV1.4: Removed",
       "item": {
         "$type": "Define",
         "name": "kOfxParamDoubleTypeNormalisedX",
@@ -54,7 +54,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamPropDoubleType property, indicating a size normalised to the Y dimension. See \\ref ::kOfxParamPropDoubleType.\n-- ofxParam.h\n@deprecated - V1.3: Deprecated in favour of ::OfxParamDoubleTypeY\nV1.4: Removed\n */",
+      "comment_above": "@brief value for the ::kOfxParamPropDoubleType property, indicating a size normalised to the Y dimension. See \\ref ::kOfxParamPropDoubleType.\n-- ofxParam.h\n@deprecated - V1.3: Deprecated in favour of ::OfxParamDoubleTypeY\nV1.4: Removed",
       "item": {
         "$type": "Define",
         "name": "kOfxParamDoubleTypeNormalisedY",
@@ -66,7 +66,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamPropDoubleType property, indicating an absolute position normalised to the X dimension. See \\ref ::kOfxParamPropDoubleType. \n-- ofxParam.h\n@deprecated - V1.3: Deprecated in favour of ::OfxParamDoubleTypeXAbsolute\nV1.4: Removed\n */",
+      "comment_above": "@brief value for the ::kOfxParamPropDoubleType property, indicating an absolute position normalised to the X dimension. See \\ref ::kOfxParamPropDoubleType. \n-- ofxParam.h\n@deprecated - V1.3: Deprecated in favour of ::OfxParamDoubleTypeXAbsolute\nV1.4: Removed",
       "item": {
         "$type": "Define",
         "name": "kOfxParamDoubleTypeNormalisedXAbsolute",
@@ -78,7 +78,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamPropDoubleType property, indicating an absolute position  normalised to the Y dimension. See \\ref ::kOfxParamPropDoubleType.\n-- ofxParam.h\n@deprecated - V1.3: Deprecated in favour of ::OfxParamDoubleTypeYAbsolute\nV1.4: Removed\n */",
+      "comment_above": "@brief value for the ::kOfxParamPropDoubleType property, indicating an absolute position  normalised to the Y dimension. See \\ref ::kOfxParamPropDoubleType.\n-- ofxParam.h\n@deprecated - V1.3: Deprecated in favour of ::OfxParamDoubleTypeYAbsolute\nV1.4: Removed",
       "item": {
         "$type": "Define",
         "name": "kOfxParamDoubleTypeNormalisedYAbsolute",
@@ -90,7 +90,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamPropDoubleType property, indicating normalisation to the X and Y dimension for 2D params. See \\ref ::kOfxParamPropDoubleType. \n-- ofxParam.h\n@deprecated - V1.3: Deprecated in favour of ::OfxParamDoubleTypeXY\nV1.4: Removed\n */",
+      "comment_above": "@brief value for the ::kOfxParamPropDoubleType property, indicating normalisation to the X and Y dimension for 2D params. See \\ref ::kOfxParamPropDoubleType. \n-- ofxParam.h\n@deprecated - V1.3: Deprecated in favour of ::OfxParamDoubleTypeXY\nV1.4: Removed",
       "item": {
         "$type": "Define",
         "name": "kOfxParamDoubleTypeNormalisedXY",
@@ -102,7 +102,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief value for the ::kOfxParamPropDoubleType property, indicating normalisation to the X and Y dimension for a 2D param that can be interpreted as an absolute spatial position. See \\ref ::kOfxParamPropDoubleType. \n-- ofxParam.h\n@deprecated - V1.3: Deprecated in favour of ::kOfxParamDoubleTypeXYAbsolute \nV1.4: Removed\n */",
+      "comment_above": "@brief value for the ::kOfxParamPropDoubleType property, indicating normalisation to the X and Y dimension for a 2D param that can be interpreted as an absolute spatial position. See \\ref ::kOfxParamPropDoubleType. \n-- ofxParam.h\n@deprecated - V1.3: Deprecated in favour of ::kOfxParamDoubleTypeXYAbsolute \nV1.4: Removed",
       "item": {
         "$type": "Define",
         "name": "kOfxParamDoubleTypeNormalisedXYAbsolute",

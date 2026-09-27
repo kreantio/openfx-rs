@@ -1,16 +1,16 @@
 {
   "copyright_comments": [
-    "// Copyright OpenFX and contributors to the OpenFX project.",
-    "// SPDX-License-Identifier: BSD-3-Clause"
+    "Copyright OpenFX and contributors to the OpenFX project.",
+    "SPDX-License-Identifier: BSD-3-Clause"
   ],
   "items": [
     {
       "$type": "StandaloneComment",
-      "comment": "/** @file ofxDialog.h\n\nThis file contains an optional suite which should be used to popup a native OS dialog\nfrom a host parameter changed action.\n\nWhen a host uses a fullscreen window and is running the OFX plugins in another thread\nit can lead to a lot of conflicts if that plugin will try to open its own window.\n\nThis suite will provide the functionality for a plugin to request running its dialog\nin the UI thread, and informing the host it will do this so it can take the appropriate\nactions needed. (Like lowering its priority etc..)\n*/"
+      "comment": "@file ofxDialog.h\n\nThis file contains an optional suite which should be used to popup a native OS dialog\nfrom a host parameter changed action.\n\nWhen a host uses a fullscreen window and is running the OFX plugins in another thread\nit can lead to a lot of conflicts if that plugin will try to open its own window.\n\nThis suite will provide the functionality for a plugin to request running its dialog\nin the UI thread, and informing the host it will do this so it can take the appropriate\nactions needed. (Like lowering its priority etc..)"
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The name of the Dialog suite, used to fetch from a host via\n    OfxHost::fetchSuite\n */",
+      "comment_above": "@brief The name of the Dialog suite, used to fetch from a host via\n    OfxHost::fetchSuite",
       "item": {
         "$type": "Define",
         "name": "kOfxDialogSuite",
@@ -22,7 +22,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief Action called after a dialog has requested a 'Dialog'\n         The arguments to the action are:\n          \\arg \\c user_data Pointer which was provided when the plugin requested the Dialog\n\n\t   When the plugin receives this action it is safe to popup a dialog.\n\t   It runs in the host's UI thread, which may differ from the main OFX processing thread.\n\t   Plugin should return from this action when all Dialog interactions are done.\n\t   At that point the host will continue again.\n\t   The host will not send any other messages asynchronous to this one.\n*/",
+      "comment_above": "@brief Action called after a dialog has requested a 'Dialog'\n         The arguments to the action are:\n          \\arg \\c user_data Pointer which was provided when the plugin requested the Dialog\n\n\t   When the plugin receives this action it is safe to popup a dialog.\n\t   It runs in the host's UI thread, which may differ from the main OFX processing thread.\n\t   Plugin should return from this action when all Dialog interactions are done.\n\t   At that point the host will continue again.\n\t   The host will not send any other messages asynchronous to this one.",
       "item": {
         "$type": "Define",
         "name": "kOfxActionDialog",

@@ -1,16 +1,16 @@
 {
   "copyright_comments": [
-    "// Copyright OpenFX and contributors to the OpenFX project.",
-    "// SPDX-License-Identifier: BSD-3-Clause"
+    "Copyright OpenFX and contributors to the OpenFX project.",
+    "SPDX-License-Identifier: BSD-3-Clause"
   ],
   "items": [
     {
       "$type": "StandaloneComment",
-      "comment": "/** @file ofxColour.h\nContains the API for colourspace data exchange.\n*/"
+      "comment": "@file ofxColour.h\nContains the API for colourspace data exchange."
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief What style of colour management does the host or plug-in offer?\n\nHosts should set this property if they will provide colourspace information \nto plug-ins.\nPlug-ins should set this property if they can use host-provided colourspace \ninformation.\nCollectively, the full, core and basic styles are referred to as native\ncolour management. OCIO is used as the reference for the colour management\nAPI, but is not required to implement the native styles.\n\nThe colourspace strings used in the native styles are from an OFX-specific\nOCIO config which is currently based on the OCIO ACES Studio built-in config,\nstudio-config-v2.1.0_aces-v1.3_ocio-v2.3, and stored for OFX purposes in\nofx-native-v1.5_aces-v1.3_ocio-v2.3.h (referred to as the config header).\nAdditionally, there is a scheme for cross-referencing between clips, and a set\nof \"basic colourspaces\", which are designed to be generic names for a family of\ncolourspaces. When a basic colourspace is used, this means the host is free to\nchoose any colourspace with the same encoding and reference space (scene vs\ndisplay).\n\nThe assumption is that OCIO > Full > Core > Basic, so the highest style\nsupported by both host and plug-in should usually be chosen by the host.\nThe chosen style must be set by the host using this property on an image\neffect instance.\n   \n   - Valid Values - This must be one of\n     - ::kOfxImageEffectColourManagementNone - no colour management\n     - ::kOfxImageEffectColourManagementBasic - only basic colourspaces from the config header may be used\n     - ::kOfxImageEffectColourManagementCore - only core colourspaces from the config header may be used\n     - ::kOfxImageEffectColourManagementFull - any colourspace from the config header may be used\n     - ::kOfxImageEffectColourManagementOCIO - any OCIO config may be used (implies use of the OCIO library)\n   @propdef\n   type: enum\n   dimension: 1\n   values:\n     - OfxImageEffectColourManagementNone\n     - OfxImageEffectColourManagementBasic\n     - OfxImageEffectColourManagementCore\n     - OfxImageEffectColourManagementFull\n     - OfxImageEffectColourManagementOCIO\n   introduced: \"1.5\"\n*/",
+      "comment_above": "@brief What style of colour management does the host or plug-in offer?\n\nHosts should set this property if they will provide colourspace information \nto plug-ins.\nPlug-ins should set this property if they can use host-provided colourspace \ninformation.\nCollectively, the full, core and basic styles are referred to as native\ncolour management. OCIO is used as the reference for the colour management\nAPI, but is not required to implement the native styles.\n\nThe colourspace strings used in the native styles are from an OFX-specific\nOCIO config which is currently based on the OCIO ACES Studio built-in config,\nstudio-config-v2.1.0_aces-v1.3_ocio-v2.3, and stored for OFX purposes in\nofx-native-v1.5_aces-v1.3_ocio-v2.3.h (referred to as the config header).\nAdditionally, there is a scheme for cross-referencing between clips, and a set\nof \"basic colourspaces\", which are designed to be generic names for a family of\ncolourspaces. When a basic colourspace is used, this means the host is free to\nchoose any colourspace with the same encoding and reference space (scene vs\ndisplay).\n\nThe assumption is that OCIO > Full > Core > Basic, so the highest style\nsupported by both host and plug-in should usually be chosen by the host.\nThe chosen style must be set by the host using this property on an image\neffect instance.\n   \n   - Valid Values - This must be one of\n     - ::kOfxImageEffectColourManagementNone - no colour management\n     - ::kOfxImageEffectColourManagementBasic - only basic colourspaces from the config header may be used\n     - ::kOfxImageEffectColourManagementCore - only core colourspaces from the config header may be used\n     - ::kOfxImageEffectColourManagementFull - any colourspace from the config header may be used\n     - ::kOfxImageEffectColourManagementOCIO - any OCIO config may be used (implies use of the OCIO library)\n   @propdef\n   type: enum\n   dimension: 1\n   values:\n     - OfxImageEffectColourManagementNone\n     - OfxImageEffectColourManagementBasic\n     - OfxImageEffectColourManagementCore\n     - OfxImageEffectColourManagementFull\n     - OfxImageEffectColourManagementOCIO\n   introduced: \"1.5\"",
       "item": {
         "$type": "Define",
         "name": "kOfxImageEffectPropColourManagementStyle",
@@ -22,7 +22,6 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/* String used to indicate that no colour management is available. */",
       "item": {
         "$type": "Define",
         "name": "kOfxImageEffectColourManagementNone",
@@ -34,7 +33,6 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/* String used to indicate that basic colour management is available. */",
       "item": {
         "$type": "Define",
         "name": "kOfxImageEffectColourManagementBasic",
@@ -46,7 +44,6 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/* String used to indicate that core colour management is available. */",
       "item": {
         "$type": "Define",
         "name": "kOfxImageEffectColourManagementCore",
@@ -58,7 +55,6 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/* String used to indicate that Full colour management is available. */",
       "item": {
         "$type": "Define",
         "name": "kOfxImageEffectColourManagementFull",
@@ -70,7 +66,6 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/* String used to indicate that OCIO colour management is available. */",
       "item": {
         "$type": "Define",
         "name": "kOfxImageEffectColourManagementOCIO",
@@ -82,7 +77,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief What native mode configs are supported?\n\nWhile the API for colour management is expected to be stable, the set of\ncolourspaces will evolve over time. This property must be set by both plug-ins\nand hosts specifying the list of native mode configs that are available on each\nside.\n   \n   - Valid Values - A list of config identifiers. The only currently supported\n                    value is ofx-native-v1.5_aces-v1.3_ocio-v2.3.\n   @propdef\n   type: string\n   dimension: N\n   introduced: \"1.5\"\n*/",
+      "comment_above": "@brief What native mode configs are supported?\n\nWhile the API for colour management is expected to be stable, the set of\ncolourspaces will evolve over time. This property must be set by both plug-ins\nand hosts specifying the list of native mode configs that are available on each\nside.\n   \n   - Valid Values - A list of config identifiers. The only currently supported\n                    value is ofx-native-v1.5_aces-v1.3_ocio-v2.3.\n   @propdef\n   type: string\n   dimension: N\n   introduced: \"1.5\"",
       "item": {
         "$type": "Define",
         "name": "kOfxImageEffectPropColourManagementAvailableConfigs",
@@ -94,7 +89,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The native colour management config to be used for this instance\n\nThe host must set this property to indicate the native colour management config\nthe plug-in should be used to look up colourspace strings. It is important to\nset this even in OCIO mode, to define the basic colourspaces.\n   \n   - Valid Values - any string provided by the plug-in in\n                    kOfxImageEffectPropColourManagementAvailableConfigs\n   @propdef\n   type: string\n   dimension: 1\n   introduced: \"1.5\"\n*/",
+      "comment_above": "@brief The native colour management config to be used for this instance\n\nThe host must set this property to indicate the native colour management config\nthe plug-in should be used to look up colourspace strings. It is important to\nset this even in OCIO mode, to define the basic colourspaces.\n   \n   - Valid Values - any string provided by the plug-in in\n                    kOfxImageEffectPropColourManagementAvailableConfigs\n   @propdef\n   type: string\n   dimension: 1\n   introduced: \"1.5\"",
       "item": {
         "$type": "Define",
         "name": "kOfxImageEffectPropColourManagementConfig",
@@ -106,7 +101,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The path to the OCIO config used for this instance\n\nA host must set this property on any effect instances where it has negotiated \nOCIO colour management (kOfxImageEffectColourManagementOCIO).\nUse of URIs for built-in configs, such as ocio://default is permitted.\n   \n   - Valid Values - Filesystem path to the config or URI starting ocio://\n   @propdef\n   type: string\n   dimension: 1\n   introduced: \"1.5\"\n*/",
+      "comment_above": "@brief The path to the OCIO config used for this instance\n\nA host must set this property on any effect instances where it has negotiated \nOCIO colour management (kOfxImageEffectColourManagementOCIO).\nUse of URIs for built-in configs, such as ocio://default is permitted.\n   \n   - Valid Values - Filesystem path to the config or URI starting ocio://\n   @propdef\n   type: string\n   dimension: 1\n   introduced: \"1.5\"",
       "item": {
         "$type": "Define",
         "name": "kOfxImageEffectPropOCIOConfig",
@@ -118,7 +113,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The colourspace used for this clip\n\nHosts should set this property to the colourspace of the input clip. Typically\nit will be set to the working colourspace of the host but could be any valid \ncolourspace.\n\nBoth host and plug-in should use the value of \nkOfxImageClipPropPreferredColourspace where reasonable.\n\nIn OCIO mode, a basic colourspace may have been requested via\nkOfxImageClipPropPreferredColourspaces, but the actual colourspace used should\nbe reported in this property. If an OCIO host has added the basic colourspaces\nto its config as roles or aliases, they would be permitted here.\n\nCross-referencing between clips is possible by setting this property to\n\"OfxColourspace_<clip>\". For example a plug-in may set this property during\nkOfxImageEffectActionGetOutputColourspace to \"OfxColourspace_Source\", telling\nhe host that the colourspace of the output matches the \"Source\" input clip.\nIn the basic style, plug-ins are recommended to use cross-referencing for\ntheir output clip unless kOfxColourspaceRaw is required.\n\nIf a clip sets OfxImageClipPropIsMask or it only supports\nOfxImageComponentAlpha, colour management is disabled and this property\nmust be unset.\n   \n   - Valid Values - colourspace that is permitted under the style in use.\n                    For OCIO, any string acceptable to Config::getColorSpace()\n   @propdef\n   type: string\n   dimension: 1\n   introduced: \"1.5\"\n*/",
+      "comment_above": "@brief The colourspace used for this clip\n\nHosts should set this property to the colourspace of the input clip. Typically\nit will be set to the working colourspace of the host but could be any valid \ncolourspace.\n\nBoth host and plug-in should use the value of \nkOfxImageClipPropPreferredColourspace where reasonable.\n\nIn OCIO mode, a basic colourspace may have been requested via\nkOfxImageClipPropPreferredColourspaces, but the actual colourspace used should\nbe reported in this property. If an OCIO host has added the basic colourspaces\nto its config as roles or aliases, they would be permitted here.\n\nCross-referencing between clips is possible by setting this property to\n\"OfxColourspace_<clip>\". For example a plug-in may set this property during\nkOfxImageEffectActionGetOutputColourspace to \"OfxColourspace_Source\", telling\nhe host that the colourspace of the output matches the \"Source\" input clip.\nIn the basic style, plug-ins are recommended to use cross-referencing for\ntheir output clip unless kOfxColourspaceRaw is required.\n\nIf a clip sets OfxImageClipPropIsMask or it only supports\nOfxImageComponentAlpha, colour management is disabled and this property\nmust be unset.\n   \n   - Valid Values - colourspace that is permitted under the style in use.\n                    For OCIO, any string acceptable to Config::getColorSpace()\n   @propdef\n   type: string\n   dimension: 1\n   introduced: \"1.5\"",
       "item": {
         "$type": "Define",
         "name": "kOfxImageClipPropColourspace",
@@ -130,7 +125,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The preferred colourspace for this clip\n\nPlug-ins may set this property during kOfxImageEffectActionGetClipPreferences \nto request images in a colourspace which is convenient for them. The\nproperty is an ordered set of colourspace identifiers, which may be any of the\nnames or aliases supported by the colour management style in use. If plug-ins\nprefer more esoteric colourspaces, they are encouraged to also include basic\ncolourspacesas a fallback. For example a colour grading plug-in which supports\na specific camera and expects a log colourspace might list:\n\n\"arri_logc4\", \"arri_logc3_ei800\", \"ACEScct\", \"ofx_scene_log\"\n\nThe host is free to choose any colourspace from this list, but should favour\nthe first mutually agreeable colourspace, and set kOfxImageClipPropColourspace\nto tell the plug-in which colourspace has been selected. A host does not need\nto convert into the first choice just because it can, as this might be\ninefficient, and should avoid scene-to-display or display-to-scene conversions\nwhere possible.\n\nIn the event that the host cannot supply images in a requested colourspace,\nit may supply images in any valid colourspace. Plug-ins must check\nkOfxImageClipPropColourspace to see if their request was satisfied.\n\nIn both native and OCIO modes, it is recommended to include basic colourspaces\nin this list, because this gives the host more flexibility to avoid unnecessary\ncolourspace conversions.\n\nHosts can invoke kOfxImageEffectActionGetOutputColourspace to set this on an\noutput clip, which could be helpful in a generator context, and plug-ins should\nfollow the same logic as hosts when deciding which colourspace to use.\n\nIt might be much less costly for a host to perform a conversion \nthan a plug-in, so in the example of a plug-in which performs all internal \nprocessing in scene linear, it is sensible for the plug-in to universally \nassert that preference by preferring kOfxColourspaceOfxSceneLinear, and for\nthe host to honour it if possible. However, if a plug-in is capable of\nadapting to any input colourspace, it should not set this preference.\n\nCross-referencing between clips is possible by setting this property to\n\"OfxColourspace_<clip>\". For example, a plug-in in a transition context may set\nthis property on its \"SourceTo\" clip to \"OfxColourspace_SourceFrom\", telling\nthe host it would like both input clips to be in the same colourspace.\n\nIf a plug-in has inputs which expect motion vectors, depth values or other\nnon-colour channels, it should set the preferred colourspace to\nkOfxColourspaceRaw. Similarly, if a host requests outputs in a typical scene\ncolourspace, but the plug-in is producing motion vectors, it should ignore\nthe request and set kOfxImageClipPropColourspace to kOfxColourspaceRaw.\n   \n   - Valid Values - colourspace that is permitted under the style in use.\n                    For Basic, any colourspace from the config header where IsBasic is true.\n                    For Core, any colourspace from the config header where IsCore is true.\n                    For Full, any colourspace from the config header.\n                    For OCIO, any string acceptable to Config::getColorSpace(), or a basic colourspace.\n   @propdef\n   type: string\n   dimension: N\n   introduced: \"1.5\"\n*/",
+      "comment_above": "@brief The preferred colourspace for this clip\n\nPlug-ins may set this property during kOfxImageEffectActionGetClipPreferences \nto request images in a colourspace which is convenient for them. The\nproperty is an ordered set of colourspace identifiers, which may be any of the\nnames or aliases supported by the colour management style in use. If plug-ins\nprefer more esoteric colourspaces, they are encouraged to also include basic\ncolourspacesas a fallback. For example a colour grading plug-in which supports\na specific camera and expects a log colourspace might list:\n\n\"arri_logc4\", \"arri_logc3_ei800\", \"ACEScct\", \"ofx_scene_log\"\n\nThe host is free to choose any colourspace from this list, but should favour\nthe first mutually agreeable colourspace, and set kOfxImageClipPropColourspace\nto tell the plug-in which colourspace has been selected. A host does not need\nto convert into the first choice just because it can, as this might be\ninefficient, and should avoid scene-to-display or display-to-scene conversions\nwhere possible.\n\nIn the event that the host cannot supply images in a requested colourspace,\nit may supply images in any valid colourspace. Plug-ins must check\nkOfxImageClipPropColourspace to see if their request was satisfied.\n\nIn both native and OCIO modes, it is recommended to include basic colourspaces\nin this list, because this gives the host more flexibility to avoid unnecessary\ncolourspace conversions.\n\nHosts can invoke kOfxImageEffectActionGetOutputColourspace to set this on an\noutput clip, which could be helpful in a generator context, and plug-ins should\nfollow the same logic as hosts when deciding which colourspace to use.\n\nIt might be much less costly for a host to perform a conversion \nthan a plug-in, so in the example of a plug-in which performs all internal \nprocessing in scene linear, it is sensible for the plug-in to universally \nassert that preference by preferring kOfxColourspaceOfxSceneLinear, and for\nthe host to honour it if possible. However, if a plug-in is capable of\nadapting to any input colourspace, it should not set this preference.\n\nCross-referencing between clips is possible by setting this property to\n\"OfxColourspace_<clip>\". For example, a plug-in in a transition context may set\nthis property on its \"SourceTo\" clip to \"OfxColourspace_SourceFrom\", telling\nthe host it would like both input clips to be in the same colourspace.\n\nIf a plug-in has inputs which expect motion vectors, depth values or other\nnon-colour channels, it should set the preferred colourspace to\nkOfxColourspaceRaw. Similarly, if a host requests outputs in a typical scene\ncolourspace, but the plug-in is producing motion vectors, it should ignore\nthe request and set kOfxImageClipPropColourspace to kOfxColourspaceRaw.\n   \n   - Valid Values - colourspace that is permitted under the style in use.\n                    For Basic, any colourspace from the config header where IsBasic is true.\n                    For Core, any colourspace from the config header where IsCore is true.\n                    For Full, any colourspace from the config header.\n                    For OCIO, any string acceptable to Config::getColorSpace(), or a basic colourspace.\n   @propdef\n   type: string\n   dimension: N\n   introduced: \"1.5\"",
       "item": {
         "$type": "Define",
         "name": "kOfxImageClipPropPreferredColourspaces",
@@ -142,7 +137,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The display colourspace used in the plug-in's viewport\n\nUsed with native colour management styles, this property is relevant \nfor plug-ins which have their own viewport in a custom window. Plug-ins should \nnot expect this to be available during a render event.\nHosts should set this property to a display colourspace which matches that \nused in its own viewport. For a multi-display system, choose the colourspace \nfor the display device where a native window would appear by default.\nA host which supports OCIO should use the OCIO-specific display and view\nproperties instead.\n   \n   - Valid Values - any colourspace from the config header\n   @propdef\n   type: string\n   dimension: 1\n   introduced: \"1.5\"\n*/",
+      "comment_above": "@brief The display colourspace used in the plug-in's viewport\n\nUsed with native colour management styles, this property is relevant \nfor plug-ins which have their own viewport in a custom window. Plug-ins should \nnot expect this to be available during a render event.\nHosts should set this property to a display colourspace which matches that \nused in its own viewport. For a multi-display system, choose the colourspace \nfor the display device where a native window would appear by default.\nA host which supports OCIO should use the OCIO-specific display and view\nproperties instead.\n   \n   - Valid Values - any colourspace from the config header\n   @propdef\n   type: string\n   dimension: 1\n   introduced: \"1.5\"",
       "item": {
         "$type": "Define",
         "name": "kOfxImageEffectPropDisplayColourspace",
@@ -154,7 +149,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The OCIO display to be used in the plug-in's viewport\n\nThis OCIO-specific property allows the host to specify which OCIO display should be used. \nIf not defined, the default rules for choosing a display will be followed.\n   \n   - Valid Values - OCIO display that is present in the config\n   @propdef\n   type: string\n   dimension: 1\n   introduced: \"1.5\"\n*/",
+      "comment_above": "@brief The OCIO display to be used in the plug-in's viewport\n\nThis OCIO-specific property allows the host to specify which OCIO display should be used. \nIf not defined, the default rules for choosing a display will be followed.\n   \n   - Valid Values - OCIO display that is present in the config\n   @propdef\n   type: string\n   dimension: 1\n   introduced: \"1.5\"",
       "item": {
         "$type": "Define",
         "name": "kOfxImageEffectPropOCIODisplay",
@@ -166,7 +161,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief The OCIO view to be used in the plug-in's viewport\n\nThis OCIO-specific property allows the host to specify which OCIO view should be used.\nIf not defined, the default rules for choosing a view will be followed.\n   \n   - Valid Values - OCIO view for the display specified by kOfxImageEffectPropOCIODisplay\n   @propdef\n   type: string\n   dimension: 1\n   introduced: \"1.5\"\n*/",
+      "comment_above": "@brief The OCIO view to be used in the plug-in's viewport\n\nThis OCIO-specific property allows the host to specify which OCIO view should be used.\nIf not defined, the default rules for choosing a view will be followed.\n   \n   - Valid Values - OCIO view for the display specified by kOfxImageEffectPropOCIODisplay\n   @propdef\n   type: string\n   dimension: 1\n   introduced: \"1.5\"",
       "item": {
         "$type": "Define",
         "name": "kOfxImageEffectPropOCIOView",
@@ -178,7 +173,7 @@
     },
     {
       "$type": "Item",
-      "comment_above": "/** @brief\n\n This action allows a host to ask an effect, given a list of preferred\n colourspaces, what colourspace will be used for its output clip. This should\n be called after first gathering the plug-in's preferred input colourspaces\n via OfxImageEffectActionGetClipPreferences.\n\n Cross-references to input clip colourspaces are permitted, for example in a\n filter context, the host might request \"OfxColourspace_Source\".\n\n If a host wants to rely on the output clip colourspace, it must call this\n action whenever the effect instance is changed. Do not assume that the output\n colourspace will be the same across all instances of an effect, or even for\n the lifetime of an effect instance, because a plug-in may change its output\n colourspace based on a user changing a parameter. Assume that the plug-in will\n check kOfxImageClipPropColourspace on its input clips during this action in\n order to decide the output clip colourspace, so the action must be called\n again if the host changes any of the other colour properties.\n\n On a successful return from this action, the host must set\n kOfxImageClipPropColourspace on the instance's output clip to the value\n from outArgs.\n \n @param  handle handle to the instance, cast to an \\ref OfxImageEffectHandle\n @param  inArgs a property set containing the property\n     - \\ref kOfxImageClipPropPreferredColourspaces the host's list of preferred colourspaces\n\n @param  outArgs a property set containing the property\n     - \\ref kOfxImageClipPropColourspace the colourspace selected by the plug-in,\n            which may be a cross-reference to an input clip.\n\n @returns\n     -  \\ref kOfxStatOK, the action was trapped and the colourspace was set in\n             the outArgs property set\n     -  \\ref kOfxStatReplyDefault, the action was not trapped and the host\n             should use the colourspace of the first input clip \n     -  \\ref kOfxStatErrMemory, in which case the action may be called again after a memory purge\n     -  \\ref kOfxStatFailed, something wrong, but no error code appropriate, plugin to post message\n     -  \\ref kOfxStatErrFatal\n \n    @actiondef\n    inArgs:\n      - OfxImageClipPropPreferredColourspaces\n    outArgs:\n      - OfxImageClipPropColourspace\n*/",
+      "comment_above": "@brief\n\n This action allows a host to ask an effect, given a list of preferred\n colourspaces, what colourspace will be used for its output clip. This should\n be called after first gathering the plug-in's preferred input colourspaces\n via OfxImageEffectActionGetClipPreferences.\n\n Cross-references to input clip colourspaces are permitted, for example in a\n filter context, the host might request \"OfxColourspace_Source\".\n\n If a host wants to rely on the output clip colourspace, it must call this\n action whenever the effect instance is changed. Do not assume that the output\n colourspace will be the same across all instances of an effect, or even for\n the lifetime of an effect instance, because a plug-in may change its output\n colourspace based on a user changing a parameter. Assume that the plug-in will\n check kOfxImageClipPropColourspace on its input clips during this action in\n order to decide the output clip colourspace, so the action must be called\n again if the host changes any of the other colour properties.\n\n On a successful return from this action, the host must set\n kOfxImageClipPropColourspace on the instance's output clip to the value\n from outArgs.\n \n @param  handle handle to the instance, cast to an \\ref OfxImageEffectHandle\n @param  inArgs a property set containing the property\n     - \\ref kOfxImageClipPropPreferredColourspaces the host's list of preferred colourspaces\n\n @param  outArgs a property set containing the property\n     - \\ref kOfxImageClipPropColourspace the colourspace selected by the plug-in,\n            which may be a cross-reference to an input clip.\n\n @returns\n     -  \\ref kOfxStatOK, the action was trapped and the colourspace was set in\n             the outArgs property set\n     -  \\ref kOfxStatReplyDefault, the action was not trapped and the host\n             should use the colourspace of the first input clip \n     -  \\ref kOfxStatErrMemory, in which case the action may be called again after a memory purge\n     -  \\ref kOfxStatFailed, something wrong, but no error code appropriate, plugin to post message\n     -  \\ref kOfxStatErrFatal\n \n    @actiondef\n    inArgs:\n      - OfxImageClipPropPreferredColourspaces\n    outArgs:\n      - OfxImageClipPropColourspace",
       "item": {
         "$type": "Define",
         "name": "kOfxImageEffectActionGetOutputColourspace",
