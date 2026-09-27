@@ -122,7 +122,7 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
     let mut last_comment: Option<String> = None;
 
     macro_rules! text {
-        ($raw_node:ident) => {
+        ($raw_node:expr) => {
             $raw_node
                 .utf8_text(code.as_bytes())
                 .expect("`utf8_text` should not fail.")
@@ -172,50 +172,9 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
         };
 
         let item = match node {
-            TranslationUnitChildren::AttributedStatement(attributed_statement) => RootItem::Todo {
-                code: text!(raw_node),
-            },
-            TranslationUnitChildren::BreakStatement(break_statement) => RootItem::Todo {
-                code: text!(raw_node),
-            },
-            TranslationUnitChildren::CaseStatement(case_statement) => RootItem::Todo {
-                code: text!(raw_node),
-            },
-            TranslationUnitChildren::CompoundStatement(compound_statement) => RootItem::Todo {
-                code: text!(raw_node),
-            },
-            TranslationUnitChildren::ContinueStatement(continue_statement) => RootItem::Todo {
-                code: text!(raw_node),
-            },
             TranslationUnitChildren::Declaration(declaration) => RootItem::Todo {
                 code: text!(raw_node),
             },
-            TranslationUnitChildren::DoStatement(do_statement) => RootItem::Todo {
-                code: text!(raw_node),
-            },
-            TranslationUnitChildren::ExpressionStatement(expression_statement) => RootItem::Todo {
-                code: text!(raw_node),
-            },
-            TranslationUnitChildren::ForStatement(for_statement) => RootItem::Todo {
-                code: text!(raw_node),
-            },
-            TranslationUnitChildren::FunctionDefinition(function_definition) => RootItem::Todo {
-                code: text!(raw_node),
-            },
-            TranslationUnitChildren::GotoStatement(goto_statement) => RootItem::Todo {
-                code: text!(raw_node),
-            },
-            TranslationUnitChildren::IfStatement(if_statement) => RootItem::Todo {
-                code: text!(raw_node),
-            },
-            TranslationUnitChildren::LabeledStatement(labeled_statement) => RootItem::Todo {
-                code: text!(raw_node),
-            },
-            TranslationUnitChildren::LinkageSpecification(linkage_specification) => {
-                RootItem::Todo {
-                    code: text!(raw_node),
-                }
-            }
             TranslationUnitChildren::PreprocCall(preproc_call) => RootItem::Todo {
                 code: text!(raw_node),
             },
@@ -250,9 +209,6 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
                     comment: comments.first().map(|node| text!(node)),
                 }
             }
-            TranslationUnitChildren::PreprocFunctionDef(preproc_function_def) => RootItem::Todo {
-                code: text!(raw_node),
-            },
             TranslationUnitChildren::PreprocIf(preproc_if) => RootItem::Todo {
                 code: text!(raw_node),
             },
@@ -262,21 +218,31 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
             TranslationUnitChildren::PreprocInclude(preproc_include) => RootItem::Todo {
                 code: text!(raw_node),
             },
-            TranslationUnitChildren::ReturnStatement(return_statement) => RootItem::Todo {
-                code: text!(raw_node),
-            },
-            TranslationUnitChildren::SwitchStatement(switch_statement) => RootItem::Todo {
-                code: text!(raw_node),
-            },
             TranslationUnitChildren::TypeDefinition(type_definition) => RootItem::Todo {
                 code: text!(raw_node),
             },
-            TranslationUnitChildren::TypeSpecifier(type_specifier) => RootItem::Todo {
-                code: text!(raw_node),
-            },
-            TranslationUnitChildren::WhileStatement(while_statement) => RootItem::Todo {
-                code: text!(raw_node),
-            },
+            TranslationUnitChildren::AttributedStatement(_)
+            | TranslationUnitChildren::BreakStatement(_)
+            | TranslationUnitChildren::CaseStatement(_)
+            | TranslationUnitChildren::CompoundStatement(_)
+            | TranslationUnitChildren::ContinueStatement(_)
+            | TranslationUnitChildren::DoStatement(_)
+            | TranslationUnitChildren::ExpressionStatement(_)
+            | TranslationUnitChildren::ForStatement(_)
+            | TranslationUnitChildren::FunctionDefinition(_)
+            | TranslationUnitChildren::GotoStatement(_)
+            | TranslationUnitChildren::IfStatement(_)
+            | TranslationUnitChildren::LabeledStatement(_)
+            | TranslationUnitChildren::LinkageSpecification(_)
+            | TranslationUnitChildren::PreprocFunctionDef(_)
+            | TranslationUnitChildren::ReturnStatement(_)
+            | TranslationUnitChildren::SwitchStatement(_)
+            | TranslationUnitChildren::TypeSpecifier(_)
+            | TranslationUnitChildren::WhileStatement(_) => {
+                return Err(Error::UnaddressedSyntax {
+                    code: text!(raw_node),
+                });
+            }
         };
 
         items.push(RootItemWithCommentAbove::Item {
