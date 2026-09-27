@@ -13,9 +13,17 @@ mod utils;
 
 #[derive(Debug, snafu::Snafu)]
 pub enum Error {
-    /// This syntax does not occur in the official OpenFX C headers, so we do
-    /// not handle it yet.
-    UnaddressedSyntax { code: String },
+    /// There are nodes with unaddressed syntax that we do not handle yet. This
+    /// generally means that the official OpenFX C headers have been updated
+    /// and now contain syntax that was not previously used.
+    HasUnaddressedNodes { nodes: Vec<UnadressedNode> },
+}
+
+#[derive(Debug)]
+struct UnadressedNode {
+    comment_above: Option<String>,
+    code: String,
+    details: Option<String>,
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
@@ -136,6 +144,26 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
         };
     }
 
+    let mut unadressed_nodes: Vec<UnadressedNode> = vec![];
+    macro_rules! continue_unaddressed {
+        ($comment_above:ident, $raw_node:ident) => {
+            unadressed_nodes.push(UnadressedNode {
+                comment_above: $comment_above,
+                code: text!($raw_node),
+                details: None,
+            });
+            continue;
+        };
+        ($comment_above:ident, $raw_node:ident, $details:expr) => {
+            unadressed_nodes.push(UnadressedNode {
+                comment_above: $comment_above,
+                code: text!($raw_node),
+                details: Some($details),
+            });
+            continue;
+        };
+    }
+
     for raw_node in root_node.named_children(&mut cursor) {
         if raw_node.kind() == "comment" {
             let text = text!(raw_node);
@@ -167,9 +195,14 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
             continue;
         }
 
+        let comment_above = last_comment.take();
+
         let Ok(node) = TranslationUnitChildren::from_node(raw_node, code.as_bytes()) else {
-            tracing::warn!("not `TranslationUnitChildren`: {}", raw_node.kind());
-            continue;
+            continue_unaddressed!(
+                comment_above,
+                raw_node,
+                format!("not `TranslationUnitChildren`: {}", raw_node.kind())
+            );
         };
 
         let item = match node {
@@ -189,21 +222,19 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
                     .collect::<Vec<_>>();
 
                 let Some(value) = preproc_def.value.as_ref() else {
-                    return Err(Error::UnaddressedSyntax {
-                        code: text!(raw_node),
-                    });
+                    continue_unaddressed!(comment_above, raw_node);
                 };
                 if comments.len() > 1 {
-                    return Err(Error::UnaddressedSyntax {
-                        code: text!(raw_node),
-                    });
+                    continue_unaddressed!(comment_above, raw_node);
                 }
 
                 let value_str = text_fromspan!(value.span);
                 let Ok(value) = parse_define_value(value_str.trim()) else {
-                    return Err(Error::UnaddressedSyntax {
-                        code: value_str.to_owned(),
-                    });
+                    continue_unaddressed!(
+                        comment_above,
+                        raw_node,
+                        format!("failed to parse define value: `{value_str}`")
+                    );
                 };
 
                 RootItem::Define {
@@ -246,15 +277,19 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
             | TranslationUnitChildren::SwitchStatement(_)
             | TranslationUnitChildren::TypeSpecifier(_)
             | TranslationUnitChildren::WhileStatement(_) => {
-                return Err(Error::UnaddressedSyntax {
-                    code: text!(raw_node),
-                });
+                continue_unaddressed!(comment_above, raw_node);
             }
         };
 
         items.push(RootItemWithCommentAbove::Item {
-            comment_above: last_comment.take(),
+            comment_above,
             item,
+        });
+    }
+
+    if !unadressed_nodes.is_empty() {
+        return Err(Error::HasUnaddressedNodes {
+            nodes: unadressed_nodes,
         });
     }
 
