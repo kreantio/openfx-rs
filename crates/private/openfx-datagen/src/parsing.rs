@@ -48,6 +48,7 @@ pub enum RootItem {
     },
 
     Todo {
+        kind: String,
         code: String,
     },
 }
@@ -173,9 +174,11 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
 
         let item = match node {
             TranslationUnitChildren::Declaration(declaration) => RootItem::Todo {
+                kind: "Declaration".to_owned(),
                 code: text!(raw_node),
             },
             TranslationUnitChildren::PreprocCall(preproc_call) => RootItem::Todo {
+                kind: "PreprocCall".to_owned(),
                 code: text!(raw_node),
             },
             TranslationUnitChildren::PreprocDef(preproc_def) => {
@@ -210,15 +213,19 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
                 }
             }
             TranslationUnitChildren::PreprocIf(preproc_if) => RootItem::Todo {
+                kind: "PreprocIf".to_owned(),
                 code: text!(raw_node),
             },
             TranslationUnitChildren::PreprocIfdef(preproc_ifdef) => RootItem::Todo {
+                kind: "PreprocIfdef".to_owned(),
                 code: text!(raw_node),
             },
             TranslationUnitChildren::PreprocInclude(preproc_include) => RootItem::Todo {
+                kind: "PreprocInclude".to_owned(),
                 code: text!(raw_node),
             },
             TranslationUnitChildren::TypeDefinition(type_definition) => RootItem::Todo {
+                kind: "TypeDefinition".to_owned(),
                 code: text!(raw_node),
             },
             TranslationUnitChildren::AttributedStatement(_)

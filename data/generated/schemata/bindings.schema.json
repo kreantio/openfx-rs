@@ -94,6 +94,9 @@
         {
           "type": "object",
           "properties": {
+            "kind": {
+              "type": "string"
+            },
             "code": {
               "type": "string"
             },
@@ -104,6 +107,7 @@
           },
           "required": [
             "$type",
+            "kind",
             "code"
           ]
         }
