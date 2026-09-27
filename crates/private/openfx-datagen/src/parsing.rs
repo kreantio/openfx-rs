@@ -22,10 +22,10 @@ pub enum Error {
 }
 
 #[derive(Debug)]
-struct UnadressedNode {
-    comment_above: Option<String>,
-    code: String,
-    details: Option<String>,
+pub struct UnadressedNode {
+    pub comment_above: Option<String>,
+    pub code: String,
+    pub details: Option<String>,
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
