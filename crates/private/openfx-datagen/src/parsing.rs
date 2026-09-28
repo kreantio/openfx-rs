@@ -1,4 +1,7 @@
-use std::{collections::HashSet, sync::LazyLock};
+use std::{
+    collections::{BTreeSet, HashSet},
+    sync::LazyLock,
+};
 
 use regex::Regex;
 use treesitter_types_c::{FromNode as _, Spanned as _, TranslationUnitChildren};
@@ -22,7 +25,7 @@ pub struct Error {
     /// and now contain syntax that was not previously used.
     unaddressed_nodes: Vec<UnadressedNode>,
 
-    unexpected_includes: HashSet<String>,
+    unexpected_includes: BTreeSet<String>,
 }
 
 impl Error {
@@ -58,7 +61,7 @@ pub fn parse(code: &str) -> Result<BindingsUnprocessed, Error> {
 
     let mut cursor = root_node.walk();
 
-    let mut unprocessed_includes: HashSet<String> = HashSet::new();
+    let mut unprocessed_includes: BTreeSet<String> = BTreeSet::new();
     let mut copyright_comments: Vec<String> = vec![];
     let mut items: Vec<RootItemWithCommentAbove> = vec![];
     let mut last_comment: Option<String> = None;

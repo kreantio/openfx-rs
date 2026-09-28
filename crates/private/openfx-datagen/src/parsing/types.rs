@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BTreeSet, HashMap},
     sync::LazyLock,
 };
 
@@ -11,8 +11,8 @@ use regex::Regex;
 /// Because [`Bindings`] is the one that will be serialized and deserialized.
 #[derive(Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 pub struct BindingsUnprocessed {
-    #[serde(skip_serializing_if = "HashSet::is_empty")]
-    pub unprocessed_includes: HashSet<String>,
+    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    pub unprocessed_includes: BTreeSet<String>,
 
     pub copyright_comments: Vec<String>,
     pub items: Vec<RootItemWithCommentAbove>,

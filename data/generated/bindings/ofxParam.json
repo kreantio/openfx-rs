@@ -1,7 +1,7 @@
 {
   "unprocessed_includes": [
-    "ofxProperty.h",
-    "ofxCore.h"
+    "ofxCore.h",
+    "ofxProperty.h"
   ],
   "copyright_comments": [
     "Copyright OpenFX and contributors to the OpenFX project.",

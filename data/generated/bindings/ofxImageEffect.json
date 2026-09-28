@@ -1,11 +1,11 @@
 {
   "unprocessed_includes": [
-    "ofxMessage.h",
-    "ofxMemory.h",
-    "ofxParam.h",
-    "ofxMultiThread.h",
     "ofxCore.h",
-    "ofxInteract.h"
+    "ofxInteract.h",
+    "ofxMemory.h",
+    "ofxMessage.h",
+    "ofxMultiThread.h",
+    "ofxParam.h"
   ],
   "copyright_comments": [
     "Copyright OpenFX and contributors to the OpenFX project.",
