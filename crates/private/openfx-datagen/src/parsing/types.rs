@@ -23,8 +23,10 @@ pub struct Bindings {
     pub copyright_comments: Vec<String>,
 
     /// key: header file stem name
+    #[serde(skip_serializing_if = "HashMap::is_empty")]
     pub used_types: HashMap<String, String>,
     /// key: header file stem name
+    #[serde(skip_serializing_if = "HashMap::is_empty")]
     pub used_values: HashMap<String, String>,
 
     pub items: Vec<RootItemWithCommentAbove>,
