@@ -460,6 +460,12 @@
     "TypedefStructField": {
       "type": "object",
       "properties": {
+        "comment_above": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "name": {
           "type": "string"
         },
@@ -477,6 +483,18 @@
         {
           "type": "object",
           "properties": {
+            "$type": {
+              "type": "string",
+              "const": "ConstUnsignedCharPtr"
+            }
+          },
+          "required": [
+            "$type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
             "name": {
               "$ref": "#/$defs/TypedefStructFieldTypeSimpleCName"
             },
@@ -489,12 +507,32 @@
             "$type",
             "name"
           ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "$ref": "#/$defs/TypedefStructFieldTypeSimpleNonCName"
+            },
+            "$type": {
+              "type": "string",
+              "const": "SimpleNonC"
+            }
+          },
+          "required": [
+            "$type",
+            "name"
+          ]
         }
       ]
     },
     "TypedefStructFieldTypeSimpleCName": {
       "type": "string",
-      "pattern": "^(int|float|double|unsigned (char|short))$"
+      "pattern": "^(int|float|double|size_t|unsigned (char|short))$"
+    },
+    "TypedefStructFieldTypeSimpleNonCName": {
+      "type": "string",
+      "pattern": "^[_a-zA-Z][_a-zA-Z0-9]*Handle$"
     },
     "TypedefEnumVariant": {
       "type": "object",

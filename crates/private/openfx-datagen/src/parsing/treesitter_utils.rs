@@ -1,8 +1,7 @@
 use treesitter_types_c::{
-    Declaration, DeclarationDeclarator, Declarator, Enumerator, FieldDeclaration,
-    FieldDeclarationListChildren, FieldDeclarator, FromNode, FunctionDeclaratorDeclarator,
-    ParameterListChildren, ParenthesizedDeclaratorChildren, PointerDeclaratorDeclarator, Span,
-    Spanned, TypeDeclarator, TypeDefinition, TypeSpecifier,
+    Declaration, DeclarationDeclarator, Declarator, Enumerator, FieldDeclaration, FieldDeclarator,
+    FromNode, FunctionDeclaratorDeclarator, ParameterListChildren, ParenthesizedDeclaratorChildren,
+    PointerDeclaratorDeclarator, Span, Spanned, TypeDeclarator, TypeDefinition, TypeSpecifier,
 };
 
 use crate::parsing::{
@@ -10,6 +9,7 @@ use crate::parsing::{
     TypedefFunctionParameterType, TypedefFunctionParameterTypeSimpleCName,
     TypedefFunctionParameterTypeSimpleNonCName, TypedefFunctionReturnType, TypedefPrimitiveCType,
     TypedefStructField, TypedefStructFieldType, TypedefStructFieldTypeSimpleCName,
+    TypedefStructFieldTypeSimpleNonCName,
     utils::{find_line_before, is_identifier},
 };
 
@@ -165,6 +165,7 @@ pub fn parse_type_definition(
             };
             let parameter_str = parameter_str.trim();
 
+            // TODO: parse it properly.
             if let Some(maybe_ident) = parameter_str.strip_prefix("const char *") {
                 let maybe_ident = maybe_ident.trim();
                 if !is_identifier(maybe_ident) {
@@ -254,7 +255,7 @@ pub fn parse_type_definition(
         let mut cursor = raw_body.walk();
 
         let mut items: Vec<TypedefStructField> = Vec::new();
-        let mut current_item: Option<TypedefStructField> = None;
+        let mut last_comment: Option<String> = None;
 
         for raw_item_node in raw_body.children(&mut cursor) {
             if !raw_item_node.is_named() {
@@ -262,19 +263,34 @@ pub fn parse_type_definition(
             }
 
             if raw_item_node.kind() == "comment" {
-                return Ok(RootItem::Todo {
-                    kind: "TypedefStruct:comment".to_owned(),
-                    code: text_from_span!(type_definition.span),
-                });
+                // We assume that comments appear on lines by themselves, before
+                // the field declaration.
+                if !find_line_before(code, raw_item_node.start_byte())
+                    .trim()
+                    .is_empty()
+                {
+                    return Err(());
+                }
+                if last_comment.is_some() {
+                    return Err(());
+                }
+
+                last_comment = Some(
+                    raw_item_node
+                        .utf8_text(code.as_bytes())
+                        .unwrap()
+                        .trim()
+                        .to_owned(),
+                );
+
+                continue;
             }
+
+            let comment_above = last_comment.take();
 
             let Ok(item_node) = FieldDeclaration::from_node(raw_item_node, code.as_bytes()) else {
                 return Err(());
             };
-
-            if let Some(current_item) = current_item.take() {
-                items.push(current_item);
-            }
 
             let identifier_declarators: Vec<_> = item_node
                 .declarator
@@ -289,19 +305,43 @@ pub fn parse_type_definition(
                 .collect();
             if identifier_declarators.len() == item_node.declarator.len() {
                 let type_str = text_from_span!(item_node.r#type.span()).trim().to_owned();
-                let Ok(name) = TypedefStructFieldTypeSimpleCName::try_from(&type_str) else {
+                let ty = if let Ok(name) = TypedefStructFieldTypeSimpleCName::try_from(&type_str) {
+                    TypedefStructFieldType::SimpleC { name: name.clone() }
+                } else if let Ok(name) = TypedefStructFieldTypeSimpleNonCName::try_from(&type_str) {
+                    TypedefStructFieldType::SimpleNonC { name: name.clone() }
+                } else {
                     return Err(());
                 };
 
                 for declarator in identifier_declarators {
-                    if let Some(current_item) = current_item.take() {
-                        items.push(current_item);
-                    }
-                    current_item = Some(TypedefStructField {
+                    items.push(TypedefStructField {
+                        comment_above: comment_above.clone(),
                         name: text_from_span!(declarator.span).trim().to_owned(),
-                        r#type: TypedefStructFieldType::SimpleC { name: name.clone() },
+                        r#type: ty.clone(),
                     });
                 }
+                continue;
+            }
+
+            let Ok(field_str) = raw_item_node.utf8_text(code.as_bytes()) else {
+                return Err(());
+            };
+            let field_str = field_str.trim();
+
+            // TODO: parse it properly.
+            if let Some(maybe_ident) = field_str.strip_prefix("const unsigned char *") {
+                let Some(maybe_ident) = maybe_ident.trim().strip_suffix(";") else {
+                    return Err(());
+                };
+                let maybe_ident = maybe_ident.trim();
+                if !is_identifier(maybe_ident) {
+                    return Err(());
+                }
+                items.push(TypedefStructField {
+                    comment_above: comment_above.clone(),
+                    name: text_from_span!(declarator.span).trim().to_owned(),
+                    r#type: TypedefStructFieldType::ConstUnsignedCharPtr,
+                });
                 continue;
             }
 
@@ -309,10 +349,6 @@ pub fn parse_type_definition(
                 kind: "TypedefStruct".to_owned(),
                 code: text_from_span!(type_definition.span),
             });
-        }
-
-        if let Some(current_item) = current_item.take() {
-            items.push(current_item);
         }
 
         return Ok(RootItem::TypedefStruct {

@@ -157,15 +157,22 @@ pub enum TypedefFunctionReturnType {
 
 #[derive(Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 pub struct TypedefStructField {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub comment_above: Option<String>,
     pub name: String,
     pub r#type: TypedefStructFieldType,
 }
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 #[serde(tag = "$type")]
 pub enum TypedefStructFieldType {
+    ConstUnsignedCharPtr,
+
     SimpleC {
         name: TypedefStructFieldTypeSimpleCName,
+    },
+    SimpleNonC {
+        name: TypedefStructFieldTypeSimpleNonCName,
     },
 }
 
@@ -220,7 +227,11 @@ define_string_guarded_by_regex!(
 define_string_guarded_by_regex!(
     TypedefStructFieldTypeSimpleCName,
     regex(TYPEDEF_STRUCT_FIELD_TYPE_SIMPLE_C_NAME_REGEX) =
-        r#"^(int|float|double|unsigned (char|short))$"#
+        r#"^(int|float|double|size_t|unsigned (char|short))$"#
+);
+define_string_guarded_by_regex!(
+    TypedefStructFieldTypeSimpleNonCName,
+    regex(TYPEDEF_STRUCT_FIELD_TYPE_SIMPLE_NON_C_NAME_REGEX) = r#"^[_a-zA-Z][_a-zA-Z0-9]*Handle$"#
 );
 define_string_guarded_by_regex!(
     TypedefEnumCValueExpr,

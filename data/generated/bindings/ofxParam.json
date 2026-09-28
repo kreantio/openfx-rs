@@ -271,6 +271,31 @@
       }
     },
     {
+      "$type": "Item",
+      "comment_above": "@brief Provides information for a parameter of type kOfxParamTypeBytes",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxBytes",
+        "fields": [
+          {
+            "comment_above": "/** @brief a pointer to the data buffer */",
+            "name": "OfxBytes",
+            "type": {
+              "$type": "ConstUnsignedCharPtr"
+            }
+          },
+          {
+            "comment_above": "/** @brief the length of the data buffer, in bytes */",
+            "name": "length",
+            "type": {
+              "$type": "SimpleC",
+              "name": "size_t"
+            }
+          }
+        ]
+      }
+    },
+    {
       "$type": "StandaloneComment",
       "comment": "\\addtogroup PropertiesAll"
     },
