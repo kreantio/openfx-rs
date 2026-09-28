@@ -7,6 +7,282 @@
     {
       "$type": "StandaloneComment",
       "comment": "@file ofxPixels.h\nContains pixel struct definitions"
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines an 8 bit per component RGBA pixel",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxRGBAColourB",
+        "fields": [
+          {
+            "name": "r",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned char"
+            }
+          },
+          {
+            "name": "g",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned char"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned char"
+            }
+          },
+          {
+            "name": "a",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned char"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines a 16 bit per component RGBA pixel",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxRGBAColourS",
+        "fields": [
+          {
+            "name": "r",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned short"
+            }
+          },
+          {
+            "name": "g",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned short"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned short"
+            }
+          },
+          {
+            "name": "a",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned short"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines a floating point component RGBA pixel",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxRGBAColourF",
+        "fields": [
+          {
+            "name": "r",
+            "type": {
+              "$type": "SimpleC",
+              "name": "float"
+            }
+          },
+          {
+            "name": "g",
+            "type": {
+              "$type": "SimpleC",
+              "name": "float"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "$type": "SimpleC",
+              "name": "float"
+            }
+          },
+          {
+            "name": "a",
+            "type": {
+              "$type": "SimpleC",
+              "name": "float"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines a double precision floating point component RGBA pixel",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxRGBAColourD",
+        "fields": [
+          {
+            "name": "r",
+            "type": {
+              "$type": "SimpleC",
+              "name": "double"
+            }
+          },
+          {
+            "name": "g",
+            "type": {
+              "$type": "SimpleC",
+              "name": "double"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "$type": "SimpleC",
+              "name": "double"
+            }
+          },
+          {
+            "name": "a",
+            "type": {
+              "$type": "SimpleC",
+              "name": "double"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines an 8 bit per component RGB pixel",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxRGBColourB",
+        "fields": [
+          {
+            "name": "r",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned char"
+            }
+          },
+          {
+            "name": "g",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned char"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned char"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines a 16 bit per component RGB pixel",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxRGBColourS",
+        "fields": [
+          {
+            "name": "r",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned short"
+            }
+          },
+          {
+            "name": "g",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned short"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned short"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines a floating point component RGB pixel",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxRGBColourF",
+        "fields": [
+          {
+            "name": "r",
+            "type": {
+              "$type": "SimpleC",
+              "name": "float"
+            }
+          },
+          {
+            "name": "g",
+            "type": {
+              "$type": "SimpleC",
+              "name": "float"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "$type": "SimpleC",
+              "name": "float"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines a double precision floating point component RGB pixel",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxRGBColourD",
+        "fields": [
+          {
+            "name": "r",
+            "type": {
+              "$type": "SimpleC",
+              "name": "double"
+            }
+          },
+          {
+            "name": "g",
+            "type": {
+              "$type": "SimpleC",
+              "name": "double"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "$type": "SimpleC",
+              "name": "double"
+            }
+          }
+        ]
+      }
     }
   ]
 }

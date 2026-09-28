@@ -30,6 +30,120 @@
     },
     {
       "$type": "Item",
+      "comment_above": "@brief Defines an 8 bit per component YUVA pixel \n-- ofxPixels.h\nDeprecated in 1.3, removed in 1.4",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxYUVAColourB",
+        "fields": [
+          {
+            "name": "y",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned char"
+            }
+          },
+          {
+            "name": "u",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned char"
+            }
+          },
+          {
+            "name": "v",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned char"
+            }
+          },
+          {
+            "name": "a",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned char"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines an 16 bit per component YUVA pixel \n-- ofxPixels.h\n@deprecated -  Deprecated in 1.3, removed in 1.4",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxYUVAColourS",
+        "fields": [
+          {
+            "name": "y",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned short"
+            }
+          },
+          {
+            "name": "u",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned short"
+            }
+          },
+          {
+            "name": "v",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned short"
+            }
+          },
+          {
+            "name": "a",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned short"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines an floating point component YUVA pixel\n-- ofxPixels.h\n@deprecated -  Deprecated in 1.3, removed in 1.4",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxYUVAColourF",
+        "fields": [
+          {
+            "name": "y",
+            "type": {
+              "$type": "SimpleC",
+              "name": "float"
+            }
+          },
+          {
+            "name": "u",
+            "type": {
+              "$type": "SimpleC",
+              "name": "float"
+            }
+          },
+          {
+            "name": "v",
+            "type": {
+              "$type": "SimpleC",
+              "name": "float"
+            }
+          },
+          {
+            "name": "a",
+            "type": {
+              "$type": "SimpleC",
+              "name": "float"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
       "comment_above": "@brief The size of an interact's openGL viewport\n-- ofxInteract.h\n@deprecated - V1.3: This property is the redundant and its use will be deprecated in future releases.\nV1.4: Removed\n    \n    @propdef\n    type: int\n    dimension: 2\n    cname: kOfxInteractPropViewportSize\n    deprecated: \"1.3\"",
       "item": {
         "$type": "Define",

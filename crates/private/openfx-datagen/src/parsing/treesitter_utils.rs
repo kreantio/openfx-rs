@@ -1,13 +1,15 @@
 use treesitter_types_c::{
-    Declaration, DeclarationDeclarator, Declarator, Enumerator, FromNode,
-    FunctionDeclaratorDeclarator, ParameterListChildren, ParenthesizedDeclaratorChildren,
-    PointerDeclaratorDeclarator, Span, Spanned, TypeDeclarator, TypeDefinition, TypeSpecifier,
+    Declaration, DeclarationDeclarator, Declarator, Enumerator, FieldDeclaration,
+    FieldDeclarationListChildren, FieldDeclarator, FromNode, FunctionDeclaratorDeclarator,
+    ParameterListChildren, ParenthesizedDeclaratorChildren, PointerDeclaratorDeclarator, Span,
+    Spanned, TypeDeclarator, TypeDefinition, TypeSpecifier,
 };
 
 use crate::parsing::{
     RootItem, TypedefEnumCValueExpr, TypedefEnumVariant, TypedefFunctionParameter,
     TypedefFunctionParameterType, TypedefFunctionParameterTypeSimpleCName,
     TypedefFunctionParameterTypeSimpleNonCName, TypedefFunctionReturnType, TypedefPrimitiveCType,
+    TypedefStructField, TypedefStructFieldType, TypedefStructFieldTypeSimpleCName,
     utils::{find_line_before, is_identifier},
 };
 
@@ -227,7 +229,99 @@ pub fn parse_type_definition(
         });
     }
 
-    // e.g., `typedef enum <name> { ... } <name>`.
+    // e.g., `typedef struct <name> { … }`
+    if let TypeSpecifier::StructSpecifier(specifier) = &type_definition.r#type
+        && let Some(specifier_name) = &specifier.name
+        && type_definition.declarator.len() == 1
+        && let Some(TypeDeclarator::TypeIdentifier(declarator)) =
+            &type_definition.declarator.first()
+    {
+        let name = text_from_span!(specifier_name.span).trim().to_owned();
+        if name != text_from_span!(declarator.span).trim() {
+            return Err(());
+        }
+
+        let Some(body) = &specifier.body else {
+            return Err(());
+        };
+        let Some(raw_body) =
+            raw_node.descendant_for_byte_range(body.span.start_byte, body.span.end_byte)
+        else {
+            return Err(());
+        };
+        assert_eq!(raw_body.kind(), "field_declaration_list");
+
+        let mut cursor = raw_body.walk();
+
+        let mut items: Vec<TypedefStructField> = Vec::new();
+        let mut current_item: Option<TypedefStructField> = None;
+
+        for raw_item_node in raw_body.children(&mut cursor) {
+            if !raw_item_node.is_named() {
+                continue;
+            }
+
+            if raw_item_node.kind() == "comment" {
+                return Ok(RootItem::Todo {
+                    kind: "TypedefStruct:comment".to_owned(),
+                    code: text_from_span!(type_definition.span),
+                });
+            }
+
+            let Ok(item_node) = FieldDeclaration::from_node(raw_item_node, code.as_bytes()) else {
+                return Err(());
+            };
+
+            if let Some(current_item) = current_item.take() {
+                items.push(current_item);
+            }
+
+            let identifier_declarators: Vec<_> = item_node
+                .declarator
+                .iter()
+                .filter_map(|d| {
+                    if let FieldDeclarator::FieldIdentifier(declarator) = d {
+                        Some(declarator)
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+            if identifier_declarators.len() == item_node.declarator.len() {
+                let type_str = text_from_span!(item_node.r#type.span()).trim().to_owned();
+                let Ok(name) = TypedefStructFieldTypeSimpleCName::try_from(&type_str) else {
+                    return Err(());
+                };
+
+                for declarator in identifier_declarators {
+                    if let Some(current_item) = current_item.take() {
+                        items.push(current_item);
+                    }
+                    current_item = Some(TypedefStructField {
+                        name: text_from_span!(declarator.span).trim().to_owned(),
+                        r#type: TypedefStructFieldType::SimpleC { name: name.clone() },
+                    });
+                }
+                continue;
+            }
+
+            return Ok(RootItem::Todo {
+                kind: "TypedefStruct".to_owned(),
+                code: text_from_span!(type_definition.span),
+            });
+        }
+
+        if let Some(current_item) = current_item.take() {
+            items.push(current_item);
+        }
+
+        return Ok(RootItem::TypedefStruct {
+            name,
+            fields: items,
+        });
+    }
+
+    // e.g., `typedef enum <name> { … } <name>`.
     if let TypeSpecifier::EnumSpecifier(specifier) = &type_definition.r#type
         && let Some(specifier_name) = &specifier.name
         && type_definition.declarator.len() == 1
@@ -310,8 +404,5 @@ pub fn parse_type_definition(
         });
     }
 
-    Ok(RootItem::Todo {
-        kind: "TypeDefinition".to_owned(),
-        code: text_from_span!(type_definition.span),
-    })
+    Err(())
 }

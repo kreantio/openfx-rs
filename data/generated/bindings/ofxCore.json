@@ -472,6 +472,102 @@
     },
     {
       "$type": "Item",
+      "comment_above": "@brief Defines one dimensional integer bounds",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxRangeI",
+        "fields": [
+          {
+            "name": "min",
+            "type": {
+              "$type": "SimpleC",
+              "name": "int"
+            }
+          },
+          {
+            "name": "max",
+            "type": {
+              "$type": "SimpleC",
+              "name": "int"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines one dimensional double bounds",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxRangeD",
+        "fields": [
+          {
+            "name": "min",
+            "type": {
+              "$type": "SimpleC",
+              "name": "double"
+            }
+          },
+          {
+            "name": "max",
+            "type": {
+              "$type": "SimpleC",
+              "name": "double"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines two dimensional integer point",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxPointI",
+        "fields": [
+          {
+            "name": "x",
+            "type": {
+              "$type": "SimpleC",
+              "name": "int"
+            }
+          },
+          {
+            "name": "y",
+            "type": {
+              "$type": "SimpleC",
+              "name": "int"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines two dimensional double point",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxPointD",
+        "fields": [
+          {
+            "name": "x",
+            "type": {
+              "$type": "SimpleC",
+              "name": "double"
+            }
+          },
+          {
+            "name": "y",
+            "type": {
+              "$type": "SimpleC",
+              "name": "double"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
       "comment_above": "@brief Used to flag infinite rects. Set minimums to this to indicate infinite\n\nThis is effectively INT_MAX.",
       "item": {
         "$type": "Define",
@@ -492,6 +588,82 @@
           "$type": "Symbol",
           "value": "INT_MIN"
         }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines two dimensional integer region\n\nRegions are x1 <= x < x2\n\nInfinite regions are flagged by setting\n- x1 = \\ref kOfxFlagInfiniteMin\n- y1 = \\ref kOfxFlagInfiniteMin\n- x2 = \\ref kOfxFlagInfiniteMax\n- y2 = \\ref kOfxFlagInfiniteMax",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxRectI",
+        "fields": [
+          {
+            "name": "x1",
+            "type": {
+              "$type": "SimpleC",
+              "name": "int"
+            }
+          },
+          {
+            "name": "y1",
+            "type": {
+              "$type": "SimpleC",
+              "name": "int"
+            }
+          },
+          {
+            "name": "x2",
+            "type": {
+              "$type": "SimpleC",
+              "name": "int"
+            }
+          },
+          {
+            "name": "y2",
+            "type": {
+              "$type": "SimpleC",
+              "name": "int"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines two dimensional double region\n\nRegions are x1 <= x < x2\n\nInfinite regions are flagged by setting\n- x1 = \\ref kOfxFlagInfiniteMin\n- y1 = \\ref kOfxFlagInfiniteMin\n- x2 = \\ref kOfxFlagInfiniteMax\n- y2 = \\ref kOfxFlagInfiniteMax",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxRectD",
+        "fields": [
+          {
+            "name": "x1",
+            "type": {
+              "$type": "SimpleC",
+              "name": "double"
+            }
+          },
+          {
+            "name": "y1",
+            "type": {
+              "$type": "SimpleC",
+              "name": "double"
+            }
+          },
+          {
+            "name": "x2",
+            "type": {
+              "$type": "SimpleC",
+              "name": "double"
+            }
+          },
+          {
+            "name": "y2",
+            "type": {
+              "$type": "SimpleC",
+              "name": "double"
+            }
+          }
+        ]
       }
     },
     {

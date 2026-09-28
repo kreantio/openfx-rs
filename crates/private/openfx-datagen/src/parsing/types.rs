@@ -69,6 +69,11 @@ pub enum RootItem {
         parameters: Vec<TypedefFunctionParameter>,
         return_type: TypedefFunctionReturnType,
     },
+    TypedefStruct {
+        name: String,
+        #[serde(skip_serializing_if = "Vec::is_empty")]
+        fields: Vec<TypedefStructField>,
+    },
     TypedefEnum {
         name: String,
         #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -151,6 +156,20 @@ pub enum TypedefFunctionReturnType {
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
+pub struct TypedefStructField {
+    pub name: String,
+    pub r#type: TypedefStructFieldType,
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
+#[serde(tag = "$type")]
+pub enum TypedefStructFieldType {
+    SimpleC {
+        name: TypedefStructFieldTypeSimpleCName,
+    },
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 pub struct TypedefEnumVariant {
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -162,7 +181,7 @@ pub struct TypedefEnumVariant {
 macro_rules! define_string_guarded_by_regex {
     ($name:ident, regex($regex_name:ident) = $regex:expr) => {
         #[derive(
-            Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize, schemars::JsonSchema,
+            Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize, schemars::JsonSchema,
         )]
         #[serde(transparent)]
         pub struct $name(#[schemars(regex(pattern = $regex_name))] String);
@@ -190,11 +209,6 @@ define_string_guarded_by_regex!(
     regex(TYPEDEF_PRIMITIVE_CTYPE_REGEX) = r#"^(int|double)$"#
 );
 define_string_guarded_by_regex!(
-    TypedefEnumCValueExpr,
-    regex(TYPEDEF_ENUM_C_VALUE_EXPR_REGEX) =
-        r#"^(0x[0-9a-fA-F]+|\(\s*[_a-zA-Z][_a-zA-Z0-9]*\s*\|\s*[_a-zA-Z][_a-zA-Z0-9]*\s*\))$"#
-);
-define_string_guarded_by_regex!(
     TypedefFunctionParameterTypeSimpleCName,
     regex(TYPEDEF_FUNCTION_PARAMETER_TYPE_SIMPLE_C_NAME_REGEX) = r#"^unsigned int$"#
 );
@@ -202,4 +216,14 @@ define_string_guarded_by_regex!(
     TypedefFunctionParameterTypeSimpleNonCName,
     regex(TYPEDEF_FUNCTION_PARAMETER_TYPE_SIMPLE_NON_C_NAME_REGEX) =
         r#"^[_a-zA-Z][_a-zA-Z0-9]*Handle$"#
+);
+define_string_guarded_by_regex!(
+    TypedefStructFieldTypeSimpleCName,
+    regex(TYPEDEF_STRUCT_FIELD_TYPE_SIMPLE_C_NAME_REGEX) =
+        r#"^(int|float|double|unsigned (char|short))$"#
+);
+define_string_guarded_by_regex!(
+    TypedefEnumCValueExpr,
+    regex(TYPEDEF_ENUM_C_VALUE_EXPR_REGEX) =
+        r#"^(0x[0-9a-fA-F]+|\(\s*[_a-zA-Z][_a-zA-Z0-9]*\s*\|\s*[_a-zA-Z][_a-zA-Z0-9]*\s*\))$"#
 );

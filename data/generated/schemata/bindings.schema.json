@@ -172,6 +172,29 @@
             "name": {
               "type": "string"
             },
+            "fields": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/TypedefStructField"
+              }
+            },
+            "$type": {
+              "type": "string",
+              "const": "TypedefStruct"
+            }
+          },
+          "required": [
+            "$type",
+            "name",
+            "fields"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
             "variants": {
               "type": "array",
               "items": {
@@ -433,6 +456,45 @@
           ]
         }
       ]
+    },
+    "TypedefStructField": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/TypedefStructFieldType"
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ]
+    },
+    "TypedefStructFieldType": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "$ref": "#/$defs/TypedefStructFieldTypeSimpleCName"
+            },
+            "$type": {
+              "type": "string",
+              "const": "SimpleC"
+            }
+          },
+          "required": [
+            "$type",
+            "name"
+          ]
+        }
+      ]
+    },
+    "TypedefStructFieldTypeSimpleCName": {
+      "type": "string",
+      "pattern": "^(int|float|double|unsigned (char|short))$"
     },
     "TypedefEnumVariant": {
       "type": "object",
