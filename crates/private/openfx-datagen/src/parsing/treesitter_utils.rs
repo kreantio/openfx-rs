@@ -1,11 +1,14 @@
 use treesitter_types_c::{
     Declaration, DeclarationDeclarator, Declarator, Enumerator, FromNode,
+    FunctionDeclaratorDeclarator, ParameterListChildren, ParenthesizedDeclaratorChildren,
     PointerDeclaratorDeclarator, Span, Spanned, TypeDeclarator, TypeDefinition, TypeSpecifier,
 };
 
 use crate::parsing::{
-    RootItem, TypedefEnumCValueExpr, TypedefEnumVariant, TypedefPrimitiveCType,
-    utils::find_line_before,
+    RootItem, TypedefEnumCValueExpr, TypedefEnumVariant, TypedefFunctionParameter,
+    TypedefFunctionParameterType, TypedefFunctionParameterTypeSimpleCName,
+    TypedefFunctionParameterTypeSimpleNonCName, TypedefFunctionReturnType, TypedefPrimitiveCType,
+    utils::{find_line_before, is_identifier},
 };
 
 pub fn extract_name_from_declaration(declaration: &Declaration) -> Result<Span, ()> {
@@ -102,6 +105,128 @@ pub fn parse_type_definition(
         });
     }
 
+    // e.g., `typedef <return_type> (<name>)(<parameters>)`.
+    if type_definition.declarator.len() == 1
+        && let Some(TypeDeclarator::FunctionDeclarator(declarator)) =
+            type_definition.declarator.first()
+        && let parameters_node = &declarator.parameters
+        && let FunctionDeclaratorDeclarator::Declarator(declarator) = &declarator.declarator
+        && let Declarator::ParenthesizedDeclarator(declarator) = &**declarator
+        && declarator.children.len() == 1
+        && let Some(ParenthesizedDeclaratorChildren::TypeDeclarator(delearator)) =
+            declarator.children.first()
+        && let TypeDeclarator::TypeIdentifier(delearator) = &**delearator
+    {
+        let Some(raw_parameters_node) = raw_node.descendant_for_byte_range(
+            parameters_node.span.start_byte,
+            parameters_node.span.end_byte,
+        ) else {
+            return Err(());
+        };
+        assert!(raw_parameters_node.kind() == "parameter_list");
+
+        let name = text_from_span!(delearator.span).trim().to_owned();
+
+        let ret_ty = match &type_definition.r#type {
+            TypeSpecifier::PrimitiveType(specifier)
+                if text_from_span!(specifier.span).trim() == "void" =>
+            {
+                TypedefFunctionReturnType::Void
+            }
+            TypeSpecifier::TypeIdentifier(specifier)
+                if text_from_span!(specifier.span).trim() == "OfxStatus" =>
+            {
+                TypedefFunctionReturnType::OfxStatus
+            }
+            _ => return Err(()),
+        };
+
+        let mut cursor = raw_parameters_node.walk();
+
+        let mut parameters: Vec<TypedefFunctionParameter> = Vec::new();
+
+        for raw_parameter_node in raw_parameters_node.children(&mut cursor) {
+            if !raw_parameter_node.is_named() {
+                continue;
+            }
+            if raw_parameter_node.kind() == "comment" {
+                return Err(());
+            }
+
+            let Ok(_parameter_node) =
+                ParameterListChildren::from_node(raw_parameter_node, code.as_bytes())
+            else {
+                return Err(());
+            };
+            let Ok(parameter_str) = raw_parameter_node.utf8_text(code.as_bytes()) else {
+                return Err(());
+            };
+            let parameter_str = parameter_str.trim();
+
+            if let Some(maybe_ident) = parameter_str.strip_prefix("const char *") {
+                let maybe_ident = maybe_ident.trim();
+                if !is_identifier(maybe_ident) {
+                    return Err(());
+                }
+                parameters.push(TypedefFunctionParameter {
+                    name: maybe_ident.to_owned(),
+                    r#type: TypedefFunctionParameterType::ConstCharPtr,
+                });
+            } else if let Some(maybe_ident) = parameter_str.strip_prefix("const void *") {
+                let maybe_ident = maybe_ident.trim();
+                if !is_identifier(maybe_ident) {
+                    return Err(());
+                }
+                parameters.push(TypedefFunctionParameter {
+                    name: maybe_ident.to_owned(),
+                    r#type: TypedefFunctionParameterType::ConstVoidPtr,
+                });
+            } else if let Some(maybe_ident) = parameter_str.strip_prefix("void *") {
+                let maybe_ident = maybe_ident.trim();
+                if !is_identifier(maybe_ident) {
+                    return Err(());
+                }
+                parameters.push(TypedefFunctionParameter {
+                    name: maybe_ident.to_owned(),
+                    r#type: TypedefFunctionParameterType::VoidPtr,
+                });
+            } else if let split = parameter_str.split_whitespace().collect::<Vec<_>>()
+                && split.len() >= 2
+            {
+                let simple_ty = split[..split.len() - 1].join(" ");
+                let maybe_ident = *split.last().unwrap();
+                if !is_identifier(maybe_ident) {
+                    return Err(());
+                }
+
+                let ty = if let Ok(name) =
+                    TypedefFunctionParameterTypeSimpleCName::try_from(&simple_ty)
+                {
+                    TypedefFunctionParameterType::SimpleC { name }
+                } else if let Ok(name) =
+                    TypedefFunctionParameterTypeSimpleNonCName::try_from(&simple_ty)
+                {
+                    TypedefFunctionParameterType::SimpleNonC { name }
+                } else {
+                    return Err(());
+                };
+
+                parameters.push(TypedefFunctionParameter {
+                    name: maybe_ident.to_owned(),
+                    r#type: ty,
+                });
+            } else {
+                return Err(());
+            }
+        }
+
+        return Ok(RootItem::TypedefFunction {
+            name,
+            return_type: ret_ty,
+            parameters,
+        });
+    }
+
     // e.g., `typedef enum <name> { ... } <name>`.
     if let TypeSpecifier::EnumSpecifier(specifier) = &type_definition.r#type
         && let Some(specifier_name) = &specifier.name
@@ -130,6 +255,10 @@ pub fn parse_type_definition(
         let mut current_item: Option<TypedefEnumVariant> = None;
 
         for raw_item_node in raw_body.children(&mut cursor) {
+            if !raw_item_node.is_named() {
+                continue;
+            }
+
             if raw_item_node.kind() == "comment" {
                 // We assume that comments come after the items they belong to,
                 // on the same line.
@@ -147,10 +276,6 @@ pub fn parse_type_definition(
                     return Err(());
                 }
 
-                continue;
-            }
-
-            if !raw_item_node.is_named() {
                 continue;
             }
 

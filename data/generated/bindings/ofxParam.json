@@ -1287,6 +1287,40 @@
       }
     },
     {
+      "$type": "Item",
+      "comment_above": "@brief Function prototype for custom parameter interpolation callback functions\n\n  \\arg \\c instance    the plugin instance that this parameter occurs in\n  \\arg \\c inArgs      handle holding the following properties...\n    - kOfxPropName - the name of the custom parameter to interpolate\n    - kOfxPropTime - absolute time the interpolation is occurring at\n    - kOfxParamPropCustomValue - string property that gives the value of the two keyframes to interpolate, in this case 2D\n    - kOfxParamPropInterpolationTime - 2D double property that gives the time of the two keyframes we are interpolating\n    - kOfxParamPropInterpolationAmount - 1D double property indicating how much to interpolate between the two keyframes\n\n  \\arg \\c outArgs     handle holding the following properties to be set\n    - kOfxParamPropCustomValue - the value of the interpolated custom parameter, in this case 1D\n\nThis function allows custom parameters to animate by performing interpolation between keys.\n\nThe plugin needs to parse the two strings encoding keyframes on either side of the time \nwe need a value for. It should then interpolate a new value for it, encode it into a string and set\nthe ::kOfxParamPropCustomValue property with this on the outArgs handle.\n\nThe interp value is a linear interpolation amount, however his may be derived from a cubic (or other) curve.\n\n    @actiondef\n    inArgs:\n      - OfxParamPropCustomValue\n      - OfxParamPropInterpolationTime\n      - OfxParamPropInterpolationAmount\n    outArgs:\n      - OfxParamPropCustomValue\n      - OfxParamPropInterpolationTime",
+      "item": {
+        "$type": "TypedefFunction",
+        "name": "OfxCustomParamInterpFuncV1",
+        "parameters": [
+          {
+            "name": "instance",
+            "type": {
+              "$type": "SimpleNonC",
+              "name": "OfxParamSetHandle"
+            }
+          },
+          {
+            "name": "inArgs",
+            "type": {
+              "$type": "SimpleNonC",
+              "name": "OfxPropertySetHandle"
+            }
+          },
+          {
+            "name": "outArgs",
+            "type": {
+              "$type": "SimpleNonC",
+              "name": "OfxPropertySetHandle"
+            }
+          }
+        ],
+        "return_type": {
+          "$type": "OfxStatus"
+        }
+      }
+    },
+    {
       "$type": "StandaloneComment",
       "comment": "@file ofxParam.h\n \n  This header contains the suite definition to manipulate host side parameters.\n\n  For more details go see @ref ParametersPage"
     },

@@ -30,6 +30,39 @@
         "name": "OfxMutexHandle",
         "pointee_struct_name": "OfxMutex"
       }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief The function type to passed to the multi threading routines \n\n    \\arg \\c threadIndex unique index of this thread, will be between 0 and threadMax\n    \\arg \\c threadMax to total number of threads executing this function\n    \\arg \\c customArg the argument passed into multiThread\n\nA function of this type is passed to OfxMultiThreadSuiteV1::multiThread to be launched in multiple threads.",
+      "item": {
+        "$type": "TypedefFunction",
+        "name": "OfxThreadFunctionV1",
+        "parameters": [
+          {
+            "name": "threadIndex",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned int"
+            }
+          },
+          {
+            "name": "threadMax",
+            "type": {
+              "$type": "SimpleC",
+              "name": "unsigned int"
+            }
+          },
+          {
+            "name": "customArg",
+            "type": {
+              "$type": "VoidPtr"
+            }
+          }
+        ],
+        "return_type": {
+          "$type": "Void"
+        }
+      }
     }
   ]
 }
