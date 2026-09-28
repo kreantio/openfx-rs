@@ -1,4 +1,8 @@
 {
+  "unprocessed_includes": [
+    "ofxProperty.h",
+    "ofxCore.h"
+  ],
   "copyright_comments": [
     "Copyright OpenFX and contributors to the OpenFX project.",
     "SPDX-License-Identifier: BSD-3-Clause"
@@ -38,6 +42,24 @@
           "$type": "StringLiteral",
           "value": "OfxTypeParameterInstance"
         }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Blind declaration of an OFX param",
+      "item": {
+        "$type": "TypedefOpaquePointer",
+        "name": "OfxParamHandle",
+        "pointee_struct_name": "OfxParamStruct"
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Blind declaration of an OFX parameter set",
+      "item": {
+        "$type": "TypedefOpaquePointer",
+        "name": "OfxParamSetHandle",
+        "pointee_struct_name": "OfxParamSetStruct"
       }
     },
     {

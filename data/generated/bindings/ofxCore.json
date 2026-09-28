@@ -9,6 +9,24 @@
       "comment": "@file ofxCore.h\nContains the core OFX architectural struct and function definitions. For more details on the basic OFX architecture, see \\ref Architecture."
     },
     {
+      "$type": "Item",
+      "comment_above": "@brief Blind data structure to manipulate sets of properties through",
+      "item": {
+        "$type": "TypedefOpaquePointer",
+        "name": "OfxPropertySetHandle",
+        "pointee_struct_name": "OfxPropertySetStruct"
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief OFX status return type",
+      "item": {
+        "$type": "TypedefPrimitive",
+        "name": "OfxStatus",
+        "c_type": "int"
+      }
+    },
+    {
       "$type": "StandaloneComment",
       "comment": "\\defgroup ActionsAll OFX Actions\n\nThese are the actions passed to a plug-in's 'main' function"
     },
@@ -406,6 +424,15 @@
     },
     {
       "$type": "Item",
+      "comment_above": "@brief How time is specified within the OFX API",
+      "item": {
+        "$type": "TypedefPrimitive",
+        "name": "OfxTime",
+        "c_type": "double"
+      }
+    },
+    {
+      "$type": "Item",
       "comment_above": "@brief Used to flag infinite rects. Set minimums to this to indicate infinite\n\nThis is effectively INT_MAX.",
       "item": {
         "$type": "Define",
@@ -516,7 +543,7 @@
         "name": "kOfxStatFailed",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 1
         }
       }
@@ -529,7 +556,7 @@
         "name": "kOfxStatErrFatal",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 2
         }
       }
@@ -542,7 +569,7 @@
         "name": "kOfxStatErrUnknown",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 3
         }
       }
@@ -555,7 +582,7 @@
         "name": "kOfxStatErrMissingHostFeature",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 4
         }
       }
@@ -568,7 +595,7 @@
         "name": "kOfxStatErrUnsupported",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 5
         }
       }
@@ -581,7 +608,7 @@
         "name": "kOfxStatErrExists",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 6
         }
       }
@@ -594,7 +621,7 @@
         "name": "kOfxStatErrFormat",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 7
         }
       }
@@ -607,7 +634,7 @@
         "name": "kOfxStatErrMemory",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 8
         }
       }
@@ -620,7 +647,7 @@
         "name": "kOfxStatErrBadHandle",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 9
         }
       }
@@ -633,7 +660,7 @@
         "name": "kOfxStatErrBadIndex",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 10
         }
       }
@@ -646,7 +673,7 @@
         "name": "kOfxStatErrValue",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 11
         }
       }
@@ -659,7 +686,7 @@
         "name": "kOfxStatReplyYes",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 12
         }
       }
@@ -672,7 +699,7 @@
         "name": "kOfxStatReplyNo",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 13
         }
       }
@@ -685,7 +712,7 @@
         "name": "kOfxStatReplyDefault",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 14
         }
       }
@@ -698,7 +725,7 @@
         "name": "kOfxStatUnlicensed",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 15
         }
       }

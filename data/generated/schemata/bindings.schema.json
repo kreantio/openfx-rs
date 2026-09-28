@@ -1,8 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Bindings",
+  "title": "TODO",
   "type": "object",
   "properties": {
+    "unprocessed_includes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
     "copyright_comments": {
       "type": "array",
       "items": {
@@ -17,6 +24,7 @@
     }
   },
   "required": [
+    "unprocessed_includes",
     "copyright_comments",
     "items"
   ],
@@ -89,6 +97,69 @@
             "$type",
             "name",
             "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "c_type": {
+              "$ref": "#/$defs/TypedefPrimitiveCType"
+            },
+            "$type": {
+              "type": "string",
+              "const": "TypedefPrimitive"
+            }
+          },
+          "required": [
+            "$type",
+            "name",
+            "c_type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "pointee_struct_name": {
+              "type": "string"
+            },
+            "$type": {
+              "type": "string",
+              "const": "TypedefOpaquePointer"
+            }
+          },
+          "required": [
+            "$type",
+            "name",
+            "pointee_struct_name"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "variants": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/TypedefEnumVariant"
+              }
+            },
+            "$type": {
+              "type": "string",
+              "const": "TypedefEnum"
+            }
+          },
+          "required": [
+            "$type",
+            "name",
+            "variants"
           ]
         },
         {
@@ -168,8 +239,8 @@
         {
           "type": "object",
           "properties": {
-            "ty": {
-              "$ref": "#/$defs/TypedIntegerLiteralType"
+            "c_type": {
+              "$ref": "#/$defs/TypedIntegerLiteralCType"
             },
             "value": {
               "type": "integer",
@@ -183,7 +254,7 @@
           },
           "required": [
             "$type",
-            "ty",
+            "c_type",
             "value"
           ]
         },
@@ -205,11 +276,44 @@
         }
       ]
     },
-    "TypedIntegerLiteralType": {
+    "TypedIntegerLiteralCType": {
       "type": "string",
-      "enum": [
-        "Int"
+      "pattern": "^int$"
+    },
+    "TypedefPrimitiveCType": {
+      "type": "string",
+      "pattern": "^(int|double)$"
+    },
+    "TypedefEnumVariant": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "c_value_expr": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TypedefEnumCValueExpr"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "comment": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name"
       ]
+    },
+    "TypedefEnumCValueExpr": {
+      "type": "string",
+      "pattern": "^(0x[0-9a-fA-F]+|\\(\\s*[_a-zA-Z][_a-zA-Z0-9]*\\s*\\|\\s*[_a-zA-Z][_a-zA-Z0-9]*\\s*\\))$"
     }
   }
 }

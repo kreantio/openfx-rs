@@ -1,4 +1,7 @@
 {
+  "unprocessed_includes": [
+    "ofxImageEffect.h"
+  ],
   "copyright_comments": [
     "Copyright OpenFX and contributors to the OpenFX project.",
     "SPDX-License-Identifier: BSD-3-Clause"
@@ -112,7 +115,7 @@
         "name": "kOfxStatGPUOutOfMemory",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 1001
         }
       }
@@ -125,7 +128,7 @@
         "name": "kOfxStatGLOutOfMemory",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 1001
         }
       }
@@ -138,7 +141,7 @@
         "name": "kOfxStatGPURenderFailed",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 1002
         }
       }
@@ -151,7 +154,7 @@
         "name": "kOfxStatGLRenderFailed",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 1002
         },
         "comment": "/* for backward compatibility */"

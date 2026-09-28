@@ -1,4 +1,8 @@
 {
+  "unprocessed_includes": [
+    "ofxCore.h",
+    "ofxPixels.h"
+  ],
   "copyright_comments": [
     "Copyright OpenFX and contributors to the OpenFX project.",
     "SPDX-License-Identifier: BSD-3-Clause"
@@ -22,6 +26,15 @@
     },
     {
       "$type": "Item",
+      "comment_above": "@brief Blind declaration of an OFX drawing context",
+      "item": {
+        "$type": "TypedefOpaquePointer",
+        "name": "OfxDrawContextHandle",
+        "pointee_struct_name": "OfxDrawContext"
+      }
+    },
+    {
+      "$type": "Item",
       "comment_above": "@brief The Draw Context handle\n \n @propdef\n type: pointer\n dimension: 1",
       "item": {
         "$type": "Define",
@@ -30,6 +43,128 @@
           "$type": "StringLiteral",
           "value": "OfxInteractPropDrawContext"
         }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines valid values for OfxDrawSuiteV1::getColour",
+      "item": {
+        "$type": "TypedefEnum",
+        "name": "OfxStandardColour",
+        "variants": [
+          {
+            "name": "kOfxStandardColourOverlayBackground"
+          },
+          {
+            "name": "kOfxStandardColourOverlayActive"
+          },
+          {
+            "name": "kOfxStandardColourOverlaySelected"
+          },
+          {
+            "name": "kOfxStandardColourOverlayDeselected"
+          },
+          {
+            "name": "kOfxStandardColourOverlayMarqueeFG"
+          },
+          {
+            "name": "kOfxStandardColourOverlayMarqueeBG"
+          },
+          {
+            "name": "kOfxStandardColourOverlayText"
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines valid values for OfxDrawSuiteV1::setLineStipple",
+      "item": {
+        "$type": "TypedefEnum",
+        "name": "OfxDrawLineStipplePattern",
+        "variants": [
+          {
+            "name": "kOfxDrawLineStipplePatternSolid"
+          },
+          {
+            "name": "kOfxDrawLineStipplePatternDot"
+          },
+          {
+            "name": "kOfxDrawLineStipplePatternDash"
+          },
+          {
+            "name": "kOfxDrawLineStipplePatternAltDash"
+          },
+          {
+            "name": "kOfxDrawLineStipplePatternDotDash"
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines valid values for OfxDrawSuiteV1::draw",
+      "item": {
+        "$type": "TypedefEnum",
+        "name": "OfxDrawPrimitive",
+        "variants": [
+          {
+            "name": "kOfxDrawPrimitiveLines"
+          },
+          {
+            "name": "kOfxDrawPrimitiveLineStrip"
+          },
+          {
+            "name": "kOfxDrawPrimitiveLineLoop"
+          },
+          {
+            "name": "kOfxDrawPrimitiveRectangle"
+          },
+          {
+            "name": "kOfxDrawPrimitivePolygon"
+          },
+          {
+            "name": "kOfxDrawPrimitiveEllipse"
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Defines text alignment values for OfxDrawSuiteV1::drawText",
+      "item": {
+        "$type": "TypedefEnum",
+        "name": "OfxDrawTextAlignment",
+        "variants": [
+          {
+            "name": "kOfxDrawTextAlignmentLeft",
+            "c_value_expr": "0x0001"
+          },
+          {
+            "name": "kOfxDrawTextAlignmentRight",
+            "c_value_expr": "0x0002"
+          },
+          {
+            "name": "kOfxDrawTextAlignmentTop",
+            "c_value_expr": "0x0004"
+          },
+          {
+            "name": "kOfxDrawTextAlignmentBottom",
+            "c_value_expr": "0x0008"
+          },
+          {
+            "name": "kOfxDrawTextAlignmentBaseline",
+            "c_value_expr": "0x0010"
+          },
+          {
+            "name": "kOfxDrawTextAlignmentCenterH",
+            "c_value_expr": "(kOfxDrawTextAlignmentLeft | kOfxDrawTextAlignmentRight)"
+          },
+          {
+            "name": "kOfxDrawTextAlignmentCenterV",
+            "c_value_expr": "(kOfxDrawTextAlignmentTop | kOfxDrawTextAlignmentBaseline)"
+          }
+        ]
       }
     }
   ]

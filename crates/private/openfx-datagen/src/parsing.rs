@@ -1,24 +1,34 @@
-use std::sync::LazyLock;
+use std::{collections::HashSet, sync::LazyLock};
 
 use regex::Regex;
-use treesitter_types_c::{FromNode, Spanned, TranslationUnitChildren};
+use treesitter_types_c::{FromNode as _, Spanned as _, TranslationUnitChildren};
 
+pub use crate::parsing::types::*;
 use crate::parsing::{
     preprocessing::preprocess_for_tree_sitter,
-    treesitter_utils::extract_name_from_declaration,
+    treesitter_utils::{extract_name_from_declaration, parse_type_definition},
     utils::{clean_comment, parse_define_value},
 };
 
 mod preprocessing;
 mod treesitter_utils;
+mod types;
 mod utils;
 
-#[derive(Debug, snafu::Snafu)]
-pub enum Error {
+#[derive(Debug, snafu::Snafu, Default)]
+pub struct Error {
     /// There are nodes with unaddressed syntax that we do not handle yet. This
     /// generally means that the official OpenFX C headers have been updated
     /// and now contain syntax that was not previously used.
-    HasUnaddressedNodes { nodes: Vec<UnadressedNode> },
+    unaddressed_nodes: Vec<UnadressedNode>,
+
+    unexpected_includes: HashSet<String>,
+}
+
+impl Error {
+    fn is_empty(&self) -> bool {
+        self.unaddressed_nodes.is_empty() && self.unexpected_includes.is_empty()
+    }
 }
 
 #[derive(Debug)]
@@ -28,90 +38,10 @@ pub struct UnadressedNode {
     pub details: Option<String>,
 }
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
-pub struct Bindings {
-    pub copyright_comments: Vec<String>,
-    pub items: Vec<RootItemWithCommentAbove>,
-}
+static UNINTERESTING_INCLUDES: LazyLock<HashSet<&'static str>> =
+    LazyLock::new(|| HashSet::from(["limits.h", "stddef.h"]));
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
-#[serde(tag = "$type")]
-pub enum RootItemWithCommentAbove {
-    Item {
-        #[serde(skip_serializing_if = "Option::is_none")]
-        comment_above: Option<String>,
-        item: RootItem,
-    },
-    StandaloneComment {
-        comment: String,
-    },
-}
-
-#[derive(Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
-#[serde(tag = "$type")]
-pub enum RootItem {
-    Define {
-        name: String,
-        value: DefineValue,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        comment: Option<String>,
-    },
-
-    Todo {
-        kind: String,
-        code: String,
-    },
-}
-
-impl RootItem {
-    pub fn name(&self) -> &str {
-        match self {
-            RootItem::Define { name, .. } => name,
-            _ => todo!(),
-        }
-    }
-}
-
-/// The value of a `#define` directive that appears in the C headers of the
-/// OpenFX standard.
-#[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
-#[serde(tag = "$type")]
-pub enum DefineValue {
-    /// String literal inside the quotes. Its contents are guaranteed to be
-    /// unescaped by panicking if the string contains `\` characters.
-    StringLiteral { value: String },
-    /// Integer literal.
-    ///
-    /// Currently, in the source code:
-    /// - values can have the `0x` & `0X` prefix (but not the `0` prefix);
-    /// - values are always not negative;
-    /// - values can always be held by a `u32`.
-    IntegerLiteral { value: u32 },
-    /// `"false"` or `"true"`.
-    BooleanLiteral { value: bool },
-    /// Things like `#define kOfxStatFailed  ((int)1)` and
-    /// `#define kOfxStatGPUOutOfMemory  ((int) 1001)`
-    ///
-    /// Currently, in the source code:
-    /// - values do not use a prefix like `0x`;
-    /// - values are always not negative;
-    /// - values can always be held by a `u32`.
-    TypedIntegerLiteral {
-        ty: TypedIntegerLiteralType,
-        value: u32,
-    },
-    /// e.g., `#define kOfxActionDescribeInteract kOfxActionDescribe`.
-    Symbol { value: String },
-}
-
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize, schemars::JsonSchema,
-)]
-pub enum TypedIntegerLiteralType {
-    Int,
-}
-
-pub fn parse(code: &str) -> Result<Bindings, Error> {
+pub fn parse(code: &str) -> Result<BindingsUnprocessed, Error> {
     let code = preprocess_for_tree_sitter(code);
 
     let mut parser = tree_sitter::Parser::new();
@@ -128,6 +58,7 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
 
     let mut cursor = root_node.walk();
 
+    let mut unprocessed_includes: HashSet<String> = HashSet::new();
     let mut copyright_comments: Vec<String> = vec![];
     let mut items: Vec<RootItemWithCommentAbove> = vec![];
     let mut last_comment: Option<String> = None;
@@ -290,14 +221,39 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
                     continue_unaddressed!(comment_above, raw_node);
                 }
             }
-            TranslationUnitChildren::PreprocInclude(preproc_include) => RootItem::Todo {
-                kind: "PreprocInclude".to_owned(),
-                code: text!(raw_node),
-            },
-            TranslationUnitChildren::TypeDefinition(type_definition) => RootItem::Todo {
-                kind: "TypeDefinition".to_owned(),
-                code: text!(raw_node),
-            },
+            TranslationUnitChildren::PreprocInclude(preproc_include) => {
+                let path = text_from_span!(preproc_include.path.span())
+                    .trim()
+                    .to_owned();
+                let name = if let Some(stripped) = path
+                    .strip_prefix("\"")
+                    .and_then(|s| s.strip_suffix("\""))
+                    .or_else(|| path.strip_prefix("<").and_then(|s| s.strip_suffix(">")))
+                {
+                    Some(stripped.to_string())
+                } else {
+                    path.strip_prefix("<")
+                        .and_then(|s| s.strip_suffix(">"))
+                        .map(|stripped| stripped.to_string())
+                };
+                let Some(name) = name else {
+                    continue_unaddressed!(comment_above, raw_node);
+                };
+                if !UNINTERESTING_INCLUDES.contains(name.as_str()) {
+                    unprocessed_includes.insert(name);
+                }
+                continue;
+            }
+            TranslationUnitChildren::TypeDefinition(type_definition) => {
+                let Ok(item) = parse_type_definition(&raw_node, &code, &type_definition) else {
+                    continue_unaddressed!(comment_above, raw_node);
+                };
+                items.push(RootItemWithCommentAbove::Item {
+                    comment_above,
+                    item,
+                });
+                continue;
+            }
             TranslationUnitChildren::AttributedStatement(_)
             | TranslationUnitChildren::BreakStatement(_)
             | TranslationUnitChildren::CaseStatement(_)
@@ -326,10 +282,21 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
         });
     }
 
-    if !unadressed_nodes.is_empty() {
-        return Err(Error::HasUnaddressedNodes {
-            nodes: unadressed_nodes,
-        });
+    {
+        let mut error = Error::default();
+
+        if !unadressed_nodes.is_empty() {
+            error.unaddressed_nodes = unadressed_nodes;
+        }
+        for include in &unprocessed_includes {
+            if !include.starts_with("ofx") {
+                error.unexpected_includes.insert(include.clone());
+            }
+        }
+
+        if !error.is_empty() {
+            return Err(error);
+        }
     }
 
     {
@@ -347,7 +314,8 @@ pub fn parse(code: &str) -> Result<Bindings, Error> {
         }
     }
 
-    Ok(Bindings {
+    Ok(BindingsUnprocessed {
+        unprocessed_includes,
         copyright_comments,
         items,
     })

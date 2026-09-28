@@ -1,4 +1,7 @@
 {
+  "unprocessed_includes": [
+    "ofxCore.h"
+  ],
   "copyright_comments": [
     "Copyright OpenFX and contributors to the OpenFX project.",
     "SPDX-License-Identifier: BSD-3-Clause"
@@ -17,6 +20,15 @@
           "$type": "StringLiteral",
           "value": "OfxMultiThreadSuite"
         }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Mutex blind data handle",
+      "item": {
+        "$type": "TypedefOpaquePointer",
+        "name": "OfxMutexHandle",
+        "pointee_struct_name": "OfxMutex"
       }
     }
   ]

@@ -2,7 +2,7 @@ use std::sync::LazyLock;
 
 use regex::Regex;
 
-use crate::parsing::{DefineValue, TypedIntegerLiteralType};
+use crate::parsing::types::{DefineValue, TypedIntegerLiteralCType};
 
 pub struct LinesEx<'a> {
     text: &'a str,
@@ -109,12 +109,8 @@ pub fn parse_define_value(value: &str) -> Result<DefineValue, ()> {
         let Some(value) = g.get(2).map(|m| m.as_str()) else {
             unreachable!();
         };
-        let ty = match ty {
-            "int" => TypedIntegerLiteralType::Int,
-            _ => return Err(()),
-        };
         Ok(DefineValue::TypedIntegerLiteral {
-            ty,
+            c_type: TypedIntegerLiteralCType::try_from(ty)?,
             value: parse_c_integer_literal_expecting_u32(value)?,
         })
     } else if let Some(g) = RE_SYMBOL.captures(value) {
@@ -162,6 +158,12 @@ pub fn clean_comment(comment: &str) -> String {
     lines.join("\n").trim().to_owned()
 }
 
+pub fn find_line_before(text: &str, cursor: usize) -> &str {
+    text[..cursor]
+        .rfind('\n')
+        .map_or("", |pos| &text[pos + 1..cursor])
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -187,14 +189,14 @@ mod tests {
             (
                 r#"((int)1)"#,
                 DefineValue::TypedIntegerLiteral {
-                    ty: TypedIntegerLiteralType::Int,
+                    c_type: TypedIntegerLiteralCType::try_from("int").unwrap(),
                     value: 1,
                 },
             ),
             (
                 r#"((int) 1001)"#,
                 DefineValue::TypedIntegerLiteral {
-                    ty: TypedIntegerLiteralType::Int,
+                    c_type: TypedIntegerLiteralCType::try_from("int").unwrap(),
                     value: 1001,
                 },
             ),

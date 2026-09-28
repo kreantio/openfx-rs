@@ -3,7 +3,7 @@ use std::{collections::HashMap, path::PathBuf};
 use clap::Parser;
 use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
 
-use openfx_datagen::parsing::{Bindings, parse};
+use openfx_datagen::parsing::{BindingsUnprocessed, parse};
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -37,18 +37,19 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         input_entries.push((entry, name));
     }
 
-    let parsed_headers: HashMap<_, _> = input_entries
-        .par_iter()
-        .map(
-            |(entry, name)| -> Result<
-                (String, Bindings),
-                Box<dyn std::error::Error + Send + Sync>,
-            > {
-                let code = std::fs::read_to_string(entry.path())?;
-                Ok((name.to_owned(), parse(&code)?))
-            },
-        )
-        .collect::<Result<HashMap<_, _>, _>>()?;
+    let parsed_headers: HashMap<_, _> =
+        input_entries
+            .par_iter()
+            .map(
+                |(entry, name)| -> Result<
+                    (String, BindingsUnprocessed),
+                    Box<dyn std::error::Error + Send + Sync>,
+                > {
+                    let code = std::fs::read_to_string(entry.path())?;
+                    Ok((name.to_owned(), parse(&code)?))
+                },
+            )
+            .collect::<Result<HashMap<_, _>, _>>()?;
 
     let output_bindings_path = args.output_data.join("bindings");
     std::fs::create_dir_all(&output_bindings_path)?;
@@ -73,7 +74,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         ))
         .into_generator();
 
-    let bindings_schema = schema_generator.into_root_schema_for::<Bindings>();
+    let bindings_schema = schema_generator.into_root_schema_for::<BindingsUnprocessed>();
     let output_bindings_schema_path = output_schemata_path.join("bindings.schema.json");
     let file = std::fs::File::create(&output_bindings_schema_path)?;
     serde_json::to_writer_pretty(file, &bindings_schema)?;

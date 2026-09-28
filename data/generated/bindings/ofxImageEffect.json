@@ -1,4 +1,12 @@
 {
+  "unprocessed_includes": [
+    "ofxMessage.h",
+    "ofxMemory.h",
+    "ofxParam.h",
+    "ofxMultiThread.h",
+    "ofxCore.h",
+    "ofxInteract.h"
+  ],
   "copyright_comments": [
     "Copyright OpenFX and contributors to the OpenFX project.",
     "SPDX-License-Identifier: BSD-3-Clause"
@@ -26,6 +34,33 @@
           "$type": "IntegerLiteral",
           "value": 1
         }
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Blind declaration of an OFX image effect",
+      "item": {
+        "$type": "TypedefOpaquePointer",
+        "name": "OfxImageEffectHandle",
+        "pointee_struct_name": "OfxImageEffectStruct"
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Blind declaration of an OFX image effect",
+      "item": {
+        "$type": "TypedefOpaquePointer",
+        "name": "OfxImageClipHandle",
+        "pointee_struct_name": "OfxImageClipStruct"
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief Blind declaration for an handle to image memory returned by the image memory management routines",
+      "item": {
+        "$type": "TypedefOpaquePointer",
+        "name": "OfxImageMemoryHandle",
+        "pointee_struct_name": "OfxImageMemoryStruct"
       }
     },
     {
@@ -1424,7 +1459,7 @@
         "name": "kOfxStatErrImageFormat",
         "value": {
           "$type": "TypedIntegerLiteral",
-          "ty": "Int",
+          "c_type": "int",
           "value": 1000
         }
       }
