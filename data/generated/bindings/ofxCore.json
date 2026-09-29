@@ -1,4 +1,84 @@
 {
+  "info": {
+    "declared_types": [
+      "OfxHost",
+      "OfxPlugin",
+      "OfxPluginEntryPoint",
+      "OfxPointD",
+      "OfxPointI",
+      "OfxPropertySetHandle",
+      "OfxRangeD",
+      "OfxRangeI",
+      "OfxRectD",
+      "OfxRectI",
+      "OfxStatus",
+      "OfxTime"
+    ],
+    "defined_consts": [
+      "kOfxActionBeginInstanceChanged",
+      "kOfxActionBeginInstanceEdit",
+      "kOfxActionCreateInstance",
+      "kOfxActionDescribe",
+      "kOfxActionDestroyInstance",
+      "kOfxActionEndInstanceChanged",
+      "kOfxActionEndInstanceEdit",
+      "kOfxActionInstanceChanged",
+      "kOfxActionLoad",
+      "kOfxActionPurgeCaches",
+      "kOfxActionSyncPrivateData",
+      "kOfxActionUnload",
+      "kOfxBitDepthByte",
+      "kOfxBitDepthFloat",
+      "kOfxBitDepthHalf",
+      "kOfxBitDepthNone",
+      "kOfxBitDepthShort",
+      "kOfxChangePluginEdited",
+      "kOfxChangeTime",
+      "kOfxChangeUserEdited",
+      "kOfxFlagInfiniteMax",
+      "kOfxFlagInfiniteMin",
+      "kOfxPluginPropFilePath",
+      "kOfxPropAPIVersion",
+      "kOfxPropChangeReason",
+      "kOfxPropEffectInstance",
+      "kOfxPropHostOSHandle",
+      "kOfxPropIcon",
+      "kOfxPropInstanceData",
+      "kOfxPropIsInteractive",
+      "kOfxPropLabel",
+      "kOfxPropLongLabel",
+      "kOfxPropName",
+      "kOfxPropPluginDescription",
+      "kOfxPropShortLabel",
+      "kOfxPropTime",
+      "kOfxPropType",
+      "kOfxPropVersion",
+      "kOfxPropVersionLabel",
+      "kOfxStatErrBadHandle",
+      "kOfxStatErrBadIndex",
+      "kOfxStatErrExists",
+      "kOfxStatErrFatal",
+      "kOfxStatErrFormat",
+      "kOfxStatErrMemory",
+      "kOfxStatErrMissingHostFeature",
+      "kOfxStatErrUnknown",
+      "kOfxStatErrUnsupported",
+      "kOfxStatErrValue",
+      "kOfxStatFailed",
+      "kOfxStatOK",
+      "kOfxStatReplyDefault",
+      "kOfxStatReplyNo",
+      "kOfxStatReplyYes",
+      "kOfxStatUnlicensed"
+    ],
+    "referred_identifiers": [
+      "OfxHost",
+      "OfxPluginEntryPoint",
+      "OfxPropertySetHandle",
+      "OfxPropertySetStruct",
+      "OfxStatus"
+    ]
+  },
   "copyright_comments": [
     "Copyright OpenFX and contributors to the OpenFX project.",
     "SPDX-License-Identifier: BSD-3-Clause"
@@ -826,7 +906,7 @@
         "$type": "Define",
         "name": "kOfxFlagInfiniteMax",
         "value": {
-          "$type": "Symbol",
+          "$type": "Identifier",
           "value": "INT_MAX"
         }
       }
@@ -838,7 +918,7 @@
         "$type": "Define",
         "name": "kOfxFlagInfiniteMin",
         "value": {
-          "$type": "Symbol",
+          "$type": "Identifier",
           "value": "INT_MIN"
         }
       }

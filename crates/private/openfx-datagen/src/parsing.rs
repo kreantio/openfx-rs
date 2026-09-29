@@ -61,7 +61,7 @@ pub fn parse(code: &str) -> Result<BindingsUnprocessed, Error> {
 
     let mut cursor = root_node.walk();
 
-    let mut unprocessed_includes: BTreeSet<String> = BTreeSet::new();
+    let mut info = UnprocessedInfo::default();
     let mut copyright_comments: Vec<String> = vec![];
     let mut items: Vec<RootItemWithCommentAbove> = vec![];
     let mut last_comment: Option<String> = None;
@@ -190,8 +190,11 @@ pub fn parse(code: &str) -> Result<BindingsUnprocessed, Error> {
                     );
                 };
 
+                let name = text_from_span!(preproc_def.name.span);
+                info.defined_consts.insert(name.clone());
+
                 RootItem::Define {
-                    name: text_from_span!(preproc_def.name.span),
+                    name,
                     value,
                     comment: comments.first().map(|node| text!(node)),
                 }
@@ -243,7 +246,7 @@ pub fn parse(code: &str) -> Result<BindingsUnprocessed, Error> {
                     continue_unaddressed!(comment_above, raw_node);
                 };
                 if !UNINTERESTING_INCLUDES.contains(name.as_str()) {
-                    unprocessed_includes.insert(name);
+                    info.includes.insert(name);
                 }
                 continue;
             }
@@ -251,6 +254,8 @@ pub fn parse(code: &str) -> Result<BindingsUnprocessed, Error> {
                 let Ok(item) = parse_type_definition(&raw_node, &code, &type_definition) else {
                     continue_unaddressed!(comment_above, raw_node);
                 };
+                info.declared_types.insert(item.name().to_owned());
+                item.collect_referred_identifiers(&mut info.referred_identifiers);
                 items.push(RootItemWithCommentAbove::Item {
                     comment_above,
                     item,
@@ -296,7 +301,7 @@ pub fn parse(code: &str) -> Result<BindingsUnprocessed, Error> {
             error.unaddressed_nodes = unadressed_nodes;
         }
 
-        for include in &unprocessed_includes {
+        for include in &info.includes {
             if !include.starts_with("ofx") {
                 error.unexpected_includes.insert(include.clone());
             }
@@ -308,7 +313,7 @@ pub fn parse(code: &str) -> Result<BindingsUnprocessed, Error> {
     }
 
     Ok(BindingsUnprocessed {
-        unprocessed_includes,
+        info,
         copyright_comments,
         items,
     })

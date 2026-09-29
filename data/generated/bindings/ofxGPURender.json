@@ -1,7 +1,48 @@
 {
-  "unprocessed_includes": [
-    "ofxImageEffect.h"
-  ],
+  "info": {
+    "includes": [
+      "ofxImageEffect.h"
+    ],
+    "declared_types": [
+      "OfxImageEffectOpenGLRenderSuiteV1",
+      "OfxOpenCLProgramSuiteV1"
+    ],
+    "defined_consts": [
+      "kOfxActionOpenGLContextAttached",
+      "kOfxActionOpenGLContextDetached",
+      "kOfxImageEffectPropCPURenderSupported",
+      "kOfxImageEffectPropCudaEnabled",
+      "kOfxImageEffectPropCudaRenderSupported",
+      "kOfxImageEffectPropCudaStream",
+      "kOfxImageEffectPropCudaStreamSupported",
+      "kOfxImageEffectPropMetalCommandQueue",
+      "kOfxImageEffectPropMetalEnabled",
+      "kOfxImageEffectPropMetalRenderSupported",
+      "kOfxImageEffectPropOpenCLCommandQueue",
+      "kOfxImageEffectPropOpenCLEnabled",
+      "kOfxImageEffectPropOpenCLImage",
+      "kOfxImageEffectPropOpenCLRenderSupported",
+      "kOfxImageEffectPropOpenCLSupported",
+      "kOfxImageEffectPropOpenGLEnabled",
+      "kOfxImageEffectPropOpenGLRenderSupported",
+      "kOfxImageEffectPropOpenGLTextureIndex",
+      "kOfxImageEffectPropOpenGLTextureTarget",
+      "kOfxOpenCLProgramSuite",
+      "kOfxOpenGLPropPixelDepth",
+      "kOfxOpenGLRenderSuite",
+      "kOfxStatGLOutOfMemory",
+      "kOfxStatGLRenderFailed",
+      "kOfxStatGPUOutOfMemory",
+      "kOfxStatGPURenderFailed"
+    ],
+    "referred_identifiers": [
+      "OfxImageClipHandle",
+      "OfxPropertySetHandle",
+      "OfxRectD",
+      "OfxStatus",
+      "OfxTime"
+    ]
+  },
   "copyright_comments": [
     "Copyright OpenFX and contributors to the OpenFX project.",
     "SPDX-License-Identifier: BSD-3-Clause"

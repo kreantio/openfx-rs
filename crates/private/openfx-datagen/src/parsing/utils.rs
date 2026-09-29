@@ -117,7 +117,7 @@ pub fn parse_define_value(value: &str) -> Result<DefineValue, ()> {
         let Some(sym) = g.get(0).map(|m| m.as_str()) else {
             unreachable!();
         };
-        Ok(DefineValue::Symbol {
+        Ok(DefineValue::Identifier {
             value: sym.to_owned(),
         })
     } else {

@@ -1,7 +1,25 @@
 {
-  "unprocessed_includes": [
-    "ofxCore.h"
-  ],
+  "info": {
+    "includes": [
+      "ofxCore.h"
+    ],
+    "declared_types": [
+      "OfxMessageSuiteV1",
+      "OfxMessageSuiteV2"
+    ],
+    "defined_consts": [
+      "kOfxMessageError",
+      "kOfxMessageFatal",
+      "kOfxMessageLog",
+      "kOfxMessageMessage",
+      "kOfxMessageQuestion",
+      "kOfxMessageSuite",
+      "kOfxMessageWarning"
+    ],
+    "referred_identifiers": [
+      "OfxStatus"
+    ]
+  },
   "copyright_comments": [
     "Copyright OpenFX and contributors to the OpenFX project.",
     "SPDX-License-Identifier: BSD-3-Clause"

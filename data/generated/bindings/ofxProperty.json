@@ -1,7 +1,19 @@
 {
-  "unprocessed_includes": [
-    "ofxCore.h"
-  ],
+  "info": {
+    "includes": [
+      "ofxCore.h"
+    ],
+    "declared_types": [
+      "OfxPropertySuiteV1"
+    ],
+    "defined_consts": [
+      "kOfxPropertySuite"
+    ],
+    "referred_identifiers": [
+      "OfxPropertySetHandle",
+      "OfxStatus"
+    ]
+  },
   "copyright_comments": [
     "Copyright OpenFX and contributors to the OpenFX project.",
     "SPDX-License-Identifier: BSD-3-Clause"

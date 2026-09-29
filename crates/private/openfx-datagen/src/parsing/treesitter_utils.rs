@@ -117,8 +117,10 @@ pub fn parse_type_definition(
         && let Some(TypeDeclarator::TypeIdentifier(declarator)) =
             &type_definition.declarator.first()
     {
+        let name = text_from_span!(declarator.span).trim().to_owned();
+
         return Ok(RootItem::TypedefPrimitive {
-            name: text_from_span!(declarator.span).trim().to_owned(),
+            name,
             c_type: CPrimitiveType::try_from(text_from_span!(specifier.span).trim())?,
         });
     }

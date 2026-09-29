@@ -3,12 +3,8 @@
   "title": "TODO",
   "type": "object",
   "properties": {
-    "unprocessed_includes": {
-      "type": "array",
-      "uniqueItems": true,
-      "items": {
-        "type": "string"
-      }
+    "info": {
+      "$ref": "#/$defs/UnprocessedInfo"
     },
     "copyright_comments": {
       "type": "array",
@@ -24,11 +20,51 @@
     }
   },
   "required": [
-    "unprocessed_includes",
+    "info",
     "copyright_comments",
     "items"
   ],
   "$defs": {
+    "UnprocessedInfo": {
+      "title": "TODO",
+      "type": "object",
+      "properties": {
+        "includes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "declared_types": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "defined_consts": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "referred_identifiers": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "includes",
+        "declared_types",
+        "defined_consts",
+        "referred_identifiers"
+      ]
+    },
     "RootItemWithCommentAbove": {
       "oneOf": [
         {
@@ -300,7 +336,7 @@
             },
             "$type": {
               "type": "string",
-              "const": "Symbol"
+              "const": "Identifier"
             }
           },
           "required": [

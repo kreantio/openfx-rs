@@ -1,5 +1,5 @@
 use std::{
-    collections::{BTreeSet, HashMap},
+    collections::{BTreeMap, BTreeSet},
     sync::LazyLock,
 };
 
@@ -11,12 +11,27 @@ use regex::Regex;
 /// Because [`Bindings`] is the one that will be serialized and deserialized.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 pub struct BindingsUnprocessed {
-    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
-    pub unprocessed_includes: BTreeSet<String>,
+    pub info: UnprocessedInfo,
 
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub copyright_comments: Vec<String>,
     pub items: Vec<RootItemWithCommentAbove>,
+}
+
+/// ## TODO
+///
+/// Remove `serde::Serialize`, `serde::Deserialize`, and `schemars::JsonSchema`.
+/// Because [`Bindings`] is the one that will be serialized and deserialized.
+#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
+pub struct UnprocessedInfo {
+    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    pub includes: BTreeSet<String>,
+    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    pub declared_types: BTreeSet<String>,
+    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    pub defined_consts: BTreeSet<String>,
+    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    pub referred_identifiers: BTreeSet<String>,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
@@ -24,11 +39,11 @@ pub struct Bindings {
     pub copyright_comments: Vec<String>,
 
     /// key: header file stem name
-    #[serde(skip_serializing_if = "HashMap::is_empty")]
-    pub used_types: HashMap<String, String>,
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    pub used_types: BTreeMap<String, String>,
     /// key: header file stem name
-    #[serde(skip_serializing_if = "HashMap::is_empty")]
-    pub used_values: HashMap<String, String>,
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    pub used_values: BTreeMap<String, String>,
 
     pub items: Vec<RootItemWithCommentAbove>,
 }
@@ -87,7 +102,51 @@ impl RootItem {
     pub fn name(&self) -> &str {
         match self {
             RootItem::Define { name, .. } => name,
-            _ => todo!(),
+            RootItem::TypedefPrimitive { name, .. } => name,
+            RootItem::TypedefOpaquePointer { name, .. } => name,
+            RootItem::TypedefFunction { name, .. } => name,
+            RootItem::TypedefStruct { name, .. } => name,
+            RootItem::TypedefEnum { name, .. } => name,
+        }
+    }
+    pub fn collect_referred_identifiers(&self, identifiers: &mut BTreeSet<String>) {
+        match self {
+            RootItem::Define { value, .. } => {
+                if let Some(ty) = value.referred_identifier() {
+                    identifiers.insert(ty.to_owned());
+                }
+            }
+            RootItem::TypedefPrimitive { .. } => {}
+            RootItem::TypedefOpaquePointer {
+                pointee_struct_name,
+                ..
+            } => {
+                identifiers.insert(pointee_struct_name.clone());
+            }
+            RootItem::TypedefFunction {
+                parameters,
+                return_type,
+                ..
+            } => {
+                for param in parameters {
+                    if let Some(ty) = param.referred_identifier() {
+                        identifiers.insert(ty.to_owned());
+                    }
+                }
+                if let Some(ty) = return_type.referred_identifier() {
+                    identifiers.insert(ty.to_owned());
+                }
+            }
+            RootItem::TypedefStruct { fields, .. } => {
+                for field in fields {
+                    field.collect_referred_identifiers(identifiers);
+                }
+            }
+            RootItem::TypedefEnum { variants, .. } => {
+                for variant in variants {
+                    variant.collect_referred_identifiers(identifiers);
+                }
+            }
         }
     }
 }
@@ -123,7 +182,16 @@ pub enum DefineValue {
         value: u32,
     },
     /// e.g., `#define kOfxActionDescribeInteract kOfxActionDescribe`.
-    Symbol { value: String },
+    Identifier { value: String },
+}
+
+impl DefineValue {
+    fn referred_identifier(&self) -> Option<&str> {
+        match self {
+            DefineValue::Identifier { value } => Some(value.as_str()),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
@@ -134,6 +202,12 @@ pub struct FunctionParameter {
     pub comment: Option<String>,
 }
 
+impl FunctionParameter {
+    fn referred_identifier(&self) -> Option<&str> {
+        self.r#type.referred_identifier()
+    }
+}
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 #[serde(tag = "$type")]
 pub enum TypeStraightforward {
@@ -141,6 +215,17 @@ pub enum TypeStraightforward {
     ConstPtr { pointee: Box<TypeStraightforward> },
     CPrimitive { is: CPrimitiveType },
     TypeIdentifier { is: TypeIdentifier },
+}
+
+impl TypeStraightforward {
+    fn referred_identifier(&self) -> Option<&str> {
+        match self {
+            TypeStraightforward::TypeIdentifier { is } => Some(is.as_str()),
+            TypeStraightforward::Ptr { pointee } => pointee.referred_identifier(),
+            TypeStraightforward::ConstPtr { pointee } => pointee.referred_identifier(),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
@@ -156,10 +241,25 @@ pub enum TypedefStructField {
     },
 }
 
+impl TypedefStructField {
+    fn collect_referred_identifiers(&self, identifiers: &mut BTreeSet<String>) {
+        match self {
+            TypedefStructField::Item { item, .. } => item.collect_referred_identifiers(identifiers),
+            TypedefStructField::StandaloneComment { .. } => {}
+        }
+    }
+}
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 pub struct TypedefStructFieldItem {
     pub name: String,
     pub r#type: TypedefStructFieldType,
+}
+
+impl TypedefStructFieldItem {
+    fn collect_referred_identifiers(&self, identifiers: &mut BTreeSet<String>) {
+        self.r#type.collect_referred_identifiers(identifiers);
+    }
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
@@ -177,6 +277,32 @@ pub enum TypedefStructFieldType {
     },
 }
 
+impl TypedefStructFieldType {
+    fn collect_referred_identifiers(&self, identifiers: &mut BTreeSet<String>) {
+        match self {
+            TypedefStructFieldType::Straightforward { r#type } => {
+                if let Some(identifier) = r#type.referred_identifier() {
+                    identifiers.insert(identifier.to_string());
+                }
+            }
+            TypedefStructFieldType::FunctionPointer {
+                parameters,
+                return_type,
+                ..
+            } => {
+                for param in parameters {
+                    if let Some(identifier) = param.referred_identifier() {
+                        identifiers.insert(identifier.to_string());
+                    }
+                }
+                if let Some(identifier) = return_type.referred_identifier() {
+                    identifiers.insert(identifier.to_string());
+                }
+            }
+        }
+    }
+}
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 pub struct TypedefEnumVariant {
     pub name: String,
@@ -184,6 +310,11 @@ pub struct TypedefEnumVariant {
     pub c_value_expr: Option<TypedefEnumCValueExpr>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
+}
+
+impl TypedefEnumVariant {
+    /// TODO: parse `c_value_expr`?
+    fn collect_referred_identifiers(&self, _identifiers: &mut BTreeSet<String>) {}
 }
 
 macro_rules! define_string_guarded_by_regex {

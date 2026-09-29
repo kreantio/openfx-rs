@@ -1,4 +1,16 @@
 {
+  "info": {
+    "declared_types": [
+      "OfxProgressSuiteV1",
+      "OfxProgressSuiteV2"
+    ],
+    "defined_consts": [
+      "kOfxProgressSuite"
+    ],
+    "referred_identifiers": [
+      "OfxStatus"
+    ]
+  },
   "copyright_comments": [
     "Copyright OpenFX and contributors to the OpenFX project.",
     "SPDX-License-Identifier: BSD-3-Clause"
