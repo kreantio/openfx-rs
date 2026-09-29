@@ -91,6 +91,219 @@
       }
     },
     {
+      "$type": "Item",
+      "comment_above": "@brief The OFX suite that allows a plug-in to pass messages back to a user. The V2 suite extends on this\n    in a backwards compatible manner.",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxMessageSuiteV1",
+        "fields": [
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Post a message on the host, using printf style varargs\n\n      \\arg \\c handle     effect handle (descriptor or instance) the message should be associated with, may be NULL\n      \\arg \\c messageType string describing the kind of message to post, one of the kOfxMessageType* constants\n      \\arg \\c messageId plugin specified id to associate with this message. If overriding the message in XML resource, the message is identified with this, this may be NULL, or \"\", in which case no override will occur,\n      \\arg \\c format    printf style format string\n      \\arg \\c ...       printf style varargs list to print\n\n\\returns \n  - ::kOfxStatOK - if the message was successfully posted \n  - ::kOfxStatReplyYes - if the message was of type  kOfxMessageQuestion and the user reply yes\n  - ::kOfxStatReplyNo - if the message was of type kOfxMessageQuestion and the user reply no\n  - ::kOfxStatFailed - if the message could not be posted for some reason\n\n   */",
+            "item": {
+              "name": "message",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "handle",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "void"
+                      }
+                    }
+                  },
+                  {
+                    "name": "messageType",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "messageId",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "format",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  }
+                ],
+                "is_variadic": true,
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief The OFX suite that allows a plug-in to pass messages back to a user.\n\n    This extends OfxMessageSuiteV1, and should be considered a replacement to version 1. \n\n    Note that this suite has been extended in backwards compatible manner, so that a host can return this struct\n    for both V1 and V2.",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxMessageSuiteV2",
+        "fields": [
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Post a transient message on the host, using printf style varargs. Same as the V1 message suite call.\n\n      \\arg \\c handle     effect handle (descriptor or instance) the message should be associated with, may be null\n      \\arg \\c messageType string describing the kind of message to post, one of the kOfxMessageType* constants\n      \\arg \\c messageId plugin specified id to associate with this message. If overriding the message in XML resource, the message is identified with this, this may be NULL, or \"\", in which case no override will occur,\n      \\arg \\c format    printf style format string\n      \\arg \\c ...       printf style varargs list to print\n\n      \\returns \n      - ::kOfxStatOK - if the message was successfully posted \n      - ::kOfxStatReplyYes - if the message was of type  kOfxMessageQuestion and the user reply yes\n      - ::kOfxStatReplyNo - if the message was of type kOfxMessageQuestion and the user reply no\n      - ::kOfxStatFailed - if the message could not be posted for some reason\n   */",
+            "item": {
+              "name": "message",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "handle",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "void"
+                      }
+                    }
+                  },
+                  {
+                    "name": "messageType",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "messageId",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "format",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  }
+                ],
+                "is_variadic": true,
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Post a persistent message on an effect, using printf style varargs, and set error states. New for V2 message suite.\n\n      \\arg \\c handle     effect instance handle the message should be associated with, may NOT be null,\n      \\arg \\c messageType string describing the kind of message to post, should be one of...\n            - kOfxMessageError\n            - kOfxMessageWarning\n            - kOfxMessageMessage            \n      \\arg \\c messageId plugin specified id to associate with this message. If overriding the message in XML resource, the message is identified with this, this may be NULL, or \"\", in which case no override will occur,\n      \\arg \\c format    printf style format string\n      \\arg \\c ...       printf style varargs list to print\n\n      \\returns \n        - ::kOfxStatOK - if the message was successfully posted \n        - ::kOfxStatErrBadHandle - the handle was rubbish\n        - ::kOfxStatFailed - if the message could not be posted for some reason\n\n     Persistent messages are associated with an effect handle until explicitly cleared by an effect. So if an error message is posted the error state, and associated message will persist and be displayed on the effect appropriately. (eg: draw a node in red on a node based compostor and display the message when clicked on).\n\n     If \\e messageType is error or warning, associated error states should be flagged on host applications. Posting an error message implies that the host cannot proceed, a warning allows the host to proceed, whilst a simple message should have no stop anything.\n   */",
+            "item": {
+              "name": "setPersistentMessage",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "handle",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "void"
+                      }
+                    }
+                  },
+                  {
+                    "name": "messageType",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "messageId",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "format",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  }
+                ],
+                "is_variadic": true,
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Clears any persistent message on an effect handle that was set by OfxMessageSuiteV2::setPersistentMessage. New for V2 message suite.\n\n      \\arg \\c handle     effect instance handle messages should be cleared from.\n      \\arg \\c handle     effect handle (descriptor or instance) \n\n      \\returns \n        - ::kOfxStatOK - if the message was successfully cleared\n        - ::kOfxStatErrBadHandle - the handle was rubbish\n        - ::kOfxStatFailed - if the message could not be cleared for some reason\n\n     Clearing a message will clear any associated error state.\n  */",
+            "item": {
+              "name": "clearPersistentMessage",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "handle",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "void"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "$type": "StandaloneComment",
       "comment": "@file ofxMessage.h\n    This file contains the Host API for end user message communication."
     }

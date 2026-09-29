@@ -166,6 +166,240 @@
           }
         ]
       }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief OFX suite that allows an effect to draw to a host-defined display context.\n    To use this, the plugin must use kOfxImageEffectPluginPropOverlayInteractV2.",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxDrawSuiteV1",
+        "fields": [
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Retrieves the host's desired draw colour for\n\n\t \\arg \\c context  draw context\n\t \\arg \\c std_colour desired colour type\n\t \\arg \\c colour      returned RGBA colour\n\n\t @returns\n\t - ::kOfxStatOK - the colour was returned\n\t - ::kOfxStatErrValue - std_colour was invalid\n\t - ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw\n\t */",
+            "item": {
+              "name": "getColour",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "context",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxDrawContextHandle"
+                    }
+                  },
+                  {
+                    "name": "std_colour",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxStandardColour"
+                    }
+                  },
+                  {
+                    "name": "colour",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleNonC",
+                        "name": "OfxRGBAColourF"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Sets the colour for future drawing operations (lines, filled shapes and text)\n\n\t \\arg \\c context  draw context\n\t \\arg \\c colour      RGBA colour\n\n\t The host should use \"over\" compositing when using a non-opaque colour.\n\t\n\t @returns\n\t - ::kOfxStatOK - the colour was changed\n\t - ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw\n\t */",
+            "item": {
+              "name": "setColour",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "context",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxDrawContextHandle"
+                    }
+                  },
+                  {
+                    "name": "colour",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleNonC",
+                        "name": "OfxRGBAColourF"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Sets the line width for future line drawing operations\n\n\t \\arg \\c context  draw context\n\t \\arg \\c width     line width\n\n\t Use width 0 for a single pixel line or non-zero for a smooth line of the desired width\n\n\t The host should adjust for screen density.\n\n\t @returns\n\t - ::kOfxStatOK - the width was changed\n\t - ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw\n\t */",
+            "item": {
+              "name": "setLineWidth",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "context",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxDrawContextHandle"
+                    }
+                  },
+                  {
+                    "name": "width",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "float"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Sets the stipple pattern for future line drawing operations\n\n\t \\arg \\c context  draw context\n\t \\arg \\c pattern  desired stipple pattern\n\n\t @returns\n\t - ::kOfxStatOK - the pattern was changed\n\t - ::kOfxStatErrValue - pattern was not valid\n\t - ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw\n\t */",
+            "item": {
+              "name": "setLineStipple",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "context",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxDrawContextHandle"
+                    }
+                  },
+                  {
+                    "name": "pattern",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxDrawLineStipplePattern"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Draws a primitive of the desired type\n\n\t \\arg \\c context  draw context\n\t \\arg \\c primitive  desired primitive\n\t \\arg \\c points  array of points in the primitive\n\t \\arg \\c point_count  number of points in the array\n\n\t kOfxDrawPrimitiveLines - like GL_LINES, n points draws n/2 separated lines\n\t kOfxDrawPrimitiveLineStrip - like GL_LINE_STRIP, n points draws n-1 connected lines\n\t kOfxDrawPrimitiveLineLoop - like GL_LINE_LOOP, n points draws n connected lines\n\t kOfxDrawPrimitiveRectangle - draws an axis-aligned filled rectangle defined by 2 opposite corner points\n\t kOfxDrawPrimitivePolygon - like GL_POLYGON, draws a filled n-sided polygon\n\t kOfxDrawPrimitiveEllipse - draws a axis-aligned elliptical line (not filled) within the rectangle defined by 2 opposite corner points\n\n\t @returns\n\t - ::kOfxStatOK - the draw was completed\n\t - ::kOfxStatErrValue - invalid primitive, or point_count not valid for primitive\n\t - ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw\n\t */",
+            "item": {
+              "name": "draw",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "context",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxDrawContextHandle"
+                    }
+                  },
+                  {
+                    "name": "primitive",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxDrawPrimitive"
+                    }
+                  },
+                  {
+                    "name": "points",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleNonC",
+                        "name": "OfxPointD"
+                      }
+                    }
+                  },
+                  {
+                    "name": "point_count",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Draws text at the specified position\n\n\t \\arg \\c context  draw context\n\t \\arg \\c text  text to draw (UTF-8 encoded)\n\t \\arg \\c pos  position at which to align the text\n\t \\arg \\c alignment  text alignment flags (see kOfxDrawTextAlignment*)\n\n\t The text font face and size are determined by the host.\n\n\t @returns\n\t - ::kOfxStatOK - the text was drawn\n\t - ::kOfxStatErrValue - text or pos were not defined\n\t - ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw\n\t */",
+            "item": {
+              "name": "drawText",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "context",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxDrawContextHandle"
+                    }
+                  },
+                  {
+                    "name": "text",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "pos",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleNonC",
+                        "name": "OfxPointD"
+                      }
+                    }
+                  },
+                  {
+                    "name": "alignment",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          }
+        ]
+      }
     }
   ]
 }

@@ -35,6 +35,53 @@
           "value": "OfxActionDialog"
         }
       }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxDialogSuiteV1",
+        "fields": [
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Request the host to send a kOfxActionDialog to the plugin from its UI thread.\n  \\pre\n    - user_data: A pointer to any user data\n  \\post\n  @returns\n    - ::kOfxStatOK - The host has queued the request and will send an 'OfxActionDialog'\n    - ::kOfxStatFailed - The host has no provisio for this or can not deal with it currently.\n  */",
+            "item": {
+              "name": "RequestDialog",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "user_data",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "void"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Inform the host of redraw event so it can redraw itself\n      If the host runs fullscreen in OpenGL, it would otherwise not receive\nredraw event when a dialog in front would catch all events.\n  \\pre\n  \\post\n  @returns\n    - ::kOfxStatReplyDefault\n  */",
+            "item": {
+              "name": "NotifyRedrawPending",
+              "type": {
+                "$type": "FunctionPointer",
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          }
+        ]
+      }
     }
   ]
 }

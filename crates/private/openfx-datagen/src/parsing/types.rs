@@ -67,6 +67,8 @@ pub enum RootItem {
         name: String,
         #[serde(skip_serializing_if = "Vec::is_empty")]
         parameters: Vec<FunctionParameter>,
+        #[serde(skip_serializing_if = "std::ops::Not::not")]
+        is_variadic: bool,
         return_type: TypedefFunctionReturnType,
     },
     TypedefStruct {
@@ -194,6 +196,8 @@ pub enum TypedefStructFieldType {
     FunctionPointer {
         #[serde(skip_serializing_if = "Vec::is_empty")]
         parameters: Vec<FunctionParameter>,
+        #[serde(skip_serializing_if = "std::ops::Not::not")]
+        is_variadic: bool,
         return_type: TypedefStructFieldTypeFunctionPointerReturnType,
     },
 }
@@ -249,11 +253,11 @@ define_string_guarded_by_regex!(
 define_string_guarded_by_regex!(
     TypeSimpleCName,
     regex(TYPEDEF_STRUCT_FIELD_TYPE_SIMPLE_C_NAME_REGEX) =
-        r#"^(void|char|int|float|double|size_t|unsigned (char|short|int))$"#
+        r#"^(void|bool|char|int|float|double|size_t|unsigned (char|short|int))$"#
 );
 define_string_guarded_by_regex!(
     TypeSimpleNonCName,
-    regex(TYPE_SIMPLE_NON_C_NAME_REGEX) = r#"^[_a-zA-Z][_a-zA-Z0-9]*Handle$"#
+    regex(TYPE_SIMPLE_NON_C_NAME_REGEX) = r#"^Ofx[A-Z][a-zA-Z]*$"#
 );
 define_string_guarded_by_regex!(
     TypedefEnumCValueExpr,

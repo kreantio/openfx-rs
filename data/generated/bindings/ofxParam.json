@@ -1352,6 +1352,637 @@
       }
     },
     {
+      "$type": "Item",
+      "comment_above": "@brief The OFX suite used to define and manipulate user visible parameters",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxParameterSuiteV1",
+        "fields": [
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Defines a new parameter of the given type in a describe action\n\n  \\arg \\c paramSet    handle to the parameter set descriptor that will hold this parameter\n  \\arg \\c paramType   type of the parameter to create, one of the kOfxParamType* #defines\n  \\arg \\c name        unique name of the parameter\n  \\arg \\c propertySet if not null, a pointer to the parameter descriptor's property set will be placed here.\n\n  This function defines a parameter in a parameter set and returns a property set which is used to describe that parameter.\n\n  This function does not actually create a parameter, it only says that one should exist in any subsequent instances. To fetch an\n  parameter instance paramGetHandle must be called on an instance.\n\n  This function can always be called in one of a plug-in's \"describe\" functions which defines the parameter sets common to all instances of a plugin.\n\n@returns\n  - ::kOfxStatOK             - the parameter was created correctly\n  - ::kOfxStatErrBadHandle   - if the plugin handle was invalid\n  - ::kOfxStatErrExists      - if a parameter of that name exists already in this plugin\n  - ::kOfxStatErrUnknown     - if the type is unknown\n  - ::kOfxStatErrUnsupported - if the type is known but unsupported\n  */",
+            "item": {
+              "name": "paramDefine",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "paramSet",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamSetHandle"
+                    }
+                  },
+                  {
+                    "name": "paramType",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "name",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "propertySet",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleNonC",
+                        "name": "OfxPropertySetHandle"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Retrieves the handle for a parameter in a given parameter set\n\n  \\arg \\c paramSet    instance of the plug-in to fetch the property handle from\n  \\arg \\c name        parameter to ask about\n  \\arg \\c param       pointer to a param handle, the value is returned here\n  \\arg \\c propertySet if not null, a pointer to the parameter's property set will be placed here.\n\n  Parameter handles retrieved from an instance are always distinct in each instance. The parameter handle is valid for the life-time of the instance. Parameter handles in instances are distinct from parameter handles in plugins. You cannot call this in a plugin's describe function, as it needs an instance to work on.\n\n@returns\n  - ::kOfxStatOK       - the parameter was found and returned\n  - ::kOfxStatErrBadHandle  - if the plugin handle was invalid\n  - ::kOfxStatErrUnknown    - if the type is unknown\n  */",
+            "item": {
+              "name": "paramGetHandle",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "paramSet",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamSetHandle"
+                    }
+                  },
+                  {
+                    "name": "name",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "param",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleNonC",
+                        "name": "OfxParamHandle"
+                      }
+                    }
+                  },
+                  {
+                    "name": "propertySet",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleNonC",
+                        "name": "OfxPropertySetHandle"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Retrieves the property set handle for the given parameter set\n\n  \\arg \\c paramSet    parameter set to get the property set for\n  \\arg \\c propHandle  pointer to a the property set handle, value is returedn her\n\n  \\note The property handle belonging to a parameter set is the same as the property handle belonging to the plugin instance.\n\n@returns\n  - ::kOfxStatOK       - the property set was found and returned\n  - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n  - ::kOfxStatErrUnknown    - if the type is unknown\n  */",
+            "item": {
+              "name": "paramSetGetPropertySet",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "paramSet",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamSetHandle"
+                    }
+                  },
+                  {
+                    "name": "propHandle",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleNonC",
+                        "name": "OfxPropertySetHandle"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Retrieves the property set handle for the given parameter\n\n  \\arg \\c param       parameter to get the property set for\n  \\arg \\c propHandle  pointer to a the property set handle, value is returedn her\n\n  The property handle is valid for the lifetime of the parameter, which is the lifetime of the instance that owns the parameter\n\n@returns\n  - ::kOfxStatOK       - the property set was found and returned\n  - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n  - ::kOfxStatErrUnknown    - if the type is unknown\n  */",
+            "item": {
+              "name": "paramGetPropertySet",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "param",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamHandle"
+                    }
+                  },
+                  {
+                    "name": "propHandle",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleNonC",
+                        "name": "OfxPropertySetHandle"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Gets the current value of a parameter,\n\n  \\arg \\c paramHandle parameter handle to fetch value from\n  \\arg \\c ...         one or more pointers to variables of the relevant type to hold the parameter's value\n\n  This gets the current value of a parameter. The varargs ... argument needs to be pointer to C variables\n  of the relevant type for this parameter. Note that params with multiple values (eg Colour) take\n  multiple args here. For example...\n\n  @verbatim\n  OfxParamHandle myDoubleParam, *myColourParam;\n  ofxHost->paramGetHandle(instance, \"myDoubleParam\", &myDoubleParam);\n  double myDoubleValue;\n  ofxHost->paramGetValue(myDoubleParam, &myDoubleValue);\n  ofxHost->paramGetHandle(instance, \"myColourParam\", &myColourParam);\n  double myR, myG, myB;\n  ofxHost->paramGetValue(myColourParam, &myR, &myG, &myB);\n  @endverbatim\n\n  \\note \\c paramGetValue should only be called from within a ::kOfxActionInstanceChanged or interact action and never from the render actions (which should always use paramGetValueAtTime).\n\n@returns\n  - ::kOfxStatOK       - all was OK\n  - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n  */",
+            "item": {
+              "name": "paramGetValue",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "paramHandle",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamHandle"
+                    }
+                  }
+                ],
+                "is_variadic": true,
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Gets the value of a parameter at a specific time.\n\n  \\arg \\c paramHandle parameter handle to fetch value from\n  \\arg \\c time        at what point in time to look up the parameter\n  \\arg \\c ...         one or more pointers to variables of the relevant type to hold the parameter's value\n\n  This gets the current value of a parameter. The varargs needs to be pointer to C variables\n  of the relevant type for this parameter. See OfxParameterSuiteV1::paramGetValue for notes on\n  the varags list\n\n@returns\n  - ::kOfxStatOK       - all was OK\n  - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n  */",
+            "item": {
+              "name": "paramGetValueAtTime",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "paramHandle",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamHandle"
+                    }
+                  },
+                  {
+                    "name": "time",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxTime"
+                    }
+                  }
+                ],
+                "is_variadic": true,
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Gets the derivative of a parameter at a specific time.\n\n  \\arg \\c paramHandle parameter handle to fetch value from\n  \\arg \\c time        at what point in time to look up the parameter\n  \\arg \\c ...         one or more pointers to variables of the relevant type to hold the parameter's derivative\n\n  This gets the derivative of the parameter at the indicated time. \n\n  The varargs needs to be pointer to C variables\n  of the relevant type for this parameter. See OfxParameterSuiteV1::paramGetValue for notes on\n  the varags list.\n\n  Only double and colour params can have their derivatives found.\n\n@returns\n  - ::kOfxStatOK       - all was OK\n  - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n  */",
+            "item": {
+              "name": "paramGetDerivative",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "paramHandle",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamHandle"
+                    }
+                  },
+                  {
+                    "name": "time",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxTime"
+                    }
+                  }
+                ],
+                "is_variadic": true,
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Gets the integral of a parameter over a specific time range,\n\n  \\arg \\c paramHandle parameter handle to fetch integral from\n  \\arg \\c time1       where to start evaluating the integral\n  \\arg \\c time2       where to stop evaluating the integral\n  \\arg \\c ...         one or more pointers to variables of the relevant type to hold the parameter's integral\n\n  This gets the integral of the parameter over the specified time range.\n\n  The varargs needs to be pointer to C variables\n  of the relevant type for this parameter. See OfxParameterSuiteV1::paramGetValue for notes on\n  the varags list.\n\n  Only double and colour params can be integrated.\n\n@returns\n  - ::kOfxStatOK       - all was OK\n  - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n  */",
+            "item": {
+              "name": "paramGetIntegral",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "paramHandle",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamHandle"
+                    }
+                  },
+                  {
+                    "name": "time1",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxTime"
+                    }
+                  },
+                  {
+                    "name": "time2",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxTime"
+                    }
+                  }
+                ],
+                "is_variadic": true,
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Sets the current value of a parameter\n\n  \\arg \\c paramHandle parameter handle to set value in\n  \\arg \\c ...         one or more variables of the relevant type to hold the parameter's value\n\n  This sets the current value of a parameter. The varargs ... argument needs to be values\n  of the relevant type for this parameter. Note that params with multiple values (eg Colour) take\n  multiple args here. For example...\n  @verbatim\n  ofxHost->paramSetValue(instance, \"myDoubleParam\", double(10));\n  ofxHost->paramSetValue(instance, \"myColourParam\", double(pix.r), double(pix.g), double(pix.b));\n  @endverbatim\n\n  \\note \\c paramSetValue should only be called from within a ::kOfxActionInstanceChanged or interact action.\n\n@returns\n  - ::kOfxStatOK       - all was OK\n  - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n  */",
+            "item": {
+              "name": "paramSetValue",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "paramHandle",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamHandle"
+                    }
+                  }
+                ],
+                "is_variadic": true,
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Keyframes the value of a parameter at a specific time.\n\n  \\arg \\c paramHandle parameter handle to set value in\n  \\arg \\c time        at what point in time to set the keyframe\n  \\arg \\c ...         one or more variables of the relevant type to hold the parameter's value\n\n  This sets a keyframe in the parameter at the indicated time to have the indicated value.\n  The varargs ... argument needs to be values of the relevant type for this parameter. See the note on \n  OfxParameterSuiteV1::paramSetValue for more detail\n\n  \\note \\c paramSetValueAtTime should only be called from within a ::kOfxActionInstanceChanged or interact action.\n\n  V1.3: This function can be called the ::kOfxActionInstanceChanged action and during image effect analysis render passes.\n  V1.4: This function can be called the ::kOfxActionInstanceChanged action \n@returns\n  - ::kOfxStatOK       - all was OK\n  - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n  */",
+            "item": {
+              "name": "paramSetValueAtTime",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "paramHandle",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamHandle"
+                    }
+                  },
+                  {
+                    "name": "time",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxTime"
+                    }
+                  }
+                ],
+                "is_variadic": true,
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "StandaloneComment",
+            "comment": "/** @name Keyframe Handling\n\nThese functions allow the plug-in to delete and get information about keyframes.\n\nTo set keyframes, use paramSetValueAtTime().\n\nparamGetKeyTime and paramGetKeyIndex use indices to refer to keyframes.\nKeyframes are stored by the host in increasing time order, so time(kf[i]) < time(kf[i+1]).\nKeyframe indices will change whenever keyframes are added, deleted, or moved in time,\nwhether by the host or by the plug-in.  They may vary between actions if the user\nchanges a keyframe.  The keyframe indices will not change within a single action.\n */"
+          },
+          {
+            "$type": "StandaloneComment",
+            "comment": "/** @{ */"
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Returns the number of keyframes in the parameter\n\n  \\arg \\c paramHandle parameter handle to interrogate\n  \\arg \\c numberOfKeys pointer to integer where the return value is placed\n\n  V1.3: This function can be called the ::kOfxActionInstanceChanged action and during image effect analysis render passes.\n  V1.4: This function can be called the ::kOfxActionInstanceChanged action \n\n  Returns the number of keyframes in the parameter.\n\n@returns\n  - ::kOfxStatOK       - all was OK\n  - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n  */",
+            "item": {
+              "name": "paramGetNumKeys",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "paramHandle",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamHandle"
+                    }
+                  },
+                  {
+                    "name": "numberOfKeys",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "unsigned int"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Returns the time of the nth key\n\n  \\arg \\c paramHandle parameter handle to interrogate\n  \\arg \\c nthKey      which key to ask about (0 to paramGetNumKeys -1), ordered by time\n  \\arg \\c time\t   pointer to OfxTime where the return value is placed\n\n@returns\n  - ::kOfxStatOK       - all was OK\n  - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n  - ::kOfxStatErrBadIndex   - the nthKey does not exist\n  */",
+            "item": {
+              "name": "paramGetKeyTime",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "paramHandle",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamHandle"
+                    }
+                  },
+                  {
+                    "name": "nthKey",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "unsigned int"
+                    }
+                  },
+                  {
+                    "name": "time",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleNonC",
+                        "name": "OfxTime"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Finds the index of a keyframe at/before/after a specified time.\n\n  \\arg \\c paramHandle parameter handle to search\n  \\arg \\c time        what time to search from\n  \\arg \\c direction\n    - == 0 indicates search for a key at the indicated time (some small delta)\n    - > 0 indicates search for the next key after the indicated time\n    - < 0 indicates search for the previous key before the indicated time\n  \\arg \\c index\t   pointer to an integer which in which the index is returned set to -1 if no key was found\n\n@returns\n  - ::kOfxStatOK            - all was OK\n  - ::kOfxStatFailed        - if the search failed to find a key\n  - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n  */",
+            "item": {
+              "name": "paramGetKeyIndex",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "paramHandle",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamHandle"
+                    }
+                  },
+                  {
+                    "name": "time",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxTime"
+                    }
+                  },
+                  {
+                    "name": "direction",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "index",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "int"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Deletes a keyframe if one exists at the given time.\n\n  \\arg \\c paramHandle parameter handle to delete the key from\n  \\arg \\c time        time at which a keyframe is\n\n@returns\n  - ::kOfxStatOK       - all was OK\n  - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n  - ::kOfxStatErrBadIndex   - no key at the given time\n  */",
+            "item": {
+              "name": "paramDeleteKey",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "paramHandle",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamHandle"
+                    }
+                  },
+                  {
+                    "name": "time",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxTime"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Deletes all keyframes from a parameter.\n\n  \\arg \\c paramHandle parameter handle to delete the keys from\n  \\arg \\c name        parameter to delete the keyframes from is\n\n  V1.3: This function can be called the ::kOfxActionInstanceChanged action and during image effect analysis render passes.\n  V1.4: This function can be called the ::kOfxActionInstanceChanged action \n\n@returns\n  - ::kOfxStatOK       - all was OK\n  - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n  */",
+            "item": {
+              "name": "paramDeleteAllKeys",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "paramHandle",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamHandle"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "StandaloneComment",
+            "comment": "/** @} */"
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Copies one parameter to another, including any animation etc...\n\n  \\arg \\c paramTo     parameter to set\n  \\arg \\c paramFrom   parameter to copy from\n  \\arg \\c dstOffset   temporal offset to apply to keys when writing to the paramTo\n  \\arg \\c frameRange  if paramFrom has animation, and frameRange is not null, only this range of keys will be copied\n\n  This copies the value of \\e paramFrom to \\e paramTo, including any animation it may have. All the previous values in \\e paramTo will be lost.\n\n  To choose all animation in \\e paramFrom set \\e frameRange to [0, 0]\n\n   V1.3: This function can be called the ::kOfxActionInstanceChanged action and during image effect analysis render passes.\n  V1.4: This function can be called the ::kOfxActionInstanceChanged action \n\n  \\pre\n  - Both parameters must be of the same type.\n\n  \\return\n  - ::kOfxStatOK       - all was OK\n  - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n  */",
+            "item": {
+              "name": "paramCopy",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "paramTo",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamHandle"
+                    }
+                  },
+                  {
+                    "name": "paramFrom",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamHandle"
+                    }
+                  },
+                  {
+                    "name": "dstOffset",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxTime"
+                    }
+                  },
+                  {
+                    "name": "frameRange",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleNonC",
+                        "name": "OfxRangeD"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Used to group any parameter changes for undo/redo purposes\n\n  \\arg \\c paramSet    the parameter set in which this is happening\n  \\arg \\c name        label to attach to any undo/redo string UTF8\n\n  If a plugin calls paramSetValue/paramSetValueAtTime on one or more parameters, either from custom GUI interaction\n  or some analysis of imagery etc.. this is used to indicate the start of a set of a parameter\n  changes that should be considered part of a single undo/redo block.\n\n  \\note \\c paramEditBegin should only be called from within a ::kOfxActionInstanceChanged or interact action.\n\n  See also OfxParameterSuiteV1::paramEditEnd\n\n  \\return\n  - ::kOfxStatOK       - all was OK\n  - ::kOfxStatErrBadHandle  - if the instance handle was invalid\n\n  */",
+            "item": {
+              "name": "paramEditBegin",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "paramSet",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamSetHandle"
+                    }
+                  },
+                  {
+                    "name": "name",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Used to group any parameter changes for undo/redo purposes\n\n  \\arg \\c paramSet    parameter set in which this is happening\n\n  If a plugin calls paramSetValue/paramSetValueAtTime on one or more parameters, either from custom GUI interaction\n  or some analysis of imagery etc.. this is used to indicate the end of a set of parameter\n  changes that should be considerred part of a single undo/redo block\n\n  \\note \\c paramEditEnd should only be called from within a ::kOfxActionInstanceChanged or interact action.\n\n  See also OfxParameterSuiteV1::paramEditBegin\n\n@returns\n  - ::kOfxStatOK       - all was OK\n  - ::kOfxStatErrBadHandle  - if the instance handle was invalid\n\n  */",
+            "item": {
+              "name": "paramEditEnd",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "paramSet",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxParamSetHandle"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "$type": "StandaloneComment",
       "comment": "@file ofxParam.h\n \n  This header contains the suite definition to manipulate host side parameters.\n\n  For more details go see @ref ParametersPage"
     },

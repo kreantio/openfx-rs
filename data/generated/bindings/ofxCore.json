@@ -134,6 +134,105 @@
       }
     },
     {
+      "$type": "Item",
+      "comment_above": "@brief The structure that defines a plug-in to a host.\n\nThis structure is the first element in any plug-in structure\nusing the OFX plug-in architecture. By examining its members\na host can determine the API that the plug-in implements,\nthe version of that API, its name and version.\n\nFor details see \\ref Architecture.",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxPlugin",
+        "fields": [
+          {
+            "$type": "Item",
+            "comment_above": "/** Defines the type of the plug-in, this will tell the host what the plug-in does. e.g.: an image\n      effects plug-in would be a \"OfxImageEffectPlugin\"\n   */",
+            "item": {
+              "name": "OfxPlugin",
+              "type": {
+                "$type": "ConstCharPtr"
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** Defines the version of the pluginApi that this plug-in implements */",
+            "item": {
+              "name": "apiVersion",
+              "type": {
+                "$type": "SimpleC",
+                "name": "int"
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** String that uniquely labels the plug-in among all plug-ins that implement an API.\n      It need not necessarily be human sensible, however the preference is to use reverse\n      internet domain name of the developer, followed by a '.' then by a name that represents\n      the plug-in.. It must be a legal ASCII string and have no whitespace in the\n      name and no non printing chars.\n      For example \"uk.co.somesoftwarehouse.myPlugin\"\n  */",
+            "item": {
+              "name": "OfxPlugin",
+              "type": {
+                "$type": "ConstCharPtr"
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** Major version of this plug-in, this gets incremented when backwards compatibility is broken. */",
+            "item": {
+              "name": "pluginVersionMajor",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned int"
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/**  Major version of this plug-in, this gets incremented when software is changed,\n       but does not break backwards compatibility. */",
+            "item": {
+              "name": "pluginVersionMinor",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned int"
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Function the host uses to connect the plug-in to the host's api fetcher\n\n      \\arg \\c fetchApi pointer to host's API fetcher\n\n      Mandatory function.\n\n      The very first function called in a plug-in. The plug-in \\em must \\em not call any OFX functions within this, it must only set its local copy of the host pointer.\n\n      \\pre\n        - nothing else has been called\n\n      \\post\n        - the pointer suite is valid until the plug-in is unloaded\n\n      It is recommended that hosts should return the same host and suite pointers to all plugins\n      in the same shared lib or bundle.\n  */",
+            "item": {
+              "name": "setHost",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "host",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleNonC",
+                        "name": "OfxHost"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "SimpleC",
+                  "name": "void"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Main entry point for plug-ins\n\n  Mandatory function.\n\n  The exact set of actions is determined by the plug-in API that is being implemented, however all plug-ins\n  can perform several actions. For the list of actions consult \\ref ActionsAll.\n\n   Preconditions\n      - setHost has been called\n   */",
+            "item": {
+              "name": "OfxPlugin",
+              "type": {
+                "$type": "OfxPluginEntryPointPtr"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "$type": "StandaloneComment",
       "comment": "\\defgroup ActionsAll OFX Actions\n\nThese are the actions passed to a plug-in's 'main' function"
     },

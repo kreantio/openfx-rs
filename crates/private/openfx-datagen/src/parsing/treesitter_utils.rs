@@ -212,12 +212,13 @@ fn parse_type_definition_function(
         _ => return Err(()),
     };
 
-    let parameters = parse_function_parameter_list(raw_node, code, parameters_node)?;
+    let (parameters, is_variadic) = parse_function_parameter_list(raw_node, code, parameters_node)?;
 
     Ok(RootItem::TypedefFunction {
         name,
-        return_type: ret_ty,
         parameters,
+        is_variadic,
+        return_type: ret_ty,
     })
 }
 
@@ -369,7 +370,7 @@ fn parse_type_definition_struct(
                 return Err(());
             };
 
-            let Ok(parameters) =
+            let Ok((parameters, is_variadic)) =
                 parse_function_parameter_list(raw_node, code, &declarator.parameters)
             else {
                 return Ok(RootItem::Todo {
@@ -384,6 +385,7 @@ fn parse_type_definition_struct(
                     name,
                     r#type: TypedefStructFieldType::FunctionPointer {
                         parameters,
+                        is_variadic,
                         return_type: ret_ty,
                     },
                 },
@@ -542,7 +544,7 @@ fn parse_function_parameter_list(
     raw_node: &tree_sitter::Node,
     code: &str,
     parameters_node: &ParameterList,
-) -> Result<Vec<FunctionParameter>, ()> {
+) -> Result<(Vec<FunctionParameter>, bool), ()> {
     let Some(raw_parameters_node) = raw_node.descendant_for_byte_range(
         parameters_node.span.start_byte,
         parameters_node.span.end_byte,
@@ -554,6 +556,9 @@ fn parse_function_parameter_list(
     let mut cursor = raw_parameters_node.walk();
 
     let mut parameters: Vec<FunctionParameter> = Vec::new();
+
+    let mut has_void_parameter = false;
+    let mut is_variadic = false;
 
     for raw_parameter_node in raw_parameters_node.children(&mut cursor) {
         if !raw_parameter_node.is_named() {
@@ -579,32 +584,57 @@ fn parse_function_parameter_list(
             continue;
         }
 
-        let Ok(ParameterListChildren::ParameterDeclaration(parameter_declaration)) =
+        if is_variadic {
+            return Err(());
+        }
+
+        let Ok(parameter_node) =
             ParameterListChildren::from_node(raw_parameter_node, code.as_bytes())
         else {
             return Err(());
         };
 
-        let (name, r#type) = parse_parameter_declaration(code, &parameter_declaration)?;
+        match parameter_node {
+            ParameterListChildren::ParameterDeclaration(parameter_declaration) => {
+                let Some((name, r#type)) =
+                    parse_parameter_declaration(code, &parameter_declaration)?
+                else {
+                    has_void_parameter = true;
+                    continue;
+                };
 
-        parameters.push(FunctionParameter {
-            name,
-            r#type,
-            comment: None,
-        });
+                parameters.push(FunctionParameter {
+                    name,
+                    r#type,
+                    comment: None,
+                });
+            }
+            ParameterListChildren::VariadicParameter(_variadic_parameter) => {
+                is_variadic = true;
+            }
+            _ => return Err(()),
+        }
     }
 
-    Ok(parameters)
+    if has_void_parameter && !parameters.is_empty() {
+        return Err(());
+    }
+
+    Ok((parameters, is_variadic))
 }
 
 fn parse_parameter_declaration(
     code: &str,
     declaration: &ParameterDeclaration,
-) -> Result<(String, FunctionParameterType), ()> {
+) -> Result<Option<(String, FunctionParameterType)>, ()> {
     macro_rules! text_from_span {
         ($span:expr) => {
             code[$span.start_byte..$span.end_byte].to_owned()
         };
+    }
+
+    if text_from_span!(declaration.span()).trim() == "void" {
+        return Ok(None);
     }
 
     let mut has_const_type_qualifier = if declaration.children.is_empty() {
@@ -662,5 +692,5 @@ fn parse_parameter_declaration(
         }
     };
 
-    Ok((name, ty))
+    Ok(Some((name, ty)))
 }
