@@ -325,7 +325,7 @@
           "type": "string"
         },
         "type": {
-          "$ref": "#/$defs/FunctionParameterType"
+          "$ref": "#/$defs/TypeStraightforward"
         },
         "comment": {
           "type": [
@@ -339,13 +339,13 @@
         "type"
       ]
     },
-    "FunctionParameterType": {
+    "TypeStraightforward": {
       "oneOf": [
         {
           "type": "object",
           "properties": {
             "pointee": {
-              "$ref": "#/$defs/FunctionParameterType"
+              "$ref": "#/$defs/TypeStraightforward"
             },
             "$type": {
               "type": "string",
@@ -361,7 +361,7 @@
           "type": "object",
           "properties": {
             "pointee": {
-              "$ref": "#/$defs/FunctionParameterType"
+              "$ref": "#/$defs/TypeStraightforward"
             },
             "$type": {
               "type": "string",
@@ -505,69 +505,17 @@
         {
           "type": "object",
           "properties": {
-            "$type": {
-              "type": "string",
-              "const": "ConstUnsignedCharPtr"
-            }
-          },
-          "required": [
-            "$type"
-          ]
-        },
-        {
-          "type": "object",
-          "properties": {
-            "$type": {
-              "type": "string",
-              "const": "ConstCharPtr"
-            }
-          },
-          "required": [
-            "$type"
-          ]
-        },
-        {
-          "type": "object",
-          "properties": {
-            "$type": {
-              "type": "string",
-              "const": "OfxPluginEntryPointPtr"
-            }
-          },
-          "required": [
-            "$type"
-          ]
-        },
-        {
-          "type": "object",
-          "properties": {
-            "name": {
-              "$ref": "#/$defs/TypeSimpleCName"
+            "type": {
+              "$ref": "#/$defs/TypeStraightforward"
             },
             "$type": {
               "type": "string",
-              "const": "SimpleC"
+              "const": "Straightforward"
             }
           },
           "required": [
             "$type",
-            "name"
-          ]
-        },
-        {
-          "type": "object",
-          "properties": {
-            "name": {
-              "$ref": "#/$defs/TypeSimpleNonCName"
-            },
-            "$type": {
-              "type": "string",
-              "const": "SimpleNonC"
-            }
-          },
-          "required": [
-            "$type",
-            "name"
+            "type"
           ]
         },
         {

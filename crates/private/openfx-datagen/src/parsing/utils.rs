@@ -164,15 +164,6 @@ pub fn find_line_before(text: &str, cursor: usize) -> &str {
         .map_or("", |pos| &text[pos + 1..cursor])
 }
 
-pub fn is_identifier(s: &str) -> bool {
-    let chars = s.chars().collect::<Vec<_>>();
-    let Some((head, tail)) = chars.split_first() else {
-        return false;
-    };
-
-    head.is_alphabetic() || *head == '_' && tail.iter().all(|c| c.is_alphanumeric() || *c == '_')
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

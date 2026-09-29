@@ -281,9 +281,16 @@
             "$type": "Item",
             "comment_above": "/** @brief a pointer to the data buffer */",
             "item": {
-              "name": "OfxBytes",
+              "name": "data",
               "type": {
-                "$type": "ConstUnsignedCharPtr"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "ConstPtr",
+                  "pointee": {
+                    "$type": "SimpleC",
+                    "name": "unsigned char"
+                  }
+                }
               }
             }
           },
@@ -293,8 +300,11 @@
             "item": {
               "name": "length",
               "type": {
-                "$type": "SimpleC",
-                "name": "size_t"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "size_t"
+                }
               }
             }
           }

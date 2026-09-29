@@ -129,16 +129,16 @@ pub enum DefineValue {
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 pub struct FunctionParameter {
     pub name: String,
-    pub r#type: FunctionParameterType,
+    pub r#type: TypeStraightforward,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 #[serde(tag = "$type")]
-pub enum FunctionParameterType {
-    Ptr { pointee: Box<FunctionParameterType> },
-    ConstPtr { pointee: Box<FunctionParameterType> },
+pub enum TypeStraightforward {
+    Ptr { pointee: Box<TypeStraightforward> },
+    ConstPtr { pointee: Box<TypeStraightforward> },
     SimpleC { name: TypeSimpleCName },
     SimpleNonC { name: TypeSimpleNonCName },
 }
@@ -172,22 +172,9 @@ pub struct TypedefStructFieldItem {
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 #[serde(tag = "$type")]
 pub enum TypedefStructFieldType {
-    ConstUnsignedCharPtr,
-    ConstCharPtr,
-
-    /// `OfxPluginEntryPoint *`
-    ///
-    /// TODO: This is horrible. Refactor to another representation before the PR
-    /// is merged.
-    OfxPluginEntryPointPtr,
-
-    SimpleC {
-        name: TypeSimpleCName,
+    Straightforward {
+        r#type: TypeStraightforward,
     },
-    SimpleNonC {
-        name: TypeSimpleNonCName,
-    },
-
     FunctionPointer {
         #[serde(skip_serializing_if = "Vec::is_empty")]
         parameters: Vec<FunctionParameter>,

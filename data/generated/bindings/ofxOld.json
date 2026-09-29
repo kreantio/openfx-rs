@@ -40,8 +40,11 @@
             "item": {
               "name": "y",
               "type": {
-                "$type": "SimpleC",
-                "name": "unsigned char"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "unsigned char"
+                }
               }
             }
           },
@@ -50,8 +53,11 @@
             "item": {
               "name": "u",
               "type": {
-                "$type": "SimpleC",
-                "name": "unsigned char"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "unsigned char"
+                }
               }
             }
           },
@@ -60,8 +66,11 @@
             "item": {
               "name": "v",
               "type": {
-                "$type": "SimpleC",
-                "name": "unsigned char"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "unsigned char"
+                }
               }
             }
           },
@@ -70,8 +79,11 @@
             "item": {
               "name": "a",
               "type": {
-                "$type": "SimpleC",
-                "name": "unsigned char"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "unsigned char"
+                }
               }
             }
           }
@@ -90,8 +102,11 @@
             "item": {
               "name": "y",
               "type": {
-                "$type": "SimpleC",
-                "name": "unsigned short"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "unsigned short"
+                }
               }
             }
           },
@@ -100,8 +115,11 @@
             "item": {
               "name": "u",
               "type": {
-                "$type": "SimpleC",
-                "name": "unsigned short"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "unsigned short"
+                }
               }
             }
           },
@@ -110,8 +128,11 @@
             "item": {
               "name": "v",
               "type": {
-                "$type": "SimpleC",
-                "name": "unsigned short"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "unsigned short"
+                }
               }
             }
           },
@@ -120,8 +141,11 @@
             "item": {
               "name": "a",
               "type": {
-                "$type": "SimpleC",
-                "name": "unsigned short"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "unsigned short"
+                }
               }
             }
           }
@@ -140,8 +164,11 @@
             "item": {
               "name": "y",
               "type": {
-                "$type": "SimpleC",
-                "name": "float"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "float"
+                }
               }
             }
           },
@@ -150,8 +177,11 @@
             "item": {
               "name": "u",
               "type": {
-                "$type": "SimpleC",
-                "name": "float"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "float"
+                }
               }
             }
           },
@@ -160,8 +190,11 @@
             "item": {
               "name": "v",
               "type": {
-                "$type": "SimpleC",
-                "name": "float"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "float"
+                }
               }
             }
           },
@@ -170,8 +203,11 @@
             "item": {
               "name": "a",
               "type": {
-                "$type": "SimpleC",
-                "name": "float"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "float"
+                }
               }
             }
           }

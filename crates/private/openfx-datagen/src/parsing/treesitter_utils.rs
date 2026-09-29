@@ -1,18 +1,17 @@
 use treesitter_types_c::{
     Declaration, DeclarationDeclarator, Declarator, EnumSpecifier, Enumerator, FieldDeclaration,
-    FieldDeclarator, FromNode, FunctionDeclarator, FunctionDeclaratorDeclarator,
-    ParameterDeclaration, ParameterDeclarationChildren, ParameterDeclarationDeclarator,
-    ParameterList, ParameterListChildren, ParenthesizedDeclaratorChildren, PointerDeclarator,
-    PointerDeclaratorDeclarator, Span, Spanned, StructSpecifier, TypeDeclarator, TypeDefinition,
-    TypeIdentifier, TypeSpecifier,
+    FieldDeclarationChildren, FieldDeclarator, FromNode, FunctionDeclarator,
+    FunctionDeclaratorDeclarator, ParameterDeclaration, ParameterDeclarationChildren,
+    ParameterDeclarationDeclarator, ParameterList, ParameterListChildren,
+    ParenthesizedDeclaratorChildren, PointerDeclarator, PointerDeclaratorDeclarator, Span, Spanned,
+    StructSpecifier, TypeDeclarator, TypeDefinition, TypeIdentifier, TypeSpecifier,
 };
 
 use crate::parsing::{
-    FunctionParameter, FunctionParameterType, RootItem, TypeSimpleCName, TypeSimpleNonCName,
+    FunctionParameter, RootItem, TypeSimpleCName, TypeSimpleNonCName, TypeStraightforward,
     TypedefEnumCValueExpr, TypedefEnumVariant, TypedefFunctionReturnType, TypedefPrimitiveCType,
     TypedefStructField, TypedefStructFieldItem, TypedefStructFieldType,
-    TypedefStructFieldTypeFunctionPointerReturnType,
-    utils::{find_line_before, is_identifier},
+    TypedefStructFieldTypeFunctionPointerReturnType, utils::find_line_before,
 };
 
 pub fn extract_name_from_declaration(declaration: &Declaration) -> Result<Span, ()> {
@@ -311,33 +310,15 @@ fn parse_type_definition_struct(
             return Err(());
         };
 
-        let identifier_declarators: Vec<_> = item_node
-            .declarator
-            .iter()
-            .filter_map(|d| {
-                if let FieldDeclarator::FieldIdentifier(declarator) = d {
-                    Some(declarator)
-                } else {
-                    None
-                }
-            })
-            .collect();
-        if identifier_declarators.len() == item_node.declarator.len() {
-            let type_str = text_from_span!(item_node.r#type.span()).trim().to_owned();
-            let ty = if let Ok(name) = TypeSimpleCName::try_from(&type_str) {
-                TypedefStructFieldType::SimpleC { name: name.clone() }
-            } else if let Ok(name) = TypeSimpleNonCName::try_from(&type_str) {
-                TypedefStructFieldType::SimpleNonC { name: name.clone() }
-            } else {
-                return Err(());
-            };
-
-            for declarator in identifier_declarators {
+        if let Ok((names, r#type)) = parse_field_declaration(code, &item_node) {
+            for name in names {
                 fields.push(TypedefStructField::Item {
                     comment_above: comment_above.clone(),
                     item: TypedefStructFieldItem {
-                        name: text_from_span!(declarator.span).trim().to_owned(),
-                        r#type: ty.clone(),
+                        name: name.clone(),
+                        r#type: TypedefStructFieldType::Straightforward {
+                            r#type: r#type.clone(),
+                        },
                     },
                 });
             }
@@ -385,62 +366,6 @@ fn parse_type_definition_struct(
                 },
             });
 
-            continue;
-        }
-
-        let Ok(field_str) = raw_item_node.utf8_text(code.as_bytes()) else {
-            return Err(());
-        };
-        let field_str = field_str.split_whitespace().collect::<Vec<_>>().join(" ");
-
-        // TODO: parse it properly.
-        if let Some(maybe_ident) = field_str.strip_prefix("const unsigned char *") {
-            let Some(maybe_ident) = maybe_ident.trim().strip_suffix(";") else {
-                return Err(());
-            };
-            let maybe_ident = maybe_ident.trim();
-            if !is_identifier(maybe_ident) {
-                return Err(());
-            }
-            fields.push(TypedefStructField::Item {
-                comment_above: comment_above.clone(),
-                item: TypedefStructFieldItem {
-                    name: text_from_span!(declarator.span).trim().to_owned(),
-                    r#type: TypedefStructFieldType::ConstUnsignedCharPtr,
-                },
-            });
-            continue;
-        } else if let Some(maybe_ident) = field_str.strip_prefix("const char *") {
-            let Some(maybe_ident) = maybe_ident.trim().strip_suffix(";") else {
-                return Err(());
-            };
-            let maybe_ident = maybe_ident.trim();
-            if !is_identifier(maybe_ident) {
-                return Err(());
-            }
-            fields.push(TypedefStructField::Item {
-                comment_above: comment_above.clone(),
-                item: TypedefStructFieldItem {
-                    name: text_from_span!(declarator.span).trim().to_owned(),
-                    r#type: TypedefStructFieldType::ConstCharPtr,
-                },
-            });
-            continue;
-        } else if let Some(maybe_ident) = field_str.strip_prefix("OfxPluginEntryPoint *") {
-            let Some(maybe_ident) = maybe_ident.trim().strip_suffix(";") else {
-                return Err(());
-            };
-            let maybe_ident = maybe_ident.trim();
-            if !is_identifier(maybe_ident) {
-                return Err(());
-            }
-            fields.push(TypedefStructField::Item {
-                comment_above: comment_above.clone(),
-                item: TypedefStructFieldItem {
-                    name: text_from_span!(declarator.span).trim().to_owned(),
-                    r#type: TypedefStructFieldType::OfxPluginEntryPointPtr,
-                },
-            });
             continue;
         }
 
@@ -620,7 +545,7 @@ fn parse_function_parameter_list(
 fn parse_parameter_declaration(
     code: &str,
     declaration: &ParameterDeclaration,
-) -> Result<Option<(String, FunctionParameterType)>, ()> {
+) -> Result<Option<(String, TypeStraightforward)>, ()> {
     macro_rules! text_from_span {
         ($span:expr) => {
             code[$span.start_byte..$span.end_byte].to_owned()
@@ -645,11 +570,11 @@ fn parse_parameter_declaration(
 
     let mut ty =
         if let Ok(name) = TypeSimpleCName::try_from(&text_from_span!(declaration.r#type.span())) {
-            FunctionParameterType::SimpleC { name }
+            TypeStraightforward::SimpleC { name }
         } else if let Ok(name) =
             TypeSimpleNonCName::try_from(&text_from_span!(declaration.r#type.span()))
         {
-            FunctionParameterType::SimpleNonC { name }
+            TypeStraightforward::SimpleNonC { name }
         } else {
             return Err(());
         };
@@ -667,11 +592,11 @@ fn parse_parameter_declaration(
             Declarator::PointerDeclarator(pointer_declarator) => {
                 if has_const_type_qualifier {
                     has_const_type_qualifier = false;
-                    ty = FunctionParameterType::ConstPtr {
+                    ty = TypeStraightforward::ConstPtr {
                         pointee: Box::new(ty),
                     };
                 } else {
-                    ty = FunctionParameterType::Ptr {
+                    ty = TypeStraightforward::Ptr {
                         pointee: Box::new(ty),
                     }
                 }
@@ -691,4 +616,88 @@ fn parse_parameter_declaration(
     }
 
     Ok(Some((name, ty)))
+}
+
+fn parse_field_declaration(
+    code: &str,
+    declaration: &FieldDeclaration,
+) -> Result<(Vec<String>, TypeStraightforward), ()> {
+    macro_rules! text_from_span {
+        ($span:expr) => {
+            code[$span.start_byte..$span.end_byte].to_owned()
+        };
+    }
+
+    let mut has_const_type_qualifier = if declaration.children.is_empty() {
+        false
+    } else if declaration.children.len() == 1
+        && let Some(FieldDeclarationChildren::TypeQualifier(type_qualifier)) =
+            declaration.children.first()
+        && text_from_span!(type_qualifier.span) == "const"
+    {
+        true
+    } else {
+        return Err(());
+    };
+
+    let mut ty =
+        if let Ok(name) = TypeSimpleCName::try_from(&text_from_span!(declaration.r#type.span())) {
+            TypeStraightforward::SimpleC { name }
+        } else if let Ok(name) =
+            TypeSimpleNonCName::try_from(&text_from_span!(declaration.r#type.span()))
+        {
+            TypeStraightforward::SimpleNonC { name }
+        } else {
+            return Err(());
+        };
+
+    let mut declarator: Vec<_> = declaration.declarator.iter().collect();
+    let names = loop {
+        let identifier_declarators: Vec<_> = declarator
+            .iter()
+            .filter_map(|d| {
+                if let FieldDeclarator::FieldIdentifier(declarator) = d {
+                    Some(declarator)
+                } else {
+                    None
+                }
+            })
+            .collect();
+        if identifier_declarators.len() == declarator.len() {
+            break identifier_declarators
+                .iter()
+                .map(|ident| text_from_span!(ident.span).trim().to_owned())
+                .collect::<Vec<_>>();
+        }
+        if declarator.len() != 1 {
+            return Err(());
+        }
+        let Some(FieldDeclarator::PointerDeclarator(pointer_declarator)) = declarator.first()
+        else {
+            return Err(());
+        };
+
+        if has_const_type_qualifier {
+            has_const_type_qualifier = false;
+            ty = TypeStraightforward::ConstPtr {
+                pointee: Box::new(ty),
+            };
+        } else {
+            ty = TypeStraightforward::Ptr {
+                pointee: Box::new(ty),
+            }
+        }
+        let PointerDeclaratorDeclarator::FieldDeclarator(declarator_) =
+            &pointer_declarator.declarator
+        else {
+            return Err(());
+        };
+        declarator = vec![declarator_];
+    };
+
+    if has_const_type_qualifier {
+        tracing::warn!("const type qualifier not consumed for fields: {names:?}",);
+    }
+
+    Ok((names, ty))
 }

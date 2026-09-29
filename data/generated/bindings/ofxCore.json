@@ -39,8 +39,11 @@
             "item": {
               "name": "host",
               "type": {
-                "$type": "SimpleNonC",
-                "name": "OfxPropertySetHandle"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleNonC",
+                  "name": "OfxPropertySetHandle"
+                }
               }
             }
           },
@@ -144,9 +147,16 @@
             "$type": "Item",
             "comment_above": "/** Defines the type of the plug-in, this will tell the host what the plug-in does. e.g.: an image\n      effects plug-in would be a \"OfxImageEffectPlugin\"\n   */",
             "item": {
-              "name": "OfxPlugin",
+              "name": "pluginApi",
               "type": {
-                "$type": "ConstCharPtr"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "ConstPtr",
+                  "pointee": {
+                    "$type": "SimpleC",
+                    "name": "char"
+                  }
+                }
               }
             }
           },
@@ -156,8 +166,11 @@
             "item": {
               "name": "apiVersion",
               "type": {
-                "$type": "SimpleC",
-                "name": "int"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "int"
+                }
               }
             }
           },
@@ -165,9 +178,16 @@
             "$type": "Item",
             "comment_above": "/** String that uniquely labels the plug-in among all plug-ins that implement an API.\n      It need not necessarily be human sensible, however the preference is to use reverse\n      internet domain name of the developer, followed by a '.' then by a name that represents\n      the plug-in.. It must be a legal ASCII string and have no whitespace in the\n      name and no non printing chars.\n      For example \"uk.co.somesoftwarehouse.myPlugin\"\n  */",
             "item": {
-              "name": "OfxPlugin",
+              "name": "pluginIdentifier",
               "type": {
-                "$type": "ConstCharPtr"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "ConstPtr",
+                  "pointee": {
+                    "$type": "SimpleC",
+                    "name": "char"
+                  }
+                }
               }
             }
           },
@@ -177,8 +197,11 @@
             "item": {
               "name": "pluginVersionMajor",
               "type": {
-                "$type": "SimpleC",
-                "name": "unsigned int"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "unsigned int"
+                }
               }
             }
           },
@@ -188,8 +211,11 @@
             "item": {
               "name": "pluginVersionMinor",
               "type": {
-                "$type": "SimpleC",
-                "name": "unsigned int"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "unsigned int"
+                }
               }
             }
           },
@@ -223,9 +249,16 @@
             "$type": "Item",
             "comment_above": "/** @brief Main entry point for plug-ins\n\n  Mandatory function.\n\n  The exact set of actions is determined by the plug-in API that is being implemented, however all plug-ins\n  can perform several actions. For the list of actions consult \\ref ActionsAll.\n\n   Preconditions\n      - setHost has been called\n   */",
             "item": {
-              "name": "OfxPlugin",
+              "name": "mainEntry",
               "type": {
-                "$type": "OfxPluginEntryPointPtr"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "Ptr",
+                  "pointee": {
+                    "$type": "SimpleNonC",
+                    "name": "OfxPluginEntryPoint"
+                  }
+                }
               }
             }
           }
@@ -649,8 +682,11 @@
             "item": {
               "name": "min",
               "type": {
-                "$type": "SimpleC",
-                "name": "int"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "int"
+                }
               }
             }
           },
@@ -659,8 +695,11 @@
             "item": {
               "name": "max",
               "type": {
-                "$type": "SimpleC",
-                "name": "int"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "int"
+                }
               }
             }
           }
@@ -679,8 +718,11 @@
             "item": {
               "name": "min",
               "type": {
-                "$type": "SimpleC",
-                "name": "double"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "double"
+                }
               }
             }
           },
@@ -689,8 +731,11 @@
             "item": {
               "name": "max",
               "type": {
-                "$type": "SimpleC",
-                "name": "double"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "double"
+                }
               }
             }
           }
@@ -709,8 +754,11 @@
             "item": {
               "name": "x",
               "type": {
-                "$type": "SimpleC",
-                "name": "int"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "int"
+                }
               }
             }
           },
@@ -719,8 +767,11 @@
             "item": {
               "name": "y",
               "type": {
-                "$type": "SimpleC",
-                "name": "int"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "int"
+                }
               }
             }
           }
@@ -739,8 +790,11 @@
             "item": {
               "name": "x",
               "type": {
-                "$type": "SimpleC",
-                "name": "double"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "double"
+                }
               }
             }
           },
@@ -749,8 +803,11 @@
             "item": {
               "name": "y",
               "type": {
-                "$type": "SimpleC",
-                "name": "double"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "double"
+                }
               }
             }
           }
@@ -793,8 +850,11 @@
             "item": {
               "name": "x1",
               "type": {
-                "$type": "SimpleC",
-                "name": "int"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "int"
+                }
               }
             }
           },
@@ -803,8 +863,11 @@
             "item": {
               "name": "y1",
               "type": {
-                "$type": "SimpleC",
-                "name": "int"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "int"
+                }
               }
             }
           },
@@ -813,8 +876,11 @@
             "item": {
               "name": "x2",
               "type": {
-                "$type": "SimpleC",
-                "name": "int"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "int"
+                }
               }
             }
           },
@@ -823,8 +889,11 @@
             "item": {
               "name": "y2",
               "type": {
-                "$type": "SimpleC",
-                "name": "int"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "int"
+                }
               }
             }
           }
@@ -843,8 +912,11 @@
             "item": {
               "name": "x1",
               "type": {
-                "$type": "SimpleC",
-                "name": "double"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "double"
+                }
               }
             }
           },
@@ -853,8 +925,11 @@
             "item": {
               "name": "y1",
               "type": {
-                "$type": "SimpleC",
-                "name": "double"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "double"
+                }
               }
             }
           },
@@ -863,8 +938,11 @@
             "item": {
               "name": "x2",
               "type": {
-                "$type": "SimpleC",
-                "name": "double"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "double"
+                }
               }
             }
           },
@@ -873,8 +951,11 @@
             "item": {
               "name": "y2",
               "type": {
-                "$type": "SimpleC",
-                "name": "double"
+                "$type": "Straightforward",
+                "type": {
+                  "$type": "SimpleC",
+                  "name": "double"
+                }
               }
             }
           }
