@@ -1,9 +1,9 @@
 use std::{collections::HashMap, path::PathBuf};
 
-use openfx_datagen::parsing::BindingsUnprocessed;
+use openfx_datagen::processing::Bindings;
 
 pub struct InputData {
-    pub bindings: HashMap<String, BindingsUnprocessed>,
+    pub bindings: HashMap<String, Bindings>,
 }
 
 pub fn load_input_data(
