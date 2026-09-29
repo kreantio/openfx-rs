@@ -182,15 +182,15 @@
                   {
                     "name": "clip",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxImageClipHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxImageClipHandle"
                     }
                   },
                   {
                     "name": "time",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxTime"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxTime"
                     }
                   },
                   {
@@ -198,8 +198,8 @@
                     "type": {
                       "$type": "ConstPtr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "char"
+                        "$type": "CPrimitive",
+                        "is": "char"
                       }
                     }
                   },
@@ -208,8 +208,8 @@
                     "type": {
                       "$type": "ConstPtr",
                       "pointee": {
-                        "$type": "SimpleNonC",
-                        "name": "OfxRectD"
+                        "$type": "TypeIdentifier",
+                        "is": "OfxRectD"
                       }
                     }
                   },
@@ -218,8 +218,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleNonC",
-                        "name": "OfxPropertySetHandle"
+                        "$type": "TypeIdentifier",
+                        "is": "OfxPropertySetHandle"
                       }
                     }
                   }
@@ -241,8 +241,8 @@
                   {
                     "name": "textureHandle",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxPropertySetHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxPropertySetHandle"
                     }
                   }
                 ],
@@ -495,16 +495,16 @@
                     "type": {
                       "$type": "ConstPtr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "char"
+                        "$type": "CPrimitive",
+                        "is": "char"
                       }
                     }
                   },
                   {
                     "name": "fOptional",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "int"
+                      "$type": "CPrimitive",
+                      "is": "int"
                     }
                   },
                   {
@@ -512,8 +512,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "void"
+                        "$type": "CPrimitive",
+                        "is": "void"
                       }
                     },
                     "comment": "// cast to cl_program*"

@@ -36,8 +36,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "void"
+                        "$type": "CPrimitive",
+                        "is": "void"
                       }
                     }
                   },
@@ -46,8 +46,8 @@
                     "type": {
                       "$type": "ConstPtr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "char"
+                        "$type": "CPrimitive",
+                        "is": "char"
                       }
                     }
                   }
@@ -71,16 +71,16 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "void"
+                        "$type": "CPrimitive",
+                        "is": "void"
                       }
                     }
                   },
                   {
                     "name": "progress",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "double"
+                      "$type": "CPrimitive",
+                      "is": "double"
                     }
                   }
                 ],
@@ -103,8 +103,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "void"
+                        "$type": "CPrimitive",
+                        "is": "void"
                       }
                     }
                   }
@@ -137,8 +137,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "void"
+                        "$type": "CPrimitive",
+                        "is": "void"
                       }
                     }
                   },
@@ -147,8 +147,8 @@
                     "type": {
                       "$type": "ConstPtr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "char"
+                        "$type": "CPrimitive",
+                        "is": "char"
                       }
                     }
                   },
@@ -157,8 +157,8 @@
                     "type": {
                       "$type": "ConstPtr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "char"
+                        "$type": "CPrimitive",
+                        "is": "char"
                       }
                     }
                   }
@@ -182,16 +182,16 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "void"
+                        "$type": "CPrimitive",
+                        "is": "void"
                       }
                     }
                   },
                   {
                     "name": "progress",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "double"
+                      "$type": "CPrimitive",
+                      "is": "double"
                     }
                   }
                 ],
@@ -214,8 +214,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "void"
+                        "$type": "CPrimitive",
+                        "is": "void"
                       }
                     }
                   }

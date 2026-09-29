@@ -106,7 +106,7 @@
               "type": "string"
             },
             "c_type": {
-              "$ref": "#/$defs/TypedefPrimitiveCType"
+              "$ref": "#/$defs/CPrimitiveType"
             },
             "$type": {
               "type": "string",
@@ -314,9 +314,9 @@
       "type": "string",
       "pattern": "^int$"
     },
-    "TypedefPrimitiveCType": {
+    "CPrimitiveType": {
       "type": "string",
-      "pattern": "^(int|double)$"
+      "pattern": "^(void|bool|char|int|float|double|size_t|unsigned (char|short|int))$"
     },
     "FunctionParameter": {
       "type": "object",
@@ -376,42 +376,38 @@
         {
           "type": "object",
           "properties": {
-            "name": {
-              "$ref": "#/$defs/TypeSimpleCName"
+            "is": {
+              "$ref": "#/$defs/CPrimitiveType"
             },
             "$type": {
               "type": "string",
-              "const": "SimpleC"
+              "const": "CPrimitive"
             }
           },
           "required": [
             "$type",
-            "name"
+            "is"
           ]
         },
         {
           "type": "object",
           "properties": {
-            "name": {
-              "$ref": "#/$defs/TypeSimpleNonCName"
+            "is": {
+              "$ref": "#/$defs/TypeIdentifier"
             },
             "$type": {
               "type": "string",
-              "const": "SimpleNonC"
+              "const": "TypeIdentifier"
             }
           },
           "required": [
             "$type",
-            "name"
+            "is"
           ]
         }
       ]
     },
-    "TypeSimpleCName": {
-      "type": "string",
-      "pattern": "^(void|bool|char|int|float|double|size_t|unsigned (char|short|int))$"
-    },
-    "TypeSimpleNonCName": {
+    "TypeIdentifier": {
       "type": "string",
       "pattern": "^Ofx[A-Z][_a-zA-Z\\d]*$"
     },
@@ -576,17 +572,17 @@
         {
           "type": "object",
           "properties": {
-            "name": {
-              "$ref": "#/$defs/TypeSimpleCName"
+            "is": {
+              "$ref": "#/$defs/CPrimitiveType"
             },
             "$type": {
               "type": "string",
-              "const": "SimpleC"
+              "const": "CPrimitive"
             }
           },
           "required": [
             "$type",
-            "name"
+            "is"
           ]
         }
       ]

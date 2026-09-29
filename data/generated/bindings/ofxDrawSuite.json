@@ -185,15 +185,15 @@
                   {
                     "name": "context",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxDrawContextHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxDrawContextHandle"
                     }
                   },
                   {
                     "name": "std_colour",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxStandardColour"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxStandardColour"
                     }
                   },
                   {
@@ -201,8 +201,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleNonC",
-                        "name": "OfxRGBAColourF"
+                        "$type": "TypeIdentifier",
+                        "is": "OfxRGBAColourF"
                       }
                     }
                   }
@@ -224,8 +224,8 @@
                   {
                     "name": "context",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxDrawContextHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxDrawContextHandle"
                     }
                   },
                   {
@@ -233,8 +233,8 @@
                     "type": {
                       "$type": "ConstPtr",
                       "pointee": {
-                        "$type": "SimpleNonC",
-                        "name": "OfxRGBAColourF"
+                        "$type": "TypeIdentifier",
+                        "is": "OfxRGBAColourF"
                       }
                     }
                   }
@@ -256,15 +256,15 @@
                   {
                     "name": "context",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxDrawContextHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxDrawContextHandle"
                     }
                   },
                   {
                     "name": "width",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "float"
+                      "$type": "CPrimitive",
+                      "is": "float"
                     }
                   }
                 ],
@@ -285,15 +285,15 @@
                   {
                     "name": "context",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxDrawContextHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxDrawContextHandle"
                     }
                   },
                   {
                     "name": "pattern",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxDrawLineStipplePattern"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxDrawLineStipplePattern"
                     }
                   }
                 ],
@@ -314,15 +314,15 @@
                   {
                     "name": "context",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxDrawContextHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxDrawContextHandle"
                     }
                   },
                   {
                     "name": "primitive",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxDrawPrimitive"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxDrawPrimitive"
                     }
                   },
                   {
@@ -330,16 +330,16 @@
                     "type": {
                       "$type": "ConstPtr",
                       "pointee": {
-                        "$type": "SimpleNonC",
-                        "name": "OfxPointD"
+                        "$type": "TypeIdentifier",
+                        "is": "OfxPointD"
                       }
                     }
                   },
                   {
                     "name": "point_count",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "int"
+                      "$type": "CPrimitive",
+                      "is": "int"
                     }
                   }
                 ],
@@ -360,8 +360,8 @@
                   {
                     "name": "context",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxDrawContextHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxDrawContextHandle"
                     }
                   },
                   {
@@ -369,8 +369,8 @@
                     "type": {
                       "$type": "ConstPtr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "char"
+                        "$type": "CPrimitive",
+                        "is": "char"
                       }
                     }
                   },
@@ -379,16 +379,16 @@
                     "type": {
                       "$type": "ConstPtr",
                       "pointee": {
-                        "$type": "SimpleNonC",
-                        "name": "OfxPointD"
+                        "$type": "TypeIdentifier",
+                        "is": "OfxPointD"
                       }
                     }
                   },
                   {
                     "name": "alignment",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "int"
+                      "$type": "CPrimitive",
+                      "is": "int"
                     }
                   }
                 ],

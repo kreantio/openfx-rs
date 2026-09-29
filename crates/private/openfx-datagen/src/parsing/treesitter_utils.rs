@@ -8,10 +8,10 @@ use treesitter_types_c::{
 };
 
 use crate::parsing::{
-    FunctionParameter, RootItem, TypeSimpleCName, TypeSimpleNonCName, TypeStraightforward,
-    TypedefEnumCValueExpr, TypedefEnumVariant, TypedefFunctionReturnType, TypedefPrimitiveCType,
-    TypedefStructField, TypedefStructFieldItem, TypedefStructFieldType,
-    TypedefStructFieldTypeFunctionPointerReturnType, utils::find_line_before,
+    CPrimitiveType, FunctionParameter, RootItem, TypeStraightforward, TypedefEnumCValueExpr,
+    TypedefEnumVariant, TypedefFunctionReturnType, TypedefStructField, TypedefStructFieldItem,
+    TypedefStructFieldType, TypedefStructFieldTypeFunctionPointerReturnType, types,
+    utils::find_line_before,
 };
 
 pub fn extract_name_from_declaration(declaration: &Declaration) -> Result<Span, ()> {
@@ -119,7 +119,7 @@ pub fn parse_type_definition(
     {
         return Ok(RootItem::TypedefPrimitive {
             name: text_from_span!(declarator.span).trim().to_owned(),
-            c_type: TypedefPrimitiveCType::try_from(text_from_span!(specifier.span).trim())?,
+            c_type: CPrimitiveType::try_from(text_from_span!(specifier.span).trim())?,
         });
     }
 
@@ -345,8 +345,8 @@ fn parse_type_definition_struct(
                 TypedefStructFieldTypeFunctionPointerReturnType::ConstVoidPtr
             } else if ret_ty_str == "OfxStatus" {
                 TypedefStructFieldTypeFunctionPointerReturnType::OfxStatus
-            } else if let Ok(name) = TypeSimpleCName::try_from(&ret_ty_str) {
-                TypedefStructFieldTypeFunctionPointerReturnType::SimpleC { name }
+            } else if let Ok(name) = CPrimitiveType::try_from(&ret_ty_str) {
+                TypedefStructFieldTypeFunctionPointerReturnType::CPrimitive { is: name }
             } else {
                 return Err(());
             };
@@ -569,12 +569,12 @@ fn parse_parameter_declaration(
     };
 
     let mut ty =
-        if let Ok(name) = TypeSimpleCName::try_from(&text_from_span!(declaration.r#type.span())) {
-            TypeStraightforward::SimpleC { name }
+        if let Ok(name) = CPrimitiveType::try_from(&text_from_span!(declaration.r#type.span())) {
+            TypeStraightforward::CPrimitive { is: name }
         } else if let Ok(name) =
-            TypeSimpleNonCName::try_from(&text_from_span!(declaration.r#type.span()))
+            types::TypeIdentifier::try_from(&text_from_span!(declaration.r#type.span()))
         {
-            TypeStraightforward::SimpleNonC { name }
+            TypeStraightforward::TypeIdentifier { is: name }
         } else {
             return Err(());
         };
@@ -641,12 +641,12 @@ fn parse_field_declaration(
     };
 
     let mut ty =
-        if let Ok(name) = TypeSimpleCName::try_from(&text_from_span!(declaration.r#type.span())) {
-            TypeStraightforward::SimpleC { name }
+        if let Ok(name) = CPrimitiveType::try_from(&text_from_span!(declaration.r#type.span())) {
+            TypeStraightforward::CPrimitive { is: name }
         } else if let Ok(name) =
-            TypeSimpleNonCName::try_from(&text_from_span!(declaration.r#type.span()))
+            types::TypeIdentifier::try_from(&text_from_span!(declaration.r#type.span()))
         {
-            TypeStraightforward::SimpleNonC { name }
+            TypeStraightforward::TypeIdentifier { is: name }
         } else {
             return Err(());
         };

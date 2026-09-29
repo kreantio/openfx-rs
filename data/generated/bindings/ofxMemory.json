@@ -35,16 +35,16 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "void"
+                        "$type": "CPrimitive",
+                        "is": "void"
                       }
                     }
                   },
                   {
                     "name": "nBytes",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "size_t"
+                      "$type": "CPrimitive",
+                      "is": "size_t"
                     }
                   },
                   {
@@ -54,8 +54,8 @@
                       "pointee": {
                         "$type": "Ptr",
                         "pointee": {
-                          "$type": "SimpleC",
-                          "name": "void"
+                          "$type": "CPrimitive",
+                          "is": "void"
                         }
                       }
                     }
@@ -80,8 +80,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "void"
+                        "$type": "CPrimitive",
+                        "is": "void"
                       }
                     }
                   }

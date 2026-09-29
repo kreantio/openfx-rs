@@ -125,29 +125,29 @@
                   {
                     "name": "param",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
                     "name": "curveIndex",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "int"
+                      "$type": "CPrimitive",
+                      "is": "int"
                     }
                   },
                   {
                     "name": "time",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxTime"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxTime"
                     }
                   },
                   {
                     "name": "parametricPosition",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "double"
+                      "$type": "CPrimitive",
+                      "is": "double"
                     }
                   },
                   {
@@ -155,8 +155,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "double"
+                        "$type": "CPrimitive",
+                        "is": "double"
                       }
                     }
                   }
@@ -178,22 +178,22 @@
                   {
                     "name": "param",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
                     "name": "curveIndex",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "int"
+                      "$type": "CPrimitive",
+                      "is": "int"
                     }
                   },
                   {
                     "name": "time",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "double"
+                      "$type": "CPrimitive",
+                      "is": "double"
                     }
                   },
                   {
@@ -201,8 +201,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "int"
+                        "$type": "CPrimitive",
+                        "is": "int"
                       }
                     }
                   }
@@ -224,29 +224,29 @@
                   {
                     "name": "param",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
                     "name": "curveIndex",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "int"
+                      "$type": "CPrimitive",
+                      "is": "int"
                     }
                   },
                   {
                     "name": "time",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "double"
+                      "$type": "CPrimitive",
+                      "is": "double"
                     }
                   },
                   {
                     "name": "nthCtl",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "int"
+                      "$type": "CPrimitive",
+                      "is": "int"
                     }
                   },
                   {
@@ -254,8 +254,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "double"
+                        "$type": "CPrimitive",
+                        "is": "double"
                       }
                     }
                   },
@@ -264,8 +264,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "double"
+                        "$type": "CPrimitive",
+                        "is": "double"
                       }
                     }
                   }
@@ -287,50 +287,50 @@
                   {
                     "name": "param",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
                     "name": "curveIndex",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "int"
+                      "$type": "CPrimitive",
+                      "is": "int"
                     }
                   },
                   {
                     "name": "time",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "double"
+                      "$type": "CPrimitive",
+                      "is": "double"
                     }
                   },
                   {
                     "name": "nthCtl",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "int"
+                      "$type": "CPrimitive",
+                      "is": "int"
                     }
                   },
                   {
                     "name": "key",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "double"
+                      "$type": "CPrimitive",
+                      "is": "double"
                     }
                   },
                   {
                     "name": "value",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "double"
+                      "$type": "CPrimitive",
+                      "is": "double"
                     }
                   },
                   {
                     "name": "addAnimationKey",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "bool"
+                      "$type": "CPrimitive",
+                      "is": "bool"
                     }
                   }
                 ],
@@ -351,43 +351,43 @@
                   {
                     "name": "param",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
                     "name": "curveIndex",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "int"
+                      "$type": "CPrimitive",
+                      "is": "int"
                     }
                   },
                   {
                     "name": "time",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "double"
+                      "$type": "CPrimitive",
+                      "is": "double"
                     }
                   },
                   {
                     "name": "key",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "double"
+                      "$type": "CPrimitive",
+                      "is": "double"
                     }
                   },
                   {
                     "name": "value",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "double"
+                      "$type": "CPrimitive",
+                      "is": "double"
                     }
                   },
                   {
                     "name": "addAnimationKey",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "bool"
+                      "$type": "CPrimitive",
+                      "is": "bool"
                     }
                   }
                 ],
@@ -408,22 +408,22 @@
                   {
                     "name": "param",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
                     "name": "curveIndex",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "int"
+                      "$type": "CPrimitive",
+                      "is": "int"
                     }
                   },
                   {
                     "name": "nthCtl",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "int"
+                      "$type": "CPrimitive",
+                      "is": "int"
                     }
                   }
                 ],
@@ -444,15 +444,15 @@
                   {
                     "name": "param",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
                     "name": "curveIndex",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "int"
+                      "$type": "CPrimitive",
+                      "is": "int"
                     }
                   }
                 ],

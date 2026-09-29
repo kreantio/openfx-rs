@@ -317,8 +317,8 @@
                   {
                     "name": "interactInstance",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxInteractHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxInteractHandle"
                     }
                   }
                 ],
@@ -339,8 +339,8 @@
                   {
                     "name": "interactInstance",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxInteractHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxInteractHandle"
                     }
                   }
                 ],
@@ -361,8 +361,8 @@
                   {
                     "name": "interactInstance",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxInteractHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxInteractHandle"
                     }
                   },
                   {
@@ -370,8 +370,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleNonC",
-                        "name": "OfxPropertySetHandle"
+                        "$type": "TypeIdentifier",
+                        "is": "OfxPropertySetHandle"
                       }
                     }
                   }

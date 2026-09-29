@@ -41,15 +41,15 @@
           {
             "name": "threadIndex",
             "type": {
-              "$type": "SimpleC",
-              "name": "unsigned int"
+              "$type": "CPrimitive",
+              "is": "unsigned int"
             }
           },
           {
             "name": "threadMax",
             "type": {
-              "$type": "SimpleC",
-              "name": "unsigned int"
+              "$type": "CPrimitive",
+              "is": "unsigned int"
             }
           },
           {
@@ -57,8 +57,8 @@
             "type": {
               "$type": "Ptr",
               "pointee": {
-                "$type": "SimpleC",
-                "name": "void"
+                "$type": "CPrimitive",
+                "is": "void"
               }
             }
           }
@@ -86,15 +86,15 @@
                   {
                     "name": "func",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxThreadFunctionV1"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxThreadFunctionV1"
                     }
                   },
                   {
                     "name": "nThreads",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "unsigned int"
+                      "$type": "CPrimitive",
+                      "is": "unsigned int"
                     }
                   },
                   {
@@ -102,8 +102,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "void"
+                        "$type": "CPrimitive",
+                        "is": "void"
                       }
                     }
                   }
@@ -127,8 +127,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "unsigned int"
+                        "$type": "CPrimitive",
+                        "is": "unsigned int"
                       }
                     }
                   }
@@ -152,8 +152,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "unsigned int"
+                        "$type": "CPrimitive",
+                        "is": "unsigned int"
                       }
                     }
                   }
@@ -172,8 +172,8 @@
               "type": {
                 "$type": "FunctionPointer",
                 "return_type": {
-                  "$type": "SimpleC",
-                  "name": "int"
+                  "$type": "CPrimitive",
+                  "is": "int"
                 }
               }
             }
@@ -191,16 +191,16 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleNonC",
-                        "name": "OfxMutexHandle"
+                        "$type": "TypeIdentifier",
+                        "is": "OfxMutexHandle"
                       }
                     }
                   },
                   {
                     "name": "lockCount",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "int"
+                      "$type": "CPrimitive",
+                      "is": "int"
                     }
                   }
                 ],
@@ -221,8 +221,8 @@
                   {
                     "name": "mutex",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxMutexHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxMutexHandle"
                     }
                   }
                 ],
@@ -243,8 +243,8 @@
                   {
                     "name": "mutex",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxMutexHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxMutexHandle"
                     }
                   }
                 ],
@@ -265,8 +265,8 @@
                   {
                     "name": "mutex",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxMutexHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxMutexHandle"
                     }
                   }
                 ],
@@ -287,8 +287,8 @@
                   {
                     "name": "mutex",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxMutexHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxMutexHandle"
                     }
                   }
                 ],

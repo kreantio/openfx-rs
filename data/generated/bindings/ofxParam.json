@@ -287,8 +287,8 @@
                 "type": {
                   "$type": "ConstPtr",
                   "pointee": {
-                    "$type": "SimpleC",
-                    "name": "unsigned char"
+                    "$type": "CPrimitive",
+                    "is": "unsigned char"
                   }
                 }
               }
@@ -302,8 +302,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "size_t"
+                  "$type": "CPrimitive",
+                  "is": "size_t"
                 }
               }
             }
@@ -1337,22 +1337,22 @@
           {
             "name": "instance",
             "type": {
-              "$type": "SimpleNonC",
-              "name": "OfxParamSetHandle"
+              "$type": "TypeIdentifier",
+              "is": "OfxParamSetHandle"
             }
           },
           {
             "name": "inArgs",
             "type": {
-              "$type": "SimpleNonC",
-              "name": "OfxPropertySetHandle"
+              "$type": "TypeIdentifier",
+              "is": "OfxPropertySetHandle"
             }
           },
           {
             "name": "outArgs",
             "type": {
-              "$type": "SimpleNonC",
-              "name": "OfxPropertySetHandle"
+              "$type": "TypeIdentifier",
+              "is": "OfxPropertySetHandle"
             }
           }
         ],
@@ -1379,8 +1379,8 @@
                   {
                     "name": "paramSet",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamSetHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamSetHandle"
                     }
                   },
                   {
@@ -1388,8 +1388,8 @@
                     "type": {
                       "$type": "ConstPtr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "char"
+                        "$type": "CPrimitive",
+                        "is": "char"
                       }
                     }
                   },
@@ -1398,8 +1398,8 @@
                     "type": {
                       "$type": "ConstPtr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "char"
+                        "$type": "CPrimitive",
+                        "is": "char"
                       }
                     }
                   },
@@ -1408,8 +1408,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleNonC",
-                        "name": "OfxPropertySetHandle"
+                        "$type": "TypeIdentifier",
+                        "is": "OfxPropertySetHandle"
                       }
                     }
                   }
@@ -1431,8 +1431,8 @@
                   {
                     "name": "paramSet",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamSetHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamSetHandle"
                     }
                   },
                   {
@@ -1440,8 +1440,8 @@
                     "type": {
                       "$type": "ConstPtr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "char"
+                        "$type": "CPrimitive",
+                        "is": "char"
                       }
                     }
                   },
@@ -1450,8 +1450,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleNonC",
-                        "name": "OfxParamHandle"
+                        "$type": "TypeIdentifier",
+                        "is": "OfxParamHandle"
                       }
                     }
                   },
@@ -1460,8 +1460,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleNonC",
-                        "name": "OfxPropertySetHandle"
+                        "$type": "TypeIdentifier",
+                        "is": "OfxPropertySetHandle"
                       }
                     }
                   }
@@ -1483,8 +1483,8 @@
                   {
                     "name": "paramSet",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamSetHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamSetHandle"
                     }
                   },
                   {
@@ -1492,8 +1492,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleNonC",
-                        "name": "OfxPropertySetHandle"
+                        "$type": "TypeIdentifier",
+                        "is": "OfxPropertySetHandle"
                       }
                     }
                   }
@@ -1515,8 +1515,8 @@
                   {
                     "name": "param",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
@@ -1524,8 +1524,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleNonC",
-                        "name": "OfxPropertySetHandle"
+                        "$type": "TypeIdentifier",
+                        "is": "OfxPropertySetHandle"
                       }
                     }
                   }
@@ -1547,8 +1547,8 @@
                   {
                     "name": "paramHandle",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   }
                 ],
@@ -1570,15 +1570,15 @@
                   {
                     "name": "paramHandle",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
                     "name": "time",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxTime"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxTime"
                     }
                   }
                 ],
@@ -1600,15 +1600,15 @@
                   {
                     "name": "paramHandle",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
                     "name": "time",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxTime"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxTime"
                     }
                   }
                 ],
@@ -1630,22 +1630,22 @@
                   {
                     "name": "paramHandle",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
                     "name": "time1",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxTime"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxTime"
                     }
                   },
                   {
                     "name": "time2",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxTime"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxTime"
                     }
                   }
                 ],
@@ -1667,8 +1667,8 @@
                   {
                     "name": "paramHandle",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   }
                 ],
@@ -1690,15 +1690,15 @@
                   {
                     "name": "paramHandle",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
                     "name": "time",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxTime"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxTime"
                     }
                   }
                 ],
@@ -1728,8 +1728,8 @@
                   {
                     "name": "paramHandle",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
@@ -1737,8 +1737,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "unsigned int"
+                        "$type": "CPrimitive",
+                        "is": "unsigned int"
                       }
                     }
                   }
@@ -1760,15 +1760,15 @@
                   {
                     "name": "paramHandle",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
                     "name": "nthKey",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "unsigned int"
+                      "$type": "CPrimitive",
+                      "is": "unsigned int"
                     }
                   },
                   {
@@ -1776,8 +1776,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleNonC",
-                        "name": "OfxTime"
+                        "$type": "TypeIdentifier",
+                        "is": "OfxTime"
                       }
                     }
                   }
@@ -1799,22 +1799,22 @@
                   {
                     "name": "paramHandle",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
                     "name": "time",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxTime"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxTime"
                     }
                   },
                   {
                     "name": "direction",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "int"
+                      "$type": "CPrimitive",
+                      "is": "int"
                     }
                   },
                   {
@@ -1822,8 +1822,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "int"
+                        "$type": "CPrimitive",
+                        "is": "int"
                       }
                     }
                   }
@@ -1845,15 +1845,15 @@
                   {
                     "name": "paramHandle",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
                     "name": "time",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxTime"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxTime"
                     }
                   }
                 ],
@@ -1874,8 +1874,8 @@
                   {
                     "name": "paramHandle",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   }
                 ],
@@ -1900,22 +1900,22 @@
                   {
                     "name": "paramTo",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
                     "name": "paramFrom",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamHandle"
                     }
                   },
                   {
                     "name": "dstOffset",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxTime"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxTime"
                     }
                   },
                   {
@@ -1923,8 +1923,8 @@
                     "type": {
                       "$type": "ConstPtr",
                       "pointee": {
-                        "$type": "SimpleNonC",
-                        "name": "OfxRangeD"
+                        "$type": "TypeIdentifier",
+                        "is": "OfxRangeD"
                       }
                     }
                   }
@@ -1946,8 +1946,8 @@
                   {
                     "name": "paramSet",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamSetHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamSetHandle"
                     }
                   },
                   {
@@ -1955,8 +1955,8 @@
                     "type": {
                       "$type": "ConstPtr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "char"
+                        "$type": "CPrimitive",
+                        "is": "char"
                       }
                     }
                   }
@@ -1978,8 +1978,8 @@
                   {
                     "name": "paramSet",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxParamSetHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxParamSetHandle"
                     }
                   }
                 ],

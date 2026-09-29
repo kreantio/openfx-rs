@@ -55,8 +55,8 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "void"
+                        "$type": "CPrimitive",
+                        "is": "void"
                       }
                     }
                   }

@@ -57,7 +57,7 @@ pub enum RootItem {
     },
     TypedefPrimitive {
         name: String,
-        c_type: TypedefPrimitiveCType,
+        c_type: CPrimitiveType,
     },
     TypedefOpaquePointer {
         name: String,
@@ -139,8 +139,8 @@ pub struct FunctionParameter {
 pub enum TypeStraightforward {
     Ptr { pointee: Box<TypeStraightforward> },
     ConstPtr { pointee: Box<TypeStraightforward> },
-    SimpleC { name: TypeSimpleCName },
-    SimpleNonC { name: TypeSimpleNonCName },
+    CPrimitive { is: CPrimitiveType },
+    TypeIdentifier { is: TypeIdentifier },
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
@@ -190,7 +190,7 @@ pub enum TypedefStructFieldTypeFunctionPointerReturnType {
     ConstVoidPtr,
     OfxStatus,
 
-    SimpleC { name: TypeSimpleCName },
+    CPrimitive { is: CPrimitiveType },
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
@@ -226,20 +226,16 @@ macro_rules! define_string_guarded_by_regex {
 
 define_string_guarded_by_regex!(
     TypedIntegerLiteralCType,
-    regex(TYPED_INTEGER_LITERAL_CTYPE_REGEX) = r#"^int$"#
+    regex(TYPED_INTEGER_LITERAL_C_TYPE_REGEX) = r#"^int$"#
 );
 define_string_guarded_by_regex!(
-    TypedefPrimitiveCType,
-    regex(TYPEDEF_PRIMITIVE_CTYPE_REGEX) = r#"^(int|double)$"#
-);
-define_string_guarded_by_regex!(
-    TypeSimpleCName,
-    regex(TYPEDEF_STRUCT_FIELD_TYPE_SIMPLE_C_NAME_REGEX) =
+    CPrimitiveType,
+    regex(C_PRIMITIVE_TYPE_REGEX) =
         r#"^(void|bool|char|int|float|double|size_t|unsigned (char|short|int))$"#
 );
 define_string_guarded_by_regex!(
-    TypeSimpleNonCName,
-    regex(TYPE_SIMPLE_NON_C_NAME_REGEX) = r#"^Ofx[A-Z][_a-zA-Z\d]*$"#
+    TypeIdentifier,
+    regex(TYPE_IDENTIFIER_REGEX) = r#"^Ofx[A-Z][_a-zA-Z\d]*$"#
 );
 define_string_guarded_by_regex!(
     TypedefEnumCValueExpr,

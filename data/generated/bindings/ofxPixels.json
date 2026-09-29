@@ -22,8 +22,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "unsigned char"
+                  "$type": "CPrimitive",
+                  "is": "unsigned char"
                 }
               }
             }
@@ -35,8 +35,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "unsigned char"
+                  "$type": "CPrimitive",
+                  "is": "unsigned char"
                 }
               }
             }
@@ -48,8 +48,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "unsigned char"
+                  "$type": "CPrimitive",
+                  "is": "unsigned char"
                 }
               }
             }
@@ -61,8 +61,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "unsigned char"
+                  "$type": "CPrimitive",
+                  "is": "unsigned char"
                 }
               }
             }
@@ -84,8 +84,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "unsigned short"
+                  "$type": "CPrimitive",
+                  "is": "unsigned short"
                 }
               }
             }
@@ -97,8 +97,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "unsigned short"
+                  "$type": "CPrimitive",
+                  "is": "unsigned short"
                 }
               }
             }
@@ -110,8 +110,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "unsigned short"
+                  "$type": "CPrimitive",
+                  "is": "unsigned short"
                 }
               }
             }
@@ -123,8 +123,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "unsigned short"
+                  "$type": "CPrimitive",
+                  "is": "unsigned short"
                 }
               }
             }
@@ -146,8 +146,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "float"
+                  "$type": "CPrimitive",
+                  "is": "float"
                 }
               }
             }
@@ -159,8 +159,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "float"
+                  "$type": "CPrimitive",
+                  "is": "float"
                 }
               }
             }
@@ -172,8 +172,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "float"
+                  "$type": "CPrimitive",
+                  "is": "float"
                 }
               }
             }
@@ -185,8 +185,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "float"
+                  "$type": "CPrimitive",
+                  "is": "float"
                 }
               }
             }
@@ -208,8 +208,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "double"
+                  "$type": "CPrimitive",
+                  "is": "double"
                 }
               }
             }
@@ -221,8 +221,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "double"
+                  "$type": "CPrimitive",
+                  "is": "double"
                 }
               }
             }
@@ -234,8 +234,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "double"
+                  "$type": "CPrimitive",
+                  "is": "double"
                 }
               }
             }
@@ -247,8 +247,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "double"
+                  "$type": "CPrimitive",
+                  "is": "double"
                 }
               }
             }
@@ -270,8 +270,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "unsigned char"
+                  "$type": "CPrimitive",
+                  "is": "unsigned char"
                 }
               }
             }
@@ -283,8 +283,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "unsigned char"
+                  "$type": "CPrimitive",
+                  "is": "unsigned char"
                 }
               }
             }
@@ -296,8 +296,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "unsigned char"
+                  "$type": "CPrimitive",
+                  "is": "unsigned char"
                 }
               }
             }
@@ -319,8 +319,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "unsigned short"
+                  "$type": "CPrimitive",
+                  "is": "unsigned short"
                 }
               }
             }
@@ -332,8 +332,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "unsigned short"
+                  "$type": "CPrimitive",
+                  "is": "unsigned short"
                 }
               }
             }
@@ -345,8 +345,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "unsigned short"
+                  "$type": "CPrimitive",
+                  "is": "unsigned short"
                 }
               }
             }
@@ -368,8 +368,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "float"
+                  "$type": "CPrimitive",
+                  "is": "float"
                 }
               }
             }
@@ -381,8 +381,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "float"
+                  "$type": "CPrimitive",
+                  "is": "float"
                 }
               }
             }
@@ -394,8 +394,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "float"
+                  "$type": "CPrimitive",
+                  "is": "float"
                 }
               }
             }
@@ -417,8 +417,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "double"
+                  "$type": "CPrimitive",
+                  "is": "double"
                 }
               }
             }
@@ -430,8 +430,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "double"
+                  "$type": "CPrimitive",
+                  "is": "double"
                 }
               }
             }
@@ -443,8 +443,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "double"
+                  "$type": "CPrimitive",
+                  "is": "double"
                 }
               }
             }

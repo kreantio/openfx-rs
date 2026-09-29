@@ -41,8 +41,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleNonC",
-                  "name": "OfxPropertySetHandle"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxPropertySetHandle"
                 }
               }
             }
@@ -58,8 +58,8 @@
                   {
                     "name": "host",
                     "type": {
-                      "$type": "SimpleNonC",
-                      "name": "OfxPropertySetHandle"
+                      "$type": "TypeIdentifier",
+                      "is": "OfxPropertySetHandle"
                     }
                   },
                   {
@@ -67,16 +67,16 @@
                     "type": {
                       "$type": "ConstPtr",
                       "pointee": {
-                        "$type": "SimpleC",
-                        "name": "char"
+                        "$type": "CPrimitive",
+                        "is": "char"
                       }
                     }
                   },
                   {
                     "name": "suiteVersion",
                     "type": {
-                      "$type": "SimpleC",
-                      "name": "int"
+                      "$type": "CPrimitive",
+                      "is": "int"
                     }
                   }
                 ],
@@ -101,8 +101,8 @@
             "type": {
               "$type": "ConstPtr",
               "pointee": {
-                "$type": "SimpleC",
-                "name": "char"
+                "$type": "CPrimitive",
+                "is": "char"
               }
             }
           },
@@ -111,23 +111,23 @@
             "type": {
               "$type": "ConstPtr",
               "pointee": {
-                "$type": "SimpleC",
-                "name": "void"
+                "$type": "CPrimitive",
+                "is": "void"
               }
             }
           },
           {
             "name": "inArgs",
             "type": {
-              "$type": "SimpleNonC",
-              "name": "OfxPropertySetHandle"
+              "$type": "TypeIdentifier",
+              "is": "OfxPropertySetHandle"
             }
           },
           {
             "name": "outArgs",
             "type": {
-              "$type": "SimpleNonC",
-              "name": "OfxPropertySetHandle"
+              "$type": "TypeIdentifier",
+              "is": "OfxPropertySetHandle"
             }
           }
         ],
@@ -153,8 +153,8 @@
                 "type": {
                   "$type": "ConstPtr",
                   "pointee": {
-                    "$type": "SimpleC",
-                    "name": "char"
+                    "$type": "CPrimitive",
+                    "is": "char"
                   }
                 }
               }
@@ -168,8 +168,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "int"
+                  "$type": "CPrimitive",
+                  "is": "int"
                 }
               }
             }
@@ -184,8 +184,8 @@
                 "type": {
                   "$type": "ConstPtr",
                   "pointee": {
-                    "$type": "SimpleC",
-                    "name": "char"
+                    "$type": "CPrimitive",
+                    "is": "char"
                   }
                 }
               }
@@ -199,8 +199,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "unsigned int"
+                  "$type": "CPrimitive",
+                  "is": "unsigned int"
                 }
               }
             }
@@ -213,8 +213,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "unsigned int"
+                  "$type": "CPrimitive",
+                  "is": "unsigned int"
                 }
               }
             }
@@ -232,15 +232,15 @@
                     "type": {
                       "$type": "Ptr",
                       "pointee": {
-                        "$type": "SimpleNonC",
-                        "name": "OfxHost"
+                        "$type": "TypeIdentifier",
+                        "is": "OfxHost"
                       }
                     }
                   }
                 ],
                 "return_type": {
-                  "$type": "SimpleC",
-                  "name": "void"
+                  "$type": "CPrimitive",
+                  "is": "void"
                 }
               }
             }
@@ -255,8 +255,8 @@
                 "type": {
                   "$type": "Ptr",
                   "pointee": {
-                    "$type": "SimpleNonC",
-                    "name": "OfxPluginEntryPoint"
+                    "$type": "TypeIdentifier",
+                    "is": "OfxPluginEntryPoint"
                   }
                 }
               }
@@ -684,8 +684,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "int"
+                  "$type": "CPrimitive",
+                  "is": "int"
                 }
               }
             }
@@ -697,8 +697,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "int"
+                  "$type": "CPrimitive",
+                  "is": "int"
                 }
               }
             }
@@ -720,8 +720,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "double"
+                  "$type": "CPrimitive",
+                  "is": "double"
                 }
               }
             }
@@ -733,8 +733,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "double"
+                  "$type": "CPrimitive",
+                  "is": "double"
                 }
               }
             }
@@ -756,8 +756,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "int"
+                  "$type": "CPrimitive",
+                  "is": "int"
                 }
               }
             }
@@ -769,8 +769,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "int"
+                  "$type": "CPrimitive",
+                  "is": "int"
                 }
               }
             }
@@ -792,8 +792,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "double"
+                  "$type": "CPrimitive",
+                  "is": "double"
                 }
               }
             }
@@ -805,8 +805,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "double"
+                  "$type": "CPrimitive",
+                  "is": "double"
                 }
               }
             }
@@ -852,8 +852,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "int"
+                  "$type": "CPrimitive",
+                  "is": "int"
                 }
               }
             }
@@ -865,8 +865,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "int"
+                  "$type": "CPrimitive",
+                  "is": "int"
                 }
               }
             }
@@ -878,8 +878,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "int"
+                  "$type": "CPrimitive",
+                  "is": "int"
                 }
               }
             }
@@ -891,8 +891,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "int"
+                  "$type": "CPrimitive",
+                  "is": "int"
                 }
               }
             }
@@ -914,8 +914,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "double"
+                  "$type": "CPrimitive",
+                  "is": "double"
                 }
               }
             }
@@ -927,8 +927,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "double"
+                  "$type": "CPrimitive",
+                  "is": "double"
                 }
               }
             }
@@ -940,8 +940,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "double"
+                  "$type": "CPrimitive",
+                  "is": "double"
                 }
               }
             }
@@ -953,8 +953,8 @@
               "type": {
                 "$type": "Straightforward",
                 "type": {
-                  "$type": "SimpleC",
-                  "name": "double"
+                  "$type": "CPrimitive",
+                  "is": "double"
                 }
               }
             }
