@@ -13,7 +13,7 @@ use regex::Regex;
 pub struct BindingsUnprocessed {
     pub info: UnprocessedInfo,
 
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub copyright_comments: Vec<String>,
     pub items: Vec<RootItemWithCommentAbove>,
 }
@@ -24,13 +24,13 @@ pub struct BindingsUnprocessed {
 /// Because [`Bindings`] is the one that will be serialized and deserialized.
 #[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 pub struct UnprocessedInfo {
-    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub includes: BTreeSet<String>,
-    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub declared_types: BTreeSet<String>,
-    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub defined_consts: BTreeSet<String>,
-    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub referred_identifiers: BTreeSet<String>,
 }
 
@@ -39,10 +39,10 @@ pub struct Bindings {
     pub copyright_comments: Vec<String>,
 
     /// key: header file stem name
-    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub used_types: BTreeMap<String, String>,
     /// key: header file stem name
-    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub used_values: BTreeMap<String, String>,
 
     pub items: Vec<RootItemWithCommentAbove>,
@@ -52,7 +52,7 @@ pub struct Bindings {
 #[serde(tag = "$type")]
 pub enum RootItemWithCommentAbove {
     Item {
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
         comment_above: Option<String>,
         item: RootItem,
     },
@@ -67,7 +67,7 @@ pub enum RootItem {
     Define {
         name: String,
         value: DefineValue,
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
         comment: Option<String>,
     },
     TypedefPrimitive {
@@ -80,20 +80,20 @@ pub enum RootItem {
     },
     TypedefFunction {
         name: String,
-        #[serde(skip_serializing_if = "Vec::is_empty")]
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
         parameters: Vec<FunctionParameter>,
-        #[serde(skip_serializing_if = "std::ops::Not::not")]
+        #[serde(default, skip_serializing_if = "std::ops::Not::not")]
         is_variadic: bool,
         return_type: TypeStraightforward,
     },
     TypedefStruct {
         name: String,
-        #[serde(skip_serializing_if = "Vec::is_empty")]
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
         fields: Vec<TypedefStructField>,
     },
     TypedefEnum {
         name: String,
-        #[serde(skip_serializing_if = "Vec::is_empty")]
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
         variants: Vec<TypedefEnumVariant>,
     },
 }
@@ -198,7 +198,7 @@ impl DefineValue {
 pub struct FunctionParameter {
     pub name: String,
     pub r#type: TypeStraightforward,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
 }
 
@@ -232,7 +232,7 @@ impl TypeStraightforward {
 #[serde(tag = "$type")]
 pub enum TypedefStructField {
     Item {
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
         comment_above: Option<String>,
         item: TypedefStructFieldItem,
     },
@@ -269,9 +269,9 @@ pub enum TypedefStructFieldType {
         r#type: TypeStraightforward,
     },
     FunctionPointer {
-        #[serde(skip_serializing_if = "Vec::is_empty")]
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
         parameters: Vec<FunctionParameter>,
-        #[serde(skip_serializing_if = "std::ops::Not::not")]
+        #[serde(default, skip_serializing_if = "std::ops::Not::not")]
         is_variadic: bool,
         return_type: TypeStraightforward,
     },
@@ -306,9 +306,9 @@ impl TypedefStructFieldType {
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 pub struct TypedefEnumVariant {
     pub name: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub c_value_expr: Option<TypedefEnumCValueExpr>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
 }
 

@@ -21,7 +21,6 @@
   },
   "required": [
     "info",
-    "copyright_comments",
     "items"
   ],
   "$defs": {
@@ -57,13 +56,7 @@
             "type": "string"
           }
         }
-      },
-      "required": [
-        "includes",
-        "declared_types",
-        "defined_consts",
-        "referred_identifiers"
-      ]
+      }
     },
     "RootItemWithCommentAbove": {
       "oneOf": [
@@ -201,8 +194,6 @@
           "required": [
             "$type",
             "name",
-            "parameters",
-            "is_variadic",
             "return_type"
           ]
         },
@@ -225,8 +216,7 @@
           },
           "required": [
             "$type",
-            "name",
-            "fields"
+            "name"
           ]
         },
         {
@@ -248,8 +238,7 @@
           },
           "required": [
             "$type",
-            "name",
-            "variants"
+            "name"
           ]
         }
       ]
@@ -544,8 +533,6 @@
           },
           "required": [
             "$type",
-            "parameters",
-            "is_variadic",
             "return_type"
           ]
         }
