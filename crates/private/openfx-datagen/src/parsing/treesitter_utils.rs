@@ -686,5 +686,9 @@ fn parse_parameter_declaration(
         }
     };
 
+    if has_const_type_qualifier {
+        tracing::warn!("const type qualifier not consumed for parameter: {name}",);
+    }
+
     Ok(Some((name, ty)))
 }

@@ -17,6 +17,8 @@ struct Args {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    tracing_subscriber::fmt::init();
+
     let args = Args::parse();
 
     let mut input_entries: Vec<(std::fs::DirEntry, String)> = vec![];
