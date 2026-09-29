@@ -15,6 +15,183 @@
           "value": "OfxProgressSuite"
         }
       }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief A suite that provides progress feedback from a plugin to an application\n\n    A plugin instance can initiate, update and close a progress indicator with\n    this suite.\n\n    This is an optional suite in the Image Effect API.\n\n    API V1.4: Amends the documentation of progress suite V1 so that it is\n    expected that it can be raised in a modal manner and have a \"cancel\"\n    button when invoked in instanceChanged. Plugins that perform analysis\n    post an appropriate message, raise the progress monitor in a modal manner\n    and should poll to see if processing has been aborted. Any cancellation\n    should be handled gracefully by the plugin (eg: reset analysis parameters\n    to default values), clear allocated memory...\n\n    Many hosts already operate as described above. kOfxStatReplyNo should be\n    returned to the plugin during progressUpdate when the user presses\n    cancel.\n\n    Suite V2: Adds an ID that can be looked up for internationalisation and\n    so on. When a new version is introduced, because plug-ins need to support\n    old versions, and plug-in's new releases are not necessary in synch with\n    hosts (or users don't immediately update), best practice is to support\n    the 2 suite versions. That is, the plugin should check if V2 exists; if\n    not then check if V1 exists. This way a graceful transition is\n    guaranteed.  So plugin should fetchSuite passing 2,\n      (OfxProgressSuiteV2*) fetchSuite(mHost->mHost->host, kOfxProgressSuite,2);\n    and if no success pass (OfxProgressSuiteV1*)\n      fetchSuite(mHost->mHost->host, kOfxProgressSuite,1);",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxProgressSuiteV1",
+        "fields": [
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Initiate a progress bar display.\n\n      Call this to initiate the display of a progress bar.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                               associated with. It cannot be NULL.\n      \\arg \\c label          a text label to display in any message portion of the\n                               progress object's user interface. A UTF8 string.\n\n      \\pre                   - There is no currently ongoing progress display for this instance.\n\n      \\returns\n      - ::kOfxStatOK - the handle is now valid for use\n      - ::kOfxStatFailed - the progress object failed for some reason\n      - ::kOfxStatErrBadHandle - effectInstance was invalid\n   */",
+            "item": {
+              "name": "progressStart",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "effectInstance",
+                    "type": {
+                      "$type": "VoidPtr"
+                    }
+                  },
+                  {
+                    "name": "label",
+                    "type": {
+                      "$type": "ConstCharPtr"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Indicate how much of the processing task has been completed and reports on any abort status.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                                associated with. It cannot be NULL.\n      \\arg \\c progress a number between 0.0 and 1.0 indicating what proportion of the current task has been processed.\n\n      \\returns\n      - ::kOfxStatOK - the progress object was successfully updated and the task should continue\n      - ::kOfxStatReplyNo - the progress object was successfully updated and the task should abort\n      - ::kOfxStatErrBadHandle - the progress handle was invalid,\n  */",
+            "item": {
+              "name": "progressUpdate",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "effectInstance",
+                    "type": {
+                      "$type": "VoidPtr"
+                    }
+                  },
+                  {
+                    "name": "progress",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "double"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Signal that we are finished with the progress meter.\n\n      Call this when you are done with the progress meter and no\n      longer need it displayed.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                                associated with. It cannot be NULL.\n\n      \\post - you can no longer call progressUpdate on the instance\n\n      \\returns\n      - ::kOfxStatOK - the progress object was successfully closed\n      - ::kOfxStatErrBadHandle - the progress handle was invalid,\n   */",
+            "item": {
+              "name": "progressEnd",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "effectInstance",
+                    "type": {
+                      "$type": "VoidPtr"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxProgressSuiteV2",
+        "fields": [
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Initiate a progress bar display.\n\n      Call this to initiate the display of a progress bar.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                               associated with. It cannot be NULL.\n      \\arg \\c message        a text label to display in any message portion of the\n                               progress object's user interface. A UTF8 string.\n      \\arg \\c messageId      plugin-specified id to associate with this message.\n                               If overriding the message in an XML resource, the message\n\t\t\t       is identified with this, this may be NULL, or \"\", in\n\t\t\t       which case no override will occur.\n\t\t\t       New in V2 of this suite.\n\n      \\pre                   - There is no currently ongoing progress display for this instance.\n\n      \\returns\n      - ::kOfxStatOK - the handle is now valid for use\n      - ::kOfxStatFailed - the progress object failed for some reason\n      - ::kOfxStatErrBadHandle - effectInstance was invalid\n */",
+            "item": {
+              "name": "progressStart",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "effectInstance",
+                    "type": {
+                      "$type": "VoidPtr"
+                    }
+                  },
+                  {
+                    "name": "message",
+                    "type": {
+                      "$type": "ConstCharPtr"
+                    }
+                  },
+                  {
+                    "name": "messageid",
+                    "type": {
+                      "$type": "ConstCharPtr"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Indicate how much of the processing task has been completed and reports on any abort status.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                                associated with. It cannot be NULL.\n      \\arg \\c progress a number between 0.0 and 1.0 indicating what proportion of the current task has been processed.\n\n      \\returns\n      - ::kOfxStatOK - the progress object was successfully updated and the task should continue\n      - ::kOfxStatReplyNo - the progress object was successfully updated and the task should abort\n      - ::kOfxStatErrBadHandle - the progress handle was invalid,\n  */",
+            "item": {
+              "name": "progressUpdate",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "effectInstance",
+                    "type": {
+                      "$type": "VoidPtr"
+                    }
+                  },
+                  {
+                    "name": "progress",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "double"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Signal that we are finished with the progress meter.\n\n      Call this when you are done with the progress meter and no\n      longer need it displayed.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                                associated with. It cannot be NULL.\n\n      \\post - you can no longer call progressUpdate on the instance\n\n      \\returns\n      - ::kOfxStatOK - the progress object was successfully closed\n      - ::kOfxStatErrBadHandle - the progress handle was invalid,\n   */",
+            "item": {
+              "name": "progressEnd",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "effectInstance",
+                    "type": {
+                      "$type": "VoidPtr"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          }
+        ]
+      }
     }
   ]
 }

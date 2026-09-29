@@ -302,6 +302,10 @@
     {
       "$type": "StandaloneComment",
       "comment": "@propset InteractDescriptor\n    write: host\n    props:\n      - OfxInteractPropHasAlpha\n      - OfxInteractPropBitDepth"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "@propset InteractInstance\n    write: host\n    props:\n      - OfxPropEffectInstance\n      - OfxPropInstanceData\n      - OfxInteractPropPixelScale\n      - OfxInteractPropBackgroundColour\n      - OfxInteractPropHasAlpha\n      - OfxInteractPropBitDepth\n      - OfxInteractPropSlaveToParam\n      - OfxInteractPropSuggestedColour"
     }
   ]
 }

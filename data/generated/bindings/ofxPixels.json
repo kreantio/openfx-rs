@@ -16,31 +16,43 @@
         "name": "OfxRGBAColourB",
         "fields": [
           {
-            "name": "r",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned char"
+            "$type": "Item",
+            "item": {
+              "name": "r",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned char"
+              }
             }
           },
           {
-            "name": "g",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned char"
+            "$type": "Item",
+            "item": {
+              "name": "g",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned char"
+              }
             }
           },
           {
-            "name": "b",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned char"
+            "$type": "Item",
+            "item": {
+              "name": "b",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned char"
+              }
             }
           },
           {
-            "name": "a",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned char"
+            "$type": "Item",
+            "item": {
+              "name": "a",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned char"
+              }
             }
           }
         ]
@@ -54,31 +66,43 @@
         "name": "OfxRGBAColourS",
         "fields": [
           {
-            "name": "r",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned short"
+            "$type": "Item",
+            "item": {
+              "name": "r",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned short"
+              }
             }
           },
           {
-            "name": "g",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned short"
+            "$type": "Item",
+            "item": {
+              "name": "g",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned short"
+              }
             }
           },
           {
-            "name": "b",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned short"
+            "$type": "Item",
+            "item": {
+              "name": "b",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned short"
+              }
             }
           },
           {
-            "name": "a",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned short"
+            "$type": "Item",
+            "item": {
+              "name": "a",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned short"
+              }
             }
           }
         ]
@@ -92,31 +116,43 @@
         "name": "OfxRGBAColourF",
         "fields": [
           {
-            "name": "r",
-            "type": {
-              "$type": "SimpleC",
-              "name": "float"
+            "$type": "Item",
+            "item": {
+              "name": "r",
+              "type": {
+                "$type": "SimpleC",
+                "name": "float"
+              }
             }
           },
           {
-            "name": "g",
-            "type": {
-              "$type": "SimpleC",
-              "name": "float"
+            "$type": "Item",
+            "item": {
+              "name": "g",
+              "type": {
+                "$type": "SimpleC",
+                "name": "float"
+              }
             }
           },
           {
-            "name": "b",
-            "type": {
-              "$type": "SimpleC",
-              "name": "float"
+            "$type": "Item",
+            "item": {
+              "name": "b",
+              "type": {
+                "$type": "SimpleC",
+                "name": "float"
+              }
             }
           },
           {
-            "name": "a",
-            "type": {
-              "$type": "SimpleC",
-              "name": "float"
+            "$type": "Item",
+            "item": {
+              "name": "a",
+              "type": {
+                "$type": "SimpleC",
+                "name": "float"
+              }
             }
           }
         ]
@@ -130,31 +166,43 @@
         "name": "OfxRGBAColourD",
         "fields": [
           {
-            "name": "r",
-            "type": {
-              "$type": "SimpleC",
-              "name": "double"
+            "$type": "Item",
+            "item": {
+              "name": "r",
+              "type": {
+                "$type": "SimpleC",
+                "name": "double"
+              }
             }
           },
           {
-            "name": "g",
-            "type": {
-              "$type": "SimpleC",
-              "name": "double"
+            "$type": "Item",
+            "item": {
+              "name": "g",
+              "type": {
+                "$type": "SimpleC",
+                "name": "double"
+              }
             }
           },
           {
-            "name": "b",
-            "type": {
-              "$type": "SimpleC",
-              "name": "double"
+            "$type": "Item",
+            "item": {
+              "name": "b",
+              "type": {
+                "$type": "SimpleC",
+                "name": "double"
+              }
             }
           },
           {
-            "name": "a",
-            "type": {
-              "$type": "SimpleC",
-              "name": "double"
+            "$type": "Item",
+            "item": {
+              "name": "a",
+              "type": {
+                "$type": "SimpleC",
+                "name": "double"
+              }
             }
           }
         ]
@@ -168,24 +216,33 @@
         "name": "OfxRGBColourB",
         "fields": [
           {
-            "name": "r",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned char"
+            "$type": "Item",
+            "item": {
+              "name": "r",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned char"
+              }
             }
           },
           {
-            "name": "g",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned char"
+            "$type": "Item",
+            "item": {
+              "name": "g",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned char"
+              }
             }
           },
           {
-            "name": "b",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned char"
+            "$type": "Item",
+            "item": {
+              "name": "b",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned char"
+              }
             }
           }
         ]
@@ -199,24 +256,33 @@
         "name": "OfxRGBColourS",
         "fields": [
           {
-            "name": "r",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned short"
+            "$type": "Item",
+            "item": {
+              "name": "r",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned short"
+              }
             }
           },
           {
-            "name": "g",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned short"
+            "$type": "Item",
+            "item": {
+              "name": "g",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned short"
+              }
             }
           },
           {
-            "name": "b",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned short"
+            "$type": "Item",
+            "item": {
+              "name": "b",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned short"
+              }
             }
           }
         ]
@@ -230,24 +296,33 @@
         "name": "OfxRGBColourF",
         "fields": [
           {
-            "name": "r",
-            "type": {
-              "$type": "SimpleC",
-              "name": "float"
+            "$type": "Item",
+            "item": {
+              "name": "r",
+              "type": {
+                "$type": "SimpleC",
+                "name": "float"
+              }
             }
           },
           {
-            "name": "g",
-            "type": {
-              "$type": "SimpleC",
-              "name": "float"
+            "$type": "Item",
+            "item": {
+              "name": "g",
+              "type": {
+                "$type": "SimpleC",
+                "name": "float"
+              }
             }
           },
           {
-            "name": "b",
-            "type": {
-              "$type": "SimpleC",
-              "name": "float"
+            "$type": "Item",
+            "item": {
+              "name": "b",
+              "type": {
+                "$type": "SimpleC",
+                "name": "float"
+              }
             }
           }
         ]
@@ -261,24 +336,33 @@
         "name": "OfxRGBColourD",
         "fields": [
           {
-            "name": "r",
-            "type": {
-              "$type": "SimpleC",
-              "name": "double"
+            "$type": "Item",
+            "item": {
+              "name": "r",
+              "type": {
+                "$type": "SimpleC",
+                "name": "double"
+              }
             }
           },
           {
-            "name": "g",
-            "type": {
-              "$type": "SimpleC",
-              "name": "double"
+            "$type": "Item",
+            "item": {
+              "name": "g",
+              "type": {
+                "$type": "SimpleC",
+                "name": "double"
+              }
             }
           },
           {
-            "name": "b",
-            "type": {
-              "$type": "SimpleC",
-              "name": "double"
+            "$type": "Item",
+            "item": {
+              "name": "b",
+              "type": {
+                "$type": "SimpleC",
+                "name": "double"
+              }
             }
           }
         ]

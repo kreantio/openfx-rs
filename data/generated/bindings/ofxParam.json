@@ -278,18 +278,24 @@
         "name": "OfxBytes",
         "fields": [
           {
+            "$type": "Item",
             "comment_above": "/** @brief a pointer to the data buffer */",
-            "name": "OfxBytes",
-            "type": {
-              "$type": "ConstUnsignedCharPtr"
+            "item": {
+              "name": "OfxBytes",
+              "type": {
+                "$type": "ConstUnsignedCharPtr"
+              }
             }
           },
           {
+            "$type": "Item",
             "comment_above": "/** @brief the length of the data buffer, in bytes */",
-            "name": "length",
-            "type": {
-              "$type": "SimpleC",
-              "name": "size_t"
+            "item": {
+              "name": "length",
+              "type": {
+                "$type": "SimpleC",
+                "name": "size_t"
+              }
             }
           }
         ]
@@ -1416,6 +1422,10 @@
     {
       "$type": "StandaloneComment",
       "comment": "@propset ParamsPage\n    write: plugin\n    props:\n      - OfxParamPropPageChild\n      - ParamsCommon_REF"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "@propset ParamsParametric\n    write: plugin\n    props:\n      - OfxParamPropAnimates\n      - OfxParamPropIsAnimating\n      - OfxParamPropIsAutoKeying\n      - OfxParamPropPersistant\n      - OfxParamPropEvaluateOnChange\n      - OfxParamPropPluginMayWrite\n      - OfxParamPropCacheInvalidation\n      - OfxParamPropCanUndo\n      - OfxParamPropParametricDimension\n      - OfxParamPropParametricUIColour\n      - OfxParamPropParametricInteractBackground\n      - OfxParamPropParametricRange\n      - ParamsCommon_REF\n      - ParamsAllButGroupPage_REF\n      - ParamsValue_REF"
     }
   ]
 }

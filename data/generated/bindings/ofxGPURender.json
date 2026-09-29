@@ -372,8 +372,57 @@
       }
     },
     {
+      "$type": "Item",
+      "comment_above": "@brief OFX suite that allows a plug-in to get OpenCL programs compiled\n\nThis is an optional suite the host can provide for building OpenCL programs for the plug-in,\nas an alternative to calling clCreateProgramWithSource / clBuildProgram. There are two advantages to\ndoing this: The host can add flags (such as -cl-denorms-are-zero) to the build call, and may also\ncache program binaries for performance (however, if the source of the program or the OpenCL\nenvironment changes, the host must recompile so some mechanism such as hashing must be used).",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxOpenCLProgramSuiteV1",
+        "fields": [
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Compiles the OpenCL program */",
+            "item": {
+              "name": "compileProgram",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "pszProgramSource",
+                    "type": {
+                      "$type": "ConstCharPtr"
+                    }
+                  },
+                  {
+                    "name": "fOptional",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "pResult",
+                    "type": {
+                      "$type": "VoidPtr"
+                    },
+                    "comment": "// cast to cl_program*"
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "$type": "StandaloneComment",
       "comment": "@page ofxOpenCLRender OpenCL Acceleration of Rendering\n\n@section ofxOpenCLRenderIntro Introduction\n\nThe OpenCL extension enables plug-ins to use OpenCL commands (typically backed by a GPU) to accelerate rendering of their outputs. The basic scheme is simple....\n- an plug-in indicates it wants to use OpenCL acceleration by setting the ::kOfxImageEffectPropOpenCLSupported (Images) and/or ::kOfxImageEffectPropOpenCLRenderSupported (Buffers) flags on it's descriptor.\n- a host indicates it supports OpenCL acceleration by setting ::kOfxImageEffectPropOpenCLSupported (Images) and/or ::kOfxImageEffectPropOpenCLRenderSupported (Buffers) on it's descriptor.\n- the host decides when to use OpenCL, and sets the ::kOfxImageEffectPropOpenCLEnabled property on the BeginRender/Render/EndRender calls to indicate this.\n- when OpenCL Images are being used (::kOfxImageEffectPropOpenCLSupported) the clip image property ::kOfxImageEffectPropOpenCLImage will be set and non-null.\n- when OpenCL Buffers are being used (::kOfxImageEffectPropOpenCLRenderSupported) the clip image property ::kOfxImagePropData will be set and non-null.\n\n@section ofxOpenCLRenderDiscoveryAndEnabling Discovery and Enabling\n\nIf a host supports OpenCL rendering then it flags with the string property ::kOfxImageEffectPropOpenCLSupported (Images) and/or\n::kOfxImageEffectPropOpenCLRenderSupported (Buffers) on its descriptor property set. Effects that cannot run without OpenCL support\nshould examine this in ::kOfxActionDescribe action and return a ::kOfxStatErrMissingHostFeature status flag if it is not set to \"true\".\n\nEffects flag to a host that they support OpenCL rendering by setting the string property ::kOfxImageEffectPropOpenCLSupported (Images)\nand/or ::kOfxImageEffectPropOpenCLRenderSupported (Buffers) on their effect descriptor during the ::kOfxActionDescribe action.\nEffects can work in two ways....\n- purely on CPUs without any OpenCL support at all, in which case they should set ::kOfxImageEffectPropOpenCLSupported (Images) and ::kOfxImageEffectPropOpenCLRenderSupported (Buffers) to be \"false\" (the default),\n- on CPUs but with optional OpenCL support, in which case they should set ::kOfxImageEffectPropOpenCLSupported (Images) and/or ::kOfxImageEffectPropOpenCLRenderSupported (Buffers) to be \"true\"\n\nHost may support just OpenCL Images, just OpenCL Buffers, or both, as indicated by which of these two properties they set \"true\".\nLikewise plug-ins may support just OpenCL Images, just OpenCL Buffers, or both, as indicated by which of these two properties they set \"true\".\nIf both host and plug-in support both, it is up to the host which it uses. Typically, it will be based on what it uses natively (to avoid an extra copy operation).\nIf a plug-in supports both, it must use ::kOfxImageEffectPropOpenCLImage to determine if Images or Buffers are being used for a given render action.\n\nEffects can use OpenCL render only during the following action:\n- ::kOfxImageEffectActionRender\n\nIf a plug-in has indicated that it optionally supports OpenCL acceleration, it should check the property ::kOfxImageEffectPropOpenCLEnabled\npassed as an in argument to the following actions,\n- ::kOfxImageEffectActionRender\n- ::kOfxImageEffectActionBeginSequenceRender\n- ::kOfxImageEffectActionEndSequenceRender\n\nIf this property is set to 0, then it must not attempt to use OpenCL while rendering.\nIf this property is set to 1, then it must use OpenCL buffers or images while rendering.\n\nIf a call using OpenCL rendering fails, the host may re-attempt using CPU buffers instead, but this is not required, and might not be efficient.\n\n@section ofxOpenCLRenderVersion OpenCL platform and device versions and feature support\n\nAssume an in-order command queue. Do not assume a profiling command queue.\n\nEffects should target OpenCL 1.1 API and OpenCL C kernel language support. Only minimum required features required\nin OpenCL 1.1 should be used (for example, see \"5.3.2.1 Minimum List of Supported Image Formats\" for the list\nof image types which can be expected to be supported across all devices). If you have specific requirements\nfor features beyond these minimums, you will need to check the device (e.g., using clGetDeviceInfo with\nCL_DEVICE_EXTENSIONS) to see if your feature is available, and have a fallback if it's not.\n\nTemporary buffers and images should not be kept past the render action. A separate extension for host managed caching is in the works.\n\nDo not retain OpenCL objects without a matching release within the render action.\n\n@section ofxOpenCLRenderMultipleDevices Multiple OpenCL Devices\n\nThis is very important: The host may support multiple OpenCL devices. Therefore the plug-in should keep a separate set of kernels per OpenCL content (e.g., using a map).\nThe OpenCL context can be found from the command queue using clGetCommandQueueInfo with CL_QUEUE_CONTEXT.\nFailure to do this will cause crashes or incorrect results when the host switches to another OpenCL device."
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "@}"
     }
   ]
 }

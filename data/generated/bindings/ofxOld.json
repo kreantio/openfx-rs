@@ -36,31 +36,43 @@
         "name": "OfxYUVAColourB",
         "fields": [
           {
-            "name": "y",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned char"
+            "$type": "Item",
+            "item": {
+              "name": "y",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned char"
+              }
             }
           },
           {
-            "name": "u",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned char"
+            "$type": "Item",
+            "item": {
+              "name": "u",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned char"
+              }
             }
           },
           {
-            "name": "v",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned char"
+            "$type": "Item",
+            "item": {
+              "name": "v",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned char"
+              }
             }
           },
           {
-            "name": "a",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned char"
+            "$type": "Item",
+            "item": {
+              "name": "a",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned char"
+              }
             }
           }
         ]
@@ -74,31 +86,43 @@
         "name": "OfxYUVAColourS",
         "fields": [
           {
-            "name": "y",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned short"
+            "$type": "Item",
+            "item": {
+              "name": "y",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned short"
+              }
             }
           },
           {
-            "name": "u",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned short"
+            "$type": "Item",
+            "item": {
+              "name": "u",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned short"
+              }
             }
           },
           {
-            "name": "v",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned short"
+            "$type": "Item",
+            "item": {
+              "name": "v",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned short"
+              }
             }
           },
           {
-            "name": "a",
-            "type": {
-              "$type": "SimpleC",
-              "name": "unsigned short"
+            "$type": "Item",
+            "item": {
+              "name": "a",
+              "type": {
+                "$type": "SimpleC",
+                "name": "unsigned short"
+              }
             }
           }
         ]
@@ -112,31 +136,43 @@
         "name": "OfxYUVAColourF",
         "fields": [
           {
-            "name": "y",
-            "type": {
-              "$type": "SimpleC",
-              "name": "float"
+            "$type": "Item",
+            "item": {
+              "name": "y",
+              "type": {
+                "$type": "SimpleC",
+                "name": "float"
+              }
             }
           },
           {
-            "name": "u",
-            "type": {
-              "$type": "SimpleC",
-              "name": "float"
+            "$type": "Item",
+            "item": {
+              "name": "u",
+              "type": {
+                "$type": "SimpleC",
+                "name": "float"
+              }
             }
           },
           {
-            "name": "v",
-            "type": {
-              "$type": "SimpleC",
-              "name": "float"
+            "$type": "Item",
+            "item": {
+              "name": "v",
+              "type": {
+                "$type": "SimpleC",
+                "name": "float"
+              }
             }
           },
           {
-            "name": "a",
-            "type": {
-              "$type": "SimpleC",
-              "name": "float"
+            "$type": "Item",
+            "item": {
+              "name": "a",
+              "type": {
+                "$type": "SimpleC",
+                "name": "float"
+              }
             }
           }
         ]

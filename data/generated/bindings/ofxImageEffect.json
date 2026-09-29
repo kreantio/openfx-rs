@@ -1483,6 +1483,10 @@
     {
       "$type": "StandaloneComment",
       "comment": "@propset ClipInstance\n    write: host\n    props:\n      - OfxPropType\n      - OfxPropName\n      - OfxPropLabel\n      - OfxPropShortLabel\n      - OfxPropLongLabel\n      - OfxImageEffectPropSupportedComponents\n      - OfxImageEffectPropTemporalClipAccess\n      - OfxImageClipPropColourspace\n      - OfxImageClipPropPreferredColourspaces\n      - OfxImageClipPropOptional\n      - OfxImageClipPropFieldExtraction\n      - OfxImageClipPropIsMask\n      - OfxImageEffectPropSupportsTiles\n      - OfxImageEffectPropPixelDepth\n      - OfxImageEffectPropComponents\n      - OfxImageClipPropUnmappedPixelDepth\n      - OfxImageClipPropUnmappedComponents\n      - OfxImageEffectPropPreMultiplication\n      - OfxImagePropPixelAspectRatio\n      - OfxImageEffectPropFrameRate\n      - OfxImageEffectPropFrameRange\n      - OfxImageClipPropFieldOrder\n      - OfxImageClipPropConnected\n      - OfxImageEffectPropUnmappedFrameRange\n      - OfxImageEffectPropUnmappedFrameRate\n      - OfxImageClipPropContinuousSamples"
+    },
+    {
+      "$type": "StandaloneComment",
+      "comment": "@propset Image\n    write: host\n    props:\n      - OfxPropType\n      - OfxImageEffectPropPixelDepth\n      - OfxImageEffectPropComponents\n      - OfxImageEffectPropPreMultiplication\n      - OfxImageEffectPropRenderScale\n      - OfxImagePropPixelAspectRatio\n      - OfxImagePropData\n      - OfxImagePropBounds\n      - OfxImagePropRegionOfDefinition\n      - OfxImagePropRowBytes\n      - OfxImagePropField\n      - OfxImagePropUniqueIdentifier"
     }
   ]
 }

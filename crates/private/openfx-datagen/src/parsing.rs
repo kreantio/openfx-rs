@@ -285,12 +285,17 @@ pub fn parse(code: &str) -> Result<BindingsUnprocessed, Error> {
         });
     }
 
+    if let Some(comment) = last_comment.take() {
+        items.push(RootItemWithCommentAbove::StandaloneComment { comment });
+    }
+
     {
         let mut error = Error::default();
 
         if !unadressed_nodes.is_empty() {
             error.unaddressed_nodes = unadressed_nodes;
         }
+
         for include in &unprocessed_includes {
             if !include.starts_with("ofx") {
                 error.unexpected_includes.insert(include.clone());

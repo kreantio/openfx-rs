@@ -28,6 +28,62 @@
     },
     {
       "$type": "Item",
+      "comment_above": "@brief Generic host structure passed to OfxPlugin::setHost function\n\n    This structure contains what is needed by a plug-in to bootstrap its connection\n    to the host.",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxHost",
+        "fields": [
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Global handle to the host. Extract relevant host properties from this.\n      This pointer will be valid while the binary containing the plug-in is loaded.\n   */",
+            "item": {
+              "name": "host",
+              "type": {
+                "$type": "SimpleNonC",
+                "name": "OfxPropertySetHandle"
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief The function which the plug-in uses to fetch suites from the host.\n\n      \\arg \\c host          the host the suite is being fetched from this \\em must be the \\e host member of the OfxHost struct containing fetchSuite.\n      \\arg \\c suiteName     ASCII string labelling the host supplied API\n      \\arg \\c suiteVersion  version of that suite to fetch\n\n      Any API fetched will be valid while the binary containing the plug-in is loaded.\n\n      Repeated calls to fetchSuite with the same parameters will return the same pointer.\n\n      It is recommended that hosts should return the same host and suite pointers to all plugins\n      in the same shared lib or bundle.\n\n      returns\n         - NULL if the API is unknown (either the api or the version requested),\n\t - pointer to the relevant API if it was found\n  */",
+            "item": {
+              "name": "fetchSuite",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "host",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "suiteName",
+                    "type": {
+                      "$type": "ConstCharPtr"
+                    }
+                  },
+                  {
+                    "name": "suiteVersion",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "ConstVoidPtr"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$type": "Item",
       "comment_above": "@brief Entry point for plug-ins\n\n  \\arg \\c action   ASCII c string indicating which action to take\n  \\arg \\c instance object to which action should be applied, this will need to be cast to the appropriate blind data type depending on the \\e action\n  \\arg \\c inData   handle that contains action specific properties\n  \\arg \\c outData  handle where the plug-in should set various action specific properties\n\n  This is how the host generally communicates with a plug-in. Entry points are used to pass messages\n  to various objects used within OFX. The main use is within the OfxPlugin struct.\n\n  The exact set of actions is determined by the plug-in API that is being implemented, however all plug-ins\n  can perform several actions. For the list of actions consult \\ref ActionsAll.",
       "item": {
         "$type": "TypedefFunction",
@@ -478,17 +534,23 @@
         "name": "OfxRangeI",
         "fields": [
           {
-            "name": "min",
-            "type": {
-              "$type": "SimpleC",
-              "name": "int"
+            "$type": "Item",
+            "item": {
+              "name": "min",
+              "type": {
+                "$type": "SimpleC",
+                "name": "int"
+              }
             }
           },
           {
-            "name": "max",
-            "type": {
-              "$type": "SimpleC",
-              "name": "int"
+            "$type": "Item",
+            "item": {
+              "name": "max",
+              "type": {
+                "$type": "SimpleC",
+                "name": "int"
+              }
             }
           }
         ]
@@ -502,17 +564,23 @@
         "name": "OfxRangeD",
         "fields": [
           {
-            "name": "min",
-            "type": {
-              "$type": "SimpleC",
-              "name": "double"
+            "$type": "Item",
+            "item": {
+              "name": "min",
+              "type": {
+                "$type": "SimpleC",
+                "name": "double"
+              }
             }
           },
           {
-            "name": "max",
-            "type": {
-              "$type": "SimpleC",
-              "name": "double"
+            "$type": "Item",
+            "item": {
+              "name": "max",
+              "type": {
+                "$type": "SimpleC",
+                "name": "double"
+              }
             }
           }
         ]
@@ -526,17 +594,23 @@
         "name": "OfxPointI",
         "fields": [
           {
-            "name": "x",
-            "type": {
-              "$type": "SimpleC",
-              "name": "int"
+            "$type": "Item",
+            "item": {
+              "name": "x",
+              "type": {
+                "$type": "SimpleC",
+                "name": "int"
+              }
             }
           },
           {
-            "name": "y",
-            "type": {
-              "$type": "SimpleC",
-              "name": "int"
+            "$type": "Item",
+            "item": {
+              "name": "y",
+              "type": {
+                "$type": "SimpleC",
+                "name": "int"
+              }
             }
           }
         ]
@@ -550,17 +624,23 @@
         "name": "OfxPointD",
         "fields": [
           {
-            "name": "x",
-            "type": {
-              "$type": "SimpleC",
-              "name": "double"
+            "$type": "Item",
+            "item": {
+              "name": "x",
+              "type": {
+                "$type": "SimpleC",
+                "name": "double"
+              }
             }
           },
           {
-            "name": "y",
-            "type": {
-              "$type": "SimpleC",
-              "name": "double"
+            "$type": "Item",
+            "item": {
+              "name": "y",
+              "type": {
+                "$type": "SimpleC",
+                "name": "double"
+              }
             }
           }
         ]
@@ -598,31 +678,43 @@
         "name": "OfxRectI",
         "fields": [
           {
-            "name": "x1",
-            "type": {
-              "$type": "SimpleC",
-              "name": "int"
+            "$type": "Item",
+            "item": {
+              "name": "x1",
+              "type": {
+                "$type": "SimpleC",
+                "name": "int"
+              }
             }
           },
           {
-            "name": "y1",
-            "type": {
-              "$type": "SimpleC",
-              "name": "int"
+            "$type": "Item",
+            "item": {
+              "name": "y1",
+              "type": {
+                "$type": "SimpleC",
+                "name": "int"
+              }
             }
           },
           {
-            "name": "x2",
-            "type": {
-              "$type": "SimpleC",
-              "name": "int"
+            "$type": "Item",
+            "item": {
+              "name": "x2",
+              "type": {
+                "$type": "SimpleC",
+                "name": "int"
+              }
             }
           },
           {
-            "name": "y2",
-            "type": {
-              "$type": "SimpleC",
-              "name": "int"
+            "$type": "Item",
+            "item": {
+              "name": "y2",
+              "type": {
+                "$type": "SimpleC",
+                "name": "int"
+              }
             }
           }
         ]
@@ -636,31 +728,43 @@
         "name": "OfxRectD",
         "fields": [
           {
-            "name": "x1",
-            "type": {
-              "$type": "SimpleC",
-              "name": "double"
+            "$type": "Item",
+            "item": {
+              "name": "x1",
+              "type": {
+                "$type": "SimpleC",
+                "name": "double"
+              }
             }
           },
           {
-            "name": "y1",
-            "type": {
-              "$type": "SimpleC",
-              "name": "double"
+            "$type": "Item",
+            "item": {
+              "name": "y1",
+              "type": {
+                "$type": "SimpleC",
+                "name": "double"
+              }
             }
           },
           {
-            "name": "x2",
-            "type": {
-              "$type": "SimpleC",
-              "name": "double"
+            "$type": "Item",
+            "item": {
+              "name": "x2",
+              "type": {
+                "$type": "SimpleC",
+                "name": "double"
+              }
             }
           },
           {
-            "name": "y2",
-            "type": {
-              "$type": "SimpleC",
-              "name": "double"
+            "$type": "Item",
+            "item": {
+              "name": "y2",
+              "type": {
+                "$type": "SimpleC",
+                "name": "double"
+              }
             }
           }
         ]

@@ -148,7 +148,7 @@
             "parameters": {
               "type": "array",
               "items": {
-                "$ref": "#/$defs/TypedefFunctionParameter"
+                "$ref": "#/$defs/FunctionParameter"
               }
             },
             "return_type": {
@@ -334,14 +334,20 @@
       "type": "string",
       "pattern": "^(int|double)$"
     },
-    "TypedefFunctionParameter": {
+    "FunctionParameter": {
       "type": "object",
       "properties": {
         "name": {
           "type": "string"
         },
         "type": {
-          "$ref": "#/$defs/TypedefFunctionParameterType"
+          "$ref": "#/$defs/FunctionParameterType"
+        },
+        "comment": {
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
@@ -349,7 +355,7 @@
         "type"
       ]
     },
-    "TypedefFunctionParameterType": {
+    "FunctionParameterType": {
       "oneOf": [
         {
           "type": "object",
@@ -391,7 +397,7 @@
           "type": "object",
           "properties": {
             "name": {
-              "$ref": "#/$defs/TypedefFunctionParameterTypeSimpleCName"
+              "$ref": "#/$defs/TypeSimpleCName"
             },
             "$type": {
               "type": "string",
@@ -407,7 +413,7 @@
           "type": "object",
           "properties": {
             "name": {
-              "$ref": "#/$defs/TypedefFunctionParameterTypeSimpleNonCName"
+              "$ref": "#/$defs/TypeSimpleNonCName"
             },
             "$type": {
               "type": "string",
@@ -421,11 +427,11 @@
         }
       ]
     },
-    "TypedefFunctionParameterTypeSimpleCName": {
+    "TypeSimpleCName": {
       "type": "string",
-      "pattern": "^unsigned int$"
+      "pattern": "^(void|int|float|double|size_t|unsigned (char|short|int))$"
     },
-    "TypedefFunctionParameterTypeSimpleNonCName": {
+    "TypeSimpleNonCName": {
       "type": "string",
       "pattern": "^[_a-zA-Z][_a-zA-Z0-9]*Handle$"
     },
@@ -458,14 +464,50 @@
       ]
     },
     "TypedefStructField": {
-      "type": "object",
-      "properties": {
-        "comment_above": {
-          "type": [
-            "string",
-            "null"
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "comment_above": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "item": {
+              "$ref": "#/$defs/TypedefStructFieldItem"
+            },
+            "$type": {
+              "type": "string",
+              "const": "Item"
+            }
+          },
+          "required": [
+            "$type",
+            "item"
           ]
         },
+        {
+          "type": "object",
+          "properties": {
+            "comment": {
+              "type": "string"
+            },
+            "$type": {
+              "type": "string",
+              "const": "StandaloneComment"
+            }
+          },
+          "required": [
+            "$type",
+            "comment"
+          ]
+        }
+      ]
+    },
+    "TypedefStructFieldItem": {
+      "type": "object",
+      "properties": {
         "name": {
           "type": "string"
         },
@@ -495,8 +537,32 @@
         {
           "type": "object",
           "properties": {
+            "$type": {
+              "type": "string",
+              "const": "ConstCharPtr"
+            }
+          },
+          "required": [
+            "$type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "$type": {
+              "type": "string",
+              "const": "OfxPluginEntryPointPtr"
+            }
+          },
+          "required": [
+            "$type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
             "name": {
-              "$ref": "#/$defs/TypedefStructFieldTypeSimpleCName"
+              "$ref": "#/$defs/TypeSimpleCName"
             },
             "$type": {
               "type": "string",
@@ -512,7 +578,7 @@
           "type": "object",
           "properties": {
             "name": {
-              "$ref": "#/$defs/TypedefStructFieldTypeSimpleNonCName"
+              "$ref": "#/$defs/TypeSimpleNonCName"
             },
             "$type": {
               "type": "string",
@@ -523,16 +589,75 @@
             "$type",
             "name"
           ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "parameters": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/FunctionParameter"
+              }
+            },
+            "return_type": {
+              "$ref": "#/$defs/TypedefStructFieldTypeFunctionPointerReturnType"
+            },
+            "$type": {
+              "type": "string",
+              "const": "FunctionPointer"
+            }
+          },
+          "required": [
+            "$type",
+            "parameters",
+            "return_type"
+          ]
         }
       ]
     },
-    "TypedefStructFieldTypeSimpleCName": {
-      "type": "string",
-      "pattern": "^(int|float|double|size_t|unsigned (char|short))$"
-    },
-    "TypedefStructFieldTypeSimpleNonCName": {
-      "type": "string",
-      "pattern": "^[_a-zA-Z][_a-zA-Z0-9]*Handle$"
+    "TypedefStructFieldTypeFunctionPointerReturnType": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "$type": {
+              "type": "string",
+              "const": "ConstVoidPtr"
+            }
+          },
+          "required": [
+            "$type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "$type": {
+              "type": "string",
+              "const": "OfxStatus"
+            }
+          },
+          "required": [
+            "$type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "$ref": "#/$defs/TypeSimpleCName"
+            },
+            "$type": {
+              "type": "string",
+              "const": "SimpleC"
+            }
+          },
+          "required": [
+            "$type",
+            "name"
+          ]
+        }
+      ]
     },
     "TypedefEnumVariant": {
       "type": "object",
