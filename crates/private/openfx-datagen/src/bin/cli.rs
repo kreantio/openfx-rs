@@ -1,9 +1,12 @@
-use std::{collections::HashMap, path::PathBuf};
+use std::{collections::BTreeMap, path::PathBuf};
 
 use clap::Parser;
 use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
 
-use openfx_datagen::parsing::{BindingsUnprocessed, parse};
+use openfx_datagen::{
+    parsing::{BindingsUnprocessed, parse},
+    processing::{Bindings, process},
+};
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -39,7 +42,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         input_entries.push((entry, name));
     }
 
-    let parsed_headers: HashMap<_, _> =
+    let parsed_headers: BTreeMap<_, _> =
         input_entries
             .par_iter()
             .map(
@@ -51,14 +54,16 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                     Ok((name.to_owned(), parse(&code)?))
                 },
             )
-            .collect::<Result<HashMap<_, _>, _>>()?;
+            .collect::<Result<BTreeMap<_, _>, _>>()?;
+
+    let processed_bindings = process(parsed_headers)?;
 
     let output_bindings_path = args.output_data.join("bindings");
     std::fs::create_dir_all(&output_bindings_path)?;
     let output_schemata_path = args.output_data.join("schemata");
     std::fs::create_dir_all(&output_schemata_path)?;
 
-    parsed_headers.par_iter().try_for_each(
+    processed_bindings.par_iter().try_for_each(
         |(name, items)| -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             let output_path = output_bindings_path.join(format!("{}.json", name));
             let file = std::fs::File::create(&output_path)?;
@@ -76,7 +81,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         ))
         .into_generator();
 
-    let bindings_schema = schema_generator.into_root_schema_for::<BindingsUnprocessed>();
+    let bindings_schema = schema_generator.into_root_schema_for::<Bindings>();
     let output_bindings_schema_path = output_schemata_path.join("bindings.schema.json");
     let file = std::fs::File::create(&output_bindings_schema_path)?;
     serde_json::to_writer_pretty(file, &bindings_schema)?;

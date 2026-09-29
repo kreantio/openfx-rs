@@ -1,30 +1,17 @@
 {
-  "info": {
-    "includes": [
-      "ofxParam.h"
-    ],
-    "declared_types": [
-      "OfxParametricParameterSuiteV1"
-    ],
-    "defined_consts": [
-      "kOfxParamHostPropSupportsParametricAnimation",
-      "kOfxParamPropParametricDimension",
-      "kOfxParamPropParametricInteractBackground",
-      "kOfxParamPropParametricRange",
-      "kOfxParamPropParametricUIColour",
-      "kOfxParamTypeParametric",
-      "kOfxParametricParameterSuite"
-    ],
-    "referred_identifiers": [
-      "OfxParamHandle",
-      "OfxStatus",
-      "OfxTime"
-    ]
-  },
   "copyright_comments": [
     "Copyright OpenFX and contributors to the OpenFX project.",
     "SPDX-License-Identifier: BSD-3-Clause"
   ],
+  "used_types": {
+    "ofxCore.h": [
+      "OfxStatus",
+      "OfxTime"
+    ],
+    "ofxParam.h": [
+      "OfxParamHandle"
+    ]
+  },
   "items": [
     {
       "$type": "StandaloneComment",

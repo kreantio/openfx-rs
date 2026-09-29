@@ -1,15 +1,32 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "TODO",
+  "title": "Bindings",
   "type": "object",
   "properties": {
-    "info": {
-      "$ref": "#/$defs/UnprocessedInfo"
-    },
     "copyright_comments": {
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "used_types": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "uniqueItems": true,
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "used_consts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "uniqueItems": true,
+        "items": {
+          "type": "string"
+        }
       }
     },
     "items": {
@@ -20,44 +37,9 @@
     }
   },
   "required": [
-    "info",
     "items"
   ],
   "$defs": {
-    "UnprocessedInfo": {
-      "title": "TODO",
-      "type": "object",
-      "properties": {
-        "includes": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "type": "string"
-          }
-        },
-        "declared_types": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "type": "string"
-          }
-        },
-        "defined_consts": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "type": "string"
-          }
-        },
-        "referred_identifiers": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "type": "string"
-          }
-        }
-      }
-    },
     "RootItemWithCommentAbove": {
       "oneOf": [
         {

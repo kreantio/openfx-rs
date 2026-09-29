@@ -1,19 +1,13 @@
 {
-  "info": {
-    "declared_types": [
-      "OfxMemorySuiteV1"
-    ],
-    "defined_consts": [
-      "kOfxMemorySuite"
-    ],
-    "referred_identifiers": [
-      "OfxStatus"
-    ]
-  },
   "copyright_comments": [
     "Copyright OpenFX and contributors to the OpenFX project.",
     "SPDX-License-Identifier: BSD-3-Clause"
   ],
+  "used_types": {
+    "ofxCore.h": [
+      "OfxStatus"
+    ]
+  },
   "items": [
     {
       "$type": "Item",

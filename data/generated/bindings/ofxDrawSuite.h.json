@@ -1,36 +1,17 @@
 {
-  "info": {
-    "includes": [
-      "ofxCore.h",
-      "ofxPixels.h"
-    ],
-    "declared_types": [
-      "OfxDrawContextHandle",
-      "OfxDrawLineStipplePattern",
-      "OfxDrawPrimitive",
-      "OfxDrawSuiteV1",
-      "OfxDrawTextAlignment",
-      "OfxStandardColour"
-    ],
-    "defined_consts": [
-      "kOfxDrawSuite",
-      "kOfxInteractPropDrawContext"
-    ],
-    "referred_identifiers": [
-      "OfxDrawContext",
-      "OfxDrawContextHandle",
-      "OfxDrawLineStipplePattern",
-      "OfxDrawPrimitive",
-      "OfxPointD",
-      "OfxRGBAColourF",
-      "OfxStandardColour",
-      "OfxStatus"
-    ]
-  },
   "copyright_comments": [
     "Copyright OpenFX and contributors to the OpenFX project.",
     "SPDX-License-Identifier: BSD-3-Clause"
   ],
+  "used_types": {
+    "ofxCore.h": [
+      "OfxPointD",
+      "OfxStatus"
+    ],
+    "ofxPixels.h": [
+      "OfxRGBAColourF"
+    ]
+  },
   "items": [
     {
       "$type": "StandaloneComment",

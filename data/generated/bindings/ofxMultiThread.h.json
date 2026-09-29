@@ -1,27 +1,13 @@
 {
-  "info": {
-    "includes": [
-      "ofxCore.h"
-    ],
-    "declared_types": [
-      "OfxMultiThreadSuiteV1",
-      "OfxMutexHandle",
-      "OfxThreadFunctionV1"
-    ],
-    "defined_consts": [
-      "kOfxMultiThreadSuite"
-    ],
-    "referred_identifiers": [
-      "OfxMutex",
-      "OfxMutexHandle",
-      "OfxStatus",
-      "OfxThreadFunctionV1"
-    ]
-  },
   "copyright_comments": [
     "Copyright OpenFX and contributors to the OpenFX project.",
     "SPDX-License-Identifier: BSD-3-Clause"
   ],
+  "used_types": {
+    "ofxCore.h": [
+      "OfxStatus"
+    ]
+  },
   "items": [
     {
       "$type": "StandaloneComment",

@@ -1,51 +1,21 @@
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    sync::LazyLock,
-};
+use std::{collections::BTreeSet, sync::LazyLock};
 
 use regex::Regex;
 
-/// ## TODO
-///
-/// Remove `serde::Serialize`, `serde::Deserialize`, and `schemars::JsonSchema`.
-/// Because [`Bindings`] is the one that will be serialized and deserialized.
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
+#[derive(Debug, Default, Clone)]
 pub struct BindingsUnprocessed {
     pub info: UnprocessedInfo,
 
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub copyright_comments: Vec<String>,
     pub items: Vec<RootItemWithCommentAbove>,
 }
 
-/// ## TODO
-///
-/// Remove `serde::Serialize`, `serde::Deserialize`, and `schemars::JsonSchema`.
-/// Because [`Bindings`] is the one that will be serialized and deserialized.
-#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
+#[derive(Debug, Default, Clone)]
 pub struct UnprocessedInfo {
-    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub includes: BTreeSet<String>,
-    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub declared_types: BTreeSet<String>,
-    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub defined_consts: BTreeSet<String>,
-    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub referred_identifiers: BTreeSet<String>,
-}
-
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
-pub struct Bindings {
-    pub copyright_comments: Vec<String>,
-
-    /// key: header file stem name
-    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
-    pub used_types: BTreeMap<String, String>,
-    /// key: header file stem name
-    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
-    pub used_values: BTreeMap<String, String>,
-
-    pub items: Vec<RootItemWithCommentAbove>,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
@@ -117,12 +87,7 @@ impl RootItem {
                 }
             }
             RootItem::TypedefPrimitive { .. } => {}
-            RootItem::TypedefOpaquePointer {
-                pointee_struct_name,
-                ..
-            } => {
-                identifiers.insert(pointee_struct_name.clone());
-            }
+            RootItem::TypedefOpaquePointer { .. } => {}
             RootItem::TypedefFunction {
                 parameters,
                 return_type,

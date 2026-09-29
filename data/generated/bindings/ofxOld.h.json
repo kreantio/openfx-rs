@@ -1,22 +1,4 @@
 {
-  "info": {
-    "declared_types": [
-      "OfxYUVAColourB",
-      "OfxYUVAColourF",
-      "OfxYUVAColourS"
-    ],
-    "defined_consts": [
-      "kOfxImageComponentYUVA",
-      "kOfxImageEffectPropInAnalysis",
-      "kOfxInteractPropViewportSize",
-      "kOfxParamDoubleTypeNormalisedX",
-      "kOfxParamDoubleTypeNormalisedXAbsolute",
-      "kOfxParamDoubleTypeNormalisedXY",
-      "kOfxParamDoubleTypeNormalisedXYAbsolute",
-      "kOfxParamDoubleTypeNormalisedY",
-      "kOfxParamDoubleTypeNormalisedYAbsolute"
-    ]
-  },
   "copyright_comments": [
     "Copyright OpenFX and contributors to the OpenFX project.",
     "SPDX-License-Identifier: BSD-3-Clause"
