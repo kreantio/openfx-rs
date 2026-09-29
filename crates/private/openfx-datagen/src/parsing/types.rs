@@ -140,10 +140,8 @@ pub struct FunctionParameter {
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 #[serde(tag = "$type")]
 pub enum FunctionParameterType {
-    ConstCharPtr,
-    ConstVoidPtr,
-    VoidPtr,
-
+    Ptr { pointee: Box<FunctionParameterType> },
+    ConstPtr { pointee: Box<FunctionParameterType> },
     SimpleC { name: TypeSimpleCName },
     SimpleNonC { name: TypeSimpleNonCName },
 }
@@ -251,7 +249,7 @@ define_string_guarded_by_regex!(
 define_string_guarded_by_regex!(
     TypeSimpleCName,
     regex(TYPEDEF_STRUCT_FIELD_TYPE_SIMPLE_C_NAME_REGEX) =
-        r#"^(void|int|float|double|size_t|unsigned (char|short|int))$"#
+        r#"^(void|char|int|float|double|size_t|unsigned (char|short|int))$"#
 );
 define_string_guarded_by_regex!(
     TypeSimpleNonCName,

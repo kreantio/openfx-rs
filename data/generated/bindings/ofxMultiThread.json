@@ -55,7 +55,11 @@
           {
             "name": "customArg",
             "type": {
-              "$type": "VoidPtr"
+              "$type": "Ptr",
+              "pointee": {
+                "$type": "SimpleC",
+                "name": "void"
+              }
             }
           }
         ],

@@ -1,7 +1,8 @@
 use treesitter_types_c::{
     Declaration, DeclarationDeclarator, Declarator, EnumSpecifier, Enumerator, FieldDeclaration,
-    FieldDeclarator, FromNode, FunctionDeclarator, FunctionDeclaratorDeclarator, ParameterList,
-    ParameterListChildren, ParenthesizedDeclaratorChildren, PointerDeclarator,
+    FieldDeclarator, FromNode, FunctionDeclarator, FunctionDeclaratorDeclarator,
+    ParameterDeclaration, ParameterDeclarationChildren, ParameterDeclarationDeclarator,
+    ParameterList, ParameterListChildren, ParenthesizedDeclaratorChildren, PointerDeclarator,
     PointerDeclaratorDeclarator, Span, Spanned, StructSpecifier, TypeDeclarator, TypeDefinition,
     TypeIdentifier, TypeSpecifier,
 };
@@ -578,76 +579,88 @@ fn parse_function_parameter_list(
             continue;
         }
 
-        let Ok(_parameter_node) =
+        let Ok(ParameterListChildren::ParameterDeclaration(parameter_declaration)) =
             ParameterListChildren::from_node(raw_parameter_node, code.as_bytes())
         else {
             return Err(());
         };
-        let Ok(parameter_str) = raw_parameter_node.utf8_text(code.as_bytes()) else {
-            return Err(());
-        };
-        let parameter_str = parameter_str
-            .split_whitespace()
-            .collect::<Vec<_>>()
-            .join(" ");
 
-        // TODO: parse it properly.
-        if let Some(maybe_ident) = parameter_str.strip_prefix("const char *") {
-            let maybe_ident = maybe_ident.trim();
-            if !is_identifier(maybe_ident) {
-                return Err(());
-            }
-            parameters.push(FunctionParameter {
-                name: maybe_ident.to_owned(),
-                r#type: FunctionParameterType::ConstCharPtr,
-                comment: None,
-            });
-        } else if let Some(maybe_ident) = parameter_str.strip_prefix("const void *") {
-            let maybe_ident = maybe_ident.trim();
-            if !is_identifier(maybe_ident) {
-                return Err(());
-            }
-            parameters.push(FunctionParameter {
-                name: maybe_ident.to_owned(),
-                r#type: FunctionParameterType::ConstVoidPtr,
-                comment: None,
-            });
-        } else if let Some(maybe_ident) = parameter_str.strip_prefix("void *") {
-            let maybe_ident = maybe_ident.trim();
-            if !is_identifier(maybe_ident) {
-                return Err(());
-            }
-            parameters.push(FunctionParameter {
-                name: maybe_ident.to_owned(),
-                r#type: FunctionParameterType::VoidPtr,
-                comment: None,
-            });
-        } else if let split = parameter_str.split_whitespace().collect::<Vec<_>>()
-            && split.len() >= 2
-        {
-            let simple_ty = split[..split.len() - 1].join(" ");
-            let maybe_ident = *split.last().unwrap();
-            if !is_identifier(maybe_ident) {
-                return Err(());
-            }
+        let (name, r#type) = parse_parameter_declaration(code, &parameter_declaration)?;
 
-            let ty = if let Ok(name) = TypeSimpleCName::try_from(&simple_ty) {
-                FunctionParameterType::SimpleC { name }
-            } else if let Ok(name) = TypeSimpleNonCName::try_from(&simple_ty) {
-                FunctionParameterType::SimpleNonC { name }
-            } else {
-                return Err(());
-            };
-
-            parameters.push(FunctionParameter {
-                name: maybe_ident.to_owned(),
-                r#type: ty,
-                comment: None,
-            });
-        } else {
-            return Err(());
-        }
+        parameters.push(FunctionParameter {
+            name,
+            r#type,
+            comment: None,
+        });
     }
 
     Ok(parameters)
+}
+
+fn parse_parameter_declaration(
+    code: &str,
+    declaration: &ParameterDeclaration,
+) -> Result<(String, FunctionParameterType), ()> {
+    macro_rules! text_from_span {
+        ($span:expr) => {
+            code[$span.start_byte..$span.end_byte].to_owned()
+        };
+    }
+
+    let mut has_const_type_qualifier = if declaration.children.is_empty() {
+        false
+    } else if declaration.children.len() == 1
+        && let Some(ParameterDeclarationChildren::TypeQualifier(type_qualifier)) =
+            declaration.children.first()
+        && text_from_span!(type_qualifier.span) == "const"
+    {
+        true
+    } else {
+        return Err(());
+    };
+
+    let mut ty =
+        if let Ok(name) = TypeSimpleCName::try_from(&text_from_span!(declaration.r#type.span())) {
+            FunctionParameterType::SimpleC { name }
+        } else if let Ok(name) =
+            TypeSimpleNonCName::try_from(&text_from_span!(declaration.r#type.span()))
+        {
+            FunctionParameterType::SimpleNonC { name }
+        } else {
+            return Err(());
+        };
+
+    let Some(ParameterDeclarationDeclarator::Declarator(declarator)) = &declaration.declarator
+    else {
+        return Err(());
+    };
+    let mut declarator = declarator;
+    let name = loop {
+        match &**declarator {
+            Declarator::Identifier(identifier) => {
+                break text_from_span!(identifier.span).trim().to_owned();
+            }
+            Declarator::PointerDeclarator(pointer_declarator) => {
+                if has_const_type_qualifier {
+                    has_const_type_qualifier = false;
+                    ty = FunctionParameterType::ConstPtr {
+                        pointee: Box::new(ty),
+                    };
+                } else {
+                    ty = FunctionParameterType::Ptr {
+                        pointee: Box::new(ty),
+                    }
+                }
+                let PointerDeclaratorDeclarator::Declarator(declarator_) =
+                    &pointer_declarator.declarator
+                else {
+                    return Err(());
+                };
+                declarator = declarator_;
+            }
+            _ => return Err(()),
+        }
+    };
+
+    Ok((name, ty))
 }

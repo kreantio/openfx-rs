@@ -360,37 +360,33 @@
         {
           "type": "object",
           "properties": {
+            "pointee": {
+              "$ref": "#/$defs/FunctionParameterType"
+            },
             "$type": {
               "type": "string",
-              "const": "ConstCharPtr"
+              "const": "Ptr"
             }
           },
           "required": [
-            "$type"
+            "$type",
+            "pointee"
           ]
         },
         {
           "type": "object",
           "properties": {
+            "pointee": {
+              "$ref": "#/$defs/FunctionParameterType"
+            },
             "$type": {
               "type": "string",
-              "const": "ConstVoidPtr"
+              "const": "ConstPtr"
             }
           },
           "required": [
-            "$type"
-          ]
-        },
-        {
-          "type": "object",
-          "properties": {
-            "$type": {
-              "type": "string",
-              "const": "VoidPtr"
-            }
-          },
-          "required": [
-            "$type"
+            "$type",
+            "pointee"
           ]
         },
         {
@@ -429,7 +425,7 @@
     },
     "TypeSimpleCName": {
       "type": "string",
-      "pattern": "^(void|int|float|double|size_t|unsigned (char|short|int))$"
+      "pattern": "^(void|char|int|float|double|size_t|unsigned (char|short|int))$"
     },
     "TypeSimpleNonCName": {
       "type": "string",

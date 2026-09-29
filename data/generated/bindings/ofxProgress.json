@@ -34,13 +34,21 @@
                   {
                     "name": "effectInstance",
                     "type": {
-                      "$type": "VoidPtr"
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "void"
+                      }
                     }
                   },
                   {
                     "name": "label",
                     "type": {
-                      "$type": "ConstCharPtr"
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
                     }
                   }
                 ],
@@ -61,7 +69,11 @@
                   {
                     "name": "effectInstance",
                     "type": {
-                      "$type": "VoidPtr"
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "void"
+                      }
                     }
                   },
                   {
@@ -89,7 +101,11 @@
                   {
                     "name": "effectInstance",
                     "type": {
-                      "$type": "VoidPtr"
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "void"
+                      }
                     }
                   }
                 ],
@@ -119,19 +135,31 @@
                   {
                     "name": "effectInstance",
                     "type": {
-                      "$type": "VoidPtr"
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "void"
+                      }
                     }
                   },
                   {
                     "name": "message",
                     "type": {
-                      "$type": "ConstCharPtr"
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
                     }
                   },
                   {
                     "name": "messageid",
                     "type": {
-                      "$type": "ConstCharPtr"
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
                     }
                   }
                 ],
@@ -152,7 +180,11 @@
                   {
                     "name": "effectInstance",
                     "type": {
-                      "$type": "VoidPtr"
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "void"
+                      }
                     }
                   },
                   {
@@ -180,7 +212,11 @@
                   {
                     "name": "effectInstance",
                     "type": {
-                      "$type": "VoidPtr"
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "void"
+                      }
                     }
                   }
                 ],

@@ -23,6 +23,886 @@
       }
     },
     {
+      "$type": "Item",
+      "comment_above": "@brief The OFX suite used to access properties on OFX objects.",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxPropertySuiteV1",
+        "fields": [
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Set a single value in a pointer property \n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property\n      \\arg \\c index for multidimenstional properties and is dimension of the one we are setting\n      \\arg \\c value value of the property we are setting\n\n      @returns\n        - ::kOfxStatOK\n        - ::kOfxStatErrBadHandle\n        - ::kOfxStatErrUnknown\n        - ::kOfxStatErrBadIndex\n        - ::kOfxStatErrValue\n  */",
+            "item": {
+              "name": "propSetPointer",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "index",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "void"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Set a single value in a string property\n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property\n      \\arg \\c index for multidimenstional properties and is dimension of the one we are setting\n      \\arg \\c value value of the property we are setting\n\n      @returns\n        - ::kOfxStatOK\n        - ::kOfxStatErrBadHandle\n        - ::kOfxStatErrUnknown\n        - ::kOfxStatErrBadIndex\n        - ::kOfxStatErrValue\n */",
+            "item": {
+              "name": "propSetString",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "index",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Set a single value in a double property\n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property\n      \\arg \\c index for multidimenstional properties and is dimension of the one we are setting\n      \\arg \\c value value of the property we are setting\n\n      @returns\n        - ::kOfxStatOK\n        - ::kOfxStatErrBadHandle\n        - ::kOfxStatErrUnknown\n        - ::kOfxStatErrBadIndex\n        - ::kOfxStatErrValue\n */",
+            "item": {
+              "name": "propSetDouble",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "index",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "double"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Set a single value in  an int property \n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property\n      \\arg \\c index for multidimenstional properties and is dimension of the one we are setting\n      \\arg \\c value value of the property we are setting\n\n      @returns\n        - ::kOfxStatOK\n        - ::kOfxStatErrBadHandle\n        - ::kOfxStatErrUnknown\n        - ::kOfxStatErrBadIndex\n        - ::kOfxStatErrValue\n*/",
+            "item": {
+              "name": "propSetInt",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "index",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Set multiple values of the pointer property\n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property\n      \\arg \\c count number of values we are setting in that property (ie: indices 0..count-1)\n      \\arg \\c value pointer to an array of property values\n\n      @returns\n        - ::kOfxStatOK\n        - ::kOfxStatErrBadHandle\n        - ::kOfxStatErrUnknown\n        - ::kOfxStatErrBadIndex\n        - ::kOfxStatErrValue\n */",
+            "item": {
+              "name": "propSetPointerN",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "count",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "Ptr",
+                        "pointee": {
+                          "$type": "SimpleC",
+                          "name": "void"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Set multiple values of a string property\n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property\n      \\arg \\c count number of values we are setting in that property (ie: indices 0..count-1)\n      \\arg \\c value pointer to an array of property values\n\n      @returns\n        - ::kOfxStatOK\n        - ::kOfxStatErrBadHandle\n        - ::kOfxStatErrUnknown\n        - ::kOfxStatErrBadIndex\n        - ::kOfxStatErrValue\n  */",
+            "item": {
+              "name": "propSetStringN",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "count",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "ConstPtr",
+                        "pointee": {
+                          "$type": "SimpleC",
+                          "name": "char"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Set multiple values of  a double property\n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property\n      \\arg \\c count number of values we are setting in that property (ie: indices 0..count-1)\n      \\arg \\c value pointer to an array of property values\n\n      @returns\n        - ::kOfxStatOK\n        - ::kOfxStatErrBadHandle\n        - ::kOfxStatErrUnknown\n        - ::kOfxStatErrBadIndex\n        - ::kOfxStatErrValue\n\n  */",
+            "item": {
+              "name": "propSetDoubleN",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "count",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "double"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Set multiple values of an int property \n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property\n      \\arg \\c count number of values we are setting in that property (ie: indices 0..count-1)\n      \\arg \\c value pointer to an array of property values\n\n      @returns\n        - ::kOfxStatOK\n        - ::kOfxStatErrBadHandle\n        - ::kOfxStatErrUnknown\n        - ::kOfxStatErrBadIndex\n        - ::kOfxStatErrValue\n\n */",
+            "item": {
+              "name": "propSetIntN",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "count",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "int"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Get a single value from a pointer property\n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property\n      \\arg \\c index refers to the index of a multi-dimensional property\n      \\arg \\c value pointer the return location\n\n      @returns\n        - ::kOfxStatOK\n        - ::kOfxStatErrBadHandle\n        - ::kOfxStatErrUnknown\n        - ::kOfxStatErrBadIndex\n */",
+            "item": {
+              "name": "propGetPointer",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "index",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "Ptr",
+                        "pointee": {
+                          "$type": "SimpleC",
+                          "name": "void"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Get a single value of a string property\n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property\n      \\arg \\c index refers to the index of a multi-dimensional property\n      \\arg \\c value pointer the return location\n\n      @returns\n        - ::kOfxStatOK\n        - ::kOfxStatErrBadHandle\n        - ::kOfxStatErrUnknown\n        - ::kOfxStatErrBadIndex\n */",
+            "item": {
+              "name": "propGetString",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "index",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "Ptr",
+                        "pointee": {
+                          "$type": "SimpleC",
+                          "name": "char"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Get a single value of a double property\n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property\n      \\arg \\c index refers to the index of a multi-dimensional property\n      \\arg \\c value pointer the return location\n\n      See the note \\ref ArchitectureStrings for how to deal with strings.\n\n      @returns\n        - ::kOfxStatOK\n        - ::kOfxStatErrBadHandle\n        - ::kOfxStatErrUnknown\n        - ::kOfxStatErrBadIndex\n */",
+            "item": {
+              "name": "propGetDouble",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "index",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "double"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Get a single value of an int property\n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property\n      \\arg \\c index refers to the index of a multi-dimensional property\n      \\arg \\c value pointer the return location\n\n      @returns\n        - ::kOfxStatOK\n        - ::kOfxStatErrBadHandle\n        - ::kOfxStatErrUnknown\n        - ::kOfxStatErrBadIndex\n */",
+            "item": {
+              "name": "propGetInt",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "index",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "int"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Get multiple values of a pointer property \n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property\n      \\arg \\c count number of values we are getting of that property (ie: indices 0..count-1)\n      \\arg \\c value pointer to an array of where we will return the property values\n\n      @returns\n        - ::kOfxStatOK\n        - ::kOfxStatErrBadHandle\n        - ::kOfxStatErrUnknown\n        - ::kOfxStatErrBadIndex\n  */",
+            "item": {
+              "name": "propGetPointerN",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "count",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "Ptr",
+                        "pointee": {
+                          "$type": "SimpleC",
+                          "name": "void"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Get multiple values of a string property\n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property\n      \\arg \\c count number of values we are getting of that property (ie: indices 0..count-1)\n      \\arg \\c value pointer to an array of where we will return the property values\n\n      See the note \\ref ArchitectureStrings for how to deal with strings.\n\n      @returns\n        - ::kOfxStatOK\n        - ::kOfxStatErrBadHandle\n        - ::kOfxStatErrUnknown\n        - ::kOfxStatErrBadIndex\n  */",
+            "item": {
+              "name": "propGetStringN",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "count",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "Ptr",
+                        "pointee": {
+                          "$type": "SimpleC",
+                          "name": "char"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Get multiple values of a double property\n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property\n      \\arg \\c count number of values we are getting of that property (ie: indices 0..count-1)\n      \\arg \\c value pointer to an array of where we will return the property values\n\n      @returns\n        - ::kOfxStatOK\n        - ::kOfxStatErrBadHandle\n        - ::kOfxStatErrUnknown\n        - ::kOfxStatErrBadIndex\n  */",
+            "item": {
+              "name": "propGetDoubleN",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "count",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "double"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Get multiple values of an int property\n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property\n      \\arg \\c count number of values we are getting of that property (ie: indices 0..count-1)\n      \\arg \\c value pointer to an array of where we will return the property values\n\n      @returns\n        - ::kOfxStatOK\n        - ::kOfxStatErrBadHandle\n        - ::kOfxStatErrUnknown\n        - ::kOfxStatErrBadIndex\n  */",
+            "item": {
+              "name": "propGetIntN",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "count",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "int"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Resets all dimensions of a property to its default value\n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property we are resetting\n\n      @returns\n        - ::kOfxStatOK\n        - ::kOfxStatErrBadHandle\n        - ::kOfxStatErrUnknown\n   */",
+            "item": {
+              "name": "propReset",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Gets the dimension of the property\n\n      \\arg \\c properties handle of the thing holding the property\n      \\arg \\c property string labelling the property we are resetting\n      \\arg \\c count pointer to an integer where the value is returned\n\n    @returns\n      - ::kOfxStatOK\n      - ::kOfxStatErrBadHandle\n      - ::kOfxStatErrUnknown\n */",
+            "item": {
+              "name": "propGetDimension",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "properties",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxPropertySetHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
+                    }
+                  },
+                  {
+                    "name": "count",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "int"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "$type": "StandaloneComment",
       "comment": "\\addtogroup ErrorCodes"
     }

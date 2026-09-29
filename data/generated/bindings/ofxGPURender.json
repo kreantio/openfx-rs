@@ -389,7 +389,11 @@
                   {
                     "name": "pszProgramSource",
                     "type": {
-                      "$type": "ConstCharPtr"
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
                     }
                   },
                   {
@@ -402,7 +406,11 @@
                   {
                     "name": "pResult",
                     "type": {
-                      "$type": "VoidPtr"
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "void"
+                      }
                     },
                     "comment": "// cast to cl_program*"
                   }

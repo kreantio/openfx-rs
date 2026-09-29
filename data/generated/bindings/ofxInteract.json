@@ -300,6 +300,92 @@
       }
     },
     {
+      "$type": "Item",
+      "comment_above": "@brief OFX suite that allows an effect to interact with an openGL window so as to provide custom interfaces.",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxInteractSuiteV1",
+        "fields": [
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Requests an openGL buffer swap on the interact instance */",
+            "item": {
+              "name": "interactSwapBuffers",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "interactInstance",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxInteractHandle"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Requests a redraw of the interact instance */",
+            "item": {
+              "name": "interactRedraw",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "interactInstance",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxInteractHandle"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Gets the property set handle for this interact handle */",
+            "item": {
+              "name": "interactGetPropertySet",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "interactInstance",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxInteractHandle"
+                    }
+                  },
+                  {
+                    "name": "property",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleNonC",
+                        "name": "OfxPropertySetHandle"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "$type": "StandaloneComment",
       "comment": "@propset InteractDescriptor\n    write: host\n    props:\n      - OfxInteractPropHasAlpha\n      - OfxInteractPropBitDepth"
     },

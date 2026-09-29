@@ -62,7 +62,11 @@
                   {
                     "name": "suiteName",
                     "type": {
-                      "$type": "ConstCharPtr"
+                      "$type": "ConstPtr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "char"
+                      }
                     }
                   },
                   {
@@ -92,13 +96,21 @@
           {
             "name": "action",
             "type": {
-              "$type": "ConstCharPtr"
+              "$type": "ConstPtr",
+              "pointee": {
+                "$type": "SimpleC",
+                "name": "char"
+              }
             }
           },
           {
             "name": "handle",
             "type": {
-              "$type": "ConstVoidPtr"
+              "$type": "ConstPtr",
+              "pointee": {
+                "$type": "SimpleC",
+                "name": "void"
+              }
             }
           },
           {
