@@ -307,21 +307,6 @@ pub fn parse(code: &str) -> Result<BindingsUnprocessed, Error> {
         }
     }
 
-    {
-        // dev
-
-        let mut should_include_unfinished_items = true;
-        should_include_unfinished_items = false;
-        if !should_include_unfinished_items {
-            items.retain(|i| match i {
-                RootItemWithCommentAbove::Item { item, .. } => {
-                    !matches!(item, RootItem::Todo { .. })
-                }
-                RootItemWithCommentAbove::StandaloneComment { .. } => true,
-            })
-        }
-    }
-
     Ok(BindingsUnprocessed {
         unprocessed_includes,
         copyright_comments,

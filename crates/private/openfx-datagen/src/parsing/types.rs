@@ -81,11 +81,6 @@ pub enum RootItem {
         #[serde(skip_serializing_if = "Vec::is_empty")]
         variants: Vec<TypedefEnumVariant>,
     },
-
-    Todo {
-        kind: String,
-        code: String,
-    },
 }
 
 impl RootItem {
