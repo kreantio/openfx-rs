@@ -180,17 +180,8 @@ pub enum TypedefStructFieldType {
         parameters: Vec<FunctionParameter>,
         #[serde(skip_serializing_if = "std::ops::Not::not")]
         is_variadic: bool,
-        return_type: TypedefStructFieldTypeFunctionPointerReturnType,
+        return_type: TypeStraightforward,
     },
-}
-
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
-#[serde(tag = "$type")]
-pub enum TypedefStructFieldTypeFunctionPointerReturnType {
-    ConstVoidPtr,
-    OfxStatus,
-
-    CPrimitive { is: CPrimitiveType },
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]

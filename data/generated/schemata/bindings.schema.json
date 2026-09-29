@@ -527,7 +527,7 @@
               "type": "boolean"
             },
             "return_type": {
-              "$ref": "#/$defs/TypedefStructFieldTypeFunctionPointerReturnType"
+              "$ref": "#/$defs/TypeStraightforward"
             },
             "$type": {
               "type": "string",
@@ -539,50 +539,6 @@
             "parameters",
             "is_variadic",
             "return_type"
-          ]
-        }
-      ]
-    },
-    "TypedefStructFieldTypeFunctionPointerReturnType": {
-      "oneOf": [
-        {
-          "type": "object",
-          "properties": {
-            "$type": {
-              "type": "string",
-              "const": "ConstVoidPtr"
-            }
-          },
-          "required": [
-            "$type"
-          ]
-        },
-        {
-          "type": "object",
-          "properties": {
-            "$type": {
-              "type": "string",
-              "const": "OfxStatus"
-            }
-          },
-          "required": [
-            "$type"
-          ]
-        },
-        {
-          "type": "object",
-          "properties": {
-            "is": {
-              "$ref": "#/$defs/CPrimitiveType"
-            },
-            "$type": {
-              "type": "string",
-              "const": "CPrimitive"
-            }
-          },
-          "required": [
-            "$type",
-            "is"
           ]
         }
       ]

@@ -73,7 +73,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -122,7 +123,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -168,7 +170,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -214,7 +217,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -266,7 +270,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -318,7 +323,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -367,7 +373,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -416,7 +423,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -468,7 +476,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -520,7 +529,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -569,7 +579,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -618,7 +629,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -670,7 +682,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -722,7 +735,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -771,7 +785,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -820,7 +835,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -852,7 +868,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -894,7 +911,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }

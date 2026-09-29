@@ -62,7 +62,8 @@
                   }
                 ],
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }
@@ -75,7 +76,8 @@
               "type": {
                 "$type": "FunctionPointer",
                 "return_type": {
-                  "$type": "OfxStatus"
+                  "$type": "TypeIdentifier",
+                  "is": "OfxStatus"
                 }
               }
             }

@@ -10,8 +10,7 @@ use treesitter_types_c::{
 use crate::parsing::{
     CPrimitiveType, FunctionParameter, RootItem, TypeStraightforward, TypedefEnumCValueExpr,
     TypedefEnumVariant, TypedefFunctionReturnType, TypedefStructField, TypedefStructFieldItem,
-    TypedefStructFieldType, TypedefStructFieldTypeFunctionPointerReturnType, types,
-    utils::find_line_before,
+    TypedefStructFieldType, types, utils::find_line_before,
 };
 
 pub fn extract_name_from_declaration(declaration: &Declaration) -> Result<Span, ()> {
@@ -310,7 +309,7 @@ fn parse_type_definition_struct(
             return Err(());
         };
 
-        if let Ok((names, r#type)) = parse_field_declaration(code, &item_node) {
+        if let Ok((names, r#type)) = parse_straightforward_field_declaration(code, &item_node) {
             for name in names {
                 fields.push(TypedefStructField::Item {
                     comment_above: comment_above.clone(),
@@ -339,17 +338,7 @@ fn parse_type_definition_struct(
         {
             let name = text_from_span!(name.span()).trim().to_owned();
 
-            let ret_ty_str = &code[item_node.span.start_byte..declarator.span.start_byte];
-            let ret_ty_str = ret_ty_str.split_whitespace().collect::<Vec<_>>().join(" ");
-            let ret_ty = if ret_ty_str == "const void *" {
-                TypedefStructFieldTypeFunctionPointerReturnType::ConstVoidPtr
-            } else if ret_ty_str == "OfxStatus" {
-                TypedefStructFieldTypeFunctionPointerReturnType::OfxStatus
-            } else if let Ok(name) = CPrimitiveType::try_from(&ret_ty_str) {
-                TypedefStructFieldTypeFunctionPointerReturnType::CPrimitive { is: name }
-            } else {
-                return Err(());
-            };
+            let ret_ty = parse_functionish_field_return_type(code, &item_node)?;
 
             let (parameters, is_variadic) =
                 parse_function_parameter_list(raw_node, code, &declarator.parameters)?;
@@ -618,7 +607,7 @@ fn parse_parameter_declaration(
     Ok(Some((name, ty)))
 }
 
-fn parse_field_declaration(
+fn parse_straightforward_field_declaration(
     code: &str,
     declaration: &FieldDeclaration,
 ) -> Result<(Vec<String>, TypeStraightforward), ()> {
@@ -700,4 +689,81 @@ fn parse_field_declaration(
     }
 
     Ok((names, ty))
+}
+
+fn parse_functionish_field_return_type(
+    code: &str,
+    declaration: &FieldDeclaration,
+) -> Result<TypeStraightforward, ()> {
+    macro_rules! text_from_span {
+        ($span:expr) => {
+            code[$span.start_byte..$span.end_byte].to_owned()
+        };
+    }
+
+    let mut has_const_type_qualifier = if declaration.children.is_empty() {
+        false
+    } else if declaration.children.len() == 1
+        && let Some(FieldDeclarationChildren::TypeQualifier(type_qualifier)) =
+            declaration.children.first()
+        && text_from_span!(type_qualifier.span) == "const"
+    {
+        true
+    } else {
+        return Err(());
+    };
+
+    let mut ty =
+        if let Ok(name) = CPrimitiveType::try_from(&text_from_span!(declaration.r#type.span())) {
+            TypeStraightforward::CPrimitive { is: name }
+        } else if let Ok(name) =
+            types::TypeIdentifier::try_from(&text_from_span!(declaration.r#type.span()))
+        {
+            TypeStraightforward::TypeIdentifier { is: name }
+        } else {
+            return Err(());
+        };
+
+    if declaration.declarator.len() != 1 {
+        return Err(());
+    }
+    let Some(declarator) = declaration.declarator.first() else {
+        return Err(());
+    };
+    // let mut declarator = declarator;
+    #[expect(clippy::never_loop)]
+    loop {
+        match &declarator {
+            FieldDeclarator::FunctionDeclarator(_) => {
+                break;
+            }
+            FieldDeclarator::PointerDeclarator(pointer_declarator) => {
+                if has_const_type_qualifier {
+                    has_const_type_qualifier = false;
+                    ty = TypeStraightforward::ConstPtr {
+                        pointee: Box::new(ty),
+                    };
+                } else {
+                    ty = TypeStraightforward::Ptr {
+                        pointee: Box::new(ty),
+                    }
+                }
+                if let PointerDeclaratorDeclarator::Declarator(declarator_) =
+                    &pointer_declarator.declarator
+                    && let Declarator::FunctionDeclarator(_) = &**declarator_
+                {
+                    break;
+                } else {
+                    return Err(());
+                }
+            }
+            _ => return Err(()),
+        }
+    }
+
+    if has_const_type_qualifier {
+        tracing::warn!("const type qualifier not consumed for return type of: {declaration:?}",);
+    }
+
+    Ok(ty)
 }
