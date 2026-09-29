@@ -20,9 +20,13 @@ pub fn load_input_data(
             continue;
         }
         let name = path
-            .file_stem()
-            .ok_or(format!("Failed to get file stem for path: {:?}", path))?
-            .to_string_lossy()
+            .file_name()
+            .and_then(|s| s.to_str())
+            .and_then(|s| s.strip_suffix(".json"))
+            .ok_or(format!(
+                "Failed to get file name with extension `.json` stripped for path: {:?}",
+                path
+            ))?
             .to_string();
         bindings.insert(
             name,

@@ -29,8 +29,8 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             continue;
         }
         let name = path
-            .file_stem()
-            .ok_or_else(|| format!("Failed to get file stem for path: {:?}", path))?
+            .file_name()
+            .ok_or_else(|| format!("Failed to get file name for path: {:?}", path))?
             .to_string_lossy()
             .to_string();
         if !name.starts_with("ofx") {
