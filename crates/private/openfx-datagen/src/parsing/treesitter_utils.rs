@@ -382,7 +382,6 @@ pub fn parse_type_definition(
         let mut cursor = raw_body.walk();
 
         let mut items: Vec<TypedefEnumVariant> = Vec::new();
-        let mut current_item: Option<TypedefEnumVariant> = None;
 
         for raw_item_node in raw_body.children(&mut cursor) {
             if !raw_item_node.is_named() {
@@ -399,7 +398,7 @@ pub fn parse_type_definition(
                     return Err(());
                 }
 
-                let Some(current_item) = &mut current_item else {
+                let Some(current_item) = &mut items.last_mut() else {
                     return Err(());
                 };
                 if std::mem::take(&mut current_item.comment).is_some() {
@@ -413,25 +412,17 @@ pub fn parse_type_definition(
                 return Err(());
             };
 
-            if let Some(current_item) = current_item.take() {
-                items.push(current_item);
-            }
-
             let name = text_from_span!(item_node.name.span).trim().to_owned();
             let c_value_expr = item_node
                 .value
                 .map(|expr| TypedefEnumCValueExpr::try_from(text_from_span!(expr.span()).trim()))
                 .transpose()?;
 
-            current_item = Some(TypedefEnumVariant {
+            items.push(TypedefEnumVariant {
                 name,
                 c_value_expr,
                 comment: None,
             });
-        }
-
-        if let Some(current_item) = current_item.take() {
-            items.push(current_item);
         }
 
         return Ok(RootItem::TypedefEnum {
