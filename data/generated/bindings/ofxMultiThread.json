@@ -64,7 +64,8 @@
           }
         ],
         "return_type": {
-          "$type": "Void"
+          "$type": "CPrimitive",
+          "is": "void"
         }
       }
     },

@@ -1357,7 +1357,8 @@
           }
         ],
         "return_type": {
-          "$type": "OfxStatus"
+          "$type": "TypeIdentifier",
+          "is": "OfxStatus"
         }
       }
     },

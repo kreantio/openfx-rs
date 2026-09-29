@@ -4,13 +4,14 @@ use treesitter_types_c::{
     FunctionDeclaratorDeclarator, ParameterDeclaration, ParameterDeclarationChildren,
     ParameterDeclarationDeclarator, ParameterList, ParameterListChildren,
     ParenthesizedDeclaratorChildren, PointerDeclarator, PointerDeclaratorDeclarator, Span, Spanned,
-    StructSpecifier, TypeDeclarator, TypeDefinition, TypeIdentifier, TypeSpecifier,
+    StructSpecifier, TypeDeclarator, TypeDefinition, TypeDefinitionChildren, TypeIdentifier,
+    TypeSpecifier,
 };
 
 use crate::parsing::{
     CPrimitiveType, FunctionParameter, RootItem, TypeStraightforward, TypedefEnumCValueExpr,
-    TypedefEnumVariant, TypedefFunctionReturnType, TypedefStructField, TypedefStructFieldItem,
-    TypedefStructFieldType, types, utils::find_line_before,
+    TypedefEnumVariant, TypedefStructField, TypedefStructFieldItem, TypedefStructFieldType, types,
+    utils::find_line_before,
 };
 
 pub fn extract_name_from_declaration(declaration: &Declaration) -> Result<Span, ()> {
@@ -196,19 +197,7 @@ fn parse_type_definition_function(
 
     let name = text_from_span!(declarator.span).trim().to_owned();
 
-    let ret_ty = match &type_definition.r#type {
-        TypeSpecifier::PrimitiveType(specifier)
-            if text_from_span!(specifier.span).trim() == "void" =>
-        {
-            TypedefFunctionReturnType::Void
-        }
-        TypeSpecifier::TypeIdentifier(specifier)
-            if text_from_span!(specifier.span).trim() == "OfxStatus" =>
-        {
-            TypedefFunctionReturnType::OfxStatus
-        }
-        _ => return Err(()),
-    };
+    let ret_ty = parse_type_definition_return_type(code, type_definition)?;
 
     let (parameters, is_variadic) = parse_function_parameter_list(raw_node, code, parameters_node)?;
 
@@ -738,6 +727,83 @@ fn parse_functionish_field_return_type(
                 break;
             }
             FieldDeclarator::PointerDeclarator(pointer_declarator) => {
+                if has_const_type_qualifier {
+                    has_const_type_qualifier = false;
+                    ty = TypeStraightforward::ConstPtr {
+                        pointee: Box::new(ty),
+                    };
+                } else {
+                    ty = TypeStraightforward::Ptr {
+                        pointee: Box::new(ty),
+                    }
+                }
+                if let PointerDeclaratorDeclarator::Declarator(declarator_) =
+                    &pointer_declarator.declarator
+                    && let Declarator::FunctionDeclarator(_) = &**declarator_
+                {
+                    break;
+                } else {
+                    return Err(());
+                }
+            }
+            _ => return Err(()),
+        }
+    }
+
+    if has_const_type_qualifier {
+        tracing::warn!("const type qualifier not consumed for return type of: {declaration:?}",);
+    }
+
+    Ok(ty)
+}
+
+fn parse_type_definition_return_type(
+    code: &str,
+    declaration: &TypeDefinition,
+) -> Result<TypeStraightforward, ()> {
+    macro_rules! text_from_span {
+        ($span:expr) => {
+            code[$span.start_byte..$span.end_byte].to_owned()
+        };
+    }
+
+    let mut has_const_type_qualifier = if declaration.children.is_empty() {
+        false
+    } else if declaration.children.len() == 1
+        && let Some(TypeDefinitionChildren::TypeQualifier(type_qualifier)) =
+            declaration.children.first()
+        && text_from_span!(type_qualifier.span) == "const"
+    {
+        true
+    } else {
+        return Err(());
+    };
+
+    let mut ty =
+        if let Ok(name) = CPrimitiveType::try_from(&text_from_span!(declaration.r#type.span())) {
+            TypeStraightforward::CPrimitive { is: name }
+        } else if let Ok(name) =
+            types::TypeIdentifier::try_from(&text_from_span!(declaration.r#type.span()))
+        {
+            TypeStraightforward::TypeIdentifier { is: name }
+        } else {
+            return Err(());
+        };
+
+    if declaration.declarator.len() != 1 {
+        return Err(());
+    }
+    let Some(declarator) = declaration.declarator.first() else {
+        return Err(());
+    };
+    // let mut declarator = declarator;
+    #[expect(clippy::never_loop)]
+    loop {
+        match &declarator {
+            TypeDeclarator::FunctionDeclarator(_) => {
+                break;
+            }
+            TypeDeclarator::PointerDeclarator(pointer_declarator) => {
                 if has_const_type_qualifier {
                     has_const_type_qualifier = false;
                     ty = TypeStraightforward::ConstPtr {

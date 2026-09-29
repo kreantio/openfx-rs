@@ -69,7 +69,7 @@ pub enum RootItem {
         parameters: Vec<FunctionParameter>,
         #[serde(skip_serializing_if = "std::ops::Not::not")]
         is_variadic: bool,
-        return_type: TypedefFunctionReturnType,
+        return_type: TypeStraightforward,
     },
     TypedefStruct {
         name: String,
@@ -141,13 +141,6 @@ pub enum TypeStraightforward {
     ConstPtr { pointee: Box<TypeStraightforward> },
     CPrimitive { is: CPrimitiveType },
     TypeIdentifier { is: TypeIdentifier },
-}
-
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
-#[serde(tag = "$type")]
-pub enum TypedefFunctionReturnType {
-    OfxStatus,
-    Void,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
