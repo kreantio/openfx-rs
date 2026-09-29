@@ -257,10 +257,10 @@ define_string_guarded_by_regex!(
 );
 define_string_guarded_by_regex!(
     TypeSimpleNonCName,
-    regex(TYPE_SIMPLE_NON_C_NAME_REGEX) = r#"^Ofx[A-Z][a-zA-Z]*$"#
+    regex(TYPE_SIMPLE_NON_C_NAME_REGEX) = r#"^Ofx[A-Z][_a-zA-Z\d]*$"#
 );
 define_string_guarded_by_regex!(
     TypedefEnumCValueExpr,
     regex(TYPEDEF_ENUM_C_VALUE_EXPR_REGEX) =
-        r#"^(0x[0-9a-fA-F]+|\(\s*[_a-zA-Z][_a-zA-Z0-9]*\s*\|\s*[_a-zA-Z][_a-zA-Z0-9]*\s*\))$"#
+        r#"^(0x[\da-fA-F]+|\(\s*[_a-zA-Z][_a-zA-Z\d]*\s*\|\s*[_a-zA-Z][_a-zA-Z\d]*\s*\))$"#
 );

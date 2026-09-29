@@ -370,14 +370,8 @@ fn parse_type_definition_struct(
                 return Err(());
             };
 
-            let Ok((parameters, is_variadic)) =
-                parse_function_parameter_list(raw_node, code, &declarator.parameters)
-            else {
-                return Ok(RootItem::Todo {
-                    kind: "parse_type_definition_struct->parse_function_parameter_list".to_owned(),
-                    code: raw_node.utf8_text(code.as_bytes()).unwrap().to_owned(),
-                });
-            };
+            let (parameters, is_variadic) =
+                parse_function_parameter_list(raw_node, code, &declarator.parameters)?;
 
             fields.push(TypedefStructField::Item {
                 comment_above,

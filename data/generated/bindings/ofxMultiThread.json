@@ -67,6 +67,239 @@
           "$type": "Void"
         }
       }
+    },
+    {
+      "$type": "Item",
+      "comment_above": "@brief OFX suite that provides simple SMP style multi-processing",
+      "item": {
+        "$type": "TypedefStruct",
+        "name": "OfxMultiThreadSuiteV1",
+        "fields": [
+          {
+            "$type": "Item",
+            "comment_above": "/**@brief Function to spawn SMP threads\n\n  \\arg \\c func function to call in each thread.\n  \\arg \\c nThreads number of threads to launch\n  \\arg \\c customArg parameter to pass to customArg of func in each thread.\n\n  This function will spawn nThreads separate threads of computation (typically one per CPU) \n  to allow something to perform symmetric multi processing. Each thread will call 'func' passing\n  in the index of the thread and the number of threads actually launched.\n\n  multiThread will not return until all the spawned threads have returned. It is up to the host\n  how it waits for all the threads to return (busy wait, blocking, whatever).\n\n  \\e nThreads can be more than the value returned by multiThreadNumCPUs, however the threads will\n  be limited to the number of CPUs returned by multiThreadNumCPUs.\n\n  This function cannot be called recursively.\n\n  @returns\n  - ::kOfxStatOK, the function func has executed and returned successfully\n  - ::kOfxStatFailed, the threading function failed to launch\n  - ::kOfxStatErrExists, failed in an attempt to call multiThread recursively,\n\n  */",
+            "item": {
+              "name": "multiThread",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "func",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxThreadFunctionV1"
+                    }
+                  },
+                  {
+                    "name": "nThreads",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "unsigned int"
+                    }
+                  },
+                  {
+                    "name": "customArg",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "void"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/**@brief Function which indicates the number of CPUs available for SMP processing\n\n  \\arg \\c nCPUs pointer to an integer where the result is returned\n     \n  This value may be less than the actual number of CPUs on a machine, as the host may reserve other CPUs for itself.\n\n  @returns\n  - ::kOfxStatOK, all was OK and the maximum number of threads is in nThreads.\n  - ::kOfxStatFailed, the function failed to get the number of CPUs \n  */",
+            "item": {
+              "name": "multiThreadNumCPUs",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "nCPUs",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "unsigned int"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/**@brief Function which indicates the index of the current thread\n\n  \\arg \\c threadIndex  pointer to an integer where the result is returned\n\n  This function returns the thread index, which is the same as the \\e threadIndex argument passed to the ::OfxThreadFunctionV1.\n\n  If there are no threads currently spawned, then this function will set threadIndex to 0\n\n  @returns\n  - ::kOfxStatOK, all was OK and the maximum number of threads is in nThreads.\n  - ::kOfxStatFailed, the function failed to return an index\n  */",
+            "item": {
+              "name": "multiThreadIndex",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "threadIndex",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleC",
+                        "name": "unsigned int"
+                      }
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/**@brief Function to enquire if the calling thread was spawned by multiThread\n\n  @returns\n  - 0 if the thread is not one spawned by multiThread\n  - 1 if the thread was spawned by multiThread\n  */",
+            "item": {
+              "name": "multiThreadIsSpawnedThread",
+              "type": {
+                "$type": "FunctionPointer",
+                "return_type": {
+                  "$type": "SimpleC",
+                  "name": "int"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Create a mutex\n\n  \\arg \\c mutex where the new handle is returned\n  \\arg \\c count initial lock count on the mutex. This can be negative.\n\n  Creates a new mutex with lockCount locks on the mutex initially set.    \n\n  @returns\n  - kOfxStatOK - mutex is now valid and ready to go\n  */",
+            "item": {
+              "name": "mutexCreate",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "mutex",
+                    "type": {
+                      "$type": "Ptr",
+                      "pointee": {
+                        "$type": "SimpleNonC",
+                        "name": "OfxMutexHandle"
+                      }
+                    }
+                  },
+                  {
+                    "name": "lockCount",
+                    "type": {
+                      "$type": "SimpleC",
+                      "name": "int"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Destroy a mutex\n      \n  Destroys a mutex initially created by mutexCreate.\n  \n  @returns\n  - kOfxStatOK - if it destroyed the mutex\n  - kOfxStatErrBadHandle - if the handle was bad\n  */",
+            "item": {
+              "name": "mutexDestroy",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "mutex",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxMutexHandle"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Blocking lock on the mutex\n\n  This tries to lock a mutex and blocks the thread it is in until the lock succeeds. \n\n  A successful lock causes the mutex's lock count to be increased by one and to block any other calls to lock the mutex until it is unlocked.\n  \n  @returns\n  - kOfxStatOK - if it got the lock\n  - kOfxStatErrBadHandle - if the handle was bad\n  */",
+            "item": {
+              "name": "mutexLock",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "mutex",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxMutexHandle"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Unlock the mutex\n\n  This  unlocks a mutex. Unlocking a mutex decreases its lock count by one.\n  \n  @returns\n  - kOfxStatOK if it released the lock\n  - kOfxStatErrBadHandle if the handle was bad\n  */",
+            "item": {
+              "name": "mutexUnLock",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "mutex",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxMutexHandle"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          },
+          {
+            "$type": "Item",
+            "comment_above": "/** @brief Non blocking attempt to lock the mutex\n\n  This attempts to lock a mutex, if it cannot, it returns and says so, rather than blocking.\n\n  A successful lock causes the mutex's lock count to be increased by one, if the lock did not succeed, the call returns immediately and the lock count remains unchanged.\n\n  @returns\n  - kOfxStatOK - if it got the lock\n  - kOfxStatFailed - if it did not get the lock\n  - kOfxStatErrBadHandle - if the handle was bad\n  */",
+            "item": {
+              "name": "mutexTryLock",
+              "type": {
+                "$type": "FunctionPointer",
+                "parameters": [
+                  {
+                    "name": "mutex",
+                    "type": {
+                      "$type": "SimpleNonC",
+                      "name": "OfxMutexHandle"
+                    }
+                  }
+                ],
+                "return_type": {
+                  "$type": "OfxStatus"
+                }
+              }
+            }
+          }
+        ]
+      }
     }
   ]
 }

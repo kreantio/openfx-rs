@@ -433,7 +433,7 @@
     },
     "TypeSimpleNonCName": {
       "type": "string",
-      "pattern": "^Ofx[A-Z][a-zA-Z]*$"
+      "pattern": "^Ofx[A-Z][_a-zA-Z\\d]*$"
     },
     "TypedefFunctionReturnType": {
       "oneOf": [
@@ -692,7 +692,7 @@
     },
     "TypedefEnumCValueExpr": {
       "type": "string",
-      "pattern": "^(0x[0-9a-fA-F]+|\\(\\s*[_a-zA-Z][_a-zA-Z0-9]*\\s*\\|\\s*[_a-zA-Z][_a-zA-Z0-9]*\\s*\\))$"
+      "pattern": "^(0x[\\da-fA-F]+|\\(\\s*[_a-zA-Z][_a-zA-Z\\d]*\\s*\\|\\s*[_a-zA-Z][_a-zA-Z\\d]*\\s*\\))$"
     }
   }
 }
