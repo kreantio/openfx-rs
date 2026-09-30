@@ -29,7 +29,7 @@
         "fields": [
           {
             "$type": "Item",
-            "comment_above": "/** @brief Allocate memory.\n      \n  \\arg \\c handle\t- effect instance to associate with this memory allocation, or NULL.\n  \\arg \\c nBytes        number of bytes to allocate\n  \\arg \\c allocatedData pointer to the return value. Allocated memory will be aligned for any use.\n\n  This function has the host allocate memory using its own memory resources\n  and returns that to the plugin.\n\n  @returns\n  - ::kOfxStatOK the memory was successfully allocated\n  - ::kOfxStatErrMemory the request could not be met and no memory was allocated\n\n  */",
+            "comment_above": "@brief Allocate memory.\n      \n  \\arg \\c handle\t- effect instance to associate with this memory allocation, or NULL.\n  \\arg \\c nBytes        number of bytes to allocate\n  \\arg \\c allocatedData pointer to the return value. Allocated memory will be aligned for any use.\n\n  This function has the host allocate memory using its own memory resources\n  and returns that to the plugin.\n\n  @returns\n  - ::kOfxStatOK the memory was successfully allocated\n  - ::kOfxStatErrMemory the request could not be met and no memory was allocated",
             "item": {
               "name": "memoryAlloc",
               "type": {
@@ -75,7 +75,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief Frees memory.\n      \n  \\arg \\c allocatedData pointer to memory previously returned by OfxMemorySuiteV1::memoryAlloc\n\n  This function frees any memory that was previously allocated via OfxMemorySuiteV1::memoryAlloc.\n\n  @returns\n  - ::kOfxStatOK the memory was successfully freed\n  - ::kOfxStatErrBadHandle \\e allocatedData was not a valid pointer returned by OfxMemorySuiteV1::memoryAlloc\n\n  */",
+            "comment_above": "@brief Frees memory.\n      \n  \\arg \\c allocatedData pointer to memory previously returned by OfxMemorySuiteV1::memoryAlloc\n\n  This function frees any memory that was previously allocated via OfxMemorySuiteV1::memoryAlloc.\n\n  @returns\n  - ::kOfxStatOK the memory was successfully freed\n  - ::kOfxStatErrBadHandle \\e allocatedData was not a valid pointer returned by OfxMemorySuiteV1::memoryAlloc",
             "item": {
               "name": "memoryFree",
               "type": {

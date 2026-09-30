@@ -30,7 +30,7 @@
         "fields": [
           {
             "$type": "Item",
-            "comment_above": "/** @brief Initiate a progress bar display.\n\n      Call this to initiate the display of a progress bar.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                               associated with. It cannot be NULL.\n      \\arg \\c label          a text label to display in any message portion of the\n                               progress object's user interface. A UTF8 string.\n\n      \\pre                   - There is no currently ongoing progress display for this instance.\n\n      \\returns\n      - ::kOfxStatOK - the handle is now valid for use\n      - ::kOfxStatFailed - the progress object failed for some reason\n      - ::kOfxStatErrBadHandle - effectInstance was invalid\n   */",
+            "comment_above": "@brief Initiate a progress bar display.\n\n      Call this to initiate the display of a progress bar.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                               associated with. It cannot be NULL.\n      \\arg \\c label          a text label to display in any message portion of the\n                               progress object's user interface. A UTF8 string.\n\n      \\pre                   - There is no currently ongoing progress display for this instance.\n\n      \\returns\n      - ::kOfxStatOK - the handle is now valid for use\n      - ::kOfxStatFailed - the progress object failed for some reason\n      - ::kOfxStatErrBadHandle - effectInstance was invalid",
             "item": {
               "name": "progressStart",
               "type": {
@@ -66,7 +66,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief Indicate how much of the processing task has been completed and reports on any abort status.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                                associated with. It cannot be NULL.\n      \\arg \\c progress a number between 0.0 and 1.0 indicating what proportion of the current task has been processed.\n\n      \\returns\n      - ::kOfxStatOK - the progress object was successfully updated and the task should continue\n      - ::kOfxStatReplyNo - the progress object was successfully updated and the task should abort\n      - ::kOfxStatErrBadHandle - the progress handle was invalid,\n  */",
+            "comment_above": "@brief Indicate how much of the processing task has been completed and reports on any abort status.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                                associated with. It cannot be NULL.\n      \\arg \\c progress a number between 0.0 and 1.0 indicating what proportion of the current task has been processed.\n\n      \\returns\n      - ::kOfxStatOK - the progress object was successfully updated and the task should continue\n      - ::kOfxStatReplyNo - the progress object was successfully updated and the task should abort\n      - ::kOfxStatErrBadHandle - the progress handle was invalid,",
             "item": {
               "name": "progressUpdate",
               "type": {
@@ -99,7 +99,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief Signal that we are finished with the progress meter.\n\n      Call this when you are done with the progress meter and no\n      longer need it displayed.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                                associated with. It cannot be NULL.\n\n      \\post - you can no longer call progressUpdate on the instance\n\n      \\returns\n      - ::kOfxStatOK - the progress object was successfully closed\n      - ::kOfxStatErrBadHandle - the progress handle was invalid,\n   */",
+            "comment_above": "@brief Signal that we are finished with the progress meter.\n\n      Call this when you are done with the progress meter and no\n      longer need it displayed.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                                associated with. It cannot be NULL.\n\n      \\post - you can no longer call progressUpdate on the instance\n\n      \\returns\n      - ::kOfxStatOK - the progress object was successfully closed\n      - ::kOfxStatErrBadHandle - the progress handle was invalid,",
             "item": {
               "name": "progressEnd",
               "type": {
@@ -134,7 +134,7 @@
         "fields": [
           {
             "$type": "Item",
-            "comment_above": "/** @brief Initiate a progress bar display.\n\n      Call this to initiate the display of a progress bar.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                               associated with. It cannot be NULL.\n      \\arg \\c message        a text label to display in any message portion of the\n                               progress object's user interface. A UTF8 string.\n      \\arg \\c messageId      plugin-specified id to associate with this message.\n                               If overriding the message in an XML resource, the message\n\t\t\t       is identified with this, this may be NULL, or \"\", in\n\t\t\t       which case no override will occur.\n\t\t\t       New in V2 of this suite.\n\n      \\pre                   - There is no currently ongoing progress display for this instance.\n\n      \\returns\n      - ::kOfxStatOK - the handle is now valid for use\n      - ::kOfxStatFailed - the progress object failed for some reason\n      - ::kOfxStatErrBadHandle - effectInstance was invalid\n */",
+            "comment_above": "@brief Initiate a progress bar display.\n\n      Call this to initiate the display of a progress bar.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                               associated with. It cannot be NULL.\n      \\arg \\c message        a text label to display in any message portion of the\n                               progress object's user interface. A UTF8 string.\n      \\arg \\c messageId      plugin-specified id to associate with this message.\n                               If overriding the message in an XML resource, the message\n\t\t\t       is identified with this, this may be NULL, or \"\", in\n\t\t\t       which case no override will occur.\n\t\t\t       New in V2 of this suite.\n\n      \\pre                   - There is no currently ongoing progress display for this instance.\n\n      \\returns\n      - ::kOfxStatOK - the handle is now valid for use\n      - ::kOfxStatFailed - the progress object failed for some reason\n      - ::kOfxStatErrBadHandle - effectInstance was invalid",
             "item": {
               "name": "progressStart",
               "type": {
@@ -180,7 +180,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief Indicate how much of the processing task has been completed and reports on any abort status.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                                associated with. It cannot be NULL.\n      \\arg \\c progress a number between 0.0 and 1.0 indicating what proportion of the current task has been processed.\n\n      \\returns\n      - ::kOfxStatOK - the progress object was successfully updated and the task should continue\n      - ::kOfxStatReplyNo - the progress object was successfully updated and the task should abort\n      - ::kOfxStatErrBadHandle - the progress handle was invalid,\n  */",
+            "comment_above": "@brief Indicate how much of the processing task has been completed and reports on any abort status.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                                associated with. It cannot be NULL.\n      \\arg \\c progress a number between 0.0 and 1.0 indicating what proportion of the current task has been processed.\n\n      \\returns\n      - ::kOfxStatOK - the progress object was successfully updated and the task should continue\n      - ::kOfxStatReplyNo - the progress object was successfully updated and the task should abort\n      - ::kOfxStatErrBadHandle - the progress handle was invalid,",
             "item": {
               "name": "progressUpdate",
               "type": {
@@ -213,7 +213,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief Signal that we are finished with the progress meter.\n\n      Call this when you are done with the progress meter and no\n      longer need it displayed.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                                associated with. It cannot be NULL.\n\n      \\post - you can no longer call progressUpdate on the instance\n\n      \\returns\n      - ::kOfxStatOK - the progress object was successfully closed\n      - ::kOfxStatErrBadHandle - the progress handle was invalid,\n   */",
+            "comment_above": "@brief Signal that we are finished with the progress meter.\n\n      Call this when you are done with the progress meter and no\n      longer need it displayed.\n\n      \\arg \\c effectInstance the instance of the plugin this progress bar is\n                                associated with. It cannot be NULL.\n\n      \\post - you can no longer call progressUpdate on the instance\n\n      \\returns\n      - ::kOfxStatOK - the progress object was successfully closed\n      - ::kOfxStatErrBadHandle - the progress handle was invalid,",
             "item": {
               "name": "progressEnd",
               "type": {

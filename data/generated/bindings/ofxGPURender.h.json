@@ -165,7 +165,7 @@
           "c_type": "int",
           "value": 1002
         },
-        "comment": "/* for backward compatibility */"
+        "comment": "for backward compatibility"
       }
     },
     {
@@ -181,7 +181,7 @@
         "fields": [
           {
             "$type": "Item",
-            "comment_above": "/** @brief loads an image from an OFX clip as a texture into OpenGL\n\n      \\arg \\c clip   clip to load the image from\n      \\arg \\c time   effect time to load the image from\n      \\arg \\c format requested texture format (As in\n            none,byte,word,half,float, etc..)\n            When set to NULL, the host decides the format based on the\n\t    plug-in's ::kOfxOpenGLPropPixelDepth setting.\n      \\arg \\c region region of the image to load (optional, set to NULL to\n            get a 'default' region)\n\t    this is in the \\ref CanonicalCoordinates.\n      \\arg \\c textureHandle property set containing information about the\n            texture\n\n  An image is fetched from a clip at the indicated time for the given region\n  and loaded into an OpenGL texture. When a specific format is requested, the\n  host ensures it gives the requested format.\n  When the clip specified is the \"Output\" clip, the format is ignored and\n  the host must bind the resulting texture as the current color buffer\n  (render target). This may also be done prior to calling the\n  ::kOfxImageEffectActionRender action.\n  If the \\em region parameter is set to non-NULL, then it will be clipped to\n  the clip's Region of Definition for the given time.\n  The returned image will be \\em at \\em least as big as this region.\n  If the region parameter is not set or is NULL, then the region fetched will be at\n  least the Region of Interest the effect has previously specified, clipped to\n  the clip's Region of Definition.\n  Information about the texture, including the texture index, is returned in\n  the \\em textureHandle argument.\n  The properties on this handle will be...\n    - ::kOfxImageEffectPropOpenGLTextureIndex\n    - ::kOfxImageEffectPropOpenGLTextureTarget\n    - ::kOfxImageEffectPropPixelDepth\n    - ::kOfxImageEffectPropComponents\n    - ::kOfxImageEffectPropPreMultiplication\n    - ::kOfxImageEffectPropRenderScale\n    - ::kOfxImagePropPixelAspectRatio\n    - ::kOfxImagePropBounds\n    - ::kOfxImagePropRegionOfDefinition\n    - ::kOfxImagePropRowBytes\n    - ::kOfxImagePropField\n    - ::kOfxImagePropUniqueIdentifier\n\n  With the exception of the OpenGL specifics, these properties are the same\n  as the properties in an image handle returned by clipGetImage in the image\n  effect suite.\n\\pre\n - clip was returned by clipGetHandle\n - Format property in the texture handle\n\n\\post\n - texture handle to be disposed of by clipFreeTexture before the action\nreturns\n - when the clip specified is the \"Output\" clip, the format is ignored and\n   the host must bind the resulting texture as the current color buffer\n   (render target).\n   This may also be done prior to calling the render action.\n\n@returns\n  - ::kOfxStatOK           - the image was successfully fetched and returned\n                             in the handle,\n  - ::kOfxStatFailed       - the image could not be fetched because it does\n                             not exist in the clip at the indicated\n                             time and/or region, the plug-in should continue\n                             operation, but assume the image was black and\n\t\t\t     transparent.\n  - ::kOfxStatErrBadHandle - the clip handle was invalid,\n  - ::kOfxStatErrMemory    - not enough OpenGL memory was available for the\n                             effect to load the texture.\n                             The plug-in should abort the GL render and\n\t\t\t     return ::kOfxStatErrMemory, after which the host can\n\t\t\t     decide to retry the operation with CPU based processing.\n\n\\note\n  - this is the OpenGL equivalent of clipGetImage from OfxImageEffectSuiteV1\n\n\n*/",
+            "comment_above": "@brief loads an image from an OFX clip as a texture into OpenGL\n\n      \\arg \\c clip   clip to load the image from\n      \\arg \\c time   effect time to load the image from\n      \\arg \\c format requested texture format (As in\n            none,byte,word,half,float, etc..)\n            When set to NULL, the host decides the format based on the\n\t    plug-in's ::kOfxOpenGLPropPixelDepth setting.\n      \\arg \\c region region of the image to load (optional, set to NULL to\n            get a 'default' region)\n\t    this is in the \\ref CanonicalCoordinates.\n      \\arg \\c textureHandle property set containing information about the\n            texture\n\n  An image is fetched from a clip at the indicated time for the given region\n  and loaded into an OpenGL texture. When a specific format is requested, the\n  host ensures it gives the requested format.\n  When the clip specified is the \"Output\" clip, the format is ignored and\n  the host must bind the resulting texture as the current color buffer\n  (render target). This may also be done prior to calling the\n  ::kOfxImageEffectActionRender action.\n  If the \\em region parameter is set to non-NULL, then it will be clipped to\n  the clip's Region of Definition for the given time.\n  The returned image will be \\em at \\em least as big as this region.\n  If the region parameter is not set or is NULL, then the region fetched will be at\n  least the Region of Interest the effect has previously specified, clipped to\n  the clip's Region of Definition.\n  Information about the texture, including the texture index, is returned in\n  the \\em textureHandle argument.\n  The properties on this handle will be...\n    - ::kOfxImageEffectPropOpenGLTextureIndex\n    - ::kOfxImageEffectPropOpenGLTextureTarget\n    - ::kOfxImageEffectPropPixelDepth\n    - ::kOfxImageEffectPropComponents\n    - ::kOfxImageEffectPropPreMultiplication\n    - ::kOfxImageEffectPropRenderScale\n    - ::kOfxImagePropPixelAspectRatio\n    - ::kOfxImagePropBounds\n    - ::kOfxImagePropRegionOfDefinition\n    - ::kOfxImagePropRowBytes\n    - ::kOfxImagePropField\n    - ::kOfxImagePropUniqueIdentifier\n\n  With the exception of the OpenGL specifics, these properties are the same\n  as the properties in an image handle returned by clipGetImage in the image\n  effect suite.\n\\pre\n - clip was returned by clipGetHandle\n - Format property in the texture handle\n\n\\post\n - texture handle to be disposed of by clipFreeTexture before the action\nreturns\n - when the clip specified is the \"Output\" clip, the format is ignored and\n   the host must bind the resulting texture as the current color buffer\n   (render target).\n   This may also be done prior to calling the render action.\n\n@returns\n  - ::kOfxStatOK           - the image was successfully fetched and returned\n                             in the handle,\n  - ::kOfxStatFailed       - the image could not be fetched because it does\n                             not exist in the clip at the indicated\n                             time and/or region, the plug-in should continue\n                             operation, but assume the image was black and\n\t\t\t     transparent.\n  - ::kOfxStatErrBadHandle - the clip handle was invalid,\n  - ::kOfxStatErrMemory    - not enough OpenGL memory was available for the\n                             effect to load the texture.\n                             The plug-in should abort the GL render and\n\t\t\t     return ::kOfxStatErrMemory, after which the host can\n\t\t\t     decide to retry the operation with CPU based processing.\n\n\\note\n  - this is the OpenGL equivalent of clipGetImage from OfxImageEffectSuiteV1",
             "item": {
               "name": "clipLoadTexture",
               "type": {
@@ -241,7 +241,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief Releases the texture handle previously returned by\nclipLoadTexture\n\n  For input clips, this also deletes the texture from OpenGL.\n  This should also be called on the output clip; for the Output\n  clip, it just releases the handle but does not delete the\n  texture (since the host will need to read it).\n\n  \\pre\n    - textureHandle was returned by clipGetImage\n\n  \\post\n    - all operations on textureHandle will be invalid, and the OpenGL texture\n      it referred to has been deleted (for source clips)\n\n  @returns\n    - ::kOfxStatOK - the image was successfully fetched and returned in the\n         handle,\n    - ::kOfxStatFailed - general failure for some reason,\n    - ::kOfxStatErrBadHandle - the image handle was invalid,\n*/",
+            "comment_above": "@brief Releases the texture handle previously returned by\nclipLoadTexture\n\n  For input clips, this also deletes the texture from OpenGL.\n  This should also be called on the output clip; for the Output\n  clip, it just releases the handle but does not delete the\n  texture (since the host will need to read it).\n\n  \\pre\n    - textureHandle was returned by clipGetImage\n\n  \\post\n    - all operations on textureHandle will be invalid, and the OpenGL texture\n      it referred to has been deleted (for source clips)\n\n  @returns\n    - ::kOfxStatOK - the image was successfully fetched and returned in the\n         handle,\n    - ::kOfxStatFailed - general failure for some reason,\n    - ::kOfxStatErrBadHandle - the image handle was invalid,",
             "item": {
               "name": "clipFreeTexture",
               "type": {
@@ -264,7 +264,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief Request the host to minimize its GPU resource load\n\n  When a plug-in fails to allocate GPU resources, it can call this function to\n  request the host to flush its GPU resources if it holds any.\n  After the function the plug-in can try again to allocate resources which then\n  might succeed if the host actually has released anything.\n\n  \\pre\n  \\post\n    - No changes to the plug-in GL state should have been made.\n\n  @returns\n    - ::kOfxStatOK           - the host has actually released some\nresources,\n    - ::kOfxStatReplyDefault - nothing the host could do..\n */",
+            "comment_above": "@brief Request the host to minimize its GPU resource load\n\n  When a plug-in fails to allocate GPU resources, it can call this function to\n  request the host to flush its GPU resources if it holds any.\n  After the function the plug-in can try again to allocate resources which then\n  might succeed if the host actually has released anything.\n\n  \\pre\n  \\post\n    - No changes to the plug-in GL state should have been made.\n\n  @returns\n    - ::kOfxStatOK           - the host has actually released some\nresources,\n    - ::kOfxStatReplyDefault - nothing the host could do..",
             "item": {
               "name": "flushResources",
               "type": {
@@ -495,7 +495,7 @@
         "fields": [
           {
             "$type": "Item",
-            "comment_above": "/** @brief Compiles the OpenCL program */",
+            "comment_above": "@brief Compiles the OpenCL program",
             "item": {
               "name": "compileProgram",
               "type": {
@@ -516,7 +516,8 @@
                     "type": {
                       "$type": "CPrimitive",
                       "is": "int"
-                    }
+                    },
+                    "comment": "if non-zero, host may skip compiling on this call"
                   },
                   {
                     "name": "pResult",
@@ -527,7 +528,7 @@
                         "is": "void"
                       }
                     },
-                    "comment": "// cast to cl_program*"
+                    "comment": "cast to cl_program*"
                   }
                 ],
                 "return_type": {

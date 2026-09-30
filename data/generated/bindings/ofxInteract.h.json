@@ -311,7 +311,7 @@
         "fields": [
           {
             "$type": "Item",
-            "comment_above": "/** @brief Requests an openGL buffer swap on the interact instance */",
+            "comment_above": "@brief Requests an openGL buffer swap on the interact instance",
             "item": {
               "name": "interactSwapBuffers",
               "type": {
@@ -334,7 +334,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief Requests a redraw of the interact instance */",
+            "comment_above": "@brief Requests a redraw of the interact instance",
             "item": {
               "name": "interactRedraw",
               "type": {
@@ -357,7 +357,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief Gets the property set handle for this interact handle */",
+            "comment_above": "@brief Gets the property set handle for this interact handle",
             "item": {
               "name": "interactGetPropertySet",
               "type": {

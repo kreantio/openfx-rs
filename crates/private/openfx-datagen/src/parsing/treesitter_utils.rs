@@ -11,7 +11,7 @@ use treesitter_types_c::{
 use crate::parsing::{
     CPrimitiveType, FunctionParameter, RootItem, TypeStraightforward, TypedefEnumCValueExpr,
     TypedefEnumVariant, TypedefStructField, TypedefStructFieldItem, TypedefStructFieldType, types,
-    utils::find_line_before,
+    utils::{clean_comment, find_line_before},
 };
 
 pub fn extract_name_from_declaration(declaration: &Declaration) -> Result<Span, ()> {
@@ -250,19 +250,15 @@ fn parse_type_definition_struct(
         }
 
         if raw_item_node.kind() == "comment" {
-            if last_comment.is_some() {
+            if let Some(last_comment) = last_comment.take() {
                 fields.push(TypedefStructField::StandaloneComment {
-                    comment: last_comment.take().unwrap(),
+                    comment: last_comment,
                 });
             }
 
-            let last_comment_ = Some(
-                raw_item_node
-                    .utf8_text(code.as_bytes())
-                    .unwrap()
-                    .trim()
-                    .to_owned(),
-            );
+            let last_comment_ = Some(clean_comment(
+                raw_item_node.utf8_text(code.as_bytes()).unwrap().trim(),
+            ));
 
             if find_line_before(code, raw_item_node.start_byte())
                 .trim()
@@ -409,7 +405,13 @@ fn parse_type_definition_enum(
             let Some(current_item) = &mut items.last_mut() else {
                 return Err(());
             };
-            if std::mem::take(&mut current_item.comment).is_some() {
+            if current_item
+                .comment
+                .replace(clean_comment(
+                    raw_item_node.utf8_text(code.as_bytes()).unwrap(),
+                ))
+                .is_some()
+            {
                 return Err(());
             }
 
@@ -476,7 +478,13 @@ fn parse_function_parameter_list(
             let Some(current_item) = &mut parameters.last_mut() else {
                 return Err(());
             };
-            if std::mem::take(&mut current_item.comment).is_some() {
+            if current_item
+                .comment
+                .replace(clean_comment(
+                    raw_parameter_node.utf8_text(code.as_bytes()).unwrap(),
+                ))
+                .is_some()
+            {
                 return Err(());
             }
 

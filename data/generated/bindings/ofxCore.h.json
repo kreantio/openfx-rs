@@ -35,7 +35,7 @@
         "fields": [
           {
             "$type": "Item",
-            "comment_above": "/** @brief Global handle to the host. Extract relevant host properties from this.\n      This pointer will be valid while the binary containing the plug-in is loaded.\n   */",
+            "comment_above": "@brief Global handle to the host. Extract relevant host properties from this.\n      This pointer will be valid while the binary containing the plug-in is loaded.",
             "item": {
               "name": "host",
               "type": {
@@ -49,7 +49,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief The function which the plug-in uses to fetch suites from the host.\n\n      \\arg \\c host          the host the suite is being fetched from this \\em must be the \\e host member of the OfxHost struct containing fetchSuite.\n      \\arg \\c suiteName     ASCII string labelling the host supplied API\n      \\arg \\c suiteVersion  version of that suite to fetch\n\n      Any API fetched will be valid while the binary containing the plug-in is loaded.\n\n      Repeated calls to fetchSuite with the same parameters will return the same pointer.\n\n      It is recommended that hosts should return the same host and suite pointers to all plugins\n      in the same shared lib or bundle.\n\n      returns\n         - NULL if the API is unknown (either the api or the version requested),\n\t - pointer to the relevant API if it was found\n  */",
+            "comment_above": "@brief The function which the plug-in uses to fetch suites from the host.\n\n      \\arg \\c host          the host the suite is being fetched from this \\em must be the \\e host member of the OfxHost struct containing fetchSuite.\n      \\arg \\c suiteName     ASCII string labelling the host supplied API\n      \\arg \\c suiteVersion  version of that suite to fetch\n\n      Any API fetched will be valid while the binary containing the plug-in is loaded.\n\n      Repeated calls to fetchSuite with the same parameters will return the same pointer.\n\n      It is recommended that hosts should return the same host and suite pointers to all plugins\n      in the same shared lib or bundle.\n\n      returns\n         - NULL if the API is unknown (either the api or the version requested),\n\t - pointer to the relevant API if it was found",
             "item": {
               "name": "fetchSuite",
               "type": {
@@ -150,7 +150,7 @@
         "fields": [
           {
             "$type": "Item",
-            "comment_above": "/** Defines the type of the plug-in, this will tell the host what the plug-in does. e.g.: an image\n      effects plug-in would be a \"OfxImageEffectPlugin\"\n   */",
+            "comment_above": "Defines the type of the plug-in, this will tell the host what the plug-in does. e.g.: an image\n      effects plug-in would be a \"OfxImageEffectPlugin\"",
             "item": {
               "name": "pluginApi",
               "type": {
@@ -167,7 +167,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** Defines the version of the pluginApi that this plug-in implements */",
+            "comment_above": "Defines the version of the pluginApi that this plug-in implements",
             "item": {
               "name": "apiVersion",
               "type": {
@@ -181,7 +181,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** String that uniquely labels the plug-in among all plug-ins that implement an API.\n      It need not necessarily be human sensible, however the preference is to use reverse\n      internet domain name of the developer, followed by a '.' then by a name that represents\n      the plug-in.. It must be a legal ASCII string and have no whitespace in the\n      name and no non printing chars.\n      For example \"uk.co.somesoftwarehouse.myPlugin\"\n  */",
+            "comment_above": "String that uniquely labels the plug-in among all plug-ins that implement an API.\n      It need not necessarily be human sensible, however the preference is to use reverse\n      internet domain name of the developer, followed by a '.' then by a name that represents\n      the plug-in.. It must be a legal ASCII string and have no whitespace in the\n      name and no non printing chars.\n      For example \"uk.co.somesoftwarehouse.myPlugin\"",
             "item": {
               "name": "pluginIdentifier",
               "type": {
@@ -198,7 +198,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** Major version of this plug-in, this gets incremented when backwards compatibility is broken. */",
+            "comment_above": "Major version of this plug-in, this gets incremented when backwards compatibility is broken.",
             "item": {
               "name": "pluginVersionMajor",
               "type": {
@@ -212,7 +212,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/**  Major version of this plug-in, this gets incremented when software is changed,\n       but does not break backwards compatibility. */",
+            "comment_above": "Major version of this plug-in, this gets incremented when software is changed,\n       but does not break backwards compatibility.",
             "item": {
               "name": "pluginVersionMinor",
               "type": {
@@ -226,7 +226,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief Function the host uses to connect the plug-in to the host's api fetcher\n\n      \\arg \\c fetchApi pointer to host's API fetcher\n\n      Mandatory function.\n\n      The very first function called in a plug-in. The plug-in \\em must \\em not call any OFX functions within this, it must only set its local copy of the host pointer.\n\n      \\pre\n        - nothing else has been called\n\n      \\post\n        - the pointer suite is valid until the plug-in is unloaded\n\n      It is recommended that hosts should return the same host and suite pointers to all plugins\n      in the same shared lib or bundle.\n  */",
+            "comment_above": "@brief Function the host uses to connect the plug-in to the host's api fetcher\n\n      \\arg \\c fetchApi pointer to host's API fetcher\n\n      Mandatory function.\n\n      The very first function called in a plug-in. The plug-in \\em must \\em not call any OFX functions within this, it must only set its local copy of the host pointer.\n\n      \\pre\n        - nothing else has been called\n\n      \\post\n        - the pointer suite is valid until the plug-in is unloaded\n\n      It is recommended that hosts should return the same host and suite pointers to all plugins\n      in the same shared lib or bundle.",
             "item": {
               "name": "setHost",
               "type": {
@@ -252,7 +252,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief Main entry point for plug-ins\n\n  Mandatory function.\n\n  The exact set of actions is determined by the plug-in API that is being implemented, however all plug-ins\n  can perform several actions. For the list of actions consult \\ref ActionsAll.\n\n   Preconditions\n      - setHost has been called\n   */",
+            "comment_above": "@brief Main entry point for plug-ins\n\n  Mandatory function.\n\n  The exact set of actions is determined by the plug-in API that is being implemented, however all plug-ins\n  can perform several actions. For the list of actions consult \\ref ActionsAll.\n\n   Preconditions\n      - setHost has been called",
             "item": {
               "name": "mainEntry",
               "type": {

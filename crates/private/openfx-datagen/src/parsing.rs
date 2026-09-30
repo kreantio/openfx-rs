@@ -196,7 +196,7 @@ pub fn parse(code: &str) -> Result<BindingsUnprocessed, Error> {
                 RootItem::Define {
                     name,
                     value,
-                    comment: comments.first().map(|node| text!(node)),
+                    comment: comments.first().map(|node| clean_comment(&text!(node))),
                 }
             }
             TranslationUnitChildren::PreprocIf(preproc_if) => {

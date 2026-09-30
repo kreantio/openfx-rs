@@ -122,7 +122,7 @@
         "fields": [
           {
             "$type": "Item",
-            "comment_above": "/** @brief Evaluates a parametric parameter\n \n      \\arg \\c param                 handle to the parametric parameter\n      \\arg \\c curveIndex            which dimension to evaluate\n      \\arg \\c time                  the time to evaluate to the parametric param at\n      \\arg \\c parametricPosition    the position to evaluate the parametric param at\n      \\arg \\c returnValue           pointer to a double where a value is returned\n \n      @returns\n        - ::kOfxStatOK            - all was fine \n        - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n        - ::kOfxStatErrBadIndex   - the curve index was invalid\n  */",
+            "comment_above": "@brief Evaluates a parametric parameter\n \n      \\arg \\c param                 handle to the parametric parameter\n      \\arg \\c curveIndex            which dimension to evaluate\n      \\arg \\c time                  the time to evaluate to the parametric param at\n      \\arg \\c parametricPosition    the position to evaluate the parametric param at\n      \\arg \\c returnValue           pointer to a double where a value is returned\n \n      @returns\n        - ::kOfxStatOK            - all was fine \n        - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n        - ::kOfxStatErrBadIndex   - the curve index was invalid",
             "item": {
               "name": "parametricParamGetValue",
               "type": {
@@ -176,7 +176,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief Returns the number of control points in the parametric param.\n\n      \\arg \\c param                 handle to the parametric parameter\n      \\arg \\c curveIndex            which dimension to check\n      \\arg \\c time                  the time to check\n      \\arg \\c returnValue           pointer to an integer where the value is returned.\n      \n      @returns\n        - ::kOfxStatOK            - all was fine \n        - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n        - ::kOfxStatErrBadIndex   - the curve index was invalid\n   */",
+            "comment_above": "@brief Returns the number of control points in the parametric param.\n\n      \\arg \\c param                 handle to the parametric parameter\n      \\arg \\c curveIndex            which dimension to check\n      \\arg \\c time                  the time to check\n      \\arg \\c returnValue           pointer to an integer where the value is returned.\n      \n      @returns\n        - ::kOfxStatOK            - all was fine \n        - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n        - ::kOfxStatErrBadIndex   - the curve index was invalid",
             "item": {
               "name": "parametricParamGetNControlPoints",
               "type": {
@@ -223,7 +223,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief Returns the key/value pair of the nth control point.\n\n      \\arg \\c param                 handle to the parametric parameter\n      \\arg \\c curveIndex            which dimension to check\n      \\arg \\c time                  the time to check\n      \\arg \\c nthCtl                the nth control point to get the value of\n      \\arg \\c key                   pointer to a double where the key will be returned\n      \\arg \\c value                 pointer to a double where the value will be returned \n            \n      @returns\n        - ::kOfxStatOK            - all was fine \n        - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n        - ::kOfxStatErrUnknown    - if the type is unknown\n   */",
+            "comment_above": "@brief Returns the key/value pair of the nth control point.\n\n      \\arg \\c param                 handle to the parametric parameter\n      \\arg \\c curveIndex            which dimension to check\n      \\arg \\c time                  the time to check\n      \\arg \\c nthCtl                the nth control point to get the value of\n      \\arg \\c key                   pointer to a double where the key will be returned\n      \\arg \\c value                 pointer to a double where the value will be returned \n            \n      @returns\n        - ::kOfxStatOK            - all was fine \n        - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n        - ::kOfxStatErrUnknown    - if the type is unknown",
             "item": {
               "name": "parametricParamGetNthControlPoint",
               "type": {
@@ -287,7 +287,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief Modifies an existing control point on a curve\n\n      \\arg \\c param                 handle to the parametric parameter\n      \\arg \\c curveIndex            which dimension to set\n      \\arg \\c time                  the time to set the value at \n      \\arg \\c nthCtl                the control point to modify\n      \\arg \\c key                   key of the control point\n      \\arg \\c value                 value of the control point\n      \\arg \\c addAnimationKey       if the param is an animatable, setting this to true will \n                                 force an animation keyframe to be set as well as a curve key,\n                                 otherwise if false, a key will only be added if the curve is already\n                                 animating.\n\n      @returns\n        - ::kOfxStatOK            - all was fine \n        - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n        - ::kOfxStatErrUnknown    - if the type is unknown\n\n      This modifies an existing control point. Note that by changing key, the order of the\n      control point may be modified (as you may move it before or after anther point). So be\n      careful when iterating over a curves control points and you change a key.\n   */",
+            "comment_above": "@brief Modifies an existing control point on a curve\n\n      \\arg \\c param                 handle to the parametric parameter\n      \\arg \\c curveIndex            which dimension to set\n      \\arg \\c time                  the time to set the value at \n      \\arg \\c nthCtl                the control point to modify\n      \\arg \\c key                   key of the control point\n      \\arg \\c value                 value of the control point\n      \\arg \\c addAnimationKey       if the param is an animatable, setting this to true will \n                                 force an animation keyframe to be set as well as a curve key,\n                                 otherwise if false, a key will only be added if the curve is already\n                                 animating.\n\n      @returns\n        - ::kOfxStatOK            - all was fine \n        - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n        - ::kOfxStatErrUnknown    - if the type is unknown\n\n      This modifies an existing control point. Note that by changing key, the order of the\n      control point may be modified (as you may move it before or after anther point). So be\n      careful when iterating over a curves control points and you change a key.",
             "item": {
               "name": "parametricParamSetNthControlPoint",
               "type": {
@@ -352,7 +352,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief Adds a control point to the curve.\n\n      \\arg \\c param                 handle to the parametric parameter\n      \\arg \\c curveIndex            which dimension to set\n      \\arg \\c time                  the time to set the value at\n      \\arg \\c key                   key of the control point\n      \\arg \\c value                 value of the control point\n      \\arg \\c addAnimationKey       if the param is an animatable, setting this to true will \n                                 force an animation keyframe to be set as well as a curve key,\n                                 otherwise if false, a key will only be added if the curve is already\n                                 animating.\n\n      @returns\n        - ::kOfxStatOK            - all was fine \n        - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n        - ::kOfxStatErrUnknown    - if the type is unknown\n\n      This will add a new control point to the given dimension of a parametric parameter. If a key exists\n      sufficiently close to 'key', then it will be set to the indicated control point.\n   */",
+            "comment_above": "@brief Adds a control point to the curve.\n\n      \\arg \\c param                 handle to the parametric parameter\n      \\arg \\c curveIndex            which dimension to set\n      \\arg \\c time                  the time to set the value at\n      \\arg \\c key                   key of the control point\n      \\arg \\c value                 value of the control point\n      \\arg \\c addAnimationKey       if the param is an animatable, setting this to true will \n                                 force an animation keyframe to be set as well as a curve key,\n                                 otherwise if false, a key will only be added if the curve is already\n                                 animating.\n\n      @returns\n        - ::kOfxStatOK            - all was fine \n        - ::kOfxStatErrBadHandle  - if the parameter handle was invalid\n        - ::kOfxStatErrUnknown    - if the type is unknown\n\n      This will add a new control point to the given dimension of a parametric parameter. If a key exists\n      sufficiently close to 'key', then it will be set to the indicated control point.",
             "item": {
               "name": "parametricParamAddControlPoint",
               "type": {
@@ -410,7 +410,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief Deletes the nth control point from a parametric param.\n\n      \\arg \\c param                 handle to the parametric parameter\n      \\arg \\c curveIndex            which dimension to delete\n      \\arg \\c nthCtl                the control point to delete\n   */",
+            "comment_above": "@brief Deletes the nth control point from a parametric param.\n\n      \\arg \\c param                 handle to the parametric parameter\n      \\arg \\c curveIndex            which dimension to delete\n      \\arg \\c nthCtl                the control point to delete",
             "item": {
               "name": "parametricParamDeleteControlPoint",
               "type": {
@@ -447,7 +447,7 @@
           },
           {
             "$type": "Item",
-            "comment_above": "/** @brief Delete all curve control points on the given param.\n\n      \\arg \\c param                 handle to the parametric parameter\n      \\arg \\c curveIndex            which dimension to clear\n   */",
+            "comment_above": "@brief Delete all curve control points on the given param.\n\n      \\arg \\c param                 handle to the parametric parameter\n      \\arg \\c curveIndex            which dimension to clear",
             "item": {
               "name": "parametricParamDeleteAllControlPoints",
               "type": {
