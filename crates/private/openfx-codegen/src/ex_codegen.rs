@@ -1,5 +1,9 @@
-use std::{collections::HashSet, path::Path};
+use std::{
+    collections::{BTreeMap, HashMap, HashSet},
+    path::Path,
+};
 
+use convert_case::Casing as _;
 use proc_macro2::TokenStream;
 use quote::quote;
 
@@ -73,4 +77,257 @@ pub fn gen_low_statuses(
     std::fs::write(output_file, prettyplease::unparse(&syn::parse2(code)?))?;
 
     Ok(())
+}
+
+pub fn gen_low_enums_from_c(
+    output_file: &Path,
+    c_enums: HashMap<String, HashSet<String>>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut output_inner = proc_macro2::TokenStream::new();
+
+    let mut c_enums = c_enums.into_iter().collect::<Vec<_>>();
+    c_enums.sort_by(|a, b| a.0.cmp(&b.0));
+
+    for (enum_name, vars) in c_enums {
+        let simple_enum_name = enum_name
+            .strip_prefix("Ofx")
+            .ok_or("Enum name should start with \"Ofx\".")?;
+
+        let enum_name = syn::Ident::new(&enum_name, proc_macro2::Span::call_site());
+        let simple_enum_name = syn::Ident::new(simple_enum_name, proc_macro2::Span::call_site());
+
+        let mut vars = vars.into_iter().collect::<Vec<_>>();
+        vars.sort();
+
+        let simple_vars = strip_common_prefix(&vars);
+
+        let vars: Vec<syn::Ident> = vars
+            .iter()
+            .map(|v| syn::Ident::new(v, proc_macro2::Span::call_site()))
+            .collect();
+        let simple_vars: Vec<syn::Ident> = simple_vars
+            .iter()
+            .map(|v| syn::Ident::new(v, proc_macro2::Span::call_site()))
+            .collect();
+
+        output_inner.extend(quote! {
+            #[sys(#enum_name)]
+            enum #simple_enum_name {
+                #(
+                    #[sys(#vars)]
+                    #simple_vars,
+                )*
+            }
+        });
+    }
+
+    let output_inner = prettyplease::unparse(&syn::parse2(output_inner)?)
+        .lines()
+        .map(|l| format!("    {}", l))
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    std::fs::write(
+        output_file,
+        format!(
+            "openfx_internal_macros::low_make_property_enums_from_c! {{
+{output_inner}
+}}"
+        ),
+    )?;
+
+    Ok(())
+}
+
+pub fn gen_low_plugin_suites(
+    confg: &CodegenConfig,
+    output_folder_c: &Path,
+    suites: HashMap<String, HashSet<String>>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut suite_names: Vec<String> = suites.keys().cloned().collect();
+    suite_names.sort();
+    let simple_names: Vec<String> = suite_names
+        .iter()
+        .map(|name| {
+            name.strip_prefix("Ofx")
+                .ok_or("Suite name should start with \"Ofx\".")
+                .map(str::to_owned)
+        })
+        .collect::<Result<_, _>>()?;
+
+    let simple_idents: Vec<syn::Ident> = simple_names
+        .iter()
+        .map(|name| syn::Ident::new(name, proc_macro2::Span::call_site()))
+        .collect();
+
+    // low_suites_plugin
+    {
+        let mut output = proc_macro2::TokenStream::new();
+
+        for (name, simple_ident) in suite_names.iter().zip(simple_idents.iter()) {
+            let special_case = &confg.suites.special_cases.get(&simple_ident.to_string());
+            let fns_to_omit = special_case.and_then(|sc| sc.omit_functions.as_ref());
+            let fn_rust_names = special_case.and_then(|sc| sc.function_rust_names.as_ref());
+
+            let full_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
+            let mut fns: Vec<syn::Ident> = suites[name]
+                .iter()
+                .filter(|v| fns_to_omit.is_none_or(|o| !o.contains(*v)))
+                .map(|v| {
+                    syn::Ident::new(
+                        &fn_rust_names
+                            .and_then(|m| m.get(v))
+                            .cloned()
+                            .unwrap_or_else(|| v.to_case(convert_case::Case::Snake)),
+                        proc_macro2::Span::call_site(),
+                    )
+                })
+                .collect();
+            fns.sort();
+
+            output.extend(quote! {
+                openfx_internal_macros::low_make_suite_struct!(#simple_ident:#full_ident: #(#fns,)*);
+            });
+        }
+
+        std::fs::write(
+            output_folder_c.join("low_suites_plugin.rs"),
+            prettyplease::unparse(&syn::parse2(output)?),
+        )?;
+    }
+
+    // low_plugin_impl_host_for_fetch_suites
+    {
+        let mut output = proc_macro2::TokenStream::new();
+
+        for simple_ident in &simple_idents {
+            let special_case = &confg.suites.special_cases.get(&simple_ident.to_string());
+
+            if let Some(corrected_k_name) = special_case.and_then(|sc| sc.key_name.as_deref()) {
+                let corrected_k_ident =
+                    syn::Ident::new(corrected_k_name, proc_macro2::Span::call_site());
+                output.extend(quote! {
+                    openfx_internal_macros::low_plugin_impl_host_for_fetch_suite!(#simple_ident @ #corrected_k_ident);
+                });
+            } else {
+                output.extend(quote! {
+                    openfx_internal_macros::low_plugin_impl_host_for_fetch_suite!(#simple_ident);
+                });
+            }
+        }
+
+        std::fs::write(
+            output_folder_c.join("low_plugin_impl_host_for_fetch_suites.rs"),
+            prettyplease::unparse(&syn::parse2(output)?),
+        )?;
+    }
+
+    Ok(())
+}
+
+pub fn gen_low_plugin_objects(
+    confg: &CodegenConfig,
+    output_file: &Path,
+    direct_handle_usages_in_suite_functions: HashMap<String, HashSet<(String, String)>>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut output = proc_macro2::TokenStream::new();
+
+    let mut mapping = confg.objects.mapping.iter().collect::<Vec<_>>();
+    mapping.sort_by(|a, b| a.0.cmp(b.0));
+
+    for (name, entry) in mapping {
+        if entry.omit {
+            continue;
+        }
+        let fn_set = direct_handle_usages_in_suite_functions
+            .get(&entry.is)
+            .cloned()
+            .unwrap_or_default();
+        let mut fns: HashSet<String> = HashSet::new();
+        for (_suite_name, fn_name) in &fn_set {
+            if fns.contains(fn_name) {
+                let suite_names = fn_set
+                    .iter()
+                    .filter(|(_, fn_name_in_set)| fn_name_in_set == fn_name)
+                    .map(|(suite_name, _)| suite_name)
+                    .collect::<Vec<_>>();
+                return Err(format!(
+                    "Duplicate function usage found for function `{}` in suites: {:?}",
+                    fn_name, suite_names
+                )
+                .into());
+            }
+            fns.insert(fn_name.clone());
+        }
+        if let Some(omit_fns) = &entry.omit_functions {
+            fns.retain(|fn_name| !omit_fns.contains(fn_name));
+        }
+
+        let object_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
+
+        let handle_ident = syn::Ident::new(&entry.is, proc_macro2::Span::call_site());
+        let mut fns = fns
+            .iter()
+            .map(|v| {
+                syn::Ident::new(
+                    &v.to_case(convert_case::Case::Snake),
+                    proc_macro2::Span::call_site(),
+                )
+            })
+            .collect::<Vec<_>>();
+        fns.sort();
+
+        output.extend(quote! {
+            openfx_internal_macros::low_make_object_struct!(#object_ident:#handle_ident: #(#fns,)*);
+        });
+    }
+
+    std::fs::write(output_file, prettyplease::unparse(&syn::parse2(output)?))?;
+
+    Ok(())
+}
+
+pub fn gen_data_root_idents(
+    output_path: &Path,
+    root_item_idents_per_header: HashMap<String, HashSet<String>>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut stable_map: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    for (mod_name, idents) in root_item_idents_per_header {
+        let mut idents: Vec<String> = idents.into_iter().collect();
+        idents.sort();
+        stable_map.insert(mod_name, idents);
+    }
+
+    let json = serde_json::to_string_pretty(&stable_map)?;
+    std::fs::write(output_path, json)?;
+
+    Ok(())
+}
+
+/// Author: GitHub Copilot's tab completion | Reviewed-by: Umaĵo
+///
+/// Removes the longest prefix shared by every string.
+pub fn strip_common_prefix(strings: &[String]) -> Vec<String> {
+    if strings.is_empty() {
+        return Vec::new();
+    }
+
+    let mut character_iterators: Vec<_> = strings.iter().map(|string| string.chars()).collect();
+    let mut prefix_length = 0;
+
+    while let Some(character) = character_iterators[0].next() {
+        if character_iterators[1..]
+            .iter_mut()
+            .all(|iterator| iterator.next() == Some(character))
+        {
+            prefix_length += character.len_utf8();
+        } else {
+            break;
+        }
+    }
+
+    strings
+        .iter()
+        .map(|string| string[prefix_length..].to_string())
+        .collect()
 }

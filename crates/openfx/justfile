@@ -4,7 +4,6 @@ vendor-c-path := "../../vendor/openfx/include"
 data-path := "../../data"
 generated-path := "generated"
 generated-c-bindings-path := "generated/c_bindings"
-generated-code-from-c-path := "generated/code_from_c"
 generated-intermediate-path := "generated-intermediate"
 vendor-cpp-path := "../../vendor/openfx/openfx-cpp/include/openfx"
 generated-code-from-cpp-path := "generated/code_from_cpp"
@@ -18,13 +17,12 @@ generate:
 
 generate-code-from-c:
     rm -rf "{{ generated-path }}" "{{ generated-intermediate-path }}"
-    mkdir -p "{{ generated-c-bindings-path }}" "{{ generated-code-from-c-path }}" "{{ generated-intermediate-path }}"
+    mkdir -p "{{ generated-c-bindings-path }}" "{{ generated-intermediate-path }}"
     cargo run --release --package openfx-codegen --bin cli -- \
       --codegen-config="{{ codegen-config-path }}" \
       --input-c-headers "{{ vendor-c-path }}" \
       --input-data "{{ data-path }}" \
       --output "{{ generated-path }}" \
-      --output-code-from-c "{{ generated-code-from-c-path }}" \
       --output-intermediate "{{ generated-intermediate-path }}"
 
 generate-code-from-cpp:

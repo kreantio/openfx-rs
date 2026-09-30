@@ -18,9 +18,6 @@ struct Args {
     output: PathBuf,
 
     #[arg(long)]
-    output_code_from_c: PathBuf,
-
-    #[arg(long)]
     output_intermediate: PathBuf,
 }
 
@@ -51,14 +48,28 @@ pub fn main() {
         info.statuses,
     )
     .expect("Failed to execute `gen_low_statuses`");
-
-    openfx_codegen::bindings_for_c_headers::generate_bindings_for_c_headers(
-        openfx_codegen::bindings_for_c_headers::Options {
-            config: codegen_config,
-            input_data,
-            headers_folder: args.input_c_headers,
-            output_folder_c: args.output_code_from_c,
-            output_folder_intermediate: args.output_intermediate,
-        },
-    );
+    openfx_codegen::ex_codegen::gen_low_enums_from_c(
+        &output_folder_c.join("low_enums_from_c.rs"),
+        info.c_enums,
+    )
+    .expect("Failed to execute `gen_low_enums_from_c`");
+    openfx_codegen::ex_codegen::gen_low_plugin_suites(
+        &codegen_config,
+        &output_folder_c,
+        info.suites,
+    )
+    .expect("Failed to execute `gen_low_plugin_suites`");
+    openfx_codegen::ex_codegen::gen_low_plugin_objects(
+        &codegen_config,
+        &output_folder_c.join("low_objects_plugin.rs"),
+        info.direct_handle_usages_in_suite_functions,
+    )
+    .expect("Failed to execute `gen_low_plugin_objects`");
+    openfx_codegen::ex_codegen::gen_data_root_idents(
+        &args
+            .output_intermediate
+            .join("root_item_idents_per_header.json"),
+        info.root_item_idents_per_header,
+    )
+    .expect("Failed to execute `gen_data_root_idents`");
 }

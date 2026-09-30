@@ -9,7 +9,6 @@ repository.workspace = true
 [dependencies]
 openfx-datagen.workspace = true
 
-bindgen.workspace = true
 clap = { workspace = true, features = ["derive"] }
 convert_case.workspace = true
 prettyplease.workspace = true

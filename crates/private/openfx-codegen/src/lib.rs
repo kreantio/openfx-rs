@@ -5,8 +5,6 @@ use crate::vibe_zone::deserializers::{
     deserialize_CodegenConfigObjectParameterSetMappingEntry,
 };
 
-pub mod bindings_for_c_headers;
-
 pub mod bindgen;
 pub mod ex_codegen;
 pub mod input_data;
