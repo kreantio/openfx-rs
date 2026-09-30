@@ -2,7 +2,10 @@ use std::sync::LazyLock;
 
 use regex::Regex;
 
-use crate::parsing::types::{DefineValue, TypedIntegerLiteralCType};
+use crate::parsing::{
+    WellKnownIdentifier,
+    types::{DefineValue, TypedIntegerLiteralCType},
+};
 
 pub struct LinesEx<'a> {
     text: &'a str,
@@ -73,7 +76,7 @@ pub fn parse_define_value(value: &str) -> Result<DefineValue, ()> {
     static RE_TYPED_INTEGER: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r#"^\(\((int)\)\s*([1-9][0-9]*|0[1-7]*|0[xX][\da-fA-F]+)\)$"#).unwrap()
     });
-    static RE_SYMBOL: LazyLock<Regex> =
+    static RE_IDENTIFIER: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r#"^[a-zA-Z_][a-zA-Z0-9_]*$"#).unwrap());
 
     if let Some(g) = RE_STRING.captures(value) {
@@ -113,10 +116,13 @@ pub fn parse_define_value(value: &str) -> Result<DefineValue, ()> {
             c_type: TypedIntegerLiteralCType::try_from(ty)?,
             value: parse_c_integer_literal_expecting_u32(value)?,
         })
-    } else if let Some(g) = RE_SYMBOL.captures(value) {
+    } else if let Some(g) = RE_IDENTIFIER.captures(value) {
         let Some(sym) = g.get(0).map(|m| m.as_str()) else {
             unreachable!();
         };
+        if let Some(well_known) = WellKnownIdentifier::try_from(sym) {
+            return Ok(DefineValue::WellKnownIdentifier { value: well_known });
+        }
         Ok(DefineValue::Identifier {
             value: sym.to_owned(),
         })

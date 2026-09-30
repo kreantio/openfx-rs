@@ -9,6 +9,13 @@
       "OfxStatus"
     ]
   },
+  "used_consts": {
+    "ofxCore.h": [
+      "kOfxActionCreateInstance",
+      "kOfxActionDescribe",
+      "kOfxActionDestroyInstance"
+    ]
+  },
   "items": [
     {
       "$type": "StandaloneComment",

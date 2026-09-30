@@ -1,3 +1,15 @@
+[statuses]
+identical_ones = [
+  [
+    "kOfxStatGPUOutOfMemory",
+    "kOfxStatGLOutOfMemory",
+  ],
+  [
+    "kOfxStatGPURenderFailed",
+    "kOfxStatGLRenderFailed",
+  ],
+]
+
 [suites.special_cases]
 ImageEffectOpenGLRenderSuiteV1 = { key_name = "kOfxOpenGLRenderSuite" }
 

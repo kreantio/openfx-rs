@@ -314,12 +314,35 @@
             "$type",
             "value"
           ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "$ref": "#/$defs/WellKnownIdentifier"
+            },
+            "$type": {
+              "type": "string",
+              "const": "WellKnownIdentifier"
+            }
+          },
+          "required": [
+            "$type",
+            "value"
+          ]
         }
       ]
     },
     "TypedIntegerLiteralCType": {
       "type": "string",
       "pattern": "^int$"
+    },
+    "WellKnownIdentifier": {
+      "type": "string",
+      "enum": [
+        "INT_MAX",
+        "INT_MIN"
+      ]
     },
     "CPrimitiveType": {
       "type": "string",

@@ -4,18 +4,14 @@ use std::{
 };
 
 use convert_case::Casing as _;
-use openfx_datagen::parsing::RootItemWithCommentAbove;
 use quote::{ToTokens as _, quote};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator as _};
 
 use crate::{
     CodegenConfig,
     input_data::InputData,
-    vibe_zone::{
-        syn_visitors::{DocEntry, DocRegulator},
-        utils::algorithms_by_llms::{
-            DependencySortable, sort_by_dependencies, strip_common_prefix,
-        },
+    vibe_zone::utils::algorithms_by_llms::{
+        DependencySortable, sort_by_dependencies, strip_common_prefix,
     },
 };
 
@@ -23,7 +19,6 @@ pub struct Options {
     pub config: CodegenConfig,
     pub input_data: InputData,
     pub headers_folder: PathBuf,
-    pub output_folder: PathBuf,
     pub output_folder_c: PathBuf,
     pub output_folder_intermediate: PathBuf,
 }
@@ -72,8 +67,6 @@ fn generate_bindings_for_c_headers_inner(opts: Options) -> Result<(), Box<dyn st
         .map_err(|err| format!("Failed to collect headers: {}", err))?;
     let headers = sort_by_dependencies(headers);
     let ProcessOutput {
-        deduplicated_syn_files,
-        checks_syn_files,
         root_item_idents_per_header,
         c_enums,
         suites,
@@ -82,15 +75,6 @@ fn generate_bindings_for_c_headers_inner(opts: Options) -> Result<(), Box<dyn st
 
     std::fs::create_dir_all(&opts.output_folder_c)?;
 
-    let GenCBindingsOutput { statuses } = gen_c_bindings(
-        &opts.input_data,
-        &opts.output_folder,
-        &headers,
-        &deduplicated_syn_files,
-    )?;
-    gen_c_bindings_checks(&opts.output_folder, &headers, &checks_syn_files)?;
-
-    gen_low_statuses(&opts.output_folder_c, statuses)?;
     gen_low_enums_from_c(&opts.output_folder_c, c_enums)?;
     gen_low_plugin_suites(&opts.config, &opts.output_folder_c, suites)?;
     gen_low_plugin_objects(
@@ -102,188 +86,6 @@ fn generate_bindings_for_c_headers_inner(opts: Options) -> Result<(), Box<dyn st
     gen_data_root_idents(
         &opts.output_folder_intermediate,
         root_item_idents_per_header,
-    )?;
-
-    Ok(())
-}
-
-struct GenCBindingsOutput {
-    statuses: HashSet<String>,
-}
-
-fn gen_c_bindings(
-    input_data: &InputData,
-    output_folder: &Path,
-    headers: &[Header],
-    deduplicated_syn_files: &std::collections::HashMap<String, syn::File>,
-) -> Result<GenCBindingsOutput, Box<dyn std::error::Error>> {
-    let mut statuses: HashSet<String> = HashSet::new();
-
-    let mut doc_entries = HashMap::<String, Vec<DocEntry>>::new();
-    for bindings in input_data.bindings.values() {
-        for item in &bindings.items {
-            let RootItemWithCommentAbove::Item {
-                comment_above,
-                item,
-            } = item
-            else {
-                continue;
-            };
-            let Some(comment_above) = comment_above else {
-                continue;
-            };
-            let name = item.name();
-            let entry = DocEntry {
-                name: name.to_owned(),
-                content: comment_above.to_owned(),
-            };
-            match doc_entries.entry(name.to_owned()) {
-                std::collections::hash_map::Entry::Vacant(e) => {
-                    e.insert(vec![entry]);
-                }
-                std::collections::hash_map::Entry::Occupied(mut e) => {
-                    // return Err(format!("Duplicate doc entry found for `{}`", name).into());
-                    let mut v = e.get().clone();
-                    v.push(entry);
-                    e.insert(v);
-                }
-            }
-        }
-    }
-
-    for header in headers {
-        let mod_name = &header.mod_name_snake_case;
-        let output_path = output_folder.join(format!("{}.rs", mod_name));
-
-        let mut syn_file = deduplicated_syn_files
-            .get(&header.name)
-            .ok_or_else(|| {
-                format!(
-                    "`deduplicated_syn_files` should contain the header with name `{}`",
-                    header.name
-                )
-            })?
-            .clone();
-
-        // `additional_rust_code` is stored as a string because `syn` values
-        // cannot cross threads (headers are built in parallel); parse it here
-        // and splice the items in so that `DocRegulator` can document them.
-        // (written by Kimi K3 and I agree.)
-        if let Some(additional_rust_code) = &header.additional_rust_code {
-            let additional_items = syn::parse_file(additional_rust_code).map_err(|err| {
-                format!(
-                    "Failed to parse additional Rust code for header `{}`: {}",
-                    header.name, err
-                )
-            })?;
-            syn_file.items.extend(additional_items.items);
-        }
-
-        syn::visit_mut::VisitMut::visit_file_mut(
-            &mut DocRegulator {
-                doc_entries: &doc_entries,
-            },
-            &mut syn_file,
-        );
-
-        let code = prettyplease::unparse(&syn_file);
-        std::fs::write(&output_path, code)?;
-
-        if !header.additional_info.statuses.is_empty() {
-            statuses.extend(header.additional_info.statuses.clone());
-        }
-    }
-
-    Ok(GenCBindingsOutput { statuses })
-}
-
-fn gen_c_bindings_checks(
-    output_folder: &Path,
-    headers: &[Header],
-    checks_syn_files: &std::collections::HashMap<String, syn::File>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let mut headers: Vec<&Header> = headers.iter().collect();
-    headers.sort_by(|a, b| a.name.cmp(&b.name));
-
-    let mut items: Vec<syn::Item> = vec![];
-    let mut seen_item_codes: HashSet<String> = HashSet::new();
-
-    for header in headers {
-        let checks_syn_file = checks_syn_files.get(&header.name).ok_or_else(|| {
-            format!(
-                "`check_syn_files` should contain the header with name `{}`",
-                header.name
-            )
-        })?;
-
-        for item in &checks_syn_file.items {
-            let item_code = quote! { #item }.to_string();
-            if seen_item_codes.contains(&item_code) {
-                continue;
-            }
-            seen_item_codes.insert(item_code);
-            items.push(item.clone());
-        }
-    }
-
-    std::fs::write(
-        output_folder.join("_checks.rs"),
-        prettyplease::unparse(&syn::File {
-            shebang: None,
-            frontmatter: None,
-            attrs: vec![],
-            items,
-        }),
-    )?;
-
-    Ok(())
-}
-
-fn gen_low_statuses(
-    output_folder_c: &Path,
-    statuses: HashSet<String>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let mut statuses: Vec<String> = statuses.into_iter().collect();
-    statuses.sort();
-    let status_sys_ident = statuses
-        .iter()
-        .map(|status| {
-            syn::Ident::new(
-                &format!("kOfxStat{}", status),
-                proc_macro2::Span::call_site(),
-            )
-        })
-        .collect::<Vec<_>>();
-    let statuses = statuses
-        .iter()
-        .map(|status| syn::Ident::new(status, proc_macro2::Span::call_site()))
-        .collect::<Vec<_>>();
-
-    let code = quote! {
-        pub enum Status {
-            #(#statuses,)*
-            Unknown(crate::sys::generic::core::OfxStatus),
-        }
-        impl From<crate::sys::generic::core::OfxStatus> for Status {
-            fn from(status: crate::sys::generic::core::OfxStatus) -> Self {
-                match status {
-                    #(crate::sys::generic::core::#status_sys_ident => Self::#statuses,)*
-                    _ => Self::Unknown(status),
-                }
-            }
-        }
-        impl From<Status> for crate::sys::generic::core::OfxStatus {
-            fn from(status: Status) -> Self {
-                match status {
-                    #(Status::#statuses => crate::sys::generic::core::#status_sys_ident,)*
-                    Status::Unknown(status) => status,
-                }
-            }
-        }
-    };
-    std::fs::write(
-        output_folder_c.join("low_statuses.rs"),
-        prettyplease::unparse(&syn::parse2(code)?),
     )?;
 
     Ok(())
@@ -531,14 +333,6 @@ pub(crate) struct Header {
     /// Unfortunately even though this is not a proc-macro, we still can't send
     /// `syn` or `proc_macro2` values across threads.
     pub bindgen_generated_rust_code: String,
-
-    pub additional_rust_code: Option<String>,
-    pub additional_info: AdditionalInfo,
-}
-
-#[derive(Default)]
-pub(crate) struct AdditionalInfo {
-    pub statuses: HashSet<String>,
 }
 
 impl Header {
@@ -591,8 +385,6 @@ impl Header {
             .unwrap()
             .to_case(convert_case::Case::Snake);
 
-        let mut info: AdditionalInfo = Default::default();
-
         let mut included_headers = HashSet::new();
         for line in c_code.lines() {
             static INCLUDE_PREFIX: &str = "#include \"";
@@ -609,12 +401,7 @@ impl Header {
             }
         }
 
-        let mut additional_rust_code: Option<String> = None;
-        if name == "ofxCore" {
-            additional_rust_code = Some(SpecialCasingForStatuses::gen_additional_code(
-                &mut info, c_code,
-            )?);
-        } else {
+        if name != "ofxCore" {
             included_headers.insert("ofxCore".to_string());
         }
 
@@ -632,15 +419,11 @@ impl Header {
                 .generate_cstr(true)
                 .generate()?
                 .to_string(),
-            additional_rust_code,
-            additional_info: info,
         })
     }
 }
 
 struct ProcessOutput {
-    deduplicated_syn_files: HashMap<String, syn::File>,
-    checks_syn_files: HashMap<String, syn::File>,
     root_item_idents_per_header: HashMap<String, HashSet<String>>,
     c_enums: HashMap<String, HashSet<String>>,
     suites: HashMap<String, HashSet<String>>,
@@ -739,8 +522,6 @@ fn process(headers: &[Header]) -> Result<ProcessOutput, Box<dyn std::error::Erro
     }
 
     Ok(ProcessOutput {
-        deduplicated_syn_files,
-        checks_syn_files,
         root_item_idents_per_header,
         c_enums,
         suites,
@@ -834,30 +615,6 @@ fn make_use_item(mod_name: &str, names: &[&String]) -> syn::ItemUse {
 
 struct SpecialCasingForStatuses;
 impl SpecialCasingForStatuses {
-    fn gen_additional_code(
-        info: &mut AdditionalInfo,
-        c_code: &str,
-    ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-        let mut additional_lines: Vec<String> = vec![];
-
-        for line in c_code.lines() {
-            const PREFIX: &str = "#define kOfxStat";
-            if !line.starts_with(PREFIX) {
-                continue;
-            }
-            let rest = line[PREFIX.len()..].trim();
-            let (name, rest) = rest
-                .split_once(' ')
-                .ok_or_else(|| format!("Failed to split line: {}", line))?;
-            info.statuses.insert(name.to_string());
-            let num = extract_number(rest)
-                .ok_or_else(|| format!("Failed to extract number from line: {}", line))?;
-            additional_lines.push(format!("pub const kOfxStat{}: OfxStatus = {};", name, num));
-        }
-
-        Ok(additional_lines.join("\n"))
-    }
-
     fn should_skip_ident(ident: &syn::Ident) -> bool {
         // included in `additional_rust_code`.
         ident == "kOfxStatOK"
@@ -995,28 +752,5 @@ impl DependencySortable for Header {
 
     fn dependencies(&self) -> &HashSet<String> {
         &self.included_headers
-    }
-}
-
-fn extract_number(input: &str) -> Option<u32> {
-    let mut i_start = -1;
-    let mut i_end = -1;
-
-    for (i, ch) in input.chars().enumerate() {
-        if ch.is_ascii_digit() {
-            if i_start == -1 {
-                i_start = i as i32;
-            }
-            i_end = i as i32;
-        } else if i_start != -1 {
-            break;
-        }
-    }
-
-    if i_start == -1 || i_end == -1 {
-        None
-    } else {
-        let number_str = &input[i_start as usize..=i_end as usize];
-        Some(number_str.parse::<u32>().unwrap())
     }
 }

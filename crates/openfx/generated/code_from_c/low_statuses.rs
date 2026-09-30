@@ -4,65 +4,82 @@ pub enum Status {
     ErrExists,
     ErrFatal,
     ErrFormat,
+    ErrImageFormat,
     ErrMemory,
     ErrMissingHostFeature,
     ErrUnknown,
     ErrUnsupported,
     ErrValue,
     Failed,
+    GPUOutOfMemory,
+    GPURenderFailed,
     OK,
     ReplyDefault,
     ReplyNo,
     ReplyYes,
     Unlicensed,
-    Unknown(crate::sys::generic::core::OfxStatus),
+    Unknown(crate::sys_umbrella::OfxStatus),
 }
-impl From<crate::sys::generic::core::OfxStatus> for Status {
-    fn from(status: crate::sys::generic::core::OfxStatus) -> Self {
+const _: () = assert!(
+    crate ::sys_umbrella::kOfxStatGPUOutOfMemory == crate
+    ::sys_umbrella::kOfxStatGLOutOfMemory
+);
+const _: () = assert!(
+    crate ::sys_umbrella::kOfxStatGPURenderFailed == crate
+    ::sys_umbrella::kOfxStatGLRenderFailed
+);
+impl From<crate::sys_umbrella::OfxStatus> for Status {
+    fn from(status: crate::sys_umbrella::OfxStatus) -> Self {
         match status {
-            crate::sys::generic::core::kOfxStatErrBadHandle => Self::ErrBadHandle,
-            crate::sys::generic::core::kOfxStatErrBadIndex => Self::ErrBadIndex,
-            crate::sys::generic::core::kOfxStatErrExists => Self::ErrExists,
-            crate::sys::generic::core::kOfxStatErrFatal => Self::ErrFatal,
-            crate::sys::generic::core::kOfxStatErrFormat => Self::ErrFormat,
-            crate::sys::generic::core::kOfxStatErrMemory => Self::ErrMemory,
-            crate::sys::generic::core::kOfxStatErrMissingHostFeature => {
+            crate::sys_umbrella::kOfxStatErrBadHandle => Self::ErrBadHandle,
+            crate::sys_umbrella::kOfxStatErrBadIndex => Self::ErrBadIndex,
+            crate::sys_umbrella::kOfxStatErrExists => Self::ErrExists,
+            crate::sys_umbrella::kOfxStatErrFatal => Self::ErrFatal,
+            crate::sys_umbrella::kOfxStatErrFormat => Self::ErrFormat,
+            crate::sys_umbrella::kOfxStatErrImageFormat => Self::ErrImageFormat,
+            crate::sys_umbrella::kOfxStatErrMemory => Self::ErrMemory,
+            crate::sys_umbrella::kOfxStatErrMissingHostFeature => {
                 Self::ErrMissingHostFeature
             }
-            crate::sys::generic::core::kOfxStatErrUnknown => Self::ErrUnknown,
-            crate::sys::generic::core::kOfxStatErrUnsupported => Self::ErrUnsupported,
-            crate::sys::generic::core::kOfxStatErrValue => Self::ErrValue,
-            crate::sys::generic::core::kOfxStatFailed => Self::Failed,
-            crate::sys::generic::core::kOfxStatOK => Self::OK,
-            crate::sys::generic::core::kOfxStatReplyDefault => Self::ReplyDefault,
-            crate::sys::generic::core::kOfxStatReplyNo => Self::ReplyNo,
-            crate::sys::generic::core::kOfxStatReplyYes => Self::ReplyYes,
-            crate::sys::generic::core::kOfxStatUnlicensed => Self::Unlicensed,
+            crate::sys_umbrella::kOfxStatErrUnknown => Self::ErrUnknown,
+            crate::sys_umbrella::kOfxStatErrUnsupported => Self::ErrUnsupported,
+            crate::sys_umbrella::kOfxStatErrValue => Self::ErrValue,
+            crate::sys_umbrella::kOfxStatFailed => Self::Failed,
+            crate::sys_umbrella::kOfxStatGPUOutOfMemory => Self::GPUOutOfMemory,
+            crate::sys_umbrella::kOfxStatGPURenderFailed => Self::GPURenderFailed,
+            crate::sys_umbrella::kOfxStatOK => Self::OK,
+            crate::sys_umbrella::kOfxStatReplyDefault => Self::ReplyDefault,
+            crate::sys_umbrella::kOfxStatReplyNo => Self::ReplyNo,
+            crate::sys_umbrella::kOfxStatReplyYes => Self::ReplyYes,
+            crate::sys_umbrella::kOfxStatUnlicensed => Self::Unlicensed,
             _ => Self::Unknown(status),
         }
     }
 }
-impl From<Status> for crate::sys::generic::core::OfxStatus {
+impl From<Status> for crate::sys_umbrella::OfxStatus {
     fn from(status: Status) -> Self {
         match status {
-            Status::ErrBadHandle => crate::sys::generic::core::kOfxStatErrBadHandle,
-            Status::ErrBadIndex => crate::sys::generic::core::kOfxStatErrBadIndex,
-            Status::ErrExists => crate::sys::generic::core::kOfxStatErrExists,
-            Status::ErrFatal => crate::sys::generic::core::kOfxStatErrFatal,
-            Status::ErrFormat => crate::sys::generic::core::kOfxStatErrFormat,
-            Status::ErrMemory => crate::sys::generic::core::kOfxStatErrMemory,
+            Status::ErrBadHandle => crate::sys_umbrella::kOfxStatErrBadHandle,
+            Status::ErrBadIndex => crate::sys_umbrella::kOfxStatErrBadIndex,
+            Status::ErrExists => crate::sys_umbrella::kOfxStatErrExists,
+            Status::ErrFatal => crate::sys_umbrella::kOfxStatErrFatal,
+            Status::ErrFormat => crate::sys_umbrella::kOfxStatErrFormat,
+            Status::ErrImageFormat => crate::sys_umbrella::kOfxStatErrImageFormat,
+            Status::ErrMemory => crate::sys_umbrella::kOfxStatErrMemory,
             Status::ErrMissingHostFeature => {
-                crate::sys::generic::core::kOfxStatErrMissingHostFeature
+                crate::sys_umbrella::kOfxStatErrMissingHostFeature
             }
-            Status::ErrUnknown => crate::sys::generic::core::kOfxStatErrUnknown,
-            Status::ErrUnsupported => crate::sys::generic::core::kOfxStatErrUnsupported,
-            Status::ErrValue => crate::sys::generic::core::kOfxStatErrValue,
-            Status::Failed => crate::sys::generic::core::kOfxStatFailed,
-            Status::OK => crate::sys::generic::core::kOfxStatOK,
-            Status::ReplyDefault => crate::sys::generic::core::kOfxStatReplyDefault,
-            Status::ReplyNo => crate::sys::generic::core::kOfxStatReplyNo,
-            Status::ReplyYes => crate::sys::generic::core::kOfxStatReplyYes,
-            Status::Unlicensed => crate::sys::generic::core::kOfxStatUnlicensed,
+            Status::ErrUnknown => crate::sys_umbrella::kOfxStatErrUnknown,
+            Status::ErrUnsupported => crate::sys_umbrella::kOfxStatErrUnsupported,
+            Status::ErrValue => crate::sys_umbrella::kOfxStatErrValue,
+            Status::Failed => crate::sys_umbrella::kOfxStatFailed,
+            Status::GPUOutOfMemory => crate::sys_umbrella::kOfxStatGPUOutOfMemory,
+            Status::GPURenderFailed => crate::sys_umbrella::kOfxStatGPURenderFailed,
+            Status::OK => crate::sys_umbrella::kOfxStatOK,
+            Status::ReplyDefault => crate::sys_umbrella::kOfxStatReplyDefault,
+            Status::ReplyNo => crate::sys_umbrella::kOfxStatReplyNo,
+            Status::ReplyYes => crate::sys_umbrella::kOfxStatReplyYes,
+            Status::Unlicensed => crate::sys_umbrella::kOfxStatUnlicensed,
             Status::Unknown(status) => status,
         }
     }

@@ -6,12 +6,16 @@ use crate::vibe_zone::deserializers::{
 };
 
 pub mod bindings_for_c_headers;
+
+pub mod bindgen;
+pub mod ex_codegen;
 pub mod input_data;
 
 mod vibe_zone;
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfig {
+    pub statuses: CodegenConfigStatuses,
     pub suites: CodegenConfigSuites,
     pub objects: CodegenConfigObjects,
 }
@@ -20,6 +24,11 @@ impl CodegenConfig {
     pub fn from_toml_str(toml_str: &str) -> Result<Self, toml::de::Error> {
         toml::from_str(toml_str)
     }
+}
+
+#[derive(serde::Deserialize)]
+pub struct CodegenConfigStatuses {
+    pub identical_ones: Vec<Vec<String>>,
 }
 
 #[derive(serde::Deserialize)]

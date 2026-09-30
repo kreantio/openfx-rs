@@ -23,7 +23,7 @@ generate-code-from-c:
       --codegen-config="{{ codegen-config-path }}" \
       --input-c-headers "{{ vendor-c-path }}" \
       --input-data "{{ data-path }}" \
-      --output-c-bindings "{{ generated-c-bindings-path }}" \
+      --output "{{ generated-path }}" \
       --output-code-from-c "{{ generated-code-from-c-path }}" \
       --output-intermediate "{{ generated-intermediate-path }}"
 

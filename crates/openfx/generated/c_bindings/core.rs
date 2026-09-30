@@ -1,3 +1,5 @@
+// Copyright OpenFX and contributors to the OpenFX project.
+// SPDX-License-Identifier: BSD-3-Clause
 /// ```doxygen
 /// @brief
 ///
@@ -694,13 +696,13 @@ pub const kOfxChangeTime: &::std::ffi::CStr = c"OfxChangeTime";
 ///
 /// This is effectively INT_MAX.
 /// ```
-pub const kOfxFlagInfiniteMax: u32 = 2147483647;
+pub const kOfxFlagInfiniteMax: ::std::os::raw::c_int = ::std::os::raw::c_int::MAX;
 /// ```doxygen
 /// @brief Used to flag infinite rects. Set minimums to this to indicate infinite.
 ///
 /// This is effectively INT_MIN
 /// ```
-pub const kOfxFlagInfiniteMin: i32 = -2147483648;
+pub const kOfxFlagInfiniteMin: ::std::os::raw::c_int = ::std::os::raw::c_int::MIN;
 /// ```doxygen
 /// @brief String used to label unset bitdepths
 /// ```
@@ -738,34 +740,34 @@ pub type OfxStatus = ::std::os::raw::c_int;
 /// ```doxygen
 /// @brief Generic host structure passed to OfxPlugin::setHost function
 ///
-/// This structure contains what is needed by a plug-in to bootstrap its connection
-/// to the host.
+///     This structure contains what is needed by a plug-in to bootstrap its connection
+///     to the host.
 /// ```
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct OfxHost {
     /// ```doxygen
     /// @brief Global handle to the host. Extract relevant host properties from this.
-    /// This pointer will be valid while the binary containing the plug-in is loaded.
+    ///       This pointer will be valid while the binary containing the plug-in is loaded.
     /// ```
     pub host: OfxPropertySetHandle,
     /// ```doxygen
     /// @brief The function which the plug-in uses to fetch suites from the host.
     ///
-    /// \arg \c host          the host the suite is being fetched from this \em must be the \e host member of the OfxHost struct containing fetchSuite.
-    /// \arg \c suiteName     ASCII string labelling the host supplied API
-    /// \arg \c suiteVersion  version of that suite to fetch
+    ///       \arg \c host          the host the suite is being fetched from this \em must be the \e host member of the OfxHost struct containing fetchSuite.
+    ///       \arg \c suiteName     ASCII string labelling the host supplied API
+    ///       \arg \c suiteVersion  version of that suite to fetch
     ///
-    /// Any API fetched will be valid while the binary containing the plug-in is loaded.
+    ///       Any API fetched will be valid while the binary containing the plug-in is loaded.
     ///
-    /// Repeated calls to fetchSuite with the same parameters will return the same pointer.
+    ///       Repeated calls to fetchSuite with the same parameters will return the same pointer.
     ///
-    /// It is recommended that hosts should return the same host and suite pointers to all plugins
-    /// in the same shared lib or bundle.
+    ///       It is recommended that hosts should return the same host and suite pointers to all plugins
+    ///       in the same shared lib or bundle.
     ///
-    /// returns
-    /// - NULL if the API is unknown (either the api or the version requested),
-    /// - pointer to the relevant API if it was found
+    ///       returns
+    ///          - NULL if the API is unknown (either the api or the version requested),
+    /// 	 - pointer to the relevant API if it was found
     /// ```
     pub fetchSuite: ::std::option::Option<
         unsafe extern "C" fn(
@@ -778,16 +780,16 @@ pub struct OfxHost {
 /// ```doxygen
 /// @brief Entry point for plug-ins
 ///
-/// \arg \c action   ASCII c string indicating which action to take
-/// \arg \c instance object to which action should be applied, this will need to be cast to the appropriate blind data type depending on the \e action
-/// \arg \c inData   handle that contains action specific properties
-/// \arg \c outData  handle where the plug-in should set various action specific properties
+///   \arg \c action   ASCII c string indicating which action to take
+///   \arg \c instance object to which action should be applied, this will need to be cast to the appropriate blind data type depending on the \e action
+///   \arg \c inData   handle that contains action specific properties
+///   \arg \c outData  handle where the plug-in should set various action specific properties
 ///
-/// This is how the host generally communicates with a plug-in. Entry points are used to pass messages
-/// to various objects used within OFX. The main use is within the OfxPlugin struct.
+///   This is how the host generally communicates with a plug-in. Entry points are used to pass messages
+///   to various objects used within OFX. The main use is within the OfxPlugin struct.
 ///
-/// The exact set of actions is determined by the plug-in API that is being implemented, however all plug-ins
-/// can perform several actions. For the list of actions consult \ref ActionsAll.
+///   The exact set of actions is determined by the plug-in API that is being implemented, however all plug-ins
+///   can perform several actions. For the list of actions consult \ref ActionsAll.
 /// ```
 pub type OfxPluginEntryPoint = ::std::option::Option<
     unsafe extern "C" fn(
@@ -800,19 +802,19 @@ pub type OfxPluginEntryPoint = ::std::option::Option<
 /// ```doxygen
 /// @brief The structure that defines a plug-in to a host.
 ///
-///  This structure is the first element in any plug-in structure
-///  using the OFX plug-in architecture. By examining its members
-///  a host can determine the API that the plug-in implements,
-///  the version of that API, its name and version.
+/// This structure is the first element in any plug-in structure
+/// using the OFX plug-in architecture. By examining its members
+/// a host can determine the API that the plug-in implements,
+/// the version of that API, its name and version.
 ///
-///  For details see \ref Architecture.
+/// For details see \ref Architecture.
 /// ```
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct OfxPlugin {
     /// ```doxygen
     /// Defines the type of the plug-in, this will tell the host what the plug-in does. e.g.: an image
-    /// effects plug-in would be a "OfxImageEffectPlugin"
+    ///       effects plug-in would be a "OfxImageEffectPlugin"
     /// ```
     pub pluginApi: *const ::std::os::raw::c_char,
     /// ```doxygen
@@ -821,11 +823,11 @@ pub struct OfxPlugin {
     pub apiVersion: ::std::os::raw::c_int,
     /// ```doxygen
     /// String that uniquely labels the plug-in among all plug-ins that implement an API.
-    /// It need not necessarily be human sensible, however the preference is to use reverse
-    /// internet domain name of the developer, followed by a '.' then by a name that represents
-    /// the plug-in.. It must be a legal ASCII string and have no whitespace in the
-    /// name and no non printing chars.
-    /// For example "uk.co.somesoftwarehouse.myPlugin"
+    ///       It need not necessarily be human sensible, however the preference is to use reverse
+    ///       internet domain name of the developer, followed by a '.' then by a name that represents
+    ///       the plug-in.. It must be a legal ASCII string and have no whitespace in the
+    ///       name and no non printing chars.
+    ///       For example "uk.co.somesoftwarehouse.myPlugin"
     /// ```
     pub pluginIdentifier: *const ::std::os::raw::c_char,
     /// ```doxygen
@@ -834,38 +836,38 @@ pub struct OfxPlugin {
     pub pluginVersionMajor: ::std::os::raw::c_uint,
     /// ```doxygen
     /// Major version of this plug-in, this gets incremented when software is changed,
-    /// but does not break backwards compatibility.
+    ///        but does not break backwards compatibility.
     /// ```
     pub pluginVersionMinor: ::std::os::raw::c_uint,
     /// ```doxygen
     /// @brief Function the host uses to connect the plug-in to the host's api fetcher
     ///
-    /// \arg \c fetchApi pointer to host's API fetcher
+    ///       \arg \c fetchApi pointer to host's API fetcher
     ///
-    /// Mandatory function.
+    ///       Mandatory function.
     ///
-    /// The very first function called in a plug-in. The plug-in \em must \em not call any OFX functions within this, it must only set its local copy of the host pointer.
+    ///       The very first function called in a plug-in. The plug-in \em must \em not call any OFX functions within this, it must only set its local copy of the host pointer.
     ///
-    /// \pre
-    /// - nothing else has been called
+    ///       \pre
+    ///         - nothing else has been called
     ///
-    /// \post
-    /// - the pointer suite is valid until the plug-in is unloaded
+    ///       \post
+    ///         - the pointer suite is valid until the plug-in is unloaded
     ///
-    /// It is recommended that hosts should return the same host and suite pointers to all plugins
-    /// in the same shared lib or bundle.
+    ///       It is recommended that hosts should return the same host and suite pointers to all plugins
+    ///       in the same shared lib or bundle.
     /// ```
     pub setHost: ::std::option::Option<unsafe extern "C" fn(host: *mut OfxHost)>,
     /// ```doxygen
     /// @brief Main entry point for plug-ins
     ///
-    /// Mandatory function.
+    ///   Mandatory function.
     ///
-    /// The exact set of actions is determined by the plug-in API that is being implemented, however all plug-ins
-    /// can perform several actions. For the list of actions consult \ref ActionsAll.
+    ///   The exact set of actions is determined by the plug-in API that is being implemented, however all plug-ins
+    ///   can perform several actions. For the list of actions consult \ref ActionsAll.
     ///
-    /// Preconditions
-    /// - setHost has been called
+    ///    Preconditions
+    ///       - setHost has been called
     /// ```
     pub mainEntry: OfxPluginEntryPoint,
 }

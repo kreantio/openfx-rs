@@ -1,3 +1,53 @@
+// Copyright OpenFX and contributors to the OpenFX project.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) 1987, 1994  X Consortium
+// 
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR
+// OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+// ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+// 
+// Except as contained in this notice, the name of the X Consortium shall
+// not be used in advertising or otherwise to promote the sale, use or
+// other dealings in this Software without prior written authorization
+// from the X Consortium.
+// 
+// 
+// Copyright 1987 by Digital Equipment Corporation, Maynard, Massachusetts
+// 
+//                         All Rights Reserved
+// 
+// Permission to use, copy, modify, and distribute this software and its
+// documentation for any purpose and without fee is hereby granted,
+// provided that the above copyright notice appear in all copies and that
+// both that copyright notice and this permission notice appear in
+// supporting documentation, and that the name of Digital not be
+// used in advertising or publicity pertaining to distribution of the
+// software without specific, written prior permission.
+// 
+// DIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+// ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL
+// DIGITAL BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR
+// ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+// WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+// ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+// SOFTWARE.
+// 
+// *
 /// ```doxygen
 /// @brief Property used to indicate which a key on the keyboard or a button on a button device has been pressed
 ///
@@ -37,67 +87,205 @@ pub const kOfxPropKeySym: &::std::ffi::CStr = c"kOfxPropKeySym";
 /// ```
 pub const kOfxPropKeyString: &::std::ffi::CStr = c"kOfxPropKeyString";
 pub const kOfxKey_Unknown: u32 = 0;
+/// ```doxygen
+/// back space, back char
+/// ```
 pub const kOfxKey_BackSpace: u32 = 65288;
 pub const kOfxKey_Tab: u32 = 65289;
+/// ```doxygen
+/// Linefeed, LF
+/// ```
 pub const kOfxKey_Linefeed: u32 = 65290;
 pub const kOfxKey_Clear: u32 = 65291;
+/// ```doxygen
+/// Return, enter
+/// ```
 pub const kOfxKey_Return: u32 = 65293;
+/// ```doxygen
+/// Pause, hold
+/// ```
 pub const kOfxKey_Pause: u32 = 65299;
 pub const kOfxKey_Scroll_Lock: u32 = 65300;
 pub const kOfxKey_Sys_Req: u32 = 65301;
 pub const kOfxKey_Escape: u32 = 65307;
+/// ```doxygen
+/// Delete, rubout
+/// ```
 pub const kOfxKey_Delete: u32 = 65535;
+/// ```doxygen
+/// Multi-key character compose
+/// ```
 pub const kOfxKey_Multi_key: u32 = 65312;
 pub const kOfxKey_SingleCandidate: u32 = 65340;
 pub const kOfxKey_MultipleCandidate: u32 = 65341;
 pub const kOfxKey_PreviousCandidate: u32 = 65342;
+/// ```doxygen
+/// Kanji, Kanji convert
+/// ```
 pub const kOfxKey_Kanji: u32 = 65313;
+/// ```doxygen
+/// Cancel Conversion
+/// ```
 pub const kOfxKey_Muhenkan: u32 = 65314;
+/// ```doxygen
+/// Start/Stop Conversion
+/// ```
 pub const kOfxKey_Henkan_Mode: u32 = 65315;
+/// ```doxygen
+/// Alias for Henkan_Mode
+/// ```
 pub const kOfxKey_Henkan: u32 = 65315;
+/// ```doxygen
+/// to Romaji
+/// ```
 pub const kOfxKey_Romaji: u32 = 65316;
+/// ```doxygen
+/// to Hiragana
+/// ```
 pub const kOfxKey_Hiragana: u32 = 65317;
+/// ```doxygen
+/// to Katakana
+/// ```
 pub const kOfxKey_Katakana: u32 = 65318;
+/// ```doxygen
+/// Hiragana/Katakana toggle
+/// ```
 pub const kOfxKey_Hiragana_Katakana: u32 = 65319;
+/// ```doxygen
+/// to Zenkaku
+/// ```
 pub const kOfxKey_Zenkaku: u32 = 65320;
+/// ```doxygen
+/// to Hankaku
+/// ```
 pub const kOfxKey_Hankaku: u32 = 65321;
+/// ```doxygen
+/// Zenkaku/Hankaku toggle
+/// ```
 pub const kOfxKey_Zenkaku_Hankaku: u32 = 65322;
+/// ```doxygen
+/// Add to Dictionary
+/// ```
 pub const kOfxKey_Touroku: u32 = 65323;
+/// ```doxygen
+/// Delete from Dictionary
+/// ```
 pub const kOfxKey_Massyo: u32 = 65324;
+/// ```doxygen
+/// Kana Lock
+/// ```
 pub const kOfxKey_Kana_Lock: u32 = 65325;
+/// ```doxygen
+/// Kana Shift
+/// ```
 pub const kOfxKey_Kana_Shift: u32 = 65326;
+/// ```doxygen
+/// Alphanumeric Shift
+/// ```
 pub const kOfxKey_Eisu_Shift: u32 = 65327;
+/// ```doxygen
+/// Alphanumeric toggle
+/// ```
 pub const kOfxKey_Eisu_toggle: u32 = 65328;
+/// ```doxygen
+/// Multiple/All Candidate(s)
+/// ```
 pub const kOfxKey_Zen_Koho: u32 = 65341;
+/// ```doxygen
+/// Previous Candidate
+/// ```
 pub const kOfxKey_Mae_Koho: u32 = 65342;
 pub const kOfxKey_Home: u32 = 65360;
+/// ```doxygen
+/// Move left, left arrow
+/// ```
 pub const kOfxKey_Left: u32 = 65361;
+/// ```doxygen
+/// Move up, up arrow
+/// ```
 pub const kOfxKey_Up: u32 = 65362;
+/// ```doxygen
+/// Move right, right arrow
+/// ```
 pub const kOfxKey_Right: u32 = 65363;
+/// ```doxygen
+/// Move down, down arrow
+/// ```
 pub const kOfxKey_Down: u32 = 65364;
+/// ```doxygen
+/// Prior, previous
+/// ```
 pub const kOfxKey_Prior: u32 = 65365;
 pub const kOfxKey_Page_Up: u32 = 65365;
+/// ```doxygen
+/// Next
+/// ```
 pub const kOfxKey_Next: u32 = 65366;
 pub const kOfxKey_Page_Down: u32 = 65366;
+/// ```doxygen
+/// EOL
+/// ```
 pub const kOfxKey_End: u32 = 65367;
+/// ```doxygen
+/// BOL
+/// ```
 pub const kOfxKey_Begin: u32 = 65368;
+/// ```doxygen
+/// Select, mark
+/// ```
 pub const kOfxKey_Select: u32 = 65376;
 pub const kOfxKey_Print: u32 = 65377;
+/// ```doxygen
+/// Execute, run, do
+/// ```
 pub const kOfxKey_Execute: u32 = 65378;
+/// ```doxygen
+/// Insert, insert here
+/// ```
 pub const kOfxKey_Insert: u32 = 65379;
+/// ```doxygen
+/// Undo, oops
+/// ```
 pub const kOfxKey_Undo: u32 = 65381;
+/// ```doxygen
+/// redo, again
+/// ```
 pub const kOfxKey_Redo: u32 = 65382;
 pub const kOfxKey_Menu: u32 = 65383;
+/// ```doxygen
+/// Find, search
+/// ```
 pub const kOfxKey_Find: u32 = 65384;
+/// ```doxygen
+/// Cancel, stop, abort, exit
+/// ```
 pub const kOfxKey_Cancel: u32 = 65385;
+/// ```doxygen
+/// Help
+/// ```
 pub const kOfxKey_Help: u32 = 65386;
 pub const kOfxKey_Break: u32 = 65387;
+/// ```doxygen
+/// Character set switch
+/// ```
 pub const kOfxKey_Mode_switch: u32 = 65406;
+/// ```doxygen
+/// Alias for mode_switch
+/// ```
 pub const kOfxKey_script_switch: u32 = 65406;
 pub const kOfxKey_Num_Lock: u32 = 65407;
+/// ```doxygen
+/// space
+/// ```
 pub const kOfxKey_KP_Space: u32 = 65408;
 pub const kOfxKey_KP_Tab: u32 = 65417;
+/// ```doxygen
+/// enter
+/// ```
 pub const kOfxKey_KP_Enter: u32 = 65421;
+/// ```doxygen
+/// PF1, KP_A, ...
+/// ```
 pub const kOfxKey_KP_F1: u32 = 65425;
 pub const kOfxKey_KP_F2: u32 = 65426;
 pub const kOfxKey_KP_F3: u32 = 65427;
@@ -115,9 +303,15 @@ pub const kOfxKey_KP_End: u32 = 65436;
 pub const kOfxKey_KP_Begin: u32 = 65437;
 pub const kOfxKey_KP_Insert: u32 = 65438;
 pub const kOfxKey_KP_Delete: u32 = 65439;
+/// ```doxygen
+/// equals
+/// ```
 pub const kOfxKey_KP_Equal: u32 = 65469;
 pub const kOfxKey_KP_Multiply: u32 = 65450;
 pub const kOfxKey_KP_Add: u32 = 65451;
+/// ```doxygen
+/// separator, often comma
+/// ```
 pub const kOfxKey_KP_Separator: u32 = 65452;
 pub const kOfxKey_KP_Subtract: u32 = 65453;
 pub const kOfxKey_KP_Decimal: u32 = 65454;
@@ -192,19 +386,61 @@ pub const kOfxKey_F34: u32 = 65503;
 pub const kOfxKey_R14: u32 = 65503;
 pub const kOfxKey_F35: u32 = 65504;
 pub const kOfxKey_R15: u32 = 65504;
+/// ```doxygen
+/// Left shift
+/// ```
 pub const kOfxKey_Shift_L: u32 = 65505;
+/// ```doxygen
+/// Right shift
+/// ```
 pub const kOfxKey_Shift_R: u32 = 65506;
+/// ```doxygen
+/// Left control
+/// ```
 pub const kOfxKey_Control_L: u32 = 65507;
+/// ```doxygen
+/// Right control
+/// ```
 pub const kOfxKey_Control_R: u32 = 65508;
+/// ```doxygen
+/// Caps lock
+/// ```
 pub const kOfxKey_Caps_Lock: u32 = 65509;
+/// ```doxygen
+/// Shift lock
+/// ```
 pub const kOfxKey_Shift_Lock: u32 = 65510;
+/// ```doxygen
+/// Left meta
+/// ```
 pub const kOfxKey_Meta_L: u32 = 65511;
+/// ```doxygen
+/// Right meta
+/// ```
 pub const kOfxKey_Meta_R: u32 = 65512;
+/// ```doxygen
+/// Left alt
+/// ```
 pub const kOfxKey_Alt_L: u32 = 65513;
+/// ```doxygen
+/// Right alt
+/// ```
 pub const kOfxKey_Alt_R: u32 = 65514;
+/// ```doxygen
+/// Left super
+/// ```
 pub const kOfxKey_Super_L: u32 = 65515;
+/// ```doxygen
+/// Right super
+/// ```
 pub const kOfxKey_Super_R: u32 = 65516;
+/// ```doxygen
+/// Left hyper
+/// ```
 pub const kOfxKey_Hyper_L: u32 = 65517;
+/// ```doxygen
+/// Right hyper
+/// ```
 pub const kOfxKey_Hyper_R: u32 = 65518;
 pub const kOfxKey_space: u32 = 32;
 pub const kOfxKey_exclam: u32 = 33;
@@ -214,6 +450,9 @@ pub const kOfxKey_dollar: u32 = 36;
 pub const kOfxKey_percent: u32 = 37;
 pub const kOfxKey_ampersand: u32 = 38;
 pub const kOfxKey_apostrophe: u32 = 39;
+/// ```doxygen
+/// deprecated
+/// ```
 pub const kOfxKey_quoteright: u32 = 39;
 pub const kOfxKey_parenleft: u32 = 40;
 pub const kOfxKey_parenright: u32 = 41;
@@ -272,6 +511,9 @@ pub const kOfxKey_bracketright: u32 = 93;
 pub const kOfxKey_asciicircum: u32 = 94;
 pub const kOfxKey_underscore: u32 = 95;
 pub const kOfxKey_grave: u32 = 96;
+/// ```doxygen
+/// deprecated
+/// ```
 pub const kOfxKey_quoteleft: u32 = 96;
 pub const kOfxKey_a: u32 = 97;
 pub const kOfxKey_b: u32 = 98;
@@ -314,6 +556,9 @@ pub const kOfxKey_section: u32 = 167;
 pub const kOfxKey_diaeresis: u32 = 168;
 pub const kOfxKey_copyright: u32 = 169;
 pub const kOfxKey_ordfeminine: u32 = 170;
+/// ```doxygen
+/// left angle quotation mark
+/// ```
 pub const kOfxKey_guillemotleft: u32 = 171;
 pub const kOfxKey_notsign: u32 = 172;
 pub const kOfxKey_hyphen: u32 = 173;
@@ -330,6 +575,9 @@ pub const kOfxKey_periodcentered: u32 = 183;
 pub const kOfxKey_cedilla: u32 = 184;
 pub const kOfxKey_onesuperior: u32 = 185;
 pub const kOfxKey_masculine: u32 = 186;
+/// ```doxygen
+/// right angle quotation mark
+/// ```
 pub const kOfxKey_guillemotright: u32 = 187;
 pub const kOfxKey_onequarter: u32 = 188;
 pub const kOfxKey_onehalf: u32 = 189;
@@ -352,6 +600,9 @@ pub const kOfxKey_Iacute: u32 = 205;
 pub const kOfxKey_Icircumflex: u32 = 206;
 pub const kOfxKey_Idiaeresis: u32 = 207;
 pub const kOfxKey_ETH: u32 = 208;
+/// ```doxygen
+/// deprecated
+/// ```
 pub const kOfxKey_Eth: u32 = 208;
 pub const kOfxKey_Ntilde: u32 = 209;
 pub const kOfxKey_Ograve: u32 = 210;

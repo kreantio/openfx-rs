@@ -255,12 +255,7 @@ pub fn parse(code: &str) -> Result<BindingsUnprocessed, Error> {
                     continue_unaddressed!(comment_above, raw_node);
                 };
                 info.declared_types.insert(item.name().to_owned());
-                item.collect_referred_identifiers(&mut info.referred_identifiers);
-                items.push(RootItemWithCommentAbove::Item {
-                    comment_above,
-                    item,
-                });
-                continue;
+                item
             }
             TranslationUnitChildren::AttributedStatement(_)
             | TranslationUnitChildren::BreakStatement(_)
@@ -283,6 +278,8 @@ pub fn parse(code: &str) -> Result<BindingsUnprocessed, Error> {
                 continue_unaddressed!(comment_above, raw_node);
             }
         };
+
+        item.collect_referred_identifiers(&mut info.referred_identifiers);
 
         items.push(RootItemWithCommentAbove::Item {
             comment_above,

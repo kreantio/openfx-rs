@@ -3,9 +3,9 @@ use treesitter_types_c::{
     FieldDeclarationChildren, FieldDeclarator, FromNode, FunctionDeclarator,
     FunctionDeclaratorDeclarator, ParameterDeclaration, ParameterDeclarationChildren,
     ParameterDeclarationDeclarator, ParameterList, ParameterListChildren,
-    ParenthesizedDeclaratorChildren, PointerDeclarator, PointerDeclaratorDeclarator, Span, Spanned,
-    StructSpecifier, TypeDeclarator, TypeDefinition, TypeDefinitionChildren, TypeIdentifier,
-    TypeSpecifier,
+    ParenthesizedDeclaratorChildren, PointerDeclarator, PointerDeclaratorChildren,
+    PointerDeclaratorDeclarator, Span, Spanned, StructSpecifier, TypeDeclarator, TypeDefinition,
+    TypeDefinitionChildren, TypeIdentifier, TypeSpecifier,
 };
 
 use crate::parsing::{
@@ -588,6 +588,17 @@ fn parse_parameter_declaration(
                         pointee: Box::new(ty),
                     }
                 }
+
+                if pointer_declarator.children.len() == 1
+                    && let Some(PointerDeclaratorChildren::TypeQualifier(type_qualifier)) =
+                        pointer_declarator.children.first()
+                    && text_from_span!(type_qualifier.span) == "const"
+                {
+                    has_const_type_qualifier = true;
+                } else if !pointer_declarator.children.is_empty() {
+                    return Err(());
+                }
+
                 let PointerDeclaratorDeclarator::Declarator(declarator_) =
                     &pointer_declarator.declarator
                 else {
@@ -664,7 +675,9 @@ fn parse_straightforward_field_declaration(
         else {
             return Err(());
         };
-
+        if !pointer_declarator.children.is_empty() {
+            return Err(());
+        }
         if has_const_type_qualifier {
             has_const_type_qualifier = false;
             ty = TypeStraightforward::ConstPtr {
@@ -675,6 +688,7 @@ fn parse_straightforward_field_declaration(
                 pointee: Box::new(ty),
             }
         }
+
         let PointerDeclaratorDeclarator::FieldDeclarator(declarator_) =
             &pointer_declarator.declarator
         else {
@@ -737,6 +751,9 @@ fn parse_functionish_field_return_type(
                 break;
             }
             FieldDeclarator::PointerDeclarator(pointer_declarator) => {
+                if !pointer_declarator.children.is_empty() {
+                    return Err(());
+                }
                 if has_const_type_qualifier {
                     has_const_type_qualifier = false;
                     ty = TypeStraightforward::ConstPtr {
@@ -814,6 +831,9 @@ fn parse_type_definition_return_type(
                 break;
             }
             TypeDeclarator::PointerDeclarator(pointer_declarator) => {
+                if !pointer_declarator.children.is_empty() {
+                    return Err(());
+                }
                 if has_const_type_qualifier {
                     has_const_type_qualifier = false;
                     ty = TypeStraightforward::ConstPtr {

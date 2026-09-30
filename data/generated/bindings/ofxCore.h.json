@@ -826,7 +826,7 @@
         "$type": "Define",
         "name": "kOfxFlagInfiniteMax",
         "value": {
-          "$type": "Identifier",
+          "$type": "WellKnownIdentifier",
           "value": "INT_MAX"
         }
       }
@@ -838,7 +838,7 @@
         "$type": "Define",
         "name": "kOfxFlagInfiniteMin",
         "value": {
-          "$type": "Identifier",
+          "$type": "WellKnownIdentifier",
           "value": "INT_MIN"
         }
       }

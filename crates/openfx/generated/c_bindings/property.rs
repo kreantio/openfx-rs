@@ -1,3 +1,5 @@
+// Copyright OpenFX and contributors to the OpenFX project.
+// SPDX-License-Identifier: BSD-3-Clause
 use super::core::{OfxPropertySetHandle, OfxStatus};
 pub const kOfxPropertySuite: &::std::ffi::CStr = c"OfxPropertySuite";
 /// ```doxygen
@@ -9,17 +11,17 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Set a single value in a pointer property
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property
-    /// \arg \c index for multidimenstional properties and is dimension of the one we are setting
-    /// \arg \c value value of the property we are setting
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property
+    ///       \arg \c index for multidimenstional properties and is dimension of the one we are setting
+    ///       \arg \c value value of the property we are setting
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
-    /// - ::kOfxStatErrBadIndex
-    /// - ::kOfxStatErrValue
+    ///       @returns
+    ///         - ::kOfxStatOK
+    ///         - ::kOfxStatErrBadHandle
+    ///         - ::kOfxStatErrUnknown
+    ///         - ::kOfxStatErrBadIndex
+    ///         - ::kOfxStatErrValue
     /// ```
     pub propSetPointer: ::std::option::Option<
         unsafe extern "C" fn(
@@ -32,17 +34,17 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Set a single value in a string property
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property
-    /// \arg \c index for multidimenstional properties and is dimension of the one we are setting
-    /// \arg \c value value of the property we are setting
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property
+    ///       \arg \c index for multidimenstional properties and is dimension of the one we are setting
+    ///       \arg \c value value of the property we are setting
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
-    /// - ::kOfxStatErrBadIndex
-    /// - ::kOfxStatErrValue
+    ///       @returns
+    ///         - ::kOfxStatOK
+    ///         - ::kOfxStatErrBadHandle
+    ///         - ::kOfxStatErrUnknown
+    ///         - ::kOfxStatErrBadIndex
+    ///         - ::kOfxStatErrValue
     /// ```
     pub propSetString: ::std::option::Option<
         unsafe extern "C" fn(
@@ -55,17 +57,17 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Set a single value in a double property
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property
-    /// \arg \c index for multidimenstional properties and is dimension of the one we are setting
-    /// \arg \c value value of the property we are setting
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property
+    ///       \arg \c index for multidimenstional properties and is dimension of the one we are setting
+    ///       \arg \c value value of the property we are setting
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
-    /// - ::kOfxStatErrBadIndex
-    /// - ::kOfxStatErrValue
+    ///       @returns
+    ///         - ::kOfxStatOK
+    ///         - ::kOfxStatErrBadHandle
+    ///         - ::kOfxStatErrUnknown
+    ///         - ::kOfxStatErrBadIndex
+    ///         - ::kOfxStatErrValue
     /// ```
     pub propSetDouble: ::std::option::Option<
         unsafe extern "C" fn(
@@ -78,17 +80,17 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Set a single value in  an int property
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property
-    /// \arg \c index for multidimenstional properties and is dimension of the one we are setting
-    /// \arg \c value value of the property we are setting
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property
+    ///       \arg \c index for multidimenstional properties and is dimension of the one we are setting
+    ///       \arg \c value value of the property we are setting
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
-    /// - ::kOfxStatErrBadIndex
-    /// - ::kOfxStatErrValue
+    ///       @returns
+    ///         - ::kOfxStatOK
+    ///         - ::kOfxStatErrBadHandle
+    ///         - ::kOfxStatErrUnknown
+    ///         - ::kOfxStatErrBadIndex
+    ///         - ::kOfxStatErrValue
     /// ```
     pub propSetInt: ::std::option::Option<
         unsafe extern "C" fn(
@@ -101,17 +103,17 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Set multiple values of the pointer property
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property
-    /// \arg \c count number of values we are setting in that property (ie: indices 0..count-1)
-    /// \arg \c value pointer to an array of property values
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property
+    ///       \arg \c count number of values we are setting in that property (ie: indices 0..count-1)
+    ///       \arg \c value pointer to an array of property values
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
-    /// - ::kOfxStatErrBadIndex
-    /// - ::kOfxStatErrValue
+    ///       @returns
+    ///         - ::kOfxStatOK
+    ///         - ::kOfxStatErrBadHandle
+    ///         - ::kOfxStatErrUnknown
+    ///         - ::kOfxStatErrBadIndex
+    ///         - ::kOfxStatErrValue
     /// ```
     pub propSetPointerN: ::std::option::Option<
         unsafe extern "C" fn(
@@ -124,17 +126,17 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Set multiple values of a string property
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property
-    /// \arg \c count number of values we are setting in that property (ie: indices 0..count-1)
-    /// \arg \c value pointer to an array of property values
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property
+    ///       \arg \c count number of values we are setting in that property (ie: indices 0..count-1)
+    ///       \arg \c value pointer to an array of property values
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
-    /// - ::kOfxStatErrBadIndex
-    /// - ::kOfxStatErrValue
+    ///       @returns
+    ///         - ::kOfxStatOK
+    ///         - ::kOfxStatErrBadHandle
+    ///         - ::kOfxStatErrUnknown
+    ///         - ::kOfxStatErrBadIndex
+    ///         - ::kOfxStatErrValue
     /// ```
     pub propSetStringN: ::std::option::Option<
         unsafe extern "C" fn(
@@ -147,17 +149,17 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Set multiple values of  a double property
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property
-    /// \arg \c count number of values we are setting in that property (ie: indices 0..count-1)
-    /// \arg \c value pointer to an array of property values
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property
+    ///       \arg \c count number of values we are setting in that property (ie: indices 0..count-1)
+    ///       \arg \c value pointer to an array of property values
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
-    /// - ::kOfxStatErrBadIndex
-    /// - ::kOfxStatErrValue
+    ///       @returns
+    ///         - ::kOfxStatOK
+    ///         - ::kOfxStatErrBadHandle
+    ///         - ::kOfxStatErrUnknown
+    ///         - ::kOfxStatErrBadIndex
+    ///         - ::kOfxStatErrValue
     /// ```
     pub propSetDoubleN: ::std::option::Option<
         unsafe extern "C" fn(
@@ -170,17 +172,17 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Set multiple values of an int property
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property
-    /// \arg \c count number of values we are setting in that property (ie: indices 0..count-1)
-    /// \arg \c value pointer to an array of property values
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property
+    ///       \arg \c count number of values we are setting in that property (ie: indices 0..count-1)
+    ///       \arg \c value pointer to an array of property values
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
-    /// - ::kOfxStatErrBadIndex
-    /// - ::kOfxStatErrValue
+    ///       @returns
+    ///         - ::kOfxStatOK
+    ///         - ::kOfxStatErrBadHandle
+    ///         - ::kOfxStatErrUnknown
+    ///         - ::kOfxStatErrBadIndex
+    ///         - ::kOfxStatErrValue
     /// ```
     pub propSetIntN: ::std::option::Option<
         unsafe extern "C" fn(
@@ -193,16 +195,16 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Get a single value from a pointer property
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property
-    /// \arg \c index refers to the index of a multi-dimensional property
-    /// \arg \c value pointer the return location
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property
+    ///       \arg \c index refers to the index of a multi-dimensional property
+    ///       \arg \c value pointer the return location
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
-    /// - ::kOfxStatErrBadIndex
+    ///       @returns
+    ///         - ::kOfxStatOK
+    ///         - ::kOfxStatErrBadHandle
+    ///         - ::kOfxStatErrUnknown
+    ///         - ::kOfxStatErrBadIndex
     /// ```
     pub propGetPointer: ::std::option::Option<
         unsafe extern "C" fn(
@@ -215,16 +217,16 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Get a single value of a string property
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property
-    /// \arg \c index refers to the index of a multi-dimensional property
-    /// \arg \c value pointer the return location
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property
+    ///       \arg \c index refers to the index of a multi-dimensional property
+    ///       \arg \c value pointer the return location
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
-    /// - ::kOfxStatErrBadIndex
+    ///       @returns
+    ///         - ::kOfxStatOK
+    ///         - ::kOfxStatErrBadHandle
+    ///         - ::kOfxStatErrUnknown
+    ///         - ::kOfxStatErrBadIndex
     /// ```
     pub propGetString: ::std::option::Option<
         unsafe extern "C" fn(
@@ -237,18 +239,18 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Get a single value of a double property
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property
-    /// \arg \c index refers to the index of a multi-dimensional property
-    /// \arg \c value pointer the return location
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property
+    ///       \arg \c index refers to the index of a multi-dimensional property
+    ///       \arg \c value pointer the return location
     ///
-    /// See the note \ref ArchitectureStrings for how to deal with strings.
+    ///       See the note \ref ArchitectureStrings for how to deal with strings.
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
-    /// - ::kOfxStatErrBadIndex
+    ///       @returns
+    ///         - ::kOfxStatOK
+    ///         - ::kOfxStatErrBadHandle
+    ///         - ::kOfxStatErrUnknown
+    ///         - ::kOfxStatErrBadIndex
     /// ```
     pub propGetDouble: ::std::option::Option<
         unsafe extern "C" fn(
@@ -261,16 +263,16 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Get a single value of an int property
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property
-    /// \arg \c index refers to the index of a multi-dimensional property
-    /// \arg \c value pointer the return location
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property
+    ///       \arg \c index refers to the index of a multi-dimensional property
+    ///       \arg \c value pointer the return location
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
-    /// - ::kOfxStatErrBadIndex
+    ///       @returns
+    ///         - ::kOfxStatOK
+    ///         - ::kOfxStatErrBadHandle
+    ///         - ::kOfxStatErrUnknown
+    ///         - ::kOfxStatErrBadIndex
     /// ```
     pub propGetInt: ::std::option::Option<
         unsafe extern "C" fn(
@@ -283,16 +285,16 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Get multiple values of a pointer property
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property
-    /// \arg \c count number of values we are getting of that property (ie: indices 0..count-1)
-    /// \arg \c value pointer to an array of where we will return the property values
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property
+    ///       \arg \c count number of values we are getting of that property (ie: indices 0..count-1)
+    ///       \arg \c value pointer to an array of where we will return the property values
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
-    /// - ::kOfxStatErrBadIndex
+    ///       @returns
+    ///         - ::kOfxStatOK
+    ///         - ::kOfxStatErrBadHandle
+    ///         - ::kOfxStatErrUnknown
+    ///         - ::kOfxStatErrBadIndex
     /// ```
     pub propGetPointerN: ::std::option::Option<
         unsafe extern "C" fn(
@@ -305,18 +307,18 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Get multiple values of a string property
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property
-    /// \arg \c count number of values we are getting of that property (ie: indices 0..count-1)
-    /// \arg \c value pointer to an array of where we will return the property values
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property
+    ///       \arg \c count number of values we are getting of that property (ie: indices 0..count-1)
+    ///       \arg \c value pointer to an array of where we will return the property values
     ///
-    /// See the note \ref ArchitectureStrings for how to deal with strings.
+    ///       See the note \ref ArchitectureStrings for how to deal with strings.
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
-    /// - ::kOfxStatErrBadIndex
+    ///       @returns
+    ///         - ::kOfxStatOK
+    ///         - ::kOfxStatErrBadHandle
+    ///         - ::kOfxStatErrUnknown
+    ///         - ::kOfxStatErrBadIndex
     /// ```
     pub propGetStringN: ::std::option::Option<
         unsafe extern "C" fn(
@@ -329,16 +331,16 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Get multiple values of a double property
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property
-    /// \arg \c count number of values we are getting of that property (ie: indices 0..count-1)
-    /// \arg \c value pointer to an array of where we will return the property values
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property
+    ///       \arg \c count number of values we are getting of that property (ie: indices 0..count-1)
+    ///       \arg \c value pointer to an array of where we will return the property values
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
-    /// - ::kOfxStatErrBadIndex
+    ///       @returns
+    ///         - ::kOfxStatOK
+    ///         - ::kOfxStatErrBadHandle
+    ///         - ::kOfxStatErrUnknown
+    ///         - ::kOfxStatErrBadIndex
     /// ```
     pub propGetDoubleN: ::std::option::Option<
         unsafe extern "C" fn(
@@ -351,16 +353,16 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Get multiple values of an int property
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property
-    /// \arg \c count number of values we are getting of that property (ie: indices 0..count-1)
-    /// \arg \c value pointer to an array of where we will return the property values
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property
+    ///       \arg \c count number of values we are getting of that property (ie: indices 0..count-1)
+    ///       \arg \c value pointer to an array of where we will return the property values
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
-    /// - ::kOfxStatErrBadIndex
+    ///       @returns
+    ///         - ::kOfxStatOK
+    ///         - ::kOfxStatErrBadHandle
+    ///         - ::kOfxStatErrUnknown
+    ///         - ::kOfxStatErrBadIndex
     /// ```
     pub propGetIntN: ::std::option::Option<
         unsafe extern "C" fn(
@@ -373,13 +375,13 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Resets all dimensions of a property to its default value
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property we are resetting
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property we are resetting
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
+    ///       @returns
+    ///         - ::kOfxStatOK
+    ///         - ::kOfxStatErrBadHandle
+    ///         - ::kOfxStatErrUnknown
     /// ```
     pub propReset: ::std::option::Option<
         unsafe extern "C" fn(
@@ -390,14 +392,14 @@ pub struct OfxPropertySuiteV1 {
     /// ```doxygen
     /// @brief Gets the dimension of the property
     ///
-    /// \arg \c properties handle of the thing holding the property
-    /// \arg \c property string labelling the property we are resetting
-    /// \arg \c count pointer to an integer where the value is returned
+    ///       \arg \c properties handle of the thing holding the property
+    ///       \arg \c property string labelling the property we are resetting
+    ///       \arg \c count pointer to an integer where the value is returned
     ///
-    /// @returns
-    /// - ::kOfxStatOK
-    /// - ::kOfxStatErrBadHandle
-    /// - ::kOfxStatErrUnknown
+    ///     @returns
+    ///       - ::kOfxStatOK
+    ///       - ::kOfxStatErrBadHandle
+    ///       - ::kOfxStatErrUnknown
     /// ```
     pub propGetDimension: ::std::option::Option<
         unsafe extern "C" fn(

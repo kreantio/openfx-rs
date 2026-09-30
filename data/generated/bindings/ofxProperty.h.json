@@ -261,7 +261,7 @@
                   {
                     "name": "value",
                     "type": {
-                      "$type": "Ptr",
+                      "$type": "ConstPtr",
                       "pointee": {
                         "$type": "Ptr",
                         "pointee": {
@@ -314,7 +314,7 @@
                   {
                     "name": "value",
                     "type": {
-                      "$type": "Ptr",
+                      "$type": "ConstPtr",
                       "pointee": {
                         "$type": "ConstPtr",
                         "pointee": {

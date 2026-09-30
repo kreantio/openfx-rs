@@ -31,6 +31,22 @@ pub enum RootItemWithCommentAbove {
     },
 }
 
+impl RootItemWithCommentAbove {
+    pub fn name(&self) -> Option<&str> {
+        match self {
+            RootItemWithCommentAbove::Item { item, .. } => Some(item.name()),
+            RootItemWithCommentAbove::StandaloneComment { .. } => None,
+        }
+    }
+
+    pub fn is_typedef(&self) -> bool {
+        match self {
+            RootItemWithCommentAbove::Item { item, .. } => item.is_typedef(),
+            RootItemWithCommentAbove::StandaloneComment { .. } => false,
+        }
+    }
+}
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
 #[serde(tag = "$type")]
 pub enum RootItem {
@@ -114,6 +130,17 @@ impl RootItem {
             }
         }
     }
+
+    pub fn is_typedef(&self) -> bool {
+        match self {
+            RootItem::Define { .. } => false,
+            RootItem::TypedefPrimitive { .. }
+            | RootItem::TypedefOpaquePointer { .. }
+            | RootItem::TypedefFunction { .. }
+            | RootItem::TypedefStruct { .. }
+            | RootItem::TypedefEnum { .. } => true,
+        }
+    }
 }
 
 /// The value of a `#define` directive that appears in the C headers of the
@@ -125,16 +152,22 @@ impl RootItem {
 pub enum DefineValue {
     /// String literal inside the quotes. Its contents are guaranteed to be
     /// unescaped by panicking if the string contains `\` characters.
-    StringLiteral { value: String },
+    StringLiteral {
+        value: String,
+    },
     /// Integer literal.
     ///
     /// Currently, in the source code:
     /// - values can have the `0x` & `0X` prefix (but not the `0` prefix);
     /// - values are always not negative;
     /// - values can always be held by a `u32`.
-    IntegerLiteral { value: u32 },
+    IntegerLiteral {
+        value: u32,
+    },
     /// `"false"` or `"true"`.
-    BooleanLiteral { value: bool },
+    BooleanLiteral {
+        value: bool,
+    },
     /// Things like `#define kOfxStatFailed  ((int)1)` and
     /// `#define kOfxStatGPUOutOfMemory  ((int) 1001)`
     ///
@@ -147,7 +180,31 @@ pub enum DefineValue {
         value: u32,
     },
     /// e.g., `#define kOfxActionDescribeInteract kOfxActionDescribe`.
-    Identifier { value: String },
+    Identifier {
+        value: String,
+    },
+    WellKnownIdentifier {
+        value: WellKnownIdentifier,
+    },
+}
+
+#[expect(non_camel_case_types)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize, schemars::JsonSchema,
+)]
+pub enum WellKnownIdentifier {
+    INT_MAX,
+    INT_MIN,
+}
+
+impl WellKnownIdentifier {
+    pub fn try_from(value: &str) -> Option<Self> {
+        match value {
+            "INT_MAX" => Some(Self::INT_MAX),
+            "INT_MIN" => Some(Self::INT_MIN),
+            _ => None,
+        }
+    }
 }
 
 impl DefineValue {
@@ -189,6 +246,13 @@ impl TypeStraightforward {
             TypeStraightforward::Ptr { pointee } => pointee.referred_identifier(),
             TypeStraightforward::ConstPtr { pointee } => pointee.referred_identifier(),
             _ => None,
+        }
+    }
+
+    pub fn is_void(&self) -> bool {
+        match self {
+            TypeStraightforward::CPrimitive { is } => is.as_str() == "void",
+            _ => false,
         }
     }
 }

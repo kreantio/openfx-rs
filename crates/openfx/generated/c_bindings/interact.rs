@@ -1,4 +1,9 @@
-use super::core::{OfxPropertySetHandle, OfxStatus};
+// Copyright OpenFX and contributors to the OpenFX project.
+// SPDX-License-Identifier: BSD-3-Clause
+use super::core::{
+    OfxPropertySetHandle, OfxStatus, kOfxActionCreateInstance, kOfxActionDescribe,
+    kOfxActionDestroyInstance,
+};
 pub const kOfxInteractSuite: &::std::ffi::CStr = c"OfxInteractSuite";
 /// ```doxygen
 /// @brief The set of parameters on which a value change will trigger a redraw for an interact.
@@ -123,7 +128,7 @@ pub const kOfxInteractPropHasAlpha: &::std::ffi::CStr = c"OfxInteractPropHasAlph
 ///      -  \ref kOfxStatFailed something was wrong, the host should ignore the interact
 ///      -  \ref kOfxStatErrFatal
 /// ```
-pub const kOfxActionDescribeInteract: &::std::ffi::CStr = c"OfxActionDescribe";
+pub const kOfxActionDescribeInteract: &::std::ffi::CStr = kOfxActionDescribe;
 /// ```doxygen
 /// @brief
 ///
@@ -149,7 +154,7 @@ pub const kOfxActionDescribeInteract: &::std::ffi::CStr = c"OfxActionDescribe";
 ///      -  \ref kOfxStatErrMemory in which case this may be called again after a memory purge
 ///      -  \ref kOfxStatFailed in which case the host should ignore this interact
 /// ```
-pub const kOfxActionCreateInstanceInteract: &::std::ffi::CStr = c"OfxActionCreateInstance";
+pub const kOfxActionCreateInstanceInteract: &::std::ffi::CStr = kOfxActionCreateInstance;
 /// ```doxygen
 /// @brief
 ///
@@ -178,7 +183,7 @@ pub const kOfxActionCreateInstanceInteract: &::std::ffi::CStr = c"OfxActionCreat
 ///      - \ref kOfxStatErrFatal
 ///      - \ref kOfxStatFailed something went wrong, but no error code appropriate.
 /// ```
-pub const kOfxActionDestroyInstanceInteract: &::std::ffi::CStr = c"OfxActionDestroyInstance";
+pub const kOfxActionDestroyInstanceInteract: &::std::ffi::CStr = kOfxActionDestroyInstance;
 /// ```doxygen
 /// @brief
 ///

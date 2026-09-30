@@ -1,3 +1,5 @@
+// Copyright OpenFX and contributors to the OpenFX project.
+// SPDX-License-Identifier: BSD-3-Clause
 use super::core::{OfxStatus, OfxTime};
 use super::param::OfxParamHandle;
 /// ```doxygen
@@ -105,16 +107,16 @@ pub struct OfxParametricParameterSuiteV1 {
     /// ```doxygen
     /// @brief Evaluates a parametric parameter
     ///
-    /// \arg \c param                 handle to the parametric parameter
-    /// \arg \c curveIndex            which dimension to evaluate
-    /// \arg \c time                  the time to evaluate to the parametric param at
-    /// \arg \c parametricPosition    the position to evaluate the parametric param at
-    /// \arg \c returnValue           pointer to a double where a value is returned
+    ///       \arg \c param                 handle to the parametric parameter
+    ///       \arg \c curveIndex            which dimension to evaluate
+    ///       \arg \c time                  the time to evaluate to the parametric param at
+    ///       \arg \c parametricPosition    the position to evaluate the parametric param at
+    ///       \arg \c returnValue           pointer to a double where a value is returned
     ///
-    /// @returns
-    /// - ::kOfxStatOK            - all was fine
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
-    /// - ::kOfxStatErrBadIndex   - the curve index was invalid
+    ///       @returns
+    ///         - ::kOfxStatOK            - all was fine
+    ///         - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///         - ::kOfxStatErrBadIndex   - the curve index was invalid
     /// ```
     pub parametricParamGetValue: ::std::option::Option<
         unsafe extern "C" fn(
@@ -128,15 +130,15 @@ pub struct OfxParametricParameterSuiteV1 {
     /// ```doxygen
     /// @brief Returns the number of control points in the parametric param.
     ///
-    /// \arg \c param                 handle to the parametric parameter
-    /// \arg \c curveIndex            which dimension to check
-    /// \arg \c time                  the time to check
-    /// \arg \c returnValue           pointer to an integer where the value is returned.
+    ///       \arg \c param                 handle to the parametric parameter
+    ///       \arg \c curveIndex            which dimension to check
+    ///       \arg \c time                  the time to check
+    ///       \arg \c returnValue           pointer to an integer where the value is returned.
     ///
-    /// @returns
-    /// - ::kOfxStatOK            - all was fine
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
-    /// - ::kOfxStatErrBadIndex   - the curve index was invalid
+    ///       @returns
+    ///         - ::kOfxStatOK            - all was fine
+    ///         - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///         - ::kOfxStatErrBadIndex   - the curve index was invalid
     /// ```
     pub parametricParamGetNControlPoints: ::std::option::Option<
         unsafe extern "C" fn(
@@ -149,17 +151,17 @@ pub struct OfxParametricParameterSuiteV1 {
     /// ```doxygen
     /// @brief Returns the key/value pair of the nth control point.
     ///
-    /// \arg \c param                 handle to the parametric parameter
-    /// \arg \c curveIndex            which dimension to check
-    /// \arg \c time                  the time to check
-    /// \arg \c nthCtl                the nth control point to get the value of
-    /// \arg \c key                   pointer to a double where the key will be returned
-    /// \arg \c value                 pointer to a double where the value will be returned
+    ///       \arg \c param                 handle to the parametric parameter
+    ///       \arg \c curveIndex            which dimension to check
+    ///       \arg \c time                  the time to check
+    ///       \arg \c nthCtl                the nth control point to get the value of
+    ///       \arg \c key                   pointer to a double where the key will be returned
+    ///       \arg \c value                 pointer to a double where the value will be returned
     ///
-    /// @returns
-    /// - ::kOfxStatOK            - all was fine
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
-    /// - ::kOfxStatErrUnknown    - if the type is unknown
+    ///       @returns
+    ///         - ::kOfxStatOK            - all was fine
+    ///         - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///         - ::kOfxStatErrUnknown    - if the type is unknown
     /// ```
     pub parametricParamGetNthControlPoint: ::std::option::Option<
         unsafe extern "C" fn(
@@ -174,25 +176,25 @@ pub struct OfxParametricParameterSuiteV1 {
     /// ```doxygen
     /// @brief Modifies an existing control point on a curve
     ///
-    /// \arg \c param                 handle to the parametric parameter
-    /// \arg \c curveIndex            which dimension to set
-    /// \arg \c time                  the time to set the value at
-    /// \arg \c nthCtl                the control point to modify
-    /// \arg \c key                   key of the control point
-    /// \arg \c value                 value of the control point
-    /// \arg \c addAnimationKey       if the param is an animatable, setting this to true will
-    /// force an animation keyframe to be set as well as a curve key,
-    /// otherwise if false, a key will only be added if the curve is already
-    /// animating.
+    ///       \arg \c param                 handle to the parametric parameter
+    ///       \arg \c curveIndex            which dimension to set
+    ///       \arg \c time                  the time to set the value at
+    ///       \arg \c nthCtl                the control point to modify
+    ///       \arg \c key                   key of the control point
+    ///       \arg \c value                 value of the control point
+    ///       \arg \c addAnimationKey       if the param is an animatable, setting this to true will
+    ///                                  force an animation keyframe to be set as well as a curve key,
+    ///                                  otherwise if false, a key will only be added if the curve is already
+    ///                                  animating.
     ///
-    /// @returns
-    /// - ::kOfxStatOK            - all was fine
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
-    /// - ::kOfxStatErrUnknown    - if the type is unknown
+    ///       @returns
+    ///         - ::kOfxStatOK            - all was fine
+    ///         - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///         - ::kOfxStatErrUnknown    - if the type is unknown
     ///
-    /// This modifies an existing control point. Note that by changing key, the order of the
-    /// control point may be modified (as you may move it before or after anther point). So be
-    /// careful when iterating over a curves control points and you change a key.
+    ///       This modifies an existing control point. Note that by changing key, the order of the
+    ///       control point may be modified (as you may move it before or after anther point). So be
+    ///       careful when iterating over a curves control points and you change a key.
     /// ```
     pub parametricParamSetNthControlPoint: ::std::option::Option<
         unsafe extern "C" fn(
@@ -208,23 +210,23 @@ pub struct OfxParametricParameterSuiteV1 {
     /// ```doxygen
     /// @brief Adds a control point to the curve.
     ///
-    /// \arg \c param                 handle to the parametric parameter
-    /// \arg \c curveIndex            which dimension to set
-    /// \arg \c time                  the time to set the value at
-    /// \arg \c key                   key of the control point
-    /// \arg \c value                 value of the control point
-    /// \arg \c addAnimationKey       if the param is an animatable, setting this to true will
-    /// force an animation keyframe to be set as well as a curve key,
-    /// otherwise if false, a key will only be added if the curve is already
-    /// animating.
+    ///       \arg \c param                 handle to the parametric parameter
+    ///       \arg \c curveIndex            which dimension to set
+    ///       \arg \c time                  the time to set the value at
+    ///       \arg \c key                   key of the control point
+    ///       \arg \c value                 value of the control point
+    ///       \arg \c addAnimationKey       if the param is an animatable, setting this to true will
+    ///                                  force an animation keyframe to be set as well as a curve key,
+    ///                                  otherwise if false, a key will only be added if the curve is already
+    ///                                  animating.
     ///
-    /// @returns
-    /// - ::kOfxStatOK            - all was fine
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
-    /// - ::kOfxStatErrUnknown    - if the type is unknown
+    ///       @returns
+    ///         - ::kOfxStatOK            - all was fine
+    ///         - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///         - ::kOfxStatErrUnknown    - if the type is unknown
     ///
-    /// This will add a new control point to the given dimension of a parametric parameter. If a key exists
-    /// sufficiently close to 'key', then it will be set to the indicated control point.
+    ///       This will add a new control point to the given dimension of a parametric parameter. If a key exists
+    ///       sufficiently close to 'key', then it will be set to the indicated control point.
     /// ```
     pub parametricParamAddControlPoint: ::std::option::Option<
         unsafe extern "C" fn(
@@ -239,9 +241,9 @@ pub struct OfxParametricParameterSuiteV1 {
     /// ```doxygen
     /// @brief Deletes the nth control point from a parametric param.
     ///
-    /// \arg \c param                 handle to the parametric parameter
-    /// \arg \c curveIndex            which dimension to delete
-    /// \arg \c nthCtl                the control point to delete
+    ///       \arg \c param                 handle to the parametric parameter
+    ///       \arg \c curveIndex            which dimension to delete
+    ///       \arg \c nthCtl                the control point to delete
     /// ```
     pub parametricParamDeleteControlPoint: ::std::option::Option<
         unsafe extern "C" fn(
@@ -253,8 +255,8 @@ pub struct OfxParametricParameterSuiteV1 {
     /// ```doxygen
     /// @brief Delete all curve control points on the given param.
     ///
-    /// \arg \c param                 handle to the parametric parameter
-    /// \arg \c curveIndex            which dimension to clear
+    ///       \arg \c param                 handle to the parametric parameter
+    ///       \arg \c curveIndex            which dimension to clear
     /// ```
     pub parametricParamDeleteAllControlPoints: ::std::option::Option<
         unsafe extern "C" fn(

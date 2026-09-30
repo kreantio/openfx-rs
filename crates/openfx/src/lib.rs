@@ -29,14 +29,6 @@ pub(crate) mod sys_umbrella {
     pub use crate::sys::image_effect_v1::time_line::*;
 }
 
-mod sys_checks {
-    use crate::sys_umbrella::*;
-    include!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/generated/c_bindings/_checks.rs",
-    ));
-}
-
 #[allow(unused_imports)]
 pub(crate) mod sys_helpers_properties_umbrella {
     pub use crate::sys_helpers::generic::properties::*;
