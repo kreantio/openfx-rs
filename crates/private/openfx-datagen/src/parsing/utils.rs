@@ -59,7 +59,7 @@ fn parse_c_integer_literal_expecting_u32(s: &str) -> Result<u32, ()> {
     if s.starts_with("-") {
         return Err(());
     }
-    if let Some(s) = s.strip_prefix("0x") {
+    if let Some(s) = s.to_lowercase().strip_prefix("0x") {
         u32::from_str_radix(s, 16).map_err(|_| ())
     } else if s.starts_with("0") && s.len() > 1 {
         Err(())

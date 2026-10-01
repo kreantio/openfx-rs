@@ -5,6 +5,7 @@ use crate::parsing::{BindingsUnprocessed, RootItemWithCommentAbove};
 #[derive(Debug, snafu::Snafu)]
 pub enum Error {
     CircularInclusion,
+    MissingInclusion { file_names: HashSet<String> },
     ProcessingErrors { errors: Vec<ProcessingError> },
 }
 
@@ -132,6 +133,22 @@ pub fn process(
 fn topological_sort(
     input: BTreeMap<String, BindingsUnprocessed>,
 ) -> Result<Vec<(String, BindingsUnprocessed)>, Error> {
+    let all_file_names: HashSet<_> = input.keys().cloned().collect();
+    let all_referred_file_names: HashSet<_> = input
+        .values()
+        .flat_map(|bindings| &bindings.info.includes)
+        .cloned()
+        .collect();
+    let missing_file_names: HashSet<_> = all_referred_file_names
+        .difference(&all_file_names)
+        .cloned()
+        .collect();
+    if !missing_file_names.is_empty() {
+        return Err(Error::MissingInclusion {
+            file_names: missing_file_names,
+        });
+    }
+
     let mut unordered: Vec<(String, BindingsUnprocessed)> = input.into_iter().collect();
     // Keep `ofxCore.h` at the beginning, since some files (currently
     // `ofxMemory.h`, `ofxProgress.h`, and `ofxTimeLine.h`) rely on `OfxStatus`
