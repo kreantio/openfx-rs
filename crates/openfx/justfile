@@ -1,7 +1,7 @@
 set fallback := true
 
 vendor-c-path := "../../vendor/openfx/include"
-data-path := "../../data"
+data-path := "../../vendor/openfx-data/data"
 generated-path := "generated"
 generated-c-bindings-path := "generated/c_bindings"
 generated-intermediate-path := "generated-intermediate"

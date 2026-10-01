@@ -1,26 +1,22 @@
-use clap::Parser;
+// use clap::Parser;
 
-mod cmd_jsonschema;
+// #[derive(clap::Parser)]
+// struct Cli {
+//     #[clap(subcommand)]
+//     command: Commands,
+// }
 
-#[derive(clap::Parser)]
-struct Cli {
-    #[clap(subcommand)]
-    command: Commands,
-}
+// #[derive(clap::Subcommand)]
+// enum Commands {}
 
-#[derive(clap::Subcommand)]
-enum Commands {
-    Jsonschema(cmd_jsonschema::Jsonschema),
-}
+// fn main() -> Result<(), Box<dyn std::error::Error>> {
+//     tracing_subscriber::fmt::init();
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing_subscriber::fmt::init();
+//     let cli = Cli::parse();
 
-    let cli = Cli::parse();
+//     match cli.command {}
 
-    match cli.command {
-        Commands::Jsonschema(jsonschema) => cmd_jsonschema::run(jsonschema)?,
-    }
+//     Ok(())
+// }
 
-    Ok(())
-}
+fn main() {}

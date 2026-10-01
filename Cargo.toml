@@ -5,7 +5,6 @@ members = [
   "crates/openfx",
   "crates/openfx-internal-macros",
   "crates/private/openfx-codegen",
-  "crates/private/openfx-datagen",
   "examples/ofx-guide-example-plugins-layer-sys",
   "examples/ofx-guide-example-plugins-layer-low",
 ]
@@ -20,7 +19,7 @@ repository = "https://github.com/kreantio/openfx-rs"
 [workspace.dependencies]
 openfx = { path = "crates/openfx", version = "0.5.1" }
 openfx-codegen = { path = "crates/private/openfx-codegen", version = "0.5.1" }
-openfx-datagen = { path = "crates/private/openfx-datagen", version = "0.5.1" }
+openfx-datagen = { path = "vendor/openfx-data/openfx-datagen/crates/openfx-datagen", version = "0.6.0" }
 openfx-internal-macros = { path = "crates/openfx-internal-macros", version = "0.5.1" }
 
 clap = "4.6.6"
