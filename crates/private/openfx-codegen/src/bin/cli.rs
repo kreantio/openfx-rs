@@ -22,9 +22,8 @@ pub fn main() {
 
     let codegen_config_str =
         std::fs::read_to_string(&args.codegen_config).expect("Failed to read codegen config file");
-    let codegen_config: openfx_codegen::CodegenConfig =
-        openfx_codegen::CodegenConfig::from_toml_str(&codegen_config_str)
-            .expect("Failed to parse codegen config file");
+    let codegen_config = openfx_codegen::config::CodegenConfig::from_toml_str(&codegen_config_str)
+        .expect("Failed to parse codegen config file");
 
     let input_data = openfx_codegen::input_data::load_input_data(args.input_data)
         .expect("Failed to load input data");
