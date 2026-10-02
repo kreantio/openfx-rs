@@ -25,7 +25,11 @@ pub fn impl_suite(_attr: TokenStream, item: TokenStream) -> TokenStream {
         if rewriter.called_times != 1 {
             errors.push(syn::Error::new_spanned(
                 &item.sig.ident,
-                format!("Expected sys_fn!() to be called exactly once in {}, but it was called {} times.", item.sig.ident, rewriter.called_times),
+                format!(
+                    "Expected sys_fn!() to be called exactly once in {}, but it was called {} \
+                     times.",
+                    item.sig.ident, rewriter.called_times
+                ),
             ));
         }
         errors.extend(rewriter.errors);
