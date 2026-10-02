@@ -1,3 +1,5 @@
+// Copyright OpenFX and contributors to the OpenFX project.
+// SPDX-License-Identifier: BSD-3-Clause
 use super::core::{OfxPropertySetHandle, OfxRangeD, OfxStatus, OfxTime};
 /// ```doxygen
 /// @brief string value to the ::kOfxPropType property for all parameters
@@ -940,16 +942,16 @@ pub struct OfxBytes {
 /// ```doxygen
 /// @brief Function prototype for custom parameter interpolation callback functions
 ///
-/// \arg \c instance    the plugin instance that this parameter occurs in
-/// \arg \c inArgs      handle holding the following properties...
-/// - kOfxPropName - the name of the custom parameter to interpolate
-/// - kOfxPropTime - absolute time the interpolation is occurring at
-/// - kOfxParamPropCustomValue - string property that gives the value of the two keyframes to interpolate, in this case 2D
-/// - kOfxParamPropInterpolationTime - 2D double property that gives the time of the two keyframes we are interpolating
-/// - kOfxParamPropInterpolationAmount - 1D double property indicating how much to interpolate between the two keyframes
+///   \arg \c instance    the plugin instance that this parameter occurs in
+///   \arg \c inArgs      handle holding the following properties...
+///     - kOfxPropName - the name of the custom parameter to interpolate
+///     - kOfxPropTime - absolute time the interpolation is occurring at
+///     - kOfxParamPropCustomValue - string property that gives the value of the two keyframes to interpolate, in this case 2D
+///     - kOfxParamPropInterpolationTime - 2D double property that gives the time of the two keyframes we are interpolating
+///     - kOfxParamPropInterpolationAmount - 1D double property indicating how much to interpolate between the two keyframes
 ///
-/// \arg \c outArgs     handle holding the following properties to be set
-/// - kOfxParamPropCustomValue - the value of the interpolated custom parameter, in this case 1D
+///   \arg \c outArgs     handle holding the following properties to be set
+///     - kOfxParamPropCustomValue - the value of the interpolated custom parameter, in this case 1D
 ///
 /// This function allows custom parameters to animate by performing interpolation between keys.
 ///
@@ -959,14 +961,14 @@ pub struct OfxBytes {
 ///
 /// The interp value is a linear interpolation amount, however his may be derived from a cubic (or other) curve.
 ///
-/// @actiondef
-/// inArgs:
-/// - OfxParamPropCustomValue
-/// - OfxParamPropInterpolationTime
-/// - OfxParamPropInterpolationAmount
-/// outArgs:
-/// - OfxParamPropCustomValue
-/// - OfxParamPropInterpolationTime
+///     @actiondef
+///     inArgs:
+///       - OfxParamPropCustomValue
+///       - OfxParamPropInterpolationTime
+///       - OfxParamPropInterpolationAmount
+///     outArgs:
+///       - OfxParamPropCustomValue
+///       - OfxParamPropInterpolationTime
 /// ```
 pub type OfxCustomParamInterpFuncV1 = ::std::option::Option<
     unsafe extern "C" fn(
@@ -984,24 +986,24 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Defines a new parameter of the given type in a describe action
     ///
-    /// \arg \c paramSet    handle to the parameter set descriptor that will hold this parameter
-    /// \arg \c paramType   type of the parameter to create, one of the kOfxParamType* #defines
-    /// \arg \c name        unique name of the parameter
-    /// \arg \c propertySet if not null, a pointer to the parameter descriptor's property set will be placed here.
+    ///   \arg \c paramSet    handle to the parameter set descriptor that will hold this parameter
+    ///   \arg \c paramType   type of the parameter to create, one of the kOfxParamType* #defines
+    ///   \arg \c name        unique name of the parameter
+    ///   \arg \c propertySet if not null, a pointer to the parameter descriptor's property set will be placed here.
     ///
-    /// This function defines a parameter in a parameter set and returns a property set which is used to describe that parameter.
+    ///   This function defines a parameter in a parameter set and returns a property set which is used to describe that parameter.
     ///
-    /// This function does not actually create a parameter, it only says that one should exist in any subsequent instances. To fetch an
-    /// parameter instance paramGetHandle must be called on an instance.
+    ///   This function does not actually create a parameter, it only says that one should exist in any subsequent instances. To fetch an
+    ///   parameter instance paramGetHandle must be called on an instance.
     ///
-    /// This function can always be called in one of a plug-in's "describe" functions which defines the parameter sets common to all instances of a plugin.
+    ///   This function can always be called in one of a plug-in's "describe" functions which defines the parameter sets common to all instances of a plugin.
     ///
     /// @returns
-    /// - ::kOfxStatOK             - the parameter was created correctly
-    /// - ::kOfxStatErrBadHandle   - if the plugin handle was invalid
-    /// - ::kOfxStatErrExists      - if a parameter of that name exists already in this plugin
-    /// - ::kOfxStatErrUnknown     - if the type is unknown
-    /// - ::kOfxStatErrUnsupported - if the type is known but unsupported
+    ///   - ::kOfxStatOK             - the parameter was created correctly
+    ///   - ::kOfxStatErrBadHandle   - if the plugin handle was invalid
+    ///   - ::kOfxStatErrExists      - if a parameter of that name exists already in this plugin
+    ///   - ::kOfxStatErrUnknown     - if the type is unknown
+    ///   - ::kOfxStatErrUnsupported - if the type is known but unsupported
     /// ```
     pub paramDefine: ::std::option::Option<
         unsafe extern "C" fn(
@@ -1014,17 +1016,17 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Retrieves the handle for a parameter in a given parameter set
     ///
-    /// \arg \c paramSet    instance of the plug-in to fetch the property handle from
-    /// \arg \c name        parameter to ask about
-    /// \arg \c param       pointer to a param handle, the value is returned here
-    /// \arg \c propertySet if not null, a pointer to the parameter's property set will be placed here.
+    ///   \arg \c paramSet    instance of the plug-in to fetch the property handle from
+    ///   \arg \c name        parameter to ask about
+    ///   \arg \c param       pointer to a param handle, the value is returned here
+    ///   \arg \c propertySet if not null, a pointer to the parameter's property set will be placed here.
     ///
-    /// Parameter handles retrieved from an instance are always distinct in each instance. The parameter handle is valid for the life-time of the instance. Parameter handles in instances are distinct from parameter handles in plugins. You cannot call this in a plugin's describe function, as it needs an instance to work on.
+    ///   Parameter handles retrieved from an instance are always distinct in each instance. The parameter handle is valid for the life-time of the instance. Parameter handles in instances are distinct from parameter handles in plugins. You cannot call this in a plugin's describe function, as it needs an instance to work on.
     ///
     /// @returns
-    /// - ::kOfxStatOK       - the parameter was found and returned
-    /// - ::kOfxStatErrBadHandle  - if the plugin handle was invalid
-    /// - ::kOfxStatErrUnknown    - if the type is unknown
+    ///   - ::kOfxStatOK       - the parameter was found and returned
+    ///   - ::kOfxStatErrBadHandle  - if the plugin handle was invalid
+    ///   - ::kOfxStatErrUnknown    - if the type is unknown
     /// ```
     pub paramGetHandle: ::std::option::Option<
         unsafe extern "C" fn(
@@ -1037,15 +1039,15 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Retrieves the property set handle for the given parameter set
     ///
-    /// \arg \c paramSet    parameter set to get the property set for
-    /// \arg \c propHandle  pointer to a the property set handle, value is returedn her
+    ///   \arg \c paramSet    parameter set to get the property set for
+    ///   \arg \c propHandle  pointer to a the property set handle, value is returedn her
     ///
-    /// \note The property handle belonging to a parameter set is the same as the property handle belonging to the plugin instance.
+    ///   \note The property handle belonging to a parameter set is the same as the property handle belonging to the plugin instance.
     ///
     /// @returns
-    /// - ::kOfxStatOK       - the property set was found and returned
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
-    /// - ::kOfxStatErrUnknown    - if the type is unknown
+    ///   - ::kOfxStatOK       - the property set was found and returned
+    ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///   - ::kOfxStatErrUnknown    - if the type is unknown
     /// ```
     pub paramSetGetPropertySet: ::std::option::Option<
         unsafe extern "C" fn(
@@ -1056,15 +1058,15 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Retrieves the property set handle for the given parameter
     ///
-    /// \arg \c param       parameter to get the property set for
-    /// \arg \c propHandle  pointer to a the property set handle, value is returedn her
+    ///   \arg \c param       parameter to get the property set for
+    ///   \arg \c propHandle  pointer to a the property set handle, value is returedn her
     ///
-    /// The property handle is valid for the lifetime of the parameter, which is the lifetime of the instance that owns the parameter
+    ///   The property handle is valid for the lifetime of the parameter, which is the lifetime of the instance that owns the parameter
     ///
     /// @returns
-    /// - ::kOfxStatOK       - the property set was found and returned
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
-    /// - ::kOfxStatErrUnknown    - if the type is unknown
+    ///   - ::kOfxStatOK       - the property set was found and returned
+    ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///   - ::kOfxStatErrUnknown    - if the type is unknown
     /// ```
     pub paramGetPropertySet: ::std::option::Option<
         unsafe extern "C" fn(
@@ -1075,28 +1077,28 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Gets the current value of a parameter,
     ///
-    /// \arg \c paramHandle parameter handle to fetch value from
-    /// \arg \c ...         one or more pointers to variables of the relevant type to hold the parameter's value
+    ///   \arg \c paramHandle parameter handle to fetch value from
+    ///   \arg \c ...         one or more pointers to variables of the relevant type to hold the parameter's value
     ///
-    /// This gets the current value of a parameter. The varargs ... argument needs to be pointer to C variables
-    /// of the relevant type for this parameter. Note that params with multiple values (eg Colour) take
-    /// multiple args here. For example...
+    ///   This gets the current value of a parameter. The varargs ... argument needs to be pointer to C variables
+    ///   of the relevant type for this parameter. Note that params with multiple values (eg Colour) take
+    ///   multiple args here. For example...
     ///
-    /// @verbatim
-    /// OfxParamHandle myDoubleParam, *myColourParam;
-    /// ofxHost->paramGetHandle(instance, "myDoubleParam", &myDoubleParam);
-    /// double myDoubleValue;
-    /// ofxHost->paramGetValue(myDoubleParam, &myDoubleValue);
-    /// ofxHost->paramGetHandle(instance, "myColourParam", &myColourParam);
-    /// double myR, myG, myB;
-    /// ofxHost->paramGetValue(myColourParam, &myR, &myG, &myB);
-    /// @endverbatim
+    ///   @verbatim
+    ///   OfxParamHandle myDoubleParam, *myColourParam;
+    ///   ofxHost->paramGetHandle(instance, "myDoubleParam", &myDoubleParam);
+    ///   double myDoubleValue;
+    ///   ofxHost->paramGetValue(myDoubleParam, &myDoubleValue);
+    ///   ofxHost->paramGetHandle(instance, "myColourParam", &myColourParam);
+    ///   double myR, myG, myB;
+    ///   ofxHost->paramGetValue(myColourParam, &myR, &myG, &myB);
+    ///   @endverbatim
     ///
-    /// \note \c paramGetValue should only be called from within a ::kOfxActionInstanceChanged or interact action and never from the render actions (which should always use paramGetValueAtTime).
+    ///   \note \c paramGetValue should only be called from within a ::kOfxActionInstanceChanged or interact action and never from the render actions (which should always use paramGetValueAtTime).
     ///
     /// @returns
-    /// - ::kOfxStatOK       - all was OK
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///   - ::kOfxStatOK       - all was OK
+    ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
     /// ```
     pub paramGetValue: ::std::option::Option<
         unsafe extern "C" fn(paramHandle: OfxParamHandle, ...) -> OfxStatus,
@@ -1104,17 +1106,17 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Gets the value of a parameter at a specific time.
     ///
-    /// \arg \c paramHandle parameter handle to fetch value from
-    /// \arg \c time        at what point in time to look up the parameter
-    /// \arg \c ...         one or more pointers to variables of the relevant type to hold the parameter's value
+    ///   \arg \c paramHandle parameter handle to fetch value from
+    ///   \arg \c time        at what point in time to look up the parameter
+    ///   \arg \c ...         one or more pointers to variables of the relevant type to hold the parameter's value
     ///
-    /// This gets the current value of a parameter. The varargs needs to be pointer to C variables
-    /// of the relevant type for this parameter. See OfxParameterSuiteV1::paramGetValue for notes on
-    /// the varags list
+    ///   This gets the current value of a parameter. The varargs needs to be pointer to C variables
+    ///   of the relevant type for this parameter. See OfxParameterSuiteV1::paramGetValue for notes on
+    ///   the varags list
     ///
     /// @returns
-    /// - ::kOfxStatOK       - all was OK
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///   - ::kOfxStatOK       - all was OK
+    ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
     /// ```
     pub paramGetValueAtTime: ::std::option::Option<
         unsafe extern "C" fn(
@@ -1126,21 +1128,21 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Gets the derivative of a parameter at a specific time.
     ///
-    /// \arg \c paramHandle parameter handle to fetch value from
-    /// \arg \c time        at what point in time to look up the parameter
-    /// \arg \c ...         one or more pointers to variables of the relevant type to hold the parameter's derivative
+    ///   \arg \c paramHandle parameter handle to fetch value from
+    ///   \arg \c time        at what point in time to look up the parameter
+    ///   \arg \c ...         one or more pointers to variables of the relevant type to hold the parameter's derivative
     ///
-    /// This gets the derivative of the parameter at the indicated time.
+    ///   This gets the derivative of the parameter at the indicated time.
     ///
-    /// The varargs needs to be pointer to C variables
-    /// of the relevant type for this parameter. See OfxParameterSuiteV1::paramGetValue for notes on
-    /// the varags list.
+    ///   The varargs needs to be pointer to C variables
+    ///   of the relevant type for this parameter. See OfxParameterSuiteV1::paramGetValue for notes on
+    ///   the varags list.
     ///
-    /// Only double and colour params can have their derivatives found.
+    ///   Only double and colour params can have their derivatives found.
     ///
     /// @returns
-    /// - ::kOfxStatOK       - all was OK
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///   - ::kOfxStatOK       - all was OK
+    ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
     /// ```
     pub paramGetDerivative: ::std::option::Option<
         unsafe extern "C" fn(
@@ -1152,22 +1154,22 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Gets the integral of a parameter over a specific time range,
     ///
-    /// \arg \c paramHandle parameter handle to fetch integral from
-    /// \arg \c time1       where to start evaluating the integral
-    /// \arg \c time2       where to stop evaluating the integral
-    /// \arg \c ...         one or more pointers to variables of the relevant type to hold the parameter's integral
+    ///   \arg \c paramHandle parameter handle to fetch integral from
+    ///   \arg \c time1       where to start evaluating the integral
+    ///   \arg \c time2       where to stop evaluating the integral
+    ///   \arg \c ...         one or more pointers to variables of the relevant type to hold the parameter's integral
     ///
-    /// This gets the integral of the parameter over the specified time range.
+    ///   This gets the integral of the parameter over the specified time range.
     ///
-    /// The varargs needs to be pointer to C variables
-    /// of the relevant type for this parameter. See OfxParameterSuiteV1::paramGetValue for notes on
-    /// the varags list.
+    ///   The varargs needs to be pointer to C variables
+    ///   of the relevant type for this parameter. See OfxParameterSuiteV1::paramGetValue for notes on
+    ///   the varags list.
     ///
-    /// Only double and colour params can be integrated.
+    ///   Only double and colour params can be integrated.
     ///
     /// @returns
-    /// - ::kOfxStatOK       - all was OK
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///   - ::kOfxStatOK       - all was OK
+    ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
     /// ```
     pub paramGetIntegral: ::std::option::Option<
         unsafe extern "C" fn(
@@ -1180,22 +1182,22 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Sets the current value of a parameter
     ///
-    /// \arg \c paramHandle parameter handle to set value in
-    /// \arg \c ...         one or more variables of the relevant type to hold the parameter's value
+    ///   \arg \c paramHandle parameter handle to set value in
+    ///   \arg \c ...         one or more variables of the relevant type to hold the parameter's value
     ///
-    /// This sets the current value of a parameter. The varargs ... argument needs to be values
-    /// of the relevant type for this parameter. Note that params with multiple values (eg Colour) take
-    /// multiple args here. For example...
-    /// @verbatim
-    /// ofxHost->paramSetValue(instance, "myDoubleParam", double(10));
-    /// ofxHost->paramSetValue(instance, "myColourParam", double(pix.r), double(pix.g), double(pix.b));
-    /// @endverbatim
+    ///   This sets the current value of a parameter. The varargs ... argument needs to be values
+    ///   of the relevant type for this parameter. Note that params with multiple values (eg Colour) take
+    ///   multiple args here. For example...
+    ///   @verbatim
+    ///   ofxHost->paramSetValue(instance, "myDoubleParam", double(10));
+    ///   ofxHost->paramSetValue(instance, "myColourParam", double(pix.r), double(pix.g), double(pix.b));
+    ///   @endverbatim
     ///
-    /// \note \c paramSetValue should only be called from within a ::kOfxActionInstanceChanged or interact action.
+    ///   \note \c paramSetValue should only be called from within a ::kOfxActionInstanceChanged or interact action.
     ///
     /// @returns
-    /// - ::kOfxStatOK       - all was OK
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///   - ::kOfxStatOK       - all was OK
+    ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
     /// ```
     pub paramSetValue: ::std::option::Option<
         unsafe extern "C" fn(paramHandle: OfxParamHandle, ...) -> OfxStatus,
@@ -1203,21 +1205,26 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Keyframes the value of a parameter at a specific time.
     ///
-    /// \arg \c paramHandle parameter handle to set value in
-    /// \arg \c time        at what point in time to set the keyframe
-    /// \arg \c ...         one or more variables of the relevant type to hold the parameter's value
+    ///   \arg \c paramHandle parameter handle to set value in
+    ///   \arg \c time        at what point in time to set the keyframe
+    ///   \arg \c ...         one or more variables of the relevant type to hold the parameter's value
     ///
-    /// This sets a keyframe in the parameter at the indicated time to have the indicated value.
-    /// The varargs ... argument needs to be values of the relevant type for this parameter. See the note on
-    /// OfxParameterSuiteV1::paramSetValue for more detail
+    ///   This sets a keyframe in the parameter at the indicated time to have the indicated value.
+    ///   The varargs ... argument needs to be values of the relevant type for this parameter. See the note on
+    ///   OfxParameterSuiteV1::paramSetValue for more detail
     ///
-    /// \note \c paramSetValueAtTime should only be called from within a ::kOfxActionInstanceChanged or interact action.
+    ///   \note \c paramSetValueAtTime should only be called from within a ::kOfxActionInstanceChanged or interact action.
     ///
-    /// V1.3: This function can be called the ::kOfxActionInstanceChanged action and during image effect analysis render passes.
-    /// V1.4: This function can be called the ::kOfxActionInstanceChanged action
+    ///   V1.3: This function can be called the ::kOfxActionInstanceChanged action and during image effect analysis render passes.
+    ///   V1.4: This function can be called the ::kOfxActionInstanceChanged action
     /// @returns
-    /// - ::kOfxStatOK       - all was OK
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///   - ::kOfxStatOK       - all was OK
+    ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    /// ```
+    /// ## Parameters
+    /// ### Parameter `time`
+    /// ```doxygen
+    /// time in frames
     /// ```
     pub paramSetValueAtTime: ::std::option::Option<
         unsafe extern "C" fn(
@@ -1229,17 +1236,17 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Returns the number of keyframes in the parameter
     ///
-    /// \arg \c paramHandle parameter handle to interrogate
-    /// \arg \c numberOfKeys pointer to integer where the return value is placed
+    ///   \arg \c paramHandle parameter handle to interrogate
+    ///   \arg \c numberOfKeys pointer to integer where the return value is placed
     ///
-    /// V1.3: This function can be called the ::kOfxActionInstanceChanged action and during image effect analysis render passes.
-    /// V1.4: This function can be called the ::kOfxActionInstanceChanged action
+    ///   V1.3: This function can be called the ::kOfxActionInstanceChanged action and during image effect analysis render passes.
+    ///   V1.4: This function can be called the ::kOfxActionInstanceChanged action
     ///
-    /// Returns the number of keyframes in the parameter.
+    ///   Returns the number of keyframes in the parameter.
     ///
     /// @returns
-    /// - ::kOfxStatOK       - all was OK
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///   - ::kOfxStatOK       - all was OK
+    ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
     /// ```
     pub paramGetNumKeys: ::std::option::Option<
         unsafe extern "C" fn(
@@ -1250,14 +1257,14 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Returns the time of the nth key
     ///
-    /// \arg \c paramHandle parameter handle to interrogate
-    /// \arg \c nthKey      which key to ask about (0 to paramGetNumKeys -1), ordered by time
-    /// \arg \c time	   pointer to OfxTime where the return value is placed
+    ///   \arg \c paramHandle parameter handle to interrogate
+    ///   \arg \c nthKey      which key to ask about (0 to paramGetNumKeys -1), ordered by time
+    ///   \arg \c time	   pointer to OfxTime where the return value is placed
     ///
     /// @returns
-    /// - ::kOfxStatOK       - all was OK
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
-    /// - ::kOfxStatErrBadIndex   - the nthKey does not exist
+    ///   - ::kOfxStatOK       - all was OK
+    ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///   - ::kOfxStatErrBadIndex   - the nthKey does not exist
     /// ```
     pub paramGetKeyTime: ::std::option::Option<
         unsafe extern "C" fn(
@@ -1269,18 +1276,18 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Finds the index of a keyframe at/before/after a specified time.
     ///
-    /// \arg \c paramHandle parameter handle to search
-    /// \arg \c time        what time to search from
-    /// \arg \c direction
-    /// - == 0 indicates search for a key at the indicated time (some small delta)
-    /// - > 0 indicates search for the next key after the indicated time
-    /// - < 0 indicates search for the previous key before the indicated time
-    /// \arg \c index	   pointer to an integer which in which the index is returned set to -1 if no key was found
+    ///   \arg \c paramHandle parameter handle to search
+    ///   \arg \c time        what time to search from
+    ///   \arg \c direction
+    ///     - == 0 indicates search for a key at the indicated time (some small delta)
+    ///     - > 0 indicates search for the next key after the indicated time
+    ///     - < 0 indicates search for the previous key before the indicated time
+    ///   \arg \c index	   pointer to an integer which in which the index is returned set to -1 if no key was found
     ///
     /// @returns
-    /// - ::kOfxStatOK            - all was OK
-    /// - ::kOfxStatFailed        - if the search failed to find a key
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///   - ::kOfxStatOK            - all was OK
+    ///   - ::kOfxStatFailed        - if the search failed to find a key
+    ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
     /// ```
     pub paramGetKeyIndex: ::std::option::Option<
         unsafe extern "C" fn(
@@ -1293,13 +1300,13 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Deletes a keyframe if one exists at the given time.
     ///
-    /// \arg \c paramHandle parameter handle to delete the key from
-    /// \arg \c time        time at which a keyframe is
+    ///   \arg \c paramHandle parameter handle to delete the key from
+    ///   \arg \c time        time at which a keyframe is
     ///
     /// @returns
-    /// - ::kOfxStatOK       - all was OK
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
-    /// - ::kOfxStatErrBadIndex   - no key at the given time
+    ///   - ::kOfxStatOK       - all was OK
+    ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///   - ::kOfxStatErrBadIndex   - no key at the given time
     /// ```
     pub paramDeleteKey: ::std::option::Option<
         unsafe extern "C" fn(paramHandle: OfxParamHandle, time: OfxTime) -> OfxStatus,
@@ -1307,15 +1314,15 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Deletes all keyframes from a parameter.
     ///
-    /// \arg \c paramHandle parameter handle to delete the keys from
-    /// \arg \c name        parameter to delete the keyframes from is
+    ///   \arg \c paramHandle parameter handle to delete the keys from
+    ///   \arg \c name        parameter to delete the keyframes from is
     ///
-    /// V1.3: This function can be called the ::kOfxActionInstanceChanged action and during image effect analysis render passes.
-    /// V1.4: This function can be called the ::kOfxActionInstanceChanged action
+    ///   V1.3: This function can be called the ::kOfxActionInstanceChanged action and during image effect analysis render passes.
+    ///   V1.4: This function can be called the ::kOfxActionInstanceChanged action
     ///
     /// @returns
-    /// - ::kOfxStatOK       - all was OK
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///   - ::kOfxStatOK       - all was OK
+    ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
     /// ```
     pub paramDeleteAllKeys: ::std::option::Option<
         unsafe extern "C" fn(paramHandle: OfxParamHandle) -> OfxStatus,
@@ -1323,24 +1330,24 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Copies one parameter to another, including any animation etc...
     ///
-    /// \arg \c paramTo     parameter to set
-    /// \arg \c paramFrom   parameter to copy from
-    /// \arg \c dstOffset   temporal offset to apply to keys when writing to the paramTo
-    /// \arg \c frameRange  if paramFrom has animation, and frameRange is not null, only this range of keys will be copied
+    ///   \arg \c paramTo     parameter to set
+    ///   \arg \c paramFrom   parameter to copy from
+    ///   \arg \c dstOffset   temporal offset to apply to keys when writing to the paramTo
+    ///   \arg \c frameRange  if paramFrom has animation, and frameRange is not null, only this range of keys will be copied
     ///
-    /// This copies the value of \e paramFrom to \e paramTo, including any animation it may have. All the previous values in \e paramTo will be lost.
+    ///   This copies the value of \e paramFrom to \e paramTo, including any animation it may have. All the previous values in \e paramTo will be lost.
     ///
-    /// To choose all animation in \e paramFrom set \e frameRange to [0, 0]
+    ///   To choose all animation in \e paramFrom set \e frameRange to [0, 0]
     ///
-    /// V1.3: This function can be called the ::kOfxActionInstanceChanged action and during image effect analysis render passes.
-    /// V1.4: This function can be called the ::kOfxActionInstanceChanged action
+    ///    V1.3: This function can be called the ::kOfxActionInstanceChanged action and during image effect analysis render passes.
+    ///   V1.4: This function can be called the ::kOfxActionInstanceChanged action
     ///
-    /// \pre
-    /// - Both parameters must be of the same type.
+    ///   \pre
+    ///   - Both parameters must be of the same type.
     ///
-    /// \return
-    /// - ::kOfxStatOK       - all was OK
-    /// - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
+    ///   \return
+    ///   - ::kOfxStatOK       - all was OK
+    ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
     /// ```
     pub paramCopy: ::std::option::Option<
         unsafe extern "C" fn(
@@ -1353,20 +1360,20 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Used to group any parameter changes for undo/redo purposes
     ///
-    /// \arg \c paramSet    the parameter set in which this is happening
-    /// \arg \c name        label to attach to any undo/redo string UTF8
+    ///   \arg \c paramSet    the parameter set in which this is happening
+    ///   \arg \c name        label to attach to any undo/redo string UTF8
     ///
-    /// If a plugin calls paramSetValue/paramSetValueAtTime on one or more parameters, either from custom GUI interaction
-    /// or some analysis of imagery etc.. this is used to indicate the start of a set of a parameter
-    /// changes that should be considered part of a single undo/redo block.
+    ///   If a plugin calls paramSetValue/paramSetValueAtTime on one or more parameters, either from custom GUI interaction
+    ///   or some analysis of imagery etc.. this is used to indicate the start of a set of a parameter
+    ///   changes that should be considered part of a single undo/redo block.
     ///
-    /// \note \c paramEditBegin should only be called from within a ::kOfxActionInstanceChanged or interact action.
+    ///   \note \c paramEditBegin should only be called from within a ::kOfxActionInstanceChanged or interact action.
     ///
-    /// See also OfxParameterSuiteV1::paramEditEnd
+    ///   See also OfxParameterSuiteV1::paramEditEnd
     ///
-    /// \return
-    /// - ::kOfxStatOK       - all was OK
-    /// - ::kOfxStatErrBadHandle  - if the instance handle was invalid
+    ///   \return
+    ///   - ::kOfxStatOK       - all was OK
+    ///   - ::kOfxStatErrBadHandle  - if the instance handle was invalid
     /// ```
     pub paramEditBegin: ::std::option::Option<
         unsafe extern "C" fn(
@@ -1377,19 +1384,19 @@ pub struct OfxParameterSuiteV1 {
     /// ```doxygen
     /// @brief Used to group any parameter changes for undo/redo purposes
     ///
-    /// \arg \c paramSet    parameter set in which this is happening
+    ///   \arg \c paramSet    parameter set in which this is happening
     ///
-    /// If a plugin calls paramSetValue/paramSetValueAtTime on one or more parameters, either from custom GUI interaction
-    /// or some analysis of imagery etc.. this is used to indicate the end of a set of parameter
-    /// changes that should be considerred part of a single undo/redo block
+    ///   If a plugin calls paramSetValue/paramSetValueAtTime on one or more parameters, either from custom GUI interaction
+    ///   or some analysis of imagery etc.. this is used to indicate the end of a set of parameter
+    ///   changes that should be considerred part of a single undo/redo block
     ///
-    /// \note \c paramEditEnd should only be called from within a ::kOfxActionInstanceChanged or interact action.
+    ///   \note \c paramEditEnd should only be called from within a ::kOfxActionInstanceChanged or interact action.
     ///
-    /// See also OfxParameterSuiteV1::paramEditBegin
+    ///   See also OfxParameterSuiteV1::paramEditBegin
     ///
     /// @returns
-    /// - ::kOfxStatOK       - all was OK
-    /// - ::kOfxStatErrBadHandle  - if the instance handle was invalid
+    ///   - ::kOfxStatOK       - all was OK
+    ///   - ::kOfxStatErrBadHandle  - if the instance handle was invalid
     /// ```
     pub paramEditEnd: ::std::option::Option<
         unsafe extern "C" fn(paramSet: OfxParamSetHandle) -> OfxStatus,

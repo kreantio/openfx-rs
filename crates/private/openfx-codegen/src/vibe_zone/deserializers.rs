@@ -133,7 +133,8 @@ where
 
             if (d == 0) != ty.is_empty() {
                 return Err(serde::de::Error::custom(format_args!(
-                    "`d = 0` must be paired with `ty = \"\"` and vice versa, found `d = {d}` and `ty = \"{ty}\"`",
+                    "`d = 0` must be paired with `ty = \"\"` and vice versa, found `d = {d}` and \
+                     `ty = \"{ty}\"`",
                 )));
             }
 

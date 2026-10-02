@@ -1,51 +1,62 @@
 # CONTRIBUTING
 
-## LLM Policy
+## AI Policy
 
-Code generated entirely by LLMs should live in vibe-zone directories
+~~Code generated entirely by LLMs should live in vibe-zone directories
 (`**/vibe-zone/` or `**/vibe_zone/`). This restriction does not apply to
-existing code that LLMs modify on a limited, controllable scale.
+existing code that LLMs modify on a limited, controllable scale.~~
 
-Small LLM-generated code chunks, such as individual functions, may live outside
-the vibe-zone directories, but must include attribution in this format:
-`Author: <Harness> / <Model> (<Optional Extra Information>)`.
+~~Small LLM-generated code chunks, such as individual functions, may live
+outside the vibe-zone directories, but must include attribution in this format:
+`Author: <Harness> / <Model> (<Optional Extra Information>)`.~~
+
+Adding new content to vibe-zones is no longer allowed. A new AI policy,
+[based on the one used by OpenImageIO](https://github.com/kreantio/openfx-datagen/blob/main/AI_POLICY.md),
+will be adopted once all vibe-zones have been removed.
 
 ## Decisions
 
-### Codegen: C headers -> `sys` layer
+### Codegen: C headers -> data -> `sys` layer
 
 #### How do we generate bindings for Rust
 
-| Chosen?      | Plan                                                                | Pros                                                  | Cons                                                                                                                          | Rationale                                                                                                     |
-| ------------ | ------------------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Currently ✅ | Run `bindgen` on each header and deduplicate the results afterward. | Bindings for each header live in their own Rust file. | Inefficient: for example, because `ofxCore.h` is included by every other header, `bindgen` processes it once for each header. | Yes, because distinguishing headers is necessary to split the API into `generic` and `image_effect_v1` parts. |
-| No           | Use an umbrella header and run `bindgen` on it once.                | Efficient.                                            | All bindings would be generated into a single Rust file.                                                                      | No, because each header should have its own Rust file.                                                        |
-| TODO         | Write a custom parser for the C headers.                            | Efficient.                                            | Requires too much work, care, and expertise to implement correctly.                                                           |                                                                                                               |
+| Chosen?                 | Plan                                                                | Pros                                        | Cons                                                                                                                                 | Rationale                                                                                                |
+| ----------------------- | ------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| ✅ ([`openfx-datagen`]) | Write a custom parser + bindings generator for the C headers.       | Efficient. Flexible. Per-header separation. | Requires more care to maintain.                                                                                                      | Yes. Implementing the first working version required much work, but maintenance afterward is manageable. |
+| Was                     | Run `bindgen` on each header and deduplicate the results afterward. | Per-header separation.                      | Inefficient: for example, because `ofxCore.h` is included by every other header, `bindgen` processes it once for each header. Hacky. | Moved away from, because the implementation was hacky and not flexible enough.                           |
+| No                      | Use an umbrella header and run `bindgen` on it once.                | Efficient.                                  | All bindings would be generated into a single Rust file.                                                                             | No, because each header should have its own Rust file.                                                   |
 
-#### When do we generate these bindgins
+#### When do we generate these bindings
 
-| Chosen? | Plan                                                                     | Pros                                                                                     | Cons                                                                                                                                                                                                                 | Rationale                                                |
-| ------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| ✅      | Write a project-local command-line tool and run it manually when needed. | Allows us to control when generation runs.                                               | Requires extra care to keep generated code up to date (TODO: CI).                                                                                                                                                    | Yes, because it avoids the drawbacks of the alternative. |
-| No      | Use `build.rs`.                                                          | Avoids synchronization issues because the original C headers remain the source of truth. | It would run more often than necessary. Combined with the inefficient binding-generation approach, this would worsen the experience for developers who depend on this crate, especially on less performant machines. | No, because the drawbacks outweigh the benefits.         |
+| Chosen? | Plan                                                                                         | Pros                                                                                                       | Cons                                                              | Rationale                                                             |
+| ------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------- |
+| ✅      | Write CLI tools (`openfx-codegen` and [`openfx-datagen`]) and run them manually when needed. | Allows us to control when generation runs. The `openfx` crate is free of dependencies for code generation. | Requires extra care to keep generated code up to date (TODO: CI). | This is the established approach, and we have no reason to change it. |
+| No      | Use `build.rs`.                                                                              | Avoids synchronization issues.                                                                             | It would run more often than necessary.                           |                                                                       |
+
+#### Where to store generated data
+
+| Chosen?              | Plan                   | Pros                                    | Cons                                                                                     | Rationale                           |
+| -------------------- | ---------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------- |
+| ✅ ([`openfx-data`]) | in another repository  | The main repository's size stays small. | [`openfx-datagen`] has to be in another repository to avoid a circular dependency.       | The main repository's size matters. |
+| No                   | in the main repository | less friction                           | The repository's history would be filled with generated data that is no longer relevant. |                                     |
 
 ### Codegen: C++ headers -> layers above `sys`
 
 #### Which language do we use to generate code
 
-| Chosen?      | Plan                                                                          | Pros                  | Cons                                                | Rationale                                                                 |
-| ------------ | ----------------------------------------------------------------------------- | --------------------- | --------------------------------------------------- | ------------------------------------------------------------------------- |
-| Currently ✅ | Generate Rust code in `deno`.                                                 | Quick to get started. | It feels off to use strings to construct Rust code. | Yes, because it allows rapid prototyping and iteration.                   |
-| TODO         | Generate Rust code in Rust (extending the project-local CLI mentioned above). |                       |                                                     | This may be refactored in the future, but it is not currently a priority. |
+| Chosen?      | Plan                                                     | Pros                  | Cons                                                | Rationale                                                                 |
+| ------------ | -------------------------------------------------------- | --------------------- | --------------------------------------------------- | ------------------------------------------------------------------------- |
+| Currently ✅ | Generate Rust code in `deno`.                            | Quick to get started. | It feels off to use strings to construct Rust code. | Yes, because it allows rapid prototyping and iteration.                   |
+| TODO         | Generate Rust code in Rust (extending `openfx-codegen`). |                       |                                                     | This may be refactored in the future, but it is not currently a priority. |
 
-#### How do we generate code
+#### How do we parse the C++ headers
 
-| Chosen?      | Plan                                            | Pros                                                                                                                                                                                                                                                                                                           | Cons                                                                                                                               | Rationale                                                                                                         |
-| ------------ | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Currently ✅ | Let LLMs write a custom parser.                 | Unlike generating bindings for C headers, which requires the generator to understand types and similar constructs, the information needed from these C++ headers is textual and could likely be extracted with regular expressions. The parser here is essentially a more reliable regular-expression machine. |                                                                                                                                    | Yes. The parser can be well defined with tests, and the code is sandboxed in `deno`, making LLMs a good fit here. |
-| No           | Parse the C++ headers with `clang++ -ast-dump`. |                                                                                                                                                                                                                                                                                                                | The current C++ headers provided by OpenFX are broken. To make this work, dummy code would have to be injected, which feels hacky. | No, because it is hacky.                                                                                          |
-| No           | Use `npm:tree-sitter` (with `deno`).            |                                                                                                                                                                                                                                                                                                                | It requires running build scripts.                                                                                                 | No, because I do not want to run build scripts.                                                                   |
-| TODO         | Parse comments in the C headers.                |                                                                                                                                                                                                                                                                                                                |                                                                                                                                    |                                                                                                                   |
+| Chosen?      | Plan                                                     | Pros                                                                                                                                                                                                                                                                                                           | Cons                                                                                                                               | Rationale                                                                                                         |
+| ------------ | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Currently ✅ | Let LLMs write a custom parser.                          | Unlike generating bindings for C headers, which requires the generator to understand types and similar constructs, the information needed from these C++ headers is textual and could likely be extracted with regular expressions. The parser here is essentially a more reliable regular-expression machine. | It violates the planned AI policy.                                                                                                 | Yes. The parser can be well defined with tests, and the code is sandboxed in `deno`, making LLMs a good fit here. |
+| No           | Parse the C++ headers with `clang++ -ast-dump`.          |                                                                                                                                                                                                                                                                                                                | The current C++ headers provided by OpenFX are broken. To make this work, dummy code would have to be injected, which feels hacky. | No, because it is hacky.                                                                                          |
+| No           | Use `npm:tree-sitter` (with `deno`).                     |                                                                                                                                                                                                                                                                                                                | It requires running build scripts.                                                                                                 | No, because I do not want to run build scripts.                                                                   |
+| TODO         | Parse comments in the C headers with [`openfx-datagen`]. |                                                                                                                                                                                                                                                                                                                |                                                                                                                                    |                                                                                                                   |
 
 #### How do we present code
 
@@ -128,3 +139,6 @@ Action names follow the same terminology as property names.
 | Key Name       | Canonical Name | Key Constant  | Regular? |
 | -------------- | -------------- | ------------- | -------- |
 | kOfxActionLoad | OfxActionLoad  | OfxActionLoad | yes      |
+
+[`openfx-datagen`]: https://github.com/kreantio/openfx-datagen
+[`openfx-data`]: https://github.com/kreantio/openfx-data

@@ -1,3 +1,5 @@
+// Copyright OpenFX and contributors to the OpenFX project.
+// SPDX-License-Identifier: BSD-3-Clause
 use super::core::OfxStatus;
 pub const kOfxMemorySuite: &::std::ffi::CStr = c"OfxMemorySuite";
 /// ```doxygen
@@ -15,16 +17,16 @@ pub struct OfxMemorySuiteV1 {
     /// ```doxygen
     /// @brief Allocate memory.
     ///
-    /// \arg \c handle	- effect instance to associate with this memory allocation, or NULL.
-    /// \arg \c nBytes        number of bytes to allocate
-    /// \arg \c allocatedData pointer to the return value. Allocated memory will be aligned for any use.
+    ///   \arg \c handle	- effect instance to associate with this memory allocation, or NULL.
+    ///   \arg \c nBytes        number of bytes to allocate
+    ///   \arg \c allocatedData pointer to the return value. Allocated memory will be aligned for any use.
     ///
-    /// This function has the host allocate memory using its own memory resources
-    /// and returns that to the plugin.
+    ///   This function has the host allocate memory using its own memory resources
+    ///   and returns that to the plugin.
     ///
-    /// @returns
-    /// - ::kOfxStatOK the memory was successfully allocated
-    /// - ::kOfxStatErrMemory the request could not be met and no memory was allocated
+    ///   @returns
+    ///   - ::kOfxStatOK the memory was successfully allocated
+    ///   - ::kOfxStatErrMemory the request could not be met and no memory was allocated
     /// ```
     pub memoryAlloc: ::std::option::Option<
         unsafe extern "C" fn(
@@ -36,13 +38,13 @@ pub struct OfxMemorySuiteV1 {
     /// ```doxygen
     /// @brief Frees memory.
     ///
-    /// \arg \c allocatedData pointer to memory previously returned by OfxMemorySuiteV1::memoryAlloc
+    ///   \arg \c allocatedData pointer to memory previously returned by OfxMemorySuiteV1::memoryAlloc
     ///
-    /// This function frees any memory that was previously allocated via OfxMemorySuiteV1::memoryAlloc.
+    ///   This function frees any memory that was previously allocated via OfxMemorySuiteV1::memoryAlloc.
     ///
-    /// @returns
-    /// - ::kOfxStatOK the memory was successfully freed
-    /// - ::kOfxStatErrBadHandle \e allocatedData was not a valid pointer returned by OfxMemorySuiteV1::memoryAlloc
+    ///   @returns
+    ///   - ::kOfxStatOK the memory was successfully freed
+    ///   - ::kOfxStatErrBadHandle \e allocatedData was not a valid pointer returned by OfxMemorySuiteV1::memoryAlloc
     /// ```
     pub memoryFree: ::std::option::Option<
         unsafe extern "C" fn(allocatedData: *mut ::std::os::raw::c_void) -> OfxStatus,

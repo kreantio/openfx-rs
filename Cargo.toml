@@ -1,12 +1,15 @@
 [workspace]
 resolver = "3"
 members = [
+  "xtask",
   "crates/openfx",
   "crates/openfx-internal-macros",
   "crates/private/openfx-codegen",
   "examples/ofx-guide-example-plugins-layer-sys",
   "examples/ofx-guide-example-plugins-layer-low",
 ]
+# for some reason, globs (e.g. "vendor/*", "vendor/**/*") don't work.
+exclude = ["vendor/openfx-data/openfx-datagen/crates/openfx-datagen"]
 
 [workspace.package]
 version = "0.5.1"
@@ -18,18 +21,20 @@ repository = "https://github.com/kreantio/openfx-rs"
 [workspace.dependencies]
 openfx = { path = "crates/openfx", version = "0.5.1" }
 openfx-codegen = { path = "crates/private/openfx-codegen", version = "0.5.1" }
+openfx-datagen = { path = "vendor/openfx-data/openfx-datagen/crates/openfx-datagen", version = "0.6.0" }
 openfx-internal-macros = { path = "crates/openfx-internal-macros", version = "0.5.1" }
 
-bindgen = "0.72.1"
 clap = "4.6.6"
 convert_case = "0.11.0"
 prettyplease = "0.3.0"
 proc-macro2 = "1.0.107"
 quote = "1.0.47"
 rayon = "1.12.0"
+regex = "1.13.1"
 serde = "1.0.229"
 serde_json = "1.0.151"
 snafu = "0.9.2"
 syn = "3.0.3"
 toml = "1.1.5"
 tracing = "0.1.44"
+tracing-subscriber = "0.3.23"

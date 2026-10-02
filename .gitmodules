@@ -1,3 +1,6 @@
 [submodule "crates/openfx/vendor/openfx"]
-	path = crates/openfx/vendor/openfx
+	path = vendor/openfx
 	url = https://github.com/AcademySoftwareFoundation/openfx
+[submodule "vendor/openfx-data"]
+	path = vendor/openfx-data
+	url = https://github.com/kreantio/openfx-data
