@@ -1,6 +1,5 @@
 set fallback := true
 
-vendor-c-path := "../../vendor/openfx/include"
 data-path := "../../vendor/openfx-data/data"
 generated-path := "generated"
 generated-c-bindings-path := "generated/c_bindings"
@@ -20,7 +19,6 @@ generate-code-from-c:
     mkdir -p "{{ generated-c-bindings-path }}" "{{ generated-intermediate-path }}"
     cargo run --release --package openfx-codegen --bin cli -- \
       --codegen-config="{{ codegen-config-path }}" \
-      --input-c-headers "{{ vendor-c-path }}" \
       --input-data "{{ data-path }}" \
       --output "{{ generated-path }}" \
       --output-intermediate "{{ generated-intermediate-path }}"

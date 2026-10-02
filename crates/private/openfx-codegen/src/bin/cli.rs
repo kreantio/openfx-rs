@@ -7,10 +7,6 @@ struct Args {
     #[arg(long)]
     codegen_config: PathBuf,
 
-    /// the path to the input C headers directory
-    #[arg(long)]
-    input_c_headers: PathBuf,
-
     #[arg(long)]
     input_data: PathBuf,
 
