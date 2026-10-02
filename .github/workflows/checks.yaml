@@ -1,0 +1,121 @@
+# Some code below is copied/derived from <https://github.com/emilk/egui/blob/6b420bc1b11cd4f37d5db6b5e0a2e369f259dd35/.github/workflows/rust.yml>.
+# See ATTRIBUTION.md for attribution details.
+
+name: Checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  fmt-crank-check-test:
+    name: Format + check
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          toolchain: nightly-2026-08-04
+          components: rustfmt, clippy
+
+      - name: Set up cargo cache
+        uses: Swatinem/rust-cache@v2
+
+      # NOTE: `ignore` in `rustfmt-ci.toml` is unstable.
+      - name: Rustfmt
+        run: cargo fmt --all -- --config-path rustfmt-ci.toml --check
+
+      - run: cargo clippy --workspace --exclude openfx-datagen --locked --all-features --all-targets
+
+      - run: cargo doc --workspace --exclude openfx-datagen --lib --no-deps --all-features
+
+      - name: clippy release
+        run: cargo clippy --workspace --exclude openfx-datagen --all-targets --all-features --release -- -D warnings
+
+  # ---------------------------------------------------------------------------
+
+  tests:
+    name: Run tests
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      # TODO: switch to stable channel.
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          toolchain: nightly-2026-08-04
+
+      - name: Set up cargo cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run tests
+        run: cargo test --workspace --exclude openfx-datagen --all-features --no-fail-fast
+
+      - name: Run doc-tests
+        if: always()
+        run: cargo test --workspace --exclude openfx-datagen --all-features --doc --no-fail-fast
+
+  # ---------------------------------------------------------------------------
+
+  check-stale-generated-contents:
+    name: Check whether some generated contents are stale
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      # TODO: switch to stable channel.
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          toolchain: nightly-2026-08-04
+
+      - uses: extractions/setup-just@v4
+
+      - name: Set up cargo cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Detect stale generated contents
+        run: just detect-stale-generated-contents
+
+  # ---------------------------------------------------------------------------
+
+  check-openfx-submodule-main-or-ancestor:
+    name: Check whether the submodules are on main or an ancestor of main
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Check whether the submodule `openfx` is on main or an ancestor of main
+        uses: jtmullen/submodule-branch-check-action@v1
+        with:
+          path: vendor/openfx
+          branch: main
+          first_parent: true
+          disable_progression: true
+
+      - name: Check whether the submodule `openfx-data` is on main or an ancestor of main
+        if: always()
+        uses: jtmullen/submodule-branch-check-action@v1
+        with:
+          path: vendor/openfx-data
+          branch: main
+          first_parent: true
+          disable_progression: true
