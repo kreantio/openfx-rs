@@ -30,14 +30,14 @@ jobs:
 
       # NOTE: `ignore` in `rustfmt-ci.toml` is unstable.
       - name: Rustfmt
-        run: cargo fmt --all -- --config-path rustfmt-ci.toml --check
+        run: cargo fmt --all -- --check
 
-      - run: cargo clippy --workspace --exclude openfx-datagen --locked --all-features --all-targets
+      - run: cargo clippy --locked --all-features --all-targets
 
-      - run: cargo doc --workspace --exclude openfx-datagen --lib --no-deps --all-features
+      - run: cargo doc --lib --no-deps --all-features
 
       - name: clippy release
-        run: cargo clippy --workspace --exclude openfx-datagen --all-targets --all-features --release -- -D warnings
+        run: cargo clippy --all-targets --all-features --release -- -D warnings
 
   # ---------------------------------------------------------------------------
 
@@ -60,11 +60,11 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Run tests
-        run: cargo test --workspace --exclude openfx-datagen --all-features --no-fail-fast
+        run: cargo test --all-features --no-fail-fast
 
       - name: Run doc-tests
         if: always()
-        run: cargo test --workspace --exclude openfx-datagen --all-features --doc --no-fail-fast
+        run: cargo test --all-features --doc --no-fail-fast
 
   # ---------------------------------------------------------------------------
 
