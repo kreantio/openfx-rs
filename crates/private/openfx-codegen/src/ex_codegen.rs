@@ -7,7 +7,7 @@ use convert_case::Casing as _;
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::CodegenConfig;
+use crate::config::CodegenConfig;
 
 pub fn gen_low_statuses(
     config: &CodegenConfig,
@@ -140,7 +140,7 @@ pub fn gen_low_enums_from_c(
 }
 
 pub fn gen_low_plugin_suites(
-    confg: &CodegenConfig,
+    config: &CodegenConfig,
     output_folder_c: &Path,
     suites: HashMap<String, HashSet<String>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -165,7 +165,7 @@ pub fn gen_low_plugin_suites(
         let mut output = proc_macro2::TokenStream::new();
 
         for (name, simple_ident) in suite_names.iter().zip(simple_idents.iter()) {
-            let special_case = &confg.suites.special_cases.get(&simple_ident.to_string());
+            let special_case = &config.suites.special_cases.get(&simple_ident.to_string());
             let fns_to_omit = special_case.and_then(|sc| sc.omit_functions.as_ref());
             let fn_rust_names = special_case.and_then(|sc| sc.function_rust_names.as_ref());
 
@@ -201,7 +201,7 @@ pub fn gen_low_plugin_suites(
         let mut output = proc_macro2::TokenStream::new();
 
         for simple_ident in &simple_idents {
-            let special_case = &confg.suites.special_cases.get(&simple_ident.to_string());
+            let special_case = &config.suites.special_cases.get(&simple_ident.to_string());
 
             if let Some(corrected_k_name) = special_case.and_then(|sc| sc.key_name.as_deref()) {
                 let corrected_k_ident =
@@ -226,13 +226,13 @@ pub fn gen_low_plugin_suites(
 }
 
 pub fn gen_low_plugin_objects(
-    confg: &CodegenConfig,
+    config: &CodegenConfig,
     output_file: &Path,
     direct_handle_usages_in_suite_functions: HashMap<String, HashSet<(String, String)>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut output = proc_macro2::TokenStream::new();
 
-    let mut mapping = confg.objects.mapping.iter().collect::<Vec<_>>();
+    let mut mapping = config.objects.mapping.iter().collect::<Vec<_>>();
     mapping.sort_by(|a, b| a.0.cmp(b.0));
 
     for (name, entry) in mapping {
