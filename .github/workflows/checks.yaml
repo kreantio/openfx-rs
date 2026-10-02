@@ -85,6 +85,10 @@ jobs:
 
       - uses: extractions/setup-just@v4
 
+      - uses: denoland/setup-deno@v2
+        with:
+          cache: true
+
       - name: Set up cargo cache
         uses: Swatinem/rust-cache@v2
 
