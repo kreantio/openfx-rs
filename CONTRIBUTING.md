@@ -2,17 +2,7 @@
 
 ## AI Policy
 
-~~Code generated entirely by LLMs should live in vibe-zone directories
-(`**/vibe-zone/` or `**/vibe_zone/`). This restriction does not apply to
-existing code that LLMs modify on a limited, controllable scale.~~
-
-~~Small LLM-generated code chunks, such as individual functions, may live
-outside the vibe-zone directories, but must include attribution in this format:
-`Author: <Harness> / <Model> (<Optional Extra Information>)`.~~
-
-Adding new content to vibe-zones is no longer allowed. A new AI policy,
-[based on the one used by OpenImageIO](https://github.com/kreantio/openfx-datagen/blob/main/AI_POLICY.md),
-will be adopted once all vibe-zones have been removed.
+See [AI_POLICY.md](./AI_POLICY.md).
 
 ## Decisions
 
