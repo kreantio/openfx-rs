@@ -82,6 +82,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
         with:
           toolchain: nightly-2026-08-04
+          components: rustfmt
 
       - uses: extractions/setup-just@v4
 
