@@ -26,12 +26,19 @@ will be adopted once all vibe-zones have been removed.
 | Was                     | Run `bindgen` on each header and deduplicate the results afterward. | Per-header separation.                      | Inefficient: for example, because `ofxCore.h` is included by every other header, `bindgen` processes it once for each header. Hacky. | Moved away from, because the implementation was hacky and not flexible enough.                           |
 | No                      | Use an umbrella header and run `bindgen` on it once.                | Efficient.                                  | All bindings would be generated into a single Rust file.                                                                             | No, because each header should have its own Rust file.                                                   |
 
-#### When do we generate these bindgins
+#### When do we generate these bindings
 
 | Chosen? | Plan                                                                                         | Pros                                                                                                       | Cons                                                              | Rationale                                                             |
 | ------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------- |
 | ✅      | Write CLI tools (`openfx-codegen` and [`openfx-datagen`]) and run them manually when needed. | Allows us to control when generation runs. The `openfx` crate is free of dependencies for code generation. | Requires extra care to keep generated code up to date (TODO: CI). | This is the established approach, and we have no reason to change it. |
 | No      | Use `build.rs`.                                                                              | Avoids synchronization issues.                                                                             | It would run more often than necessary.                           |                                                                       |
+
+#### Where to store generated data
+
+| Chosen?              | Plan                   | Pros                                    | Cons                                                                                     | Rationale                           |
+| -------------------- | ---------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------- |
+| ✅ ([`openfx-data`]) | in another repository  | The main repository's size stays small. | [`openfx-datagen`] has to be in another repository to avoid a circular dependency.       | The main repository's size matters. |
+| No                   | in the main repository | less friction                           | The repository's history would be filled with generated data that is no longer relevant. |                                     |
 
 ### Codegen: C++ headers -> layers above `sys`
 
@@ -134,3 +141,4 @@ Action names follow the same terminology as property names.
 | kOfxActionLoad | OfxActionLoad  | OfxActionLoad | yes      |
 
 [`openfx-datagen`]: https://github.com/kreantio/openfx-datagen
+[`openfx-data`]: https://github.com/kreantio/openfx-data
