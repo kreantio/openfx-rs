@@ -15,7 +15,7 @@ pub const kOfxDrawSuite: &::std::ffi::CStr = c"OfxDrawSuite";
 /// ```
 pub const kOfxInteractPropDrawContext: &::std::ffi::CStr = c"OfxInteractPropDrawContext";
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug)]
 pub struct OfxDrawContext {
     _unused: [u8; 0],
 }

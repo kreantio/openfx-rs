@@ -7,7 +7,7 @@ use std::{
 use convert_case::Casing;
 use openfx_datagen::{
     parsing::{
-        DefineValue, RootItem, RootItemWithCommentAbove, TypeStraightforward, TypedefStructField,
+        RootItem, RootItemWithCommentAbove, TypeStraightforward, TypedefStructField,
         TypedefStructFieldType,
     },
     processing::Bindings,
@@ -67,36 +67,6 @@ pub fn load_input_data(
         bindings,
         name_to_file_name,
     })
-}
-
-impl InputData {
-    pub fn find_item_origin_file_name(&self, name: &str) -> Option<&str> {
-        self.name_to_file_name.get(name).map(|x| x.as_str())
-    }
-
-    pub fn find_item(&self, name: &str) -> Option<&RootItem> {
-        let file_name = self.find_item_origin_file_name(name).unwrap();
-
-        self.bindings.get(file_name)?.items.iter().find_map(|item| {
-            if let RootItemWithCommentAbove::Item { item, .. } = item
-                && item.name() == name
-            {
-                Some(item)
-            } else {
-                None
-            }
-        })
-    }
-
-    pub fn find_define_value(&self, name: &str) -> Option<&DefineValue> {
-        self.find_item(name).and_then(|item| {
-            if let RootItem::Define { value, .. } = item {
-                Some(value)
-            } else {
-                None
-            }
-        })
-    }
 }
 
 #[derive(Default)]

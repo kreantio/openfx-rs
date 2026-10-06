@@ -907,7 +907,7 @@ pub const kOfxParamPropInterpolationTime: &::std::ffi::CStr = c"OfxParamPropInte
 /// ```
 pub const kOfxParamPropInterpolationAmount: &::std::ffi::CStr = c"OfxParamPropInterpolationAmount";
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug)]
 pub struct OfxParamStruct {
     _unused: [u8; 0],
 }
@@ -916,7 +916,7 @@ pub struct OfxParamStruct {
 /// ```
 pub type OfxParamHandle = *mut OfxParamStruct;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug)]
 pub struct OfxParamSetStruct {
     _unused: [u8; 0],
 }

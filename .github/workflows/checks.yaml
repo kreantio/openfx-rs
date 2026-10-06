@@ -30,7 +30,7 @@ jobs:
 
       # NOTE: `ignore` in `rustfmt-ci.toml` is unstable.
       - name: Rustfmt
-        run: cargo fmt --all -- --check
+        run: cargo fmt --all -- --config-path rustfmt-ci.toml --check
 
       - run: cargo clippy --locked --all-features --all-targets
 
