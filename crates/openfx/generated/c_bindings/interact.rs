@@ -577,7 +577,7 @@ pub const kOfxInteractActionGainFocus: &::std::ffi::CStr = c"OfxInteractActionGa
 /// ```
 pub const kOfxInteractActionLoseFocus: &::std::ffi::CStr = c"OfxInteractActionLoseFocus";
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug)]
 pub struct OfxInteract {
     _unused: [u8; 0],
 }

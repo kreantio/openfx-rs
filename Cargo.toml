@@ -9,7 +9,10 @@ members = [
   "examples/ofx-guide-example-plugins-layer-low",
 ]
 # for some reason, globs (e.g. "vendor/*", "vendor/**/*") don't work.
-exclude = ["vendor/openfx-data/openfx-datagen/crates/openfx-datagen"]
+exclude = [
+  "vendor/openfx-data/openfx-datagen/crates/openfx-datagen",
+  "vendor/openfx-data/openfx-datagen/crates/openfx-bindgen",
+]
 
 [workspace.package]
 version = "0.5.1"

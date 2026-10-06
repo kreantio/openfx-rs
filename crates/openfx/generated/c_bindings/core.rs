@@ -725,7 +725,7 @@ pub const kOfxBitDepthHalf: &::std::ffi::CStr = c"OfxBitDepthHalf";
 /// ```
 pub const kOfxBitDepthFloat: &::std::ffi::CStr = c"OfxBitDepthFloat";
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug)]
 pub struct OfxPropertySetStruct {
     _unused: [u8; 0],
 }

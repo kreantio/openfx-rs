@@ -3,7 +3,7 @@
 use super::core::OfxStatus;
 pub const kOfxMultiThreadSuite: &::std::ffi::CStr = c"OfxMultiThreadSuite";
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug)]
 pub struct OfxMutex {
     _unused: [u8; 0],
 }
