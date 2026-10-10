@@ -14,7 +14,6 @@ import {
 } from "../src/vibe-zone/parsers/parser-ofxPropsBySet/impl-by-llms/mod.ts";
 
 import { CodegenConfig } from "../src/definitions.ts";
-import { genLowEnums } from "../src/generators/gen-low-enums.ts";
 import { genSysHelpersPropertyAccessors } from "../src/generators/gen-sys-helpers-property-accessors.ts";
 import { NameRegulator } from "../src/utils/name-regulator.ts";
 import { genLowActions } from "../src/generators/gen-low-actions.ts";
@@ -80,10 +79,6 @@ async function main(args: Args) {
     nameRegulator,
   });
 
-  await Deno.writeTextFile(
-    path.join(args["output-code-from-cpp"], "low_enums.rs"),
-    genLowEnums(propsMetadata, { nameRegulator }),
-  );
   {
     const { generic, image_effect_v1: codePerMod } =
       await genSysHelpersPropertyAccessors(propsMetadata, {

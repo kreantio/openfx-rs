@@ -14,20 +14,20 @@ use openfx_datagen::{
 };
 use regex::Regex;
 
-pub struct InputData {
+pub struct InputBindingsData {
     pub bindings: HashMap<String, Bindings>,
 
     pub name_to_file_name: HashMap<String, String>,
 }
 
-pub fn load_input_data(
-    input_data_folder: PathBuf,
-) -> Result<InputData, Box<dyn std::error::Error>> {
+pub fn load_input_bindings_data(
+    input_bindings_folder: PathBuf,
+) -> Result<InputBindingsData, Box<dyn std::error::Error>> {
     let mut bindings = HashMap::new();
 
     let mut name_to_file_name = HashMap::new();
 
-    for entry in std::fs::read_dir(input_data_folder.join("generated/bindings"))? {
+    for entry in std::fs::read_dir(input_bindings_folder)? {
         let entry = entry?;
         let path = entry.path();
         if !entry.file_type()?.is_file()
@@ -63,7 +63,7 @@ pub fn load_input_data(
         bindings.insert(name, single_bindings);
     }
 
-    Ok(InputData {
+    Ok(InputBindingsData {
         bindings,
         name_to_file_name,
     })
@@ -82,10 +82,10 @@ pub struct Info {
 
 const COLORSPACE_HEADER_NAME: &str = "ofx-native-v1.5_aces-v1.3_ocio-v2.3.h";
 
-pub fn collect_info(input_data: &InputData) -> Info {
+pub fn collect_info(data: &InputBindingsData) -> Info {
     let mut info = Info::default();
 
-    for (file_name, bindings) in &input_data.bindings {
+    for (file_name, bindings) in &data.bindings {
         if file_name == COLORSPACE_HEADER_NAME {
             continue;
         }
