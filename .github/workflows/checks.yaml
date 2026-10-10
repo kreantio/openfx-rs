@@ -22,7 +22,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly-2026-08-04
+          toolchain: nightly-2026-10-10 # after 1.99.0
           components: rustfmt, clippy
 
       - name: Set up cargo cache
@@ -30,14 +30,14 @@ jobs:
 
       # NOTE: `ignore` in `rustfmt-ci.toml` is unstable.
       - name: Rustfmt
-        run: cargo fmt --all -- --config-path rustfmt-ci.toml --check
+        run: cargo +nightly-2026-10-10 fmt --all -- --config-path rustfmt-ci.toml --check
 
-      - run: cargo clippy --locked --all-features --all-targets
+      - run: cargo +nightly-2026-10-10 clippy --locked --all-features --all-targets
 
       - run: cargo doc --lib --no-deps --all-features
 
       - name: clippy release
-        run: cargo clippy --all-targets --all-features --release -- -D warnings
+        run: cargo +nightly-2026-10-10 clippy --all-targets --all-features --release -- -D warnings
 
   # ---------------------------------------------------------------------------
 
@@ -51,10 +51,9 @@ jobs:
         with:
           submodules: recursive
 
-      # TODO: switch to stable channel.
-      - uses: dtolnay/rust-toolchain@nightly
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: nightly-2026-08-04
+          toolchain: "1.99.0"
 
       - name: Set up cargo cache
         uses: Swatinem/rust-cache@v2
@@ -78,10 +77,9 @@ jobs:
         with:
           submodules: recursive
 
-      # TODO: switch to stable channel.
-      - uses: dtolnay/rust-toolchain@nightly
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: nightly-2026-08-04
+          toolchain: "1.99.0"
           components: rustfmt
 
       - uses: extractions/setup-just@v4
