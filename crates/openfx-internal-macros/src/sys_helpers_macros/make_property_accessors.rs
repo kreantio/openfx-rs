@@ -325,11 +325,9 @@ impl InputContainerType {
 
     fn dimension_suffix(&self) -> String {
         match self {
-            InputContainerType::Single(_) => "".to_string(),
-            InputContainerType::FixedArray(_, size) => {
-                format!("s_{}", size)
-            }
-            InputContainerType::Array(_) => "s".to_string(),
+            InputContainerType::Single(_) => "".to_owned(),
+            InputContainerType::FixedArray(_, _size) => "s_n".to_owned(),
+            InputContainerType::Array(_) => "s".to_owned(),
         }
     }
 }

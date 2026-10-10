@@ -49,24 +49,18 @@ pub fn make_property_accessors_by_types(tokens: TokenStream) -> TokenStream {
 
         // fixed array
         if let Some(fixed_array) = item.fixed_array {
-            let mut possible_sizes: Vec<usize> = fixed_array.possible_sizes.into_iter().collect();
-            possible_sizes.sort();
-            for size in possible_sizes {
-                make_property_setter_for_type(
-                    &mut output,
-                    &fixed_array.set_ident,
-                    &item.ty,
-                    ContainerType::FixedArray(size),
-                    &fixed_array.vis,
-                );
-                make_property_getter_for_type(
-                    &mut output,
-                    &fixed_array.get_ident,
-                    &item.ty,
-                    ContainerType::FixedArray(size),
-                    &fixed_array.vis,
-                );
-            }
+            make_property_setter_for_fixed_array(
+                &mut output,
+                &fixed_array.set_ident,
+                &item.ty,
+                &fixed_array.vis,
+            );
+            make_property_getter_for_fixed_array(
+                &mut output,
+                &fixed_array.get_ident,
+                &item.ty,
+                &fixed_array.vis,
+            );
         }
     }
 
@@ -79,7 +73,6 @@ pub fn make_property_accessors_by_types(tokens: TokenStream) -> TokenStream {
 enum ContainerType {
     Single,
     Array,
-    FixedArray(usize),
 }
 
 impl ContainerType {
@@ -87,9 +80,6 @@ impl ContainerType {
         match self {
             ContainerType::Single => ty.to_string().to_lowercase(),
             ContainerType::Array => format!("{}s", ty.to_string().to_lowercase()),
-            ContainerType::FixedArray(size) => {
-                format!("{}s_{}", ty.to_string().to_lowercase(), size)
-            }
         }
     }
 }
@@ -108,16 +98,14 @@ fn make_property_setter_for_type(
     let value_type = match container_type {
         ContainerType::Single => quote! { #rust_ty_for_setter },
         ContainerType::Array => quote! { &[#rust_ty_for_setter] },
-        ContainerType::FixedArray(size) => quote! { [#rust_ty_for_setter; #size] },
     };
     let sys_setter_fn_ident = match container_type {
         ContainerType::Single => ty.sys_setter_fn_ident_single(),
-        ContainerType::Array | ContainerType::FixedArray(_) => ty.sys_setter_fn_ident_array(),
+        ContainerType::Array => ty.sys_setter_fn_ident_array(),
     };
     let suite_fn_args = match container_type {
         ContainerType::Single => quote! { 0, value },
         ContainerType::Array => quote! { value.len() as std::os::raw::c_int, value.as_ptr() },
-        ContainerType::FixedArray(size) => quote! { #size as std::os::raw::c_int, value.as_ptr() },
     };
 
     output.push(quote! {
@@ -148,6 +136,48 @@ fn make_property_setter_for_type(
     });
 }
 
+fn make_property_setter_for_fixed_array(
+    output: &mut Vec<proc_macro2::TokenStream>,
+    set_ident: &syn::Ident,
+    ty: &OpenFXTypeSys,
+    vis: &syn::Visibility,
+) {
+    let name = syn::Ident::new(
+        &format!("set_{}s_n", ty.to_string().to_lowercase()),
+        set_ident.span(),
+    );
+
+    let rust_ty_for_setter = ty.rust_type_quote_for_setter();
+    let sys_setter_fn_ident = ty.sys_setter_fn_ident_array();
+
+    output.push(quote! {
+        /// ## SAFETY
+        ///
+        /// - `suite` must be a valid pointer to
+        ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
+        /// - `handle` must be a valid handle of
+        ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
+        /// - The type of `property`'s value must match the type this function
+        ///   is specialized for.
+        #[inline(always)]
+        #vis unsafe fn #name<const N: usize>(
+            suite: *const crate::sys_umbrella::OfxPropertySuiteV1,
+            handle: crate::sys_umbrella::OfxPropertySetHandle,
+            property: *const std::os::raw::c_char,
+            value: [#rust_ty_for_setter; N],
+        ) -> Result<(), crate::sys_umbrella::OfxStatus> {
+            // SAFETY: granted by the standard
+            let suite_fn = unsafe { (&*suite).#sys_setter_fn_ident.unwrap_unchecked() };
+            if let s = unsafe { suite_fn(handle, property, N as std::os::raw::c_int, value.as_ptr()) }
+                && s != crate::sys_umbrella::kOfxStatOK {
+                Err(s)
+            } else {
+                Ok(())
+            }
+        }
+    });
+}
+
 fn make_property_getter_for_type(
     output: &mut Vec<proc_macro2::TokenStream>,
     get_ident: &syn::Ident,
@@ -160,80 +190,114 @@ fn make_property_getter_for_type(
 
     let sys_getter_fn_ident = match container_type {
         ContainerType::Single => ty.sys_getter_fn_ident_single(),
-        ContainerType::Array | ContainerType::FixedArray(_) => ty.sys_getter_fn_ident_array(),
+        ContainerType::Array => ty.sys_getter_fn_ident_array(),
     };
 
-    if matches!(container_type, ContainerType::Array) {
-        let rust_ty_for_getter = ty.rust_type_quote_for_getter();
-        let value_type = quote! { &mut [#rust_ty_for_getter] };
-        output.push(quote! {
-            /// ## SAFETY
-            ///
-            /// - `suite` must be a valid pointer to
-            ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
-            /// - `handle` must be a valid handle of
-            ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
-            /// - The type of `property`'s value must match the type this function
-            ///   is specialized for.
-            #[inline(always)]
-            #vis unsafe fn #name(
-                suite: *const crate::sys_umbrella::OfxPropertySuiteV1,
-                handle: crate::sys_umbrella::OfxPropertySetHandle,
-                property: *const std::os::raw::c_char,
-                values: #value_type,
-            ) -> Result<(), crate::sys_umbrella::OfxStatus> {
-                // SAFETY: granted by the standard
-                let suite_fn = unsafe { (&*suite).#sys_getter_fn_ident.unwrap_unchecked() };
-                let count = values.len() as std::os::raw::c_int;
-                if let s = unsafe { suite_fn(handle, property, count, values.as_mut_ptr()) }
-                    && s != crate::sys_umbrella::kOfxStatOK {
-                    Err(s)
-                } else {
-                    Ok(())
+    match container_type {
+        ContainerType::Single => {
+            let rust_ty_for_getter = ty.rust_type_quote_for_getter();
+            let value_type = quote! { #rust_ty_for_getter };
+            output.push(quote! {
+                /// ## SAFETY
+                ///
+                /// - `suite` must be a valid pointer to
+                ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
+                /// - `handle` must be a valid handle of
+                ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
+                /// - The type of `property`'s value must match the type this function
+                ///   is specialized for.
+                #[inline(always)]
+                #vis unsafe fn #name(
+                    suite: *const crate::sys_umbrella::OfxPropertySuiteV1,
+                    handle: crate::sys_umbrella::OfxPropertySetHandle,
+                    property: *const std::os::raw::c_char,
+                ) -> Result<#value_type, crate::sys_umbrella::OfxStatus> {
+                    // SAFETY: granted by the standard
+                    let suite_fn = unsafe { (&*suite).#sys_getter_fn_ident.unwrap_unchecked() };
+                    let mut value: #value_type = std::mem::zeroed();
+                    if let s = unsafe { suite_fn(handle, property, 0, &mut value) }
+                        && s != crate::sys_umbrella::kOfxStatOK {
+                        Err(s)
+                    } else {
+                        Ok(value)
+                    }
                 }
-            }
-        });
-    } else {
-        let rust_ty_for_getter = ty.rust_type_quote_for_getter();
-        let value_type = match container_type {
-            ContainerType::Single => quote! { #rust_ty_for_getter },
-            ContainerType::FixedArray(size) => quote! { [#rust_ty_for_getter; #size] },
-            _ => unreachable!(),
-        };
-        let suite_fn_args = match container_type {
-            ContainerType::Single => quote! { 0, &mut value },
-            ContainerType::FixedArray(size) => {
-                quote! { #size as std::os::raw::c_int, value.as_mut_ptr() }
-            }
-            ContainerType::Array => unreachable!(),
-        };
-        output.push(quote! {
-            /// ## SAFETY
-            ///
-            /// - `suite` must be a valid pointer to
-            ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
-            /// - `handle` must be a valid handle of
-            ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
-            /// - The type of `property`'s value must match the type this function
-            ///   is specialized for.
-            #[inline(always)]
-            #vis unsafe fn #name(
-                suite: *const crate::sys_umbrella::OfxPropertySuiteV1,
-                handle: crate::sys_umbrella::OfxPropertySetHandle,
-                property: *const std::os::raw::c_char,
-            ) -> Result<#value_type, crate::sys_umbrella::OfxStatus> {
-                // SAFETY: granted by the standard
-                let suite_fn = unsafe { (&*suite).#sys_getter_fn_ident.unwrap_unchecked() };
-                let mut value: #value_type = std::mem::zeroed();
-                if let s = unsafe { suite_fn(handle, property, #suite_fn_args) }
-                    && s != crate::sys_umbrella::kOfxStatOK {
-                    Err(s)
-                } else {
-                    Ok(value)
+            });
+        }
+        ContainerType::Array => {
+            let rust_ty_for_getter = ty.rust_type_quote_for_getter();
+            output.push(quote! {
+                /// ## SAFETY
+                ///
+                /// - `suite` must be a valid pointer to
+                ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
+                /// - `handle` must be a valid handle of
+                ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
+                /// - The type of `property`'s value must match the type this function
+                ///   is specialized for.
+                #[inline(always)]
+                #vis unsafe fn #name(
+                    suite: *const crate::sys_umbrella::OfxPropertySuiteV1,
+                    handle: crate::sys_umbrella::OfxPropertySetHandle,
+                    property: *const std::os::raw::c_char,
+                    values: &mut [#rust_ty_for_getter],
+                ) -> Result<(), crate::sys_umbrella::OfxStatus> {
+                    // SAFETY: granted by the standard
+                    let suite_fn = unsafe { (&*suite).#sys_getter_fn_ident.unwrap_unchecked() };
+                    let count = values.len() as std::os::raw::c_int;
+                    if let s = unsafe { suite_fn(handle, property, count, values.as_mut_ptr()) }
+                        && s != crate::sys_umbrella::kOfxStatOK {
+                        Err(s)
+                    } else {
+                        Ok(())
+                    }
                 }
-            }
-        });
+            });
+        }
     }
+}
+
+fn make_property_getter_for_fixed_array(
+    output: &mut Vec<proc_macro2::TokenStream>,
+    get_ident: &syn::Ident,
+    ty: &OpenFXTypeSys,
+    vis: &syn::Visibility,
+) {
+    let name = syn::Ident::new(
+        &format!("get_{}s_n", ty.to_string().to_lowercase()),
+        get_ident.span(),
+    );
+
+    let sys_getter_fn_ident = ty.sys_getter_fn_ident_array();
+
+    let rust_ty_for_getter = ty.rust_type_quote_for_getter();
+    let value_type = quote! { [#rust_ty_for_getter; N] };
+    output.push(quote! {
+        /// ## SAFETY
+        ///
+        /// - `suite` must be a valid pointer to
+        ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
+        /// - `handle` must be a valid handle of
+        ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
+        /// - The type of `property`'s value must match the type this function
+        ///   is specialized for.
+        #[inline(always)]
+        #vis unsafe fn #name<const N: usize>(
+            suite: *const crate::sys_umbrella::OfxPropertySuiteV1,
+            handle: crate::sys_umbrella::OfxPropertySetHandle,
+            property: *const std::os::raw::c_char,
+        ) -> Result<#value_type, crate::sys_umbrella::OfxStatus> {
+            // SAFETY: granted by the standard
+            let suite_fn = unsafe { (&*suite).#sys_getter_fn_ident.unwrap_unchecked() };
+            let mut value: #value_type = std::mem::zeroed();
+            if let s = unsafe { suite_fn(handle, property, N as std::os::raw::c_int, value.as_mut_ptr()) }
+                && s != crate::sys_umbrella::kOfxStatOK {
+                Err(s)
+            } else {
+                Ok(value)
+            }
+        }
+    });
 }
 
 /// ## Examples
@@ -310,6 +374,7 @@ impl syn::parse::Parse for InputContainerTypeArrayOrSingle {
 }
 
 struct InputContainerTypeFixedArray {
+    #[expect(unused)]
     possible_sizes: HashSet<usize>,
     vis: syn::Visibility,
     set_ident: syn::Ident,
