@@ -24,7 +24,6 @@ function doParseArgs(args: string[]) {
     string: [
       "codegen-config",
       "input-cpp-headers",
-      "input-intermediate",
       "output-code-from-cpp",
     ],
   });
@@ -37,9 +36,6 @@ function doParseArgs(args: string[]) {
   }
   if (!result["output-code-from-cpp"]) {
     throw new Error("Missing `--output-code-from-cpp`");
-  }
-  if (!result["input-intermediate"]) {
-    throw new Error("Missing `--input-intermediate`");
   }
 
   return result;

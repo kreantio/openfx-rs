@@ -9,10 +9,6 @@ generated-code-from-cpp-path := "generated/code_from_cpp"
 generated-code-from-metadata-path := "generated/code_from_metadata"
 codegen-config-path := "codegen-config.toml"
 
-# TODO: remove this folder.
-
-generated-intermediate-path := "generated-intermediate"
-
 generate-all: generate-bindings generate-code
 
 generate-bindings:
@@ -42,11 +38,9 @@ generate-code-from-cpp:
     mkdir -p "{{ generated-code-from-cpp-path }}"
     deno run --allow-read="{{ vendor-cpp-path }}" \
       --allow-read="{{ codegen-config-path }}" \
-      --allow-read="{{ generated-intermediate-path }}" \
       --allow-write="{{ generated-code-from-cpp-path }}" \
       scripts/bin/generate-code-from-cpp.ts \
       --codegen-config="{{ codegen-config-path }}" \
       --input-cpp-headers="{{ vendor-cpp-path }}" \
-      --input-intermediate="{{ generated-intermediate-path }}" \
       --output-code-from-cpp="{{ generated-code-from-cpp-path }}"
     find "{{ generated-code-from-cpp-path }}" -name "*.rs" | xargs rustfmt
