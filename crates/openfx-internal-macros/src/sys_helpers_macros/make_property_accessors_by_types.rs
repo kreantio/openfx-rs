@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use proc_macro::TokenStream;
 use quote::quote;
 
@@ -10,58 +8,18 @@ pub fn make_property_accessors_by_types(tokens: TokenStream) -> TokenStream {
 
     let mut output: Vec<proc_macro2::TokenStream> = Vec::new();
 
-    for item in input.items {
-        {
-            // array
-            make_property_setter_for_type(
-                &mut output,
-                &item.array.set_ident,
-                &item.ty,
-                ContainerType::Array,
-                &item.array.vis,
-            );
-            make_property_getter_for_type(
-                &mut output,
-                &item.array.get_ident,
-                &item.ty,
-                ContainerType::Array,
-                &item.array.vis,
-            );
-        }
+    for ty in input.into_iter() {
+        // array
+        make_property_setter_for_type(&mut output, &ty, ContainerType::Array);
+        make_property_getter_for_type(&mut output, &ty, ContainerType::Array);
 
-        {
-            // single
-            make_property_setter_for_type(
-                &mut output,
-                &item.single.set_ident,
-                &item.ty,
-                ContainerType::Single,
-                &item.single.vis,
-            );
-            make_property_getter_for_type(
-                &mut output,
-                &item.single.get_ident,
-                &item.ty,
-                ContainerType::Single,
-                &item.single.vis,
-            );
-        }
+        // single
+        make_property_setter_for_type(&mut output, &ty, ContainerType::Single);
+        make_property_getter_for_type(&mut output, &ty, ContainerType::Single);
 
         // fixed array
-        if let Some(fixed_array) = item.fixed_array {
-            make_property_setter_for_fixed_array(
-                &mut output,
-                &fixed_array.set_ident,
-                &item.ty,
-                &fixed_array.vis,
-            );
-            make_property_getter_for_fixed_array(
-                &mut output,
-                &fixed_array.get_ident,
-                &item.ty,
-                &fixed_array.vis,
-            );
-        }
+        make_property_setter_for_fixed_array(&mut output, &ty);
+        make_property_getter_for_fixed_array(&mut output, &ty);
     }
 
     quote! {
@@ -86,13 +44,11 @@ impl ContainerType {
 
 fn make_property_setter_for_type(
     output: &mut Vec<proc_macro2::TokenStream>,
-    set_ident: &syn::Ident,
     ty: &OpenFXTypeSys,
     container_type: ContainerType,
-    vis: &syn::Visibility,
 ) {
     let name_suffix = container_type.name_suffix(ty);
-    let name = syn::Ident::new(&format!("set_{}", name_suffix), set_ident.span());
+    let name = syn::Ident::new(&format!("set_{}", name_suffix), ty.span());
 
     let rust_ty_for_setter = ty.rust_type_quote_for_setter();
     let value_type = match container_type {
@@ -118,7 +74,7 @@ fn make_property_setter_for_type(
         /// - The type of `property`'s value must match the type this function
         ///   is specialized for.
         #[inline(always)]
-        #vis unsafe fn #name(
+        pub unsafe fn #name(
             suite: *const crate::sys_umbrella::OfxPropertySuiteV1,
             handle: crate::sys_umbrella::OfxPropertySetHandle,
             property: *const std::os::raw::c_char,
@@ -138,13 +94,11 @@ fn make_property_setter_for_type(
 
 fn make_property_setter_for_fixed_array(
     output: &mut Vec<proc_macro2::TokenStream>,
-    set_ident: &syn::Ident,
     ty: &OpenFXTypeSys,
-    vis: &syn::Visibility,
 ) {
     let name = syn::Ident::new(
         &format!("set_{}s_n", ty.to_string().to_lowercase()),
-        set_ident.span(),
+        ty.span(),
     );
 
     let rust_ty_for_setter = ty.rust_type_quote_for_setter();
@@ -160,7 +114,7 @@ fn make_property_setter_for_fixed_array(
         /// - The type of `property`'s value must match the type this function
         ///   is specialized for.
         #[inline(always)]
-        #vis unsafe fn #name<const N: usize>(
+        pub unsafe fn #name<const N: usize>(
             suite: *const crate::sys_umbrella::OfxPropertySuiteV1,
             handle: crate::sys_umbrella::OfxPropertySetHandle,
             property: *const std::os::raw::c_char,
@@ -180,13 +134,11 @@ fn make_property_setter_for_fixed_array(
 
 fn make_property_getter_for_type(
     output: &mut Vec<proc_macro2::TokenStream>,
-    get_ident: &syn::Ident,
     ty: &OpenFXTypeSys,
     container_type: ContainerType,
-    vis: &syn::Visibility,
 ) {
     let name_suffix = container_type.name_suffix(ty);
-    let name = syn::Ident::new(&format!("get_{}", name_suffix), get_ident.span());
+    let name = syn::Ident::new(&format!("get_{}", name_suffix), ty.span());
 
     let sys_getter_fn_ident = match container_type {
         ContainerType::Single => ty.sys_getter_fn_ident_single(),
@@ -207,7 +159,7 @@ fn make_property_getter_for_type(
                 /// - The type of `property`'s value must match the type this function
                 ///   is specialized for.
                 #[inline(always)]
-                #vis unsafe fn #name(
+                pub unsafe fn #name(
                     suite: *const crate::sys_umbrella::OfxPropertySuiteV1,
                     handle: crate::sys_umbrella::OfxPropertySetHandle,
                     property: *const std::os::raw::c_char,
@@ -236,7 +188,7 @@ fn make_property_getter_for_type(
                 /// - The type of `property`'s value must match the type this function
                 ///   is specialized for.
                 #[inline(always)]
-                #vis unsafe fn #name(
+                pub unsafe fn #name(
                     suite: *const crate::sys_umbrella::OfxPropertySuiteV1,
                     handle: crate::sys_umbrella::OfxPropertySetHandle,
                     property: *const std::os::raw::c_char,
@@ -259,13 +211,11 @@ fn make_property_getter_for_type(
 
 fn make_property_getter_for_fixed_array(
     output: &mut Vec<proc_macro2::TokenStream>,
-    get_ident: &syn::Ident,
     ty: &OpenFXTypeSys,
-    vis: &syn::Visibility,
 ) {
     let name = syn::Ident::new(
         &format!("get_{}s_n", ty.to_string().to_lowercase()),
-        get_ident.span(),
+        ty.span(),
     );
 
     let sys_getter_fn_ident = ty.sys_getter_fn_ident_array();
@@ -282,7 +232,7 @@ fn make_property_getter_for_fixed_array(
         /// - The type of `property`'s value must match the type this function
         ///   is specialized for.
         #[inline(always)]
-        #vis unsafe fn #name<const N: usize>(
+        pub unsafe fn #name<const N: usize>(
             suite: *const crate::sys_umbrella::OfxPropertySuiteV1,
             handle: crate::sys_umbrella::OfxPropertySetHandle,
             property: *const std::os::raw::c_char,
@@ -300,116 +250,57 @@ fn make_property_getter_for_fixed_array(
     });
 }
 
+mod kw {
+    syn::custom_keyword!(Int);
+    syn::custom_keyword!(Double);
+    syn::custom_keyword!(String);
+    syn::custom_keyword!(Pointer);
+}
+
 /// ## Examples
 ///
 /// ```rust,ignore
 /// openfx_internal_macros::sys_helpers_make_property_accessors_by_types! {
-///     Double: ... pub { set get }, 1 pub { set get }, (2|3|4) pub(crate) { set get };
-///     Int: ... pub { set get }, 1 pub { set get }, (2|4) pub(crate) { set get };
-///     Pointer: ... pub { set get }, 1 pub { set get };
-///     String: ... pub { set get }, 1 pub { set get }, 2 pub(crate) { set get };
+///     Int; Double; String; Pointer;
 /// }
 /// ```
 struct Input {
-    items: syn::punctuated::Punctuated<InputItem, syn::Token![;]>,
+    int: kw::Int,
+    double: kw::Double,
+    string: kw::String,
+    pointer: kw::Pointer,
 }
 
 impl syn::parse::Parse for Input {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let items = input.parse_terminated(InputItem::parse, syn::Token![;])?;
-        Ok(Input { items })
-    }
-}
-
-struct InputItem {
-    ty: OpenFXTypeSys,
-    array: InputContainerTypeArrayOrSingle,
-    single: InputContainerTypeArrayOrSingle,
-    fixed_array: Option<InputContainerTypeFixedArray>,
-}
-
-impl syn::parse::Parse for InputItem {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let ty: OpenFXTypeSys = input.parse()?;
-        input.parse::<syn::Token![:]>()?;
-        input.parse::<syn::Token![...]>()?;
-        let array: InputContainerTypeArrayOrSingle = input.parse()?;
-        input.parse::<syn::Token![,]>()?;
-        input.parse::<syn::LitInt>()?;
-        let single: InputContainerTypeArrayOrSingle = input.parse()?;
-        let fixed_array = if input.peek(syn::Token![,]) {
-            input.parse::<syn::Token![,]>()?;
-            Some(input.parse::<InputContainerTypeFixedArray>()?)
-        } else {
-            None
-        };
-        Ok(InputItem {
-            ty,
-            array,
-            single,
-            fixed_array,
+        let int = input.parse::<kw::Int>()?;
+        input.parse::<syn::Token![;]>()?;
+        let double = input.parse::<kw::Double>()?;
+        input.parse::<syn::Token![;]>()?;
+        let string = input.parse::<kw::String>()?;
+        input.parse::<syn::Token![;]>()?;
+        let pointer = input.parse::<kw::Pointer>()?;
+        input.parse::<syn::Token![;]>()?;
+        Ok(Input {
+            int,
+            double,
+            string,
+            pointer,
         })
     }
 }
 
-struct InputContainerTypeArrayOrSingle {
-    vis: syn::Visibility,
-    set_ident: syn::Ident,
-    get_ident: syn::Ident,
-}
+impl std::iter::IntoIterator for Input {
+    type Item = OpenFXTypeSys;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
 
-impl syn::parse::Parse for InputContainerTypeArrayOrSingle {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let vis: syn::Visibility = input.parse()?;
-        let content;
-        syn::braced!(content in input);
-        let set_ident: syn::Ident = content.parse()?;
-        let get_ident: syn::Ident = content.parse()?;
-        Ok(InputContainerTypeArrayOrSingle {
-            vis,
-            set_ident,
-            get_ident,
-        })
-    }
-}
-
-struct InputContainerTypeFixedArray {
-    #[expect(unused)]
-    possible_sizes: HashSet<usize>,
-    vis: syn::Visibility,
-    set_ident: syn::Ident,
-    get_ident: syn::Ident,
-}
-
-impl syn::parse::Parse for InputContainerTypeFixedArray {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let mut possible_sizes = HashSet::new();
-        if input.peek(syn::token::Paren) {
-            let content;
-            syn::parenthesized!(content in input);
-            while !content.is_empty() {
-                let size: syn::LitInt = content.parse()?;
-                possible_sizes.insert(size.base10_parse::<usize>()?);
-                if content.peek(syn::Token![|]) {
-                    content.parse::<syn::Token![|]>()?;
-                } else if !content.is_empty() {
-                    return Err(content.error("expected `|` between fixed array sizes"));
-                }
-            }
-        } else {
-            let size: syn::LitInt = input.parse()?;
-            possible_sizes.insert(size.base10_parse::<usize>()?);
-        }
-        let vis: syn::Visibility = input.parse()?;
-        let content;
-        syn::braced!(content in input);
-        let set_ident: syn::Ident = content.parse()?;
-        let get_ident: syn::Ident = content.parse()?;
-        Ok(InputContainerTypeFixedArray {
-            possible_sizes,
-            vis,
-            set_ident,
-            get_ident,
-        })
+    fn into_iter(self) -> Self::IntoIter {
+        vec![
+            OpenFXTypeSys::Int(syn::Ident::new("Int", self.int.span)),
+            OpenFXTypeSys::Double(syn::Ident::new("Double", self.double.span)),
+            OpenFXTypeSys::String(syn::Ident::new("String", self.string.span)),
+            OpenFXTypeSys::Pointer(syn::Ident::new("Pointer", self.pointer.span)),
+        ]
+        .into_iter()
     }
 }
