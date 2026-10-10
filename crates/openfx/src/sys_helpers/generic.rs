@@ -24,67 +24,78 @@ pub trait Plugins {
     fn plugins(host: Option<*const OfxHost>) -> Vec<OfxPlugin>;
 }
 
-pub macro plugin_struct($plugin_type:ty) {
-    OfxPlugin {
-        pluginApi: <$plugin_type as Plugin>::PLUGIN_API.as_ptr(),
-        apiVersion: <$plugin_type as Plugin>::API_VERSION,
-        pluginIdentifier: <$plugin_type as Plugin>::PLUGIN_IDENTIFIER.as_ptr(),
-        pluginVersionMajor: <$plugin_type as Plugin>::PLUGIN_VERSION_MAJOR,
-        pluginVersionMinor: <$plugin_type as Plugin>::PLUGIN_VERSION_MINOR,
-        setHost: Some(<$plugin_type as Plugin>::set_host),
-        mainEntry: Some(<$plugin_type as Plugin>::main_entry),
-    }
+#[macro_export]
+macro_rules! plugin_struct {
+    ($plugin_type:ty) => {
+        OfxPlugin {
+            pluginApi: <$plugin_type as $crate::sys_helpers::generic::Plugin>::PLUGIN_API.as_ptr(),
+            apiVersion: <$plugin_type as $crate::sys_helpers::generic::Plugin>::API_VERSION,
+            pluginIdentifier:
+                <$plugin_type as $crate::sys_helpers::generic::Plugin>::PLUGIN_IDENTIFIER.as_ptr(),
+            pluginVersionMajor:
+                <$plugin_type as $crate::sys_helpers::generic::Plugin>::PLUGIN_VERSION_MAJOR,
+            pluginVersionMinor:
+                <$plugin_type as $crate::sys_helpers::generic::Plugin>::PLUGIN_VERSION_MINOR,
+            setHost: Some(<$plugin_type as $crate::sys_helpers::generic::Plugin>::set_host),
+            mainEntry: Some(<$plugin_type as $crate::sys_helpers::generic::Plugin>::main_entry),
+        }
+    };
 }
+pub use plugin_struct;
 
-pub macro export_plugins($plugins_type:ty) {
-    #[expect(non_upper_case_globals)]
-    static mut __OPENFX_SYS_HELPERS__HOST: *const OfxHost = std::ptr::null();
-    #[expect(non_upper_case_globals)]
-    static mut __OPENFX_SYS_HELPERS__PLUGINS: *const OfxPlugin = std::ptr::null();
-    #[expect(non_upper_case_globals)]
-    static mut __OPENFX_SYS_HELPERS__PLUGIN_COUNT: usize = 0;
+#[macro_export]
+macro_rules! export_plugins {
+    ($plugins_type:ty) => {
+        #[expect(non_upper_case_globals)]
+        static mut __OPENFX_SYS_HELPERS__HOST: *const OfxHost = std::ptr::null();
+        #[expect(non_upper_case_globals)]
+        static mut __OPENFX_SYS_HELPERS__PLUGINS: *const OfxPlugin = std::ptr::null();
+        #[expect(non_upper_case_globals)]
+        static mut __OPENFX_SYS_HELPERS__PLUGIN_COUNT: usize = 0;
 
-    #[expect(non_snake_case)]
-    fn __OPENFX_SYS_HELPERS__initialize_plugins() {
-        unsafe {
-            if __OPENFX_SYS_HELPERS__PLUGINS.is_null() {
-                let host = if __OPENFX_SYS_HELPERS__HOST.is_null() {
-                    None
+        #[expect(non_snake_case)]
+        fn __OPENFX_SYS_HELPERS__initialize_plugins() {
+            unsafe {
+                if __OPENFX_SYS_HELPERS__PLUGINS.is_null() {
+                    let host = if __OPENFX_SYS_HELPERS__HOST.is_null() {
+                        None
+                    } else {
+                        Some(__OPENFX_SYS_HELPERS__HOST)
+                    };
+                    let plugins = <$plugins_type as Plugins>::plugins(host);
+                    __OPENFX_SYS_HELPERS__PLUGIN_COUNT = plugins.len();
+                    __OPENFX_SYS_HELPERS__PLUGINS = Box::leak(plugins.into_boxed_slice()).as_ptr();
+                }
+            }
+        }
+
+        #[unsafe(no_mangle)]
+        pub extern "C" fn OfxSetHost(host: *const OfxHost) {
+            unsafe {
+                __OPENFX_SYS_HELPERS__HOST = host;
+            }
+        }
+
+        #[unsafe(no_mangle)]
+        pub extern "C" fn OfxGetNumberOfPlugins() -> ::std::ffi::c_int {
+            __OPENFX_SYS_HELPERS__initialize_plugins();
+            unsafe { __OPENFX_SYS_HELPERS__PLUGIN_COUNT as ::std::ffi::c_int }
+        }
+
+        #[unsafe(no_mangle)]
+        pub extern "C" fn OfxGetPlugin(nth: ::std::ffi::c_int) -> *const OfxPlugin {
+            __OPENFX_SYS_HELPERS__initialize_plugins();
+            unsafe {
+                if nth < 0 || nth as usize >= __OPENFX_SYS_HELPERS__PLUGIN_COUNT {
+                    std::ptr::null()
                 } else {
-                    Some(__OPENFX_SYS_HELPERS__HOST)
-                };
-                let plugins = <$plugins_type as Plugins>::plugins(host);
-                __OPENFX_SYS_HELPERS__PLUGIN_COUNT = plugins.len();
-                __OPENFX_SYS_HELPERS__PLUGINS = Box::leak(plugins.into_boxed_slice()).as_ptr();
+                    __OPENFX_SYS_HELPERS__PLUGINS.add(nth as usize)
+                }
             }
         }
-    }
-
-    #[unsafe(no_mangle)]
-    pub extern "C" fn OfxSetHost(host: *const OfxHost) {
-        unsafe {
-            __OPENFX_SYS_HELPERS__HOST = host;
-        }
-    }
-
-    #[unsafe(no_mangle)]
-    pub extern "C" fn OfxGetNumberOfPlugins() -> c_int {
-        __OPENFX_SYS_HELPERS__initialize_plugins();
-        unsafe { __OPENFX_SYS_HELPERS__PLUGIN_COUNT as c_int }
-    }
-
-    #[unsafe(no_mangle)]
-    pub extern "C" fn OfxGetPlugin(nth: c_int) -> *const OfxPlugin {
-        __OPENFX_SYS_HELPERS__initialize_plugins();
-        unsafe {
-            if nth < 0 || nth as usize >= __OPENFX_SYS_HELPERS__PLUGIN_COUNT {
-                std::ptr::null()
-            } else {
-                __OPENFX_SYS_HELPERS__PLUGINS.add(nth as usize)
-            }
-        }
-    }
+    };
 }
+pub use export_plugins;
 
 pub mod properties {
     //! The list of headers for properties included in this module is currently

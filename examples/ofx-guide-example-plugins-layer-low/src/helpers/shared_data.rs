@@ -351,27 +351,30 @@ impl ParameterSuiteHelper {
 
 /// FIXME: should give back `OfxResult` instead of using `?` internally. This
 /// might require a proc macro for defining a variadic inner function.
-pub macro param_get_value_at_time(
-    $parameter_suite_helper:expr,
-    $param_handle:expr,
-    $time:expr,
-    $(&mut $value:ident),+ $(,)?
-) {
-    {
-        let param_get_value_at_time = unsafe {
-            $parameter_suite_helper
-                .inner()
-                .sys_ref()
-                .paramGetValueAtTime
-                .ok_or(openfx::low::Status::ErrMissingHostFeature)?
-        };
-        let time = $time;
-        #[allow(clippy::macro_metavars_in_unsafe)]
-        if let stat = unsafe { param_get_value_at_time($param_handle, time, $(&mut $value),+) } && stat != ::openfx::sys::generic::core::kOfxStatOK {
-            return Err(openfx::low::Status::from(stat));
+macro_rules! param_get_value_at_time{
+    (
+        $parameter_suite_helper:expr,
+        $param_handle:expr,
+        $time:expr,
+        $(&mut $value:ident),+ $(,)?
+    ) => {
+        {
+            let param_get_value_at_time = unsafe {
+                $parameter_suite_helper
+                    .inner()
+                    .sys_ref()
+                    .paramGetValueAtTime
+                    .ok_or(openfx::low::Status::ErrMissingHostFeature)?
+            };
+            let time = $time;
+            #[allow(clippy::macro_metavars_in_unsafe)]
+            if let stat = unsafe { param_get_value_at_time($param_handle, time, $(&mut $value),+) } && stat != ::openfx::sys::generic::core::kOfxStatOK {
+                return Err(openfx::low::Status::from(stat));
+            }
         }
     }
 }
+pub(crate) use param_get_value_at_time;
 
 pub struct ParamSetHelper {
     parameter_suite_helper: ParameterSuiteHelper,
