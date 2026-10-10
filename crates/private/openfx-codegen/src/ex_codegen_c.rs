@@ -1,5 +1,5 @@
 use std::{
-    collections::{BTreeMap, HashMap, HashSet},
+    collections::{HashMap, HashSet},
     path::Path,
 };
 
@@ -7,7 +7,7 @@ use convert_case::Casing as _;
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::config::CodegenConfig;
+use crate::{config::CodegenConfig, utils::strip_common_prefix};
 
 pub fn gen_low_statuses(
     config: &CodegenConfig,
@@ -285,49 +285,4 @@ pub fn gen_low_plugin_objects(
     std::fs::write(output_file, prettyplease::unparse(&syn::parse2(output)?))?;
 
     Ok(())
-}
-
-pub fn gen_data_root_idents(
-    output_path: &Path,
-    root_item_idents_per_header: HashMap<String, HashSet<String>>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let mut stable_map: BTreeMap<String, Vec<String>> = BTreeMap::new();
-    for (mod_name, idents) in root_item_idents_per_header {
-        let mut idents: Vec<String> = idents.into_iter().collect();
-        idents.sort();
-        stable_map.insert(mod_name, idents);
-    }
-
-    let json = serde_json::to_string_pretty(&stable_map)?;
-    std::fs::write(output_path, json)?;
-
-    Ok(())
-}
-
-/// Author: GitHub Copilot's tab completion | Reviewed-by: Umaĵo
-///
-/// Removes the longest prefix shared by every string.
-pub fn strip_common_prefix(strings: &[String]) -> Vec<String> {
-    if strings.is_empty() {
-        return Vec::new();
-    }
-
-    let mut character_iterators: Vec<_> = strings.iter().map(|string| string.chars()).collect();
-    let mut prefix_length = 0;
-
-    while let Some(character) = character_iterators[0].next() {
-        if character_iterators[1..]
-            .iter_mut()
-            .all(|iterator| iterator.next() == Some(character))
-        {
-            prefix_length += character.len_utf8();
-        } else {
-            break;
-        }
-    }
-
-    strings
-        .iter()
-        .map(|string| string[prefix_length..].to_string())
-        .collect()
 }

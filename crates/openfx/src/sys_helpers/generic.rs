@@ -105,7 +105,7 @@ pub mod properties {
         ($name:ident) => {
             include!(concat!(
                 env!("CARGO_MANIFEST_DIR"),
-                "/generated/code_from_cpp/sys_helpers_property_accessors/",
+                "/generated/code_from_metadata/sys_helpers_property_accessors/",
                 stringify!($name),
                 ".rs"
             ));
@@ -113,10 +113,9 @@ pub mod properties {
     }
     pub(crate) use include_accessors;
 
-    include!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/generated/code_from_cpp/sys_helpers_property_accessors_generic.rs",
-    ));
+    openfx_internal_macros::sys_helpers_make_property_accessors_by_types! {
+        Int; Double; String; Pointer;
+    }
 
     include_accessors!(core);
 

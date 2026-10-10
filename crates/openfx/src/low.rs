@@ -22,7 +22,7 @@ pub mod enums {
 
     include!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/generated/code_from_cpp/low_enums.rs",
+        "/generated/code_from_metadata/low_enums.rs",
     ));
 
     include!(concat!(
