@@ -1,5 +1,5 @@
 use std::{
-    collections::{BTreeMap, HashMap, HashSet},
+    collections::{HashMap, HashSet},
     path::Path,
 };
 
@@ -283,23 +283,6 @@ pub fn gen_low_plugin_objects(
     }
 
     std::fs::write(output_file, prettyplease::unparse(&syn::parse2(output)?))?;
-
-    Ok(())
-}
-
-pub fn gen_data_root_idents(
-    output_path: &Path,
-    root_item_idents_per_header: HashMap<String, HashSet<String>>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let mut stable_map: BTreeMap<String, Vec<String>> = BTreeMap::new();
-    for (mod_name, idents) in root_item_idents_per_header {
-        let mut idents: Vec<String> = idents.into_iter().collect();
-        idents.sort();
-        stable_map.insert(mod_name, idents);
-    }
-
-    let json = serde_json::to_string_pretty(&stable_map)?;
-    std::fs::write(output_path, json)?;
 
     Ok(())
 }

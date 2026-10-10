@@ -3,12 +3,15 @@ set fallback := true
 data-path := "../../vendor/openfx-data/data"
 generated-path := "generated"
 generated-c-bindings-path := "generated/c_bindings"
-generated-intermediate-path := "generated-intermediate"
 vendor-cpp-path := "../../vendor/openfx/openfx-cpp/include/openfx"
 generated-code-from-c-path := "generated/code_from_c"
 generated-code-from-cpp-path := "generated/code_from_cpp"
 generated-code-from-metadata-path := "generated/code_from_metadata"
 codegen-config-path := "codegen-config.toml"
+
+# TODO: remove this folder.
+
+generated-intermediate-path := "generated-intermediate"
 
 generate-all: generate-bindings generate-code
 
@@ -26,14 +29,13 @@ generate-code:
     just generate-code-from-cpp
 
 generate-code-from-metadata:
-    rm -rf "{{ generated-intermediate-path }}" "{{ generated-code-from-c-path }}" "{{ generated-code-from-metadata-path }}"
-    mkdir -p "{{ generated-intermediate-path }}" "{{ generated-code-from-c-path }}" "{{ generated-code-from-metadata-path }}"
+    rm -rf "{{ generated-code-from-c-path }}" "{{ generated-code-from-metadata-path }}"
+    mkdir -p "{{ generated-code-from-c-path }}" "{{ generated-code-from-metadata-path }}"
     cargo run --release --package openfx-codegen --bin cli -- \
       --codegen-config="{{ codegen-config-path }}" \
       --input-bindings-data "{{ data-path }}/generated/bindings" \
       --input-metadata "{{ data-path }}/generated/metadata" \
       --output "{{ generated-path }}" \
-      --output-intermediate "{{ generated-intermediate-path }}"
 
 generate-code-from-cpp:
     rm -rf "{{ generated-code-from-cpp-path }}"

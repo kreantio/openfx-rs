@@ -94,7 +94,7 @@ pub mod properties {
         ($name:ident) => {
             include!(concat!(
                 env!("CARGO_MANIFEST_DIR"),
-                "/generated/code_from_cpp/sys_helpers_property_accessors/",
+                "/generated/code_from_metadata/sys_helpers_property_accessors/",
                 stringify!($name),
                 ".rs"
             ));

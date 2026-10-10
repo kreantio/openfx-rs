@@ -15,9 +15,6 @@ struct Args {
 
     #[arg(long)]
     output: PathBuf,
-
-    #[arg(long)]
-    output_intermediate: PathBuf,
 }
 
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -57,16 +54,15 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
         &output_folder_c.join("low_objects_plugin.rs"),
         info.direct_handle_usages_in_suite_functions,
     )?;
-    openfx_codegen::ex_codegen_c::gen_data_root_idents(
-        &args
-            .output_intermediate
-            .join("root_item_idents_per_header.json"),
-        info.root_item_idents_per_header,
-    )?;
 
     openfx_codegen::ex_codegen_metadata::gen_low_enums_from_metadata(
         &output_folder_metadata.join("low_enums.rs"),
         &input_metadata,
+    )?;
+    openfx_codegen::ex_codegen_metadata::gen_sys_helpers_property_accessors(
+        &output_folder_metadata.join("sys_helpers_property_accessors"),
+        &input_metadata,
+        &input_bindings,
     )?;
 
     Ok(())

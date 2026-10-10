@@ -245,10 +245,10 @@ fn make_property_dimensions_getter(
 ///
 /// ```rust,ignore
 /// sys_helpers_make_property_accessors! {
-///     OfxImageClipPropConnected: Int { set get reset };
-///     OfxImageEffectPropFrameRange: [Double; 2] { set get reset };
-///     OfxImageEffectPropSupportedPixelDepths: [String] { set get reset get_dimensions };
-///     OfxParamPropDefault: [(Int | Double | String | Pointer)] { set get reset get_dimensions };
+///     OfxImageClipPropConnected!(Int: set get reset);
+///     OfxImageEffectPropFrameRange!([Double; 2] : set get reset);
+///     OfxImageEffectPropSupportedPixelDepths!([String] : set get reset get_dimensions);
+///     OfxParamPropDefault!([(Int | Double | String | Pointer)] : set get reset get_dimensions);
 /// }
 /// ```
 struct Input {
@@ -275,9 +275,15 @@ struct InputPropertyItem {
 impl syn::parse::Parse for InputPropertyItem {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let canonical_name: syn::Ident = input.parse()?;
-        input.parse::<syn::Token![:]>()?;
-        let ty = input.parse::<InputContainerType>()?;
-        let functions = input.parse::<InputAccessorFunctions>()?;
+        input.parse::<syn::Token![!]>()?;
+
+        let content;
+        syn::parenthesized!(content in input);
+
+        let ty = content.parse::<InputContainerType>()?;
+        content.parse::<syn::Token![:]>()?;
+        let functions = content.parse::<InputAccessorFunctions>()?;
+
         Ok(InputPropertyItem {
             canonical_name,
             ty,
@@ -432,16 +438,13 @@ struct InputAccessorFunctions {
 
 impl syn::parse::Parse for InputAccessorFunctions {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let content;
-        syn::braced!(content in input);
-
         let mut set = None;
         let mut get = None;
         let mut reset = None;
         let mut get_dimensions = None;
 
-        while !content.is_empty() {
-            let func: syn::Ident = content.parse()?;
+        while !input.is_empty() {
+            let func: syn::Ident = input.parse()?;
             match func.to_string().as_str() {
                 "set" => set = Some(func.clone()),
                 "get" => get = Some(func.clone()),
@@ -449,8 +452,8 @@ impl syn::parse::Parse for InputAccessorFunctions {
                 "get_dimensions" => get_dimensions = Some(func.clone()),
                 _ => return Err(syn::Error::new_spanned(func, "Unknown function")),
             }
-            if content.peek(syn::Token![,]) {
-                content.parse::<syn::Token![,]>()?;
+            if input.peek(syn::Token![,]) {
+                input.parse::<syn::Token![,]>()?;
             }
         }
 

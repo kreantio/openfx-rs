@@ -1,11 +1,16 @@
-use std::{ffi::CString, path::Path};
+use std::{collections::HashMap, ffi::CString, path::Path};
 
 use convert_case::Casing;
 use quote::quote;
 
-use openfx_datagen::metadata_extracting::{PropdefType, StringEnumVariant};
+use openfx_datagen::metadata_extracting::{
+    PropdefDimension, PropdefType, PropdefTypeSimple, StringEnumVariant,
+};
 
-use crate::{input_metadata::InputMetadata, utils::strip_common_prefix};
+use crate::{
+    input_bindings_data::InputBindingsData, input_metadata::InputMetadata,
+    utils::strip_common_prefix,
+};
 
 pub fn gen_low_enums_from_metadata(
     output_file: &Path,
@@ -82,18 +87,107 @@ pub fn gen_low_enums_from_metadata(
 
     let output_inner = prettyplease::unparse(&syn::parse2(output_inner)?)
         .lines()
-        .map(|l| format!("    {}", l))
+        .map(|l| format!("    {l}"))
         .collect::<Vec<_>>()
         .join("\n");
 
     std::fs::write(
         output_file,
         format!(
-            "openfx_internal_macros::low_make_property_enums! {{
+            r#"openfx_internal_macros::low_make_property_enums! {{
 {output_inner}
-}}"
+}}"#
         ),
     )?;
+
+    Ok(())
+}
+
+pub fn gen_sys_helpers_property_accessors(
+    output_folder: &Path,
+    metadata: &InputMetadata,
+    bindings: &InputBindingsData,
+) -> Result<(), Box<dyn std::error::Error>> {
+    std::fs::create_dir_all(output_folder)?;
+
+    // keys: C header file names with extensions.
+    let mut output_inners: HashMap<String, proc_macro2::TokenStream> = HashMap::new();
+
+    for (cname, entry) in &metadata.raw.propdef_map {
+        let Some(file_name) = bindings.find_item_origin_file_name(cname) else {
+            return Err(format!("Failed to find corresponding file name: {cname}").into());
+        };
+
+        let Some(name) = cname.strip_prefix("k") else {
+            return Err(format!("Irregular cname: {cname}").into());
+        };
+        let name = syn::Ident::new(name, proc_macro2::Span::call_site());
+
+        let ty = match &entry.r#type {
+            PropdefType::Simple { one_of } => {
+                let mut tys: Vec<proc_macro2::TokenStream> = vec![];
+                for ty in one_of {
+                    let ty = match ty {
+                        PropdefTypeSimple::Int | PropdefTypeSimple::Bool => quote! { Int },
+                        PropdefTypeSimple::Double => quote! { Double },
+                        PropdefTypeSimple::String => quote! { String },
+                        PropdefTypeSimple::Pointer => quote! { Pointer },
+                    };
+                    tys.push(quote! { #ty });
+                }
+                if tys.len() == 1 {
+                    tys.pop().unwrap()
+                } else {
+                    quote! { (#(#tys)|*) }
+                }
+            }
+            PropdefType::StringEnum { .. } => quote! { String },
+        };
+        let container_ty = match entry.dimension {
+            PropdefDimension::Fixed { size: 1 } => ty,
+            PropdefDimension::Fixed { size } => {
+                let size = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
+                quote! { [#ty; #size] }
+            }
+            PropdefDimension::Dynamic => quote! { [#ty] },
+        };
+        let ops = match entry.dimension {
+            PropdefDimension::Fixed { .. } => quote! { set get reset },
+            PropdefDimension::Dynamic => quote! { set get reset get_dimensions },
+        };
+
+        let output_inner = output_inners.entry(file_name.to_owned()).or_default();
+
+        output_inner.extend(quote! {
+            #name!(#container_ty: #ops);
+        });
+    }
+
+    for (file_name, output_inner) in output_inners {
+        let mod_name = file_name
+            .strip_suffix(".h")
+            .unwrap()
+            .strip_prefix("ofx")
+            .unwrap()
+            .to_case(convert_case::Case::Snake);
+
+        let output_file = output_folder.join(format!("{mod_name}.rs"));
+
+        let output_inner = prettyplease::unparse(&syn::parse2(output_inner)?)
+            .lines()
+            .map(|l| format!("    {l}"))
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        std::fs::write(
+            output_file,
+            format!(
+                r#"openfx_internal_macros::sys_helpers_make_property_accessors! {{
+{output_inner}
+}}"#
+            ),
+        )?;
+    }
 
     Ok(())
 }

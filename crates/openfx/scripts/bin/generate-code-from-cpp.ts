@@ -14,7 +14,6 @@ import {
 } from "../src/vibe-zone/parsers/parser-ofxPropsBySet/impl-by-llms/mod.ts";
 
 import { CodegenConfig } from "../src/definitions.ts";
-import { genSysHelpersPropertyAccessors } from "../src/generators/gen-sys-helpers-property-accessors.ts";
 import { NameRegulator } from "../src/utils/name-regulator.ts";
 import { genLowActions } from "../src/generators/gen-low-actions.ts";
 import { genLowPropertySets } from "../src/generators/gen-low-property-sets.ts";
@@ -78,28 +77,6 @@ async function main(args: Args) {
     cfg: codegenConfig,
     nameRegulator,
   });
-
-  {
-    const { image_effect_v1: codePerMod } =
-      await genSysHelpersPropertyAccessors(propsMetadata, {
-        nameRegulator,
-        dataIntermediatePath: args["input-intermediate"],
-      });
-    await Deno.mkdir(
-      path.join(args["output-code-from-cpp"], "sys_helpers_property_accessors"),
-      { recursive: true },
-    );
-    for (const [mod, code] of Object.entries(codePerMod)) {
-      await Deno.writeTextFile(
-        path.join(
-          args["output-code-from-cpp"],
-          "sys_helpers_property_accessors",
-          `${mod}.rs`,
-        ),
-        code,
-      );
-    }
-  }
 
   await Deno.writeFile(
     path.join(args["output-code-from-cpp"], "low_actions_plugin.rs"),
