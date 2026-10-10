@@ -80,18 +80,11 @@ async function main(args: Args) {
   });
 
   {
-    const { generic, image_effect_v1: codePerMod } =
+    const { image_effect_v1: codePerMod } =
       await genSysHelpersPropertyAccessors(propsMetadata, {
         nameRegulator,
         dataIntermediatePath: args["input-intermediate"],
       });
-    await Deno.writeTextFile(
-      path.join(
-        args["output-code-from-cpp"],
-        "sys_helpers_property_accessors_generic.rs",
-      ),
-      generic,
-    );
     await Deno.mkdir(
       path.join(args["output-code-from-cpp"], "sys_helpers_property_accessors"),
       { recursive: true },
