@@ -708,26 +708,6 @@ impl OpenFXTypeLow {
         }
     }
 
-    fn as_sys_quote(&self, low_val: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
-        match self {
-            OpenFXTypeLow::Int(_) | OpenFXTypeLow::Double(_) => {
-                quote! { #low_val }
-            }
-            OpenFXTypeLow::Pointer(_) => {
-                quote! { #low_val.map_or(::std::ptr::null_mut(), ::std::ptr::NonNull::as_ptr) }
-            }
-            OpenFXTypeLow::Bool(_) => {
-                quote! { #low_val as ::std::os::raw::c_int }
-            }
-            OpenFXTypeLow::Enum(_, _) => {
-                quote! { #low_val.as_ptr() }
-            }
-            OpenFXTypeLow::String(_) => {
-                quote! { #low_val.map_or(::std::ptr::null(), ::std::ffi::CStr::as_ptr) }
-            }
-        }
-    }
-
     fn as_simple_quote(&self, low_val: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
         match self {
             OpenFXTypeLow::Int(_)
@@ -745,16 +725,6 @@ impl OpenFXTypeLow {
         }
     }
 
-    fn is_as_sys_identity(&self) -> bool {
-        match self {
-            OpenFXTypeLow::Int(_) | OpenFXTypeLow::Double(_) => true,
-            OpenFXTypeLow::Bool(_)
-            | OpenFXTypeLow::Enum(_, _)
-            | OpenFXTypeLow::String(_)
-            | OpenFXTypeLow::Pointer(_) => false,
-        }
-    }
-
     fn is_as_simple_identity(&self) -> bool {
         match self {
             OpenFXTypeLow::Int(_)
@@ -762,35 +732,6 @@ impl OpenFXTypeLow {
             | OpenFXTypeLow::String(_)
             | OpenFXTypeLow::Pointer(_) => true,
             OpenFXTypeLow::Bool(_) | OpenFXTypeLow::Enum(_, _) => false,
-        }
-    }
-
-    #[expect(clippy::wrong_self_convention)]
-    fn from_sys_quote(&self, sys_val: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
-        match self {
-            OpenFXTypeLow::Int(_) | OpenFXTypeLow::Double(_) => {
-                quote! { #sys_val }
-            }
-            OpenFXTypeLow::Enum(_, name) => {
-                quote! { unsafe { crate::low::enums::#name::from_ptr_null_checked(#sys_val) } }
-            }
-            OpenFXTypeLow::Bool(_) => {
-                quote! { #sys_val != 0 }
-            }
-            OpenFXTypeLow::String(_) => {
-                quote! {
-                    if #sys_val.is_null() {
-                        None
-                    } else {
-                        Some(unsafe { ::std::ffi::CStr::from_ptr(#sys_val) })
-                    }
-                }
-            }
-            OpenFXTypeLow::Pointer(_) => {
-                quote! {
-                    ::std::ptr::NonNull::new(#sys_val)
-                }
-            }
         }
     }
 
@@ -809,16 +750,6 @@ impl OpenFXTypeLow {
             OpenFXTypeLow::Bool(_) => {
                 quote! { #simple_val != 0 }
             }
-        }
-    }
-
-    fn is_from_sys_identity(&self) -> bool {
-        match self {
-            OpenFXTypeLow::Int(_) | OpenFXTypeLow::Double(_) => true,
-            OpenFXTypeLow::Enum(_, _)
-            | OpenFXTypeLow::Bool(_)
-            | OpenFXTypeLow::String(_)
-            | OpenFXTypeLow::Pointer(_) => false,
         }
     }
 
