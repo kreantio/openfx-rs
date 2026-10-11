@@ -57,7 +57,8 @@ See also:
 use openfx::{
     low::Status,
     low_plugin::{Action, Host, Plugin},
-    sys_helpers::generic::{PluginStruct, Plugins, export_plugins, plugin_struct},
+    sys_plugin_helpers::{Plugins, export_plugins, plugin_struct},
+    sys::generic::core::{OfxHost, OfxPlugin},
 };
 
 // …
@@ -66,7 +67,7 @@ struct MyPlugins;
 export_plugins!(MyPlugins);
 
 impl Plugins for MyPlugins {
-    fn plugins(_host: Option<*const OfxHost>) -> Vec<PluginStruct> {
+    fn plugins(_host: Option<*const OfxHost>) -> Vec<OfxPlugin> {
         vec![plugin_struct!(BasicExamplePlugin)]
     }
 }

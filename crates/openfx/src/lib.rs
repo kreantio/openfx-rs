@@ -1,7 +1,7 @@
 pub mod low;
 pub mod low_plugin;
 pub mod sys;
-pub mod sys_helpers;
+pub mod sys_plugin_helpers;
 
 /// a workaround for `include_c_bindings`. TODO: remove this.
 #[allow(unused_imports)]
