@@ -10,7 +10,7 @@
 > This crate is in the early stages of development:
 >
 > - Its API is expected to change.
-> - At present, only `openfx::{sys, sys_helpers}` is fully implemented.
+> - At present, only `openfx::sys` is fully implemented.
 >   `openfx::{low, low_plugin}` is still under development.
 >
 > Although `openfx::{low, low_plugin}` already provides some functionality, it
