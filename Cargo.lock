@@ -288,14 +288,14 @@ checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
 
 [[package]]
 name = "openfx"
-version = "0.5.1"
+version = "0.6.0"
 dependencies = [
  "openfx-internal-macros",
 ]
 
 [[package]]
 name = "openfx-codegen"
-version = "0.5.1"
+version = "0.6.0"
 dependencies = [
  "clap",
  "convert_case",
@@ -332,7 +332,7 @@ dependencies = [
 
 [[package]]
 name = "openfx-internal-macros"
-version = "0.5.1"
+version = "0.6.0"
 dependencies = [
  "convert_case",
  "proc-macro2",
@@ -860,7 +860,7 @@ checksum = "23b97319f7b8343df12cc98938e5c3eb436064524c8d2b4e30a1d3a36eecdf81"
 
 [[package]]
 name = "xtask"
-version = "0.5.1"
+version = "0.6.0"
 dependencies = [
  "clap",
 ]
