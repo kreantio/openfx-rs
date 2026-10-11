@@ -162,7 +162,13 @@ fn make_property_getter(
         read_ident.span(),
     );
 
-    let rust_ty = ty.rust_type_quote_for_getter();
+    let rust_ty = match &prop.ty {
+        InputContainerType::Scalar(_) => ty.rust_type_quote_for_getter(Some(quote! {'a})),
+        InputContainerType::Array(_, size) if ty.is_from_simple_identity() => {
+            ty.rust_type_quote_for_getter(Some(quote! {'a}))
+        }
+        _ => ty.rust_type_quote_for_getter(None),
+    };
     let from_simple_quote = ty.from_simple_quote(quote! { value_simple });
     let value_from_simple_quote = match &prop.ty {
         InputContainerType::Scalar(_) => quote! { #from_simple_quote },
@@ -172,7 +178,7 @@ fn make_property_getter(
             quote! { value_simple }
         }
         InputContainerType::Array(_, _) => {
-            quote! { value_simple.map(|value_simple| #from_simple_quote) }
+            quote! { value_simple.into_iter().map(|value_simple| #from_simple_quote) }
         }
         InputContainerType::Slice(_) => {
             quote! { value_simple.into_iter().map(|value_simple| #from_simple_quote).collect() }
@@ -191,40 +197,49 @@ fn make_property_getter(
         InputContainerType::Scalar(_) => output.extend(
             quote! {
                 #docs
-                pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<#rust_ty> {
+                pub unsafe fn #fn_name<'a, 'b>(&'a self, suite: &'b crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<#rust_ty>
+                    where 'b: 'a
+                {
                     let value_simple = suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname)?;
                     let value = #value_from_simple_quote;
-                    todo!()
+                    Ok(value)
                 }
             },
         ),
-        InputContainerType::Array(_, size) => {
-            // let n = syn::LitInt::new(&size.to_string(), write_ident.span());
-            output.extend(
+        InputContainerType::Array(_, size) if ty.is_from_simple_identity() => output.extend(
+            quote! {
+                #docs
+                pub unsafe fn #fn_name<'a, 'b>(&'a self, suite: &'b crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#rust_ty; #size]>
+                    where 'b: 'a
+                {
+                    let value = suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)?;
+                    Ok(value)
+                }
+            }
+        ),
+        InputContainerType::Array(_, size) => output.extend(
             quote! {
                 #docs
                 pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#rust_ty; #size]> {
                     let value_simple = suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)?;
-                    todo!()
+                    let value = #value_from_simple_quote;
+                    Ok(value)
                 }
             },
-        )
-        },
-        InputContainerType::Slice(_) => {
-            output.extend(
-                quote! {
-                    #docs
-                    pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<::std::vec::Vec<#rust_ty>> {
-                        let dimensions = suite.prop_get_dimension(self.sys_handle(), crate::sys_umbrella::#cname)? as usize;
-                        let mut value = ::std::vec::Vec::with_capacity(dimensions);
-                        unsafe { value.set_len(dimensions); }
-                        suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, &mut value)?;
-                        // Ok(value)
-                        todo!()
-                    }
-                },
-            );
-        }
+        ),
+        InputContainerType::Slice(_) => output.extend(
+            quote! {
+                #docs
+                pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<::std::vec::Vec<#rust_ty>> {
+                    let dimensions = suite.prop_get_dimension(self.sys_handle(), crate::sys_umbrella::#cname)? as usize;
+                    let mut value_simple = ::std::vec::Vec::with_capacity(dimensions);
+                    unsafe { value_simple.set_len(dimensions); }
+                    suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, &mut value_simple)?;
+                    let value = #value_from_simple_quote;
+                    Ok(value)
+                }
+            },
+        ),
     }
 }
 
@@ -662,7 +677,10 @@ impl OpenFXTypeLow {
         }
     }
 
-    fn rust_type_quote_for_getter(&self) -> proc_macro2::TokenStream {
+    fn rust_type_quote_for_getter(
+        &self,
+        life_time: Option<proc_macro2::TokenStream>,
+    ) -> proc_macro2::TokenStream {
         match self {
             OpenFXTypeLow::Int(ident) => {
                 let c_int = quote_spanned! { ident.span() => c_int };
@@ -681,7 +699,7 @@ impl OpenFXTypeLow {
             }
             OpenFXTypeLow::String(ident) => {
                 let cstr = quote_spanned! { ident.span() => CStr };
-                quote! { ::std::option::Option<&::std::ffi::#cstr> }
+                quote! { ::std::option::Option<& #life_time ::std::ffi::#cstr> }
             }
             OpenFXTypeLow::Pointer(ident) => {
                 let c_void = quote_spanned! { ident.span() => c_void };
