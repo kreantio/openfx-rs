@@ -56,7 +56,13 @@ openfx_internal_macros::low_make_suite_struct!(
 openfx_internal_macros::low_make_suite_struct!(
     ProgressSuiteV2 : OfxProgressSuiteV2 : progress_end, progress_start, progress_update,
 );
-openfx_internal_macros::low_make_suite_struct!(PropertySuiteV1 : OfxPropertySuiteV1 :);
+openfx_internal_macros::low_make_suite_struct!(
+    PropertySuiteV1 : OfxPropertySuiteV1 : prop_get_dimension, prop_get_double,
+    prop_get_double_n, prop_get_int, prop_get_int_n, prop_get_pointer,
+    prop_get_pointer_n, prop_get_string, prop_get_string_n, prop_reset, prop_set_double,
+    prop_set_double_n, prop_set_int, prop_set_int_n, prop_set_pointer,
+    prop_set_pointer_n, prop_set_string, prop_set_string_n,
+);
 openfx_internal_macros::low_make_suite_struct!(
     TimeLineSuiteV1 : OfxTimeLineSuiteV1 : get_time, get_time_bounds, goto_time,
 );

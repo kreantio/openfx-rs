@@ -1,7 +1,7 @@
 pub mod low;
 pub mod low_plugin;
 pub mod sys;
-pub mod sys_helpers;
+pub mod sys_plugin_helpers;
 
 /// a workaround for `include_c_bindings`. TODO: remove this.
 #[allow(unused_imports)]
@@ -25,10 +25,4 @@ pub(crate) mod sys_umbrella {
     pub use crate::sys::image_effect_v1::pixels::*;
     pub use crate::sys::image_effect_v1::progress::*;
     pub use crate::sys::image_effect_v1::time_line::*;
-}
-
-#[allow(unused_imports)]
-pub(crate) mod sys_helpers_properties_umbrella {
-    pub use crate::sys_helpers::generic::properties::*;
-    pub use crate::sys_helpers::image_effect_v1::properties::*;
 }

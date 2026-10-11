@@ -28,16 +28,15 @@ use openfx::{
         },
     },
     sys::{
-        generic::core::{OfxPropertySetHandle, kOfxStatFailed},
-        image_effect_v1::param::{
-            OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble, kOfxParamTypeDouble2D,
-            kOfxParamTypeRGBA,
+        generic::core::{
+            OfxPropertySetHandle, kOfxPropInstanceData, kOfxPropLabel, kOfxStatFailed,
         },
-    },
-    sys_helpers::{
-        generic::properties::{set_OfxPropInstanceData, set_OfxPropName},
-        image_effect_v1::properties::{
-            get_OfxImageEffectPropRenderScale, get_OfxImageEffectPropRenderWindow,
+        image_effect_v1::{
+            image_effect::{kOfxImageEffectPropRenderScale, kOfxImageEffectPropRenderWindow},
+            param::{
+                OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble, kOfxParamTypeDouble2D,
+                kOfxParamTypeRGBA,
+            },
         },
     },
 };
@@ -345,14 +344,20 @@ fn action_create_instance(instance: ImageEffectInstance) -> openfx::low::Result<
     // SAFETY: the pointee is kept alive by `Box::into_raw` until it is
     // reclaimed with `Box::from_raw` in `action_destroy_instance`.
     match unsafe {
-        set_OfxPropInstanceData(s_prop.sys_ptr(), instance_props.sys_handle(), my_data_ptr)
+        s_prop.prop_set_pointer(
+            instance_props.sys_handle(),
+            kOfxPropInstanceData,
+            std::ptr::NonNull::new(my_data_ptr),
+        )
     } {
-        Ok(_) => Ok(()),
-        Err(err) => {
+        Ok(()) => (),
+        Err(e) => {
             drop(unsafe { Box::from_raw(my_data_ptr as *mut MyInstanceData) });
-            Err(Status::from(err))
+            return Err(e);
         }
-    }
+    };
+
+    Ok(())
 }
 
 fn action_destroy_instance(instance: ImageEffectInstance) -> openfx::low::Result<()> {
@@ -493,7 +498,7 @@ fn action_is_identity(
     };
 
     if is_identity {
-        unsafe { set_OfxPropName(s_prop.sys_ptr(), out_args, c"Source".as_ptr()) }?;
+        (unsafe { s_prop.prop_set_string(out_args, kOfxPropLabel, Some(c"Source")) })?;
         Ok(())
     } else {
         Err(Status::ReplyDefault)
@@ -513,11 +518,13 @@ fn action_render(
     let instance_props = unsafe { instance.get_property_set(s_ifx) }?;
 
     let time = unsafe { in_args.get_time(s_prop) }?;
-    let render_window =
-        unsafe { get_OfxImageEffectPropRenderWindow(s_prop.sys_ptr(), in_args.sys_handle()) }?;
+    let render_window = unsafe {
+        s_prop.prop_get_int_array::<4>(in_args.sys_handle(), kOfxImageEffectPropRenderWindow)
+    }?;
     let render_window = rect_i_from_array(&render_window);
-    let render_scale =
-        unsafe { get_OfxImageEffectPropRenderScale(s_prop.sys_ptr(), in_args.sys_handle()) }?;
+    let render_scale = unsafe {
+        s_prop.prop_get_double_array::<2>(in_args.sys_handle(), kOfxImageEffectPropRenderScale)
+    }?;
 
     let Some(my_data_ptr) = (unsafe { instance_props.get_instance_data(s_prop)? }) else {
         return Err(Status::Failed);
