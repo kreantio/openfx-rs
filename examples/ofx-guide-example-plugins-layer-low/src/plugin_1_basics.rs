@@ -16,8 +16,7 @@ use openfx::{
         actions::image_effect::{ActionDescribeInContextIn, ImageEffectAction},
         objects::{ImageEffectDescriptor, ImageEffectInstance},
     },
-    sys::generic::core::{OfxPropertySetHandle, kOfxStatOK},
-    sys_helpers::generic::properties::{set_OfxPropInstanceData, set_OfxPropLabel},
+    sys::generic::core::{OfxPropertySetHandle, kOfxPropInstanceData, kOfxPropLabel},
 };
 
 use crate::{
@@ -166,14 +165,20 @@ fn action_create_instance(instance: ImageEffectInstance) -> openfx::low::Result<
     let my_string = Box::new(String::from(
         "This is random instance data that could be anything you want.",
     ));
-    let my_string = Box::into_raw(my_string) as *mut c_void;
-    if let Some(stat) =
-        unsafe { set_OfxPropInstanceData(s_prop.sys_ptr(), props.sys_handle(), my_string) }.err()
-        && stat != kOfxStatOK
-    {
-        drop(unsafe { Box::from_raw(my_string.cast::<String>()) });
-        return Err(Status::from(stat));
-    }
+    let my_string = Box::into_raw(my_string);
+    match unsafe {
+        s_prop.prop_set_pointer(
+            props.sys_handle(),
+            kOfxPropInstanceData,
+            std::ptr::NonNull::new(my_string.cast::<c_void>()),
+        )
+    } {
+        Ok(()) => (),
+        Err(e) => {
+            drop(unsafe { Box::from_raw(my_string.cast::<String>()) });
+            return Err(e);
+        }
+    };
 
     Ok(())
 }
@@ -207,7 +212,7 @@ fn action_is_identity(out_args: OfxPropertySetHandle) -> openfx::low::Result<()>
 
     let s_prop = &data.property_suite.0;
 
-    unsafe { set_OfxPropLabel(s_prop.sys_ptr(), out_args, c"Source".as_ptr()) }?;
+    (unsafe { s_prop.prop_set_string(out_args, kOfxPropLabel, Some(c"Source")) })?;
 
     Ok(())
 }

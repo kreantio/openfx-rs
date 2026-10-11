@@ -41,28 +41,6 @@ ParameterSuiteV1 = { omit_functions = [
   "paramSetValueAtTime",
 ] }
 
-# Just use functions in `openfx::sys_helpers::generic::properties` instead of
-# functions here:
-PropertySuiteV1 = { omit_functions = [
-  "propGetDimension",
-  "propGetDouble",
-  "propGetDoubleN",
-  "propGetInt",
-  "propGetIntN",
-  "propGetPointer",
-  "propGetPointerN",
-  "propGetString",
-  "propGetStringN",
-  "propReset",
-  "propSetDouble",
-  "propSetDoubleN",
-  "propSetInt",
-  "propSetIntN",
-  "propSetPointer",
-  "propSetPointerN",
-  "propSetString",
-  "propSetStringN",
-] }
 
 [objects]
 unused_property_sets_in_metadata = [

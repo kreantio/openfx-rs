@@ -72,15 +72,17 @@ will be adopted once all vibe-zones have been removed.
 
 This project refers to properties in three ways:
 
-- **Key names** (also called **k names**) are macro names defined in the OpenFX
-  C headers, such as `kOfxPropAPIVersion`. They always begin with `k`.
+- **Key names** (also called **k names** and offically **cname**) are macro
+  names defined in the OpenFX C headers, such as `kOfxPropAPIVersion`. They
+  always begin with `k`.
 - **Canonical names** are key names with the leading `k` removed, such as
   `OfxPropAPIVersion`.
-- **Key constant values** (also called **key constants**) are the values of
-  key-name macros, such as `OfxPropAPIVersion`. Most match their canonical
-  names, but some are irregular. For example, the property with canonical name
-  `OfxPropKeyString` has the key constant `kOfxPropKeyString` rather than
-  `OfxPropKeyString`: the `k` was included in the key constant.
+- **Key constant values** (also called **key constants** and officially
+  **stringname**) are the values of key-name macros, such as
+  `OfxPropAPIVersion`. Most match their canonical names, but some are irregular.
+  For example, the property with canonical name `OfxPropKeyString` has the key
+  constant `kOfxPropKeyString` rather than `OfxPropKeyString`: the `k` was
+  included in the key constant.
 
 In this project, the `sys` layer exposes properties by their key names, while
 other layers, such as the `low` layer, use their canonical names (or simplified

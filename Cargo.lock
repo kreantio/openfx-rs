@@ -199,14 +199,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "guide-example-plugins-layer-sys"
-version = "0.1.0"
-dependencies = [
- "openfx",
- "tracing",
-]
-
-[[package]]
 name = "hashbrown"
 version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

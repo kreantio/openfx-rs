@@ -99,6 +99,24 @@ pub fn make_property_enums(tokens: TokenStream) -> TokenStream {
 
                     /// ## SAFETY
                     ///
+                    /// The returned pointer is valid as long as the
+                    /// [`std::ffi::CString`] inside
+                    /// [`Self::UnknownDontUseThisDirectly`] is not dropped.
+                    pub fn as_cstr(&self) -> Option<&std::ffi::CStr> {
+                        match self {
+                            #( Self::#vars => Some(#vals), )*
+                            Self::UnknownDontUseThisDirectly(ptr) => {
+                                if ptr.is_null() {
+                                    None
+                                } else {
+                                    Some(unsafe { &*::std::ffi::CStr::from_ptr(*ptr) })
+                                }
+                            }
+                        }
+                    }
+
+                    /// ## SAFETY
+                    ///
                     /// For enum variants unknown to this crate, this enum
                     /// stores a pointer to a C string owned by the host. The
                     /// caller must ensure that this pointer remains valid for

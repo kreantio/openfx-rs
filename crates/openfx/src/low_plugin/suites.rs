@@ -28,6 +28,8 @@ use crate::{
     },
 };
 
+mod impl_property_suite_property_accessor_methods;
+
 include!(concat!(
     env!("CARGO_MANIFEST_DIR"),
     "/generated/code_from_c/low_suites_plugin.rs",
@@ -1746,9 +1748,6 @@ impl ProgressSuiteV2 {
         })
     }
 }
-
-#[openfx_internal_macros::low_impl_suite]
-impl PropertySuiteV1 {}
 
 #[openfx_internal_macros::low_impl_suite]
 impl TimeLineSuiteV1 {
