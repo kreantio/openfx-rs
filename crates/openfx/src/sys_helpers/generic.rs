@@ -1,4 +1,4 @@
-use std::ffi::{CStr, c_char, c_int, c_uint, c_void};
+use std::ffi::{c_char, c_int, c_uint, c_void, CStr};
 
 use crate::sys::generic::core::{OfxHost, OfxPlugin, OfxPropertySetHandle, OfxStatus};
 
@@ -96,72 +96,3 @@ macro_rules! export_plugins {
     };
 }
 pub use export_plugins;
-
-pub mod properties {
-    //! The list of headers for properties included in this module is currently
-    //! maintained manually.
-
-    macro_rules! include_accessors {
-        ($name:ident) => {
-            include!(concat!(
-                env!("CARGO_MANIFEST_DIR"),
-                "/generated/code_from_cpp/sys_helpers_property_accessors/",
-                stringify!($name),
-                ".rs"
-            ));
-        };
-    }
-    pub(crate) use include_accessors;
-
-    include!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/generated/code_from_cpp/sys_helpers_property_accessors_generic.rs",
-    ));
-
-    include_accessors!(core);
-
-    /// ## SAFETY
-    ///
-    /// - `suite` must be a valid pointer to
-    ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
-    /// - `handle` must be a valid handle of
-    ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
-    pub unsafe fn reset_property(
-        suite: *const crate::sys_umbrella::OfxPropertySuiteV1,
-        handle: crate::sys_umbrella::OfxPropertySetHandle,
-        property: *const std::os::raw::c_char,
-    ) -> Result<(), crate::sys_umbrella::OfxStatus> {
-        // SAFETY: granted by the standard
-        let suite_fn = unsafe { (&*suite).propReset.unwrap_unchecked() };
-        if let s = unsafe { suite_fn(handle, property) }
-            && s != crate::sys_umbrella::kOfxStatOK
-        {
-            Err(s)
-        } else {
-            Ok(())
-        }
-    }
-
-    /// ## SAFETY
-    ///
-    /// - `suite` must be a valid pointer to
-    ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
-    /// - `handle` must be a valid handle of
-    ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
-    pub unsafe fn get_property_dimension(
-        suite: *const crate::sys_umbrella::OfxPropertySuiteV1,
-        handle: crate::sys_umbrella::OfxPropertySetHandle,
-        property: *const std::os::raw::c_char,
-    ) -> Result<std::os::raw::c_int, crate::sys_umbrella::OfxStatus> {
-        // SAFETY: granted by the standard
-        let suite_fn = unsafe { (&*suite).propGetDimension.unwrap_unchecked() };
-        let mut dimension: std::os::raw::c_int = 0;
-        if let s = unsafe { suite_fn(handle, property, &mut dimension) }
-            && s != crate::sys_umbrella::kOfxStatOK
-        {
-            Err(s)
-        } else {
-            Ok(dimension)
-        }
-    }
-}

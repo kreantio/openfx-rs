@@ -1,4 +1,4 @@
-use std::ffi::{CStr, c_char, c_int, c_uint, c_void};
+use std::ffi::{c_char, c_int, c_uint, c_void, CStr};
 
 use crate::{
     sys::generic::core::{OfxHost, OfxPropertySetHandle, OfxStatus},
@@ -38,21 +38,4 @@ impl<T: Plugin> sys_helpers::generic::Plugin for T {
     ) -> OfxStatus {
         T::main_entry(action, handle, in_args, out_args)
     }
-}
-
-pub mod properties {
-    //! The list of headers for properties included in this module is currently
-    //! maintained manually.
-
-    use crate::sys_helpers::generic::properties::include_accessors;
-
-    include_accessors!(colour);
-    include_accessors!(draw_suite);
-    include_accessors!(gpu_render);
-    include_accessors!(image_effect);
-    include_accessors!(interact);
-    include_accessors!(key_syms);
-    include_accessors!(old);
-    include_accessors!(param);
-    include_accessors!(parametric_param);
 }

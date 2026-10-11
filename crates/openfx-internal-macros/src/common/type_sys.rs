@@ -47,6 +47,15 @@ impl OpenFXTypeSys {
         }
     }
 
+    pub fn name_snake_case(&self) -> &str {
+        match self {
+            OpenFXTypeSys::Int(_) => "int",
+            OpenFXTypeSys::Double(_) => "double",
+            OpenFXTypeSys::String(_) => "string",
+            OpenFXTypeSys::Pointer(_) => "pointer",
+        }
+    }
+
     pub fn rust_type_quote_for_setter(&self) -> proc_macro2::TokenStream {
         match self {
             OpenFXTypeSys::Int(ident) => {
@@ -86,21 +95,5 @@ impl OpenFXTypeSys {
                 quote! { *mut ::std::ffi::#c_void }
             }
         }
-    }
-    pub fn sys_setter_fn_ident_single(&self) -> syn::Ident {
-        let name = format!("propSet{}", self);
-        syn::Ident::new(&name, self.span())
-    }
-    pub fn sys_setter_fn_ident_array(&self) -> syn::Ident {
-        let name = format!("propSet{}N", self);
-        syn::Ident::new(&name, self.span())
-    }
-    pub fn sys_getter_fn_ident_single(&self) -> syn::Ident {
-        let name = format!("propGet{}", self);
-        syn::Ident::new(&name, self.span())
-    }
-    pub fn sys_getter_fn_ident_array(&self) -> syn::Ident {
-        let name = format!("propGet{}N", self);
-        syn::Ident::new(&name, self.span())
     }
 }

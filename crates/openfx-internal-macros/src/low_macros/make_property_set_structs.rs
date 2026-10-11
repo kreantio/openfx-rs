@@ -49,6 +49,11 @@ fn make_property_accessors(output: &mut proc_macro2::TokenStream, prop: &InputPr
     let tys: Vec<_> = prop.ty.possible_types().iter().collect();
     let is_ambiguous = tys.len() > 1;
 
+    let cname = syn::Ident::new(
+        &format!("k{}", prop.canonical_name),
+        prop.canonical_name.span(),
+    );
+
     for ty in prop.ty.possible_types().iter() {
         let sys_ty = ty.sys();
         let fn_name_suffix = if is_ambiguous {
@@ -63,88 +68,65 @@ fn make_property_accessors(output: &mut proc_macro2::TokenStream, prop: &InputPr
                 .trim_start_matches("r#")
                 .to_owned()
         };
-        let fn_name_suffix_sys = if is_ambiguous {
-            // format!("{}_{}", prop.canonical_name, sys_ty)
-            syn::Ident::new(
-                &format!("{}_{}", prop.canonical_name, sys_ty),
-                prop.canonical_name.span(),
-            )
-        } else {
-            prop.canonical_name.clone()
-        };
 
         if let Some(write_ident) = &prop.accessors.write {
-            make_property_setter(
-                output,
-                prop,
-                &ty,
-                &fn_name_suffix,
-                &fn_name_suffix_sys,
-                write_ident,
-            );
+            make_property_setter(output, prop, &cname, &ty, &fn_name_suffix, write_ident);
         }
         if let Some(read_ident) = &prop.accessors.read {
-            make_property_getter(
-                output,
-                prop,
-                &ty,
-                &fn_name_suffix,
-                &fn_name_suffix_sys,
-                read_ident,
-            );
+            make_property_getter(output, prop, &cname, &ty, &fn_name_suffix, read_ident);
         }
     }
 
     if let Some(write_ident) = &prop.accessors.write {
-        make_property_resetter(output, prop, write_ident);
+        make_property_resetter(output, prop, &cname, write_ident);
     }
     if let Some(read_ident) = &prop.accessors.read
-        && matches!(prop.ty, InputContainerType::Array(_))
+        && matches!(prop.ty, InputContainerType::Slice(_))
     {
-        make_property_dimensions_getter(output, prop, read_ident);
+        make_property_dimensions_getter(output, prop, &cname, read_ident);
     }
 }
 
 fn make_property_setter(
     output: &mut proc_macro2::TokenStream,
     prop: &InputPropertyItem,
+    cname: &syn::Ident,
     ty: &OpenFXTypeLow,
     fn_name_suffix: &str,
-    fn_name_suffix_sys: &syn::Ident,
     write_ident: &syn::Ident,
 ) {
     let fn_name = syn::Ident::new(&format!("set_{}", fn_name_suffix), write_ident.span());
-    let fn_name_sys = syn::Ident::new(
-        &format!("set_{}", fn_name_suffix_sys),
-        fn_name_suffix_sys.span(),
+    let fn_name_on_suite = syn::Ident::new(
+        &format!(
+            "prop_set_{}{}",
+            ty.sys().name_snake_case(),
+            prop.ty.as_name_suffix()
+        ),
+        write_ident.span(),
     );
 
     let rust_ty = ty.rust_type_quote_for_setter();
     let container_ty = match &prop.ty {
-        InputContainerType::Single(_) => rust_ty.clone(),
-        InputContainerType::FixedArray(_, size) => {
+        InputContainerType::Scalar(_) => rust_ty.clone(),
+        InputContainerType::Array(_, size) => {
             quote! { [#rust_ty; #size] }
         }
-        InputContainerType::Array(_) => quote! { &[#rust_ty] },
+        InputContainerType::Slice(_) => quote! { &[#rust_ty] },
     };
 
-    let as_sys_quote = ty.as_sys_quote(quote! { value });
-    let (value_as_sys_quote, setter_value_quote) = match &prop.ty {
-        InputContainerType::Single(_) => (as_sys_quote, quote! { value_sys }),
-        InputContainerType::FixedArray(_, _) if ty.is_as_sys_identity() => {
-            (quote! { value }, quote! { value_sys })
+    let as_simple_quote = ty.as_simple_quote(quote! { value });
+    let value_as_simple_quote = match &prop.ty {
+        InputContainerType::Scalar(_) => as_simple_quote,
+        InputContainerType::Array(_, _) if ty.is_as_simple_identity() => {
+            quote! { value }
         }
-        InputContainerType::FixedArray(_, _) => (
-            quote! { value.map(|value| #as_sys_quote) },
-            quote! { value_sys },
-        ),
-        InputContainerType::Array(_) if ty.is_as_sys_identity() => {
-            (quote! { value }, quote! { value_sys })
+        InputContainerType::Array(_, _) => quote! { value.map(|value| #as_simple_quote) },
+        InputContainerType::Slice(_) if ty.is_as_simple_identity() => {
+            quote! { value }
         }
-        InputContainerType::Array(_) => (
-            quote! { value.iter().map(|value| #as_sys_quote).collect::<Vec<_>>() },
-            quote! { &value_sys },
-        ),
+        InputContainerType::Slice(_) => {
+            quote! { &value.iter().map(|value| #as_simple_quote).collect::<Vec<_>>() }
+        }
     };
 
     output.extend(
@@ -153,12 +135,10 @@ fn make_property_setter(
             ///
             /// - `self.0` must be a valid handle of
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
-            /// - `suite` must be a valid pointer to
-            ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
-            pub unsafe fn #fn_name(&self, suite: impl Into<*const crate::sys_umbrella::OfxPropertySuiteV1>, value: #container_ty) -> crate::low::Result<()> {
-                let value_sys = #value_as_sys_quote;
-                let status = crate::sys_helpers_properties_umbrella::#fn_name_sys(suite.into(), self.sys_handle(), #setter_value_quote);
-                status.map_err(crate::low::Status::from)
+            /// - `suite` must be valid.
+            pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1, value: #container_ty) -> crate::low::Result<()> {
+                let value_simple = #value_as_simple_quote;
+                suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, value_simple)
             }
         }
     );
@@ -167,30 +147,35 @@ fn make_property_setter(
 fn make_property_getter(
     output: &mut proc_macro2::TokenStream,
     prop: &InputPropertyItem,
+    cname: &syn::Ident,
     ty: &OpenFXTypeLow,
     fn_name_suffix: &str,
-    fn_name_suffix_sys: &syn::Ident,
     read_ident: &syn::Ident,
 ) {
     let fn_name = syn::Ident::new(&format!("get_{}", fn_name_suffix), read_ident.span());
-    let fn_name_sys = syn::Ident::new(
-        &format!("get_{}", fn_name_suffix_sys),
-        fn_name_suffix_sys.span(),
+    let fn_name_on_suite = syn::Ident::new(
+        &format!(
+            "prop_get_{}{}",
+            ty.sys().name_snake_case(),
+            prop.ty.as_name_suffix()
+        ),
+        read_ident.span(),
     );
+
     let rust_ty = ty.rust_type_quote_for_getter();
-    let from_sys_quote = ty.from_sys_quote(quote! { value_sys });
-    let value_from_sys_quote = match &prop.ty {
-        InputContainerType::Single(_) => quote! { #from_sys_quote },
-        InputContainerType::FixedArray(_, _) | InputContainerType::Array(_)
-            if ty.is_from_sys_identity() =>
+    let from_simple_quote = ty.from_simple_quote(quote! { value_simple });
+    let value_from_simple_quote = match &prop.ty {
+        InputContainerType::Scalar(_) => quote! { #from_simple_quote },
+        InputContainerType::Array(_, _) | InputContainerType::Slice(_)
+            if ty.is_from_simple_identity() =>
         {
-            quote! { value_sys }
+            quote! { value_simple }
         }
-        InputContainerType::FixedArray(_, _) => {
-            quote! { value_sys.map(|value_sys| #from_sys_quote) }
+        InputContainerType::Array(_, _) => {
+            quote! { value_simple.map(|value_simple| #from_simple_quote) }
         }
-        InputContainerType::Array(_) => {
-            quote! { value_sys.into_iter().map(|value_sys| #from_sys_quote).collect() }
+        InputContainerType::Slice(_) => {
+            quote! { value_simple.into_iter().map(|value_simple| #from_simple_quote).collect() }
         }
     };
 
@@ -199,48 +184,43 @@ fn make_property_getter(
         ///
         /// - `self.0` must be a valid handle of
         ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
-        /// - `suite` must be a valid pointer to
-        ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
+        /// - `suite` must be valid.
     };
 
     match &prop.ty {
-        InputContainerType::Single(_) => output.extend(
+        InputContainerType::Scalar(_) => output.extend(
             quote! {
                 #docs
-                pub unsafe fn #fn_name(&self, suite: impl Into<*const crate::sys_umbrella::OfxPropertySuiteV1>) -> crate::low::Result<#rust_ty> {
-                    let value_sys = crate::sys_helpers_properties_umbrella::#fn_name_sys(suite.into(), self.sys_handle())
-                        .map_err(crate::low::Status::from)?;
-                    Ok(#value_from_sys_quote)
+                pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<#rust_ty> {
+                    let value_simple = suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname)?;
+                    let value = #value_from_simple_quote;
+                    todo!()
                 }
             },
         ),
-        InputContainerType::FixedArray(_, size) => output.extend(
+        InputContainerType::Array(_, size) => {
+            // let n = syn::LitInt::new(&size.to_string(), write_ident.span());
+            output.extend(
             quote! {
                 #docs
-                pub unsafe fn #fn_name(&self, suite: impl Into<*const crate::sys_umbrella::OfxPropertySuiteV1>) -> crate::low::Result<[#rust_ty; #size]> {
-                    let value_sys = crate::sys_helpers_properties_umbrella::#fn_name_sys(suite.into(), self.sys_handle())
-                        .map_err(crate::low::Status::from)?;
-                    Ok(#value_from_sys_quote)
+                pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#rust_ty; #size]> {
+                    let value_simple = suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)?;
+                    todo!()
                 }
             },
-        ),
-        InputContainerType::Array(_) => {
-            let fn_name_dimensions = syn::Ident::new(
-                &format!("len_{}", prop.simple_name),
-                proc_macro2::Span::call_site(),
-            );
-            let sys_ty = ty.sys().rust_type_quote_for_getter();
-
+        )
+        },
+        InputContainerType::Slice(_) => {
             output.extend(
                 quote! {
                     #docs
-                    pub unsafe fn #fn_name(&self, suite: impl Into<*const crate::sys_umbrella::OfxPropertySuiteV1>) -> crate::low::Result<::std::vec::Vec<#rust_ty>> {
-                        let suite = suite.into();
-                        let dimensions = self.#fn_name_dimensions(suite)?;
-                        let mut value_sys = ::std::vec![unsafe { ::std::mem::zeroed::<#sys_ty>() }; dimensions as usize];
-                        crate::sys_helpers_properties_umbrella::#fn_name_sys(suite, self.sys_handle(), &mut value_sys)
-                            .map_err(crate::low::Status::from)?;
-                        Ok(#value_from_sys_quote)
+                    pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<::std::vec::Vec<#rust_ty>> {
+                        let dimensions = suite.prop_get_dimension(self.sys_handle(), crate::sys_umbrella::#cname)? as usize;
+                        let mut value = ::std::vec::Vec::with_capacity(dimensions);
+                        unsafe { value.set_len(dimensions); }
+                        suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, &mut value)?;
+                        // Ok(value)
+                        todo!()
                     }
                 },
             );
@@ -251,6 +231,7 @@ fn make_property_getter(
 fn make_property_resetter(
     output: &mut proc_macro2::TokenStream,
     prop: &InputPropertyItem,
+    cname: &syn::Ident,
     write_ident: &syn::Ident,
 ) {
     let fn_name = syn::Ident::new(
@@ -260,10 +241,6 @@ fn make_property_resetter(
         ),
         write_ident.span(),
     );
-    let property_name = syn::Ident::new(
-        &format!("k{}", prop.canonical_name),
-        prop.canonical_name.span(),
-    );
 
     output.extend(
         quote! {
@@ -271,17 +248,11 @@ fn make_property_resetter(
             ///
             /// - `self.0` must be a valid handle of
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
-            /// - `suite` must be a valid pointer to
-            ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
-            pub unsafe fn #fn_name(&self, suite: impl Into<*const crate::sys_umbrella::OfxPropertySuiteV1>) -> crate::low::Result<()> {
-                let status = unsafe {
-                    crate::sys_helpers::generic::properties::reset_property(
-                        suite.into(),
-                        self.sys_handle(),
-                        crate::sys_umbrella::#property_name.as_ptr(),
-                    )
-                };
-                status.map_err(crate::low::Status::from)
+            /// - `suite` must be valid.
+            pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<()> {
+                unsafe {
+                    suite.prop_reset(self.sys_handle(), crate::sys_umbrella::#cname)
+                }
             }
         }
     );
@@ -290,6 +261,7 @@ fn make_property_resetter(
 fn make_property_dimensions_getter(
     output: &mut proc_macro2::TokenStream,
     prop: &InputPropertyItem,
+    cname: &syn::Ident,
     read_ident: &syn::Ident,
 ) {
     let fn_name = syn::Ident::new(
@@ -299,10 +271,6 @@ fn make_property_dimensions_getter(
         ),
         read_ident.span(),
     );
-    let property_name = syn::Ident::new(
-        &format!("k{}", prop.canonical_name),
-        prop.canonical_name.span(),
-    );
 
     output.extend(
         quote! {
@@ -310,17 +278,11 @@ fn make_property_dimensions_getter(
             ///
             /// - `self.0` must be a valid handle of
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
-            /// - `suite` must be a valid pointer to
-            ///   [`crate::sys_umbrella::OfxPropertySuiteV1`].
-            pub unsafe fn #fn_name(&self, suite: impl Into<*const crate::sys_umbrella::OfxPropertySuiteV1>) -> crate::low::Result<::std::os::raw::c_int> {
-                let status = unsafe {
-                    crate::sys_helpers::generic::properties::get_property_dimension(
-                        suite.into(),
-                        self.sys_handle(),
-                        crate::sys_umbrella::#property_name.as_ptr(),
-                    )
-                };
-                status.map_err(crate::low::Status::from)
+            /// - `suite` must be valid.
+            pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<::std::os::raw::c_int> {
+                unsafe {
+                    suite.prop_get_dimension(self.sys_handle(), crate::sys_umbrella::#cname)
+                }
             }
         }
     );
@@ -416,9 +378,9 @@ impl syn::parse::Parse for InputPropertyItem {
 }
 
 enum InputContainerType {
-    Single(InputPossibleTypes),
-    FixedArray(InputPossibleTypes, usize),
-    Array(InputPossibleTypes),
+    Scalar(InputPossibleTypes),
+    Array(InputPossibleTypes, usize),
+    Slice(InputPossibleTypes),
 }
 
 impl syn::parse::Parse for InputContainerType {
@@ -432,12 +394,12 @@ impl syn::parse::Parse for InputContainerType {
                 content.parse::<syn::Token![;]>()?;
                 let length: syn::LitInt = content.parse()?;
                 let length = length.base10_parse()?;
-                Ok(Self::FixedArray(ty, length))
+                Ok(Self::Array(ty, length))
             } else {
-                Ok(Self::Array(ty))
+                Ok(Self::Slice(ty))
             }
         } else {
-            Ok(Self::Single(input.parse()?))
+            Ok(Self::Scalar(input.parse()?))
         }
     }
 }
@@ -445,9 +407,17 @@ impl syn::parse::Parse for InputContainerType {
 impl InputContainerType {
     fn possible_types(&self) -> &InputPossibleTypes {
         match self {
-            InputContainerType::Single(ty) => ty,
-            InputContainerType::FixedArray(ty, _) => ty,
-            InputContainerType::Array(ty) => ty,
+            InputContainerType::Scalar(ty) => ty,
+            InputContainerType::Array(ty, _) => ty,
+            InputContainerType::Slice(ty) => ty,
+        }
+    }
+
+    fn as_name_suffix(&self) -> &str {
+        match self {
+            InputContainerType::Scalar(_) => "",
+            InputContainerType::Array(_, _) => "_array",
+            InputContainerType::Slice(_) => "_n",
         }
     }
 }
@@ -740,6 +710,23 @@ impl OpenFXTypeLow {
         }
     }
 
+    fn as_simple_quote(&self, low_val: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
+        match self {
+            OpenFXTypeLow::Int(_)
+            | OpenFXTypeLow::Double(_)
+            | OpenFXTypeLow::String(_)
+            | OpenFXTypeLow::Pointer(_) => {
+                quote! { #low_val }
+            }
+            OpenFXTypeLow::Bool(_) => {
+                quote! { #low_val as ::std::os::raw::c_int }
+            }
+            OpenFXTypeLow::Enum(_, _) => {
+                quote! { #low_val.as_cstr() }
+            }
+        }
+    }
+
     fn is_as_sys_identity(&self) -> bool {
         match self {
             OpenFXTypeLow::Int(_) | OpenFXTypeLow::Double(_) => true,
@@ -747,6 +734,16 @@ impl OpenFXTypeLow {
             | OpenFXTypeLow::Enum(_, _)
             | OpenFXTypeLow::String(_)
             | OpenFXTypeLow::Pointer(_) => false,
+        }
+    }
+
+    fn is_as_simple_identity(&self) -> bool {
+        match self {
+            OpenFXTypeLow::Int(_)
+            | OpenFXTypeLow::Double(_)
+            | OpenFXTypeLow::String(_)
+            | OpenFXTypeLow::Pointer(_) => true,
+            OpenFXTypeLow::Bool(_) | OpenFXTypeLow::Enum(_, _) => false,
         }
     }
 
@@ -779,6 +776,24 @@ impl OpenFXTypeLow {
         }
     }
 
+    #[expect(clippy::wrong_self_convention)]
+    fn from_simple_quote(&self, simple_val: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
+        match self {
+            OpenFXTypeLow::Int(_)
+            | OpenFXTypeLow::Double(_)
+            | OpenFXTypeLow::String(_)
+            | OpenFXTypeLow::Pointer(_) => {
+                quote! { #simple_val }
+            }
+            OpenFXTypeLow::Enum(_, name) => {
+                quote! { unsafe { crate::low::enums::#name::from_ptr_null_checked(#simple_val.map_or(std::ptr::null(), |s| s.as_ptr())) } }
+            }
+            OpenFXTypeLow::Bool(_) => {
+                quote! { #simple_val != 0 }
+            }
+        }
+    }
+
     fn is_from_sys_identity(&self) -> bool {
         match self {
             OpenFXTypeLow::Int(_) | OpenFXTypeLow::Double(_) => true,
@@ -786,6 +801,16 @@ impl OpenFXTypeLow {
             | OpenFXTypeLow::Bool(_)
             | OpenFXTypeLow::String(_)
             | OpenFXTypeLow::Pointer(_) => false,
+        }
+    }
+
+    fn is_from_simple_identity(&self) -> bool {
+        match self {
+            OpenFXTypeLow::Int(_)
+            | OpenFXTypeLow::Double(_)
+            | OpenFXTypeLow::String(_)
+            | OpenFXTypeLow::Pointer(_) => true,
+            OpenFXTypeLow::Bool(_) | OpenFXTypeLow::Enum(_, _) => false,
         }
     }
 }

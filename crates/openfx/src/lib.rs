@@ -26,9 +26,3 @@ pub(crate) mod sys_umbrella {
     pub use crate::sys::image_effect_v1::progress::*;
     pub use crate::sys::image_effect_v1::time_line::*;
 }
-
-#[allow(unused_imports)]
-pub(crate) mod sys_helpers_properties_umbrella {
-    pub use crate::sys_helpers::generic::properties::*;
-    pub use crate::sys_helpers::image_effect_v1::properties::*;
-}
