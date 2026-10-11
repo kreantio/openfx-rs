@@ -20,8 +20,6 @@ This crate provides bindings for the OpenFX API in these abstraction layers:
 
 - layer `sys` (`openfx::sys`): raw low-level bindings generated from the OpenFX
   C headers.
-- layer `sys_helpers` (`openfx::sys_helpers`): helper functions and macros that
-  facilitate plugin development with few runtime abstractions.
 - layer `low` (`openfx::{low, low_plugin}`): unsafe low-level bindings built on
   top of the `sys` bindings, with a little more runtime overhead. Here, values
   from the `sys` bindings are cast into stronger types generated from the
