@@ -102,7 +102,7 @@ fn make_property_setter(
             ty.sys().name_snake_case(),
             prop.ty.as_name_suffix()
         ),
-        write_ident.span(),
+        proc_macro2::Span::call_site(),
     );
 
     let rust_ty = ty.rust_type_quote_for_setter();
@@ -159,7 +159,7 @@ fn make_property_getter(
             ty.sys().name_snake_case(),
             prop.ty.as_name_suffix()
         ),
-        read_ident.span(),
+        proc_macro2::Span::call_site(),
     );
 
     let rust_ty = match &prop.ty {
