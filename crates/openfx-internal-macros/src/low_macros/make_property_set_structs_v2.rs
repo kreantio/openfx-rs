@@ -1,3 +1,13 @@
+//! ## Agentic activities
+//!
+//! - The syntax of `make_property_set_structs!` was changed from a highly
+//!   customized DSL to a pseudo-Rust syntax. The parsing logic for it was
+//!   adapted by AI:
+//!   - Author: OpenCode 2 / GLM 5.3 (provider: Z.AI, thinking: Max)
+//!   - Reviewed-by: Umaĵo
+
+use std::collections::HashSet;
+
 use proc_macro::TokenStream;
 use quote::{quote, quote_spanned};
 
@@ -69,21 +79,19 @@ fn make_property_accessors(output: &mut proc_macro2::TokenStream, prop: &InputPr
                 .to_owned()
         };
 
-        if let Some(write_ident) = &prop.accessors.write {
-            make_property_setter(output, prop, &cname, &ty, &fn_name_suffix, write_ident);
+        if prop.accessors.write.is_some() {
+            make_property_setter(output, prop, &cname, &ty, &fn_name_suffix);
         }
-        if let Some(read_ident) = &prop.accessors.read {
-            make_property_getter(output, prop, &cname, &ty, &fn_name_suffix, read_ident);
+        if prop.accessors.read.is_some() {
+            make_property_getter(output, prop, &cname, &ty, &fn_name_suffix);
         }
     }
 
-    if let Some(write_ident) = &prop.accessors.write {
-        make_property_resetter(output, prop, &cname, write_ident);
+    if prop.accessors.write.is_some() {
+        make_property_resetter(output, prop, &cname);
     }
-    if let Some(read_ident) = &prop.accessors.read
-        && matches!(prop.ty, InputContainerType::Slice(_))
-    {
-        make_property_dimensions_getter(output, prop, &cname, read_ident);
+    if prop.accessors.read.is_some() && matches!(prop.ty, InputContainerType::Slice(_)) {
+        make_property_dimensions_getter(output, prop, &cname);
     }
 }
 
@@ -93,9 +101,8 @@ fn make_property_setter(
     cname: &syn::Ident,
     ty: &OpenFXTypeLow,
     fn_name_suffix: &str,
-    write_ident: &syn::Ident,
 ) {
-    let fn_name = syn::Ident::new(&format!("set_{}", fn_name_suffix), write_ident.span());
+    let fn_name = syn::Ident::new(&format!("set_{}", fn_name_suffix), prop.simple_name.span());
     let fn_name_on_suite = syn::Ident::new(
         &format!(
             "prop_set_{}{}",
@@ -150,9 +157,8 @@ fn make_property_getter(
     cname: &syn::Ident,
     ty: &OpenFXTypeLow,
     fn_name_suffix: &str,
-    read_ident: &syn::Ident,
 ) {
-    let fn_name = syn::Ident::new(&format!("get_{}", fn_name_suffix), read_ident.span());
+    let fn_name = syn::Ident::new(&format!("get_{}", fn_name_suffix), prop.simple_name.span());
     let fn_name_on_suite = syn::Ident::new(
         &format!(
             "prop_get_{}{}",
@@ -247,14 +253,13 @@ fn make_property_resetter(
     output: &mut proc_macro2::TokenStream,
     prop: &InputPropertyItem,
     cname: &syn::Ident,
-    write_ident: &syn::Ident,
 ) {
     let fn_name = syn::Ident::new(
         &format!(
             "reset_{}",
             prop.simple_name.to_string().trim_start_matches("r#")
         ),
-        write_ident.span(),
+        prop.simple_name.span(),
     );
 
     output.extend(
@@ -277,14 +282,13 @@ fn make_property_dimensions_getter(
     output: &mut proc_macro2::TokenStream,
     prop: &InputPropertyItem,
     cname: &syn::Ident,
-    read_ident: &syn::Ident,
 ) {
     let fn_name = syn::Ident::new(
         &format!(
             "len_{}",
             prop.simple_name.to_string().trim_start_matches("r#")
         ),
-        read_ident.span(),
+        prop.simple_name.span(),
     );
 
     output.extend(
@@ -306,34 +310,34 @@ fn make_property_dimensions_getter(
 /// ## Examples
 ///
 /// ```rust,ignore
-/// openfx_internal_macros::low_make_property_set_structs! {
-///     CustomParamInterpFuncIn {
-///         r/_ custom_value: [String; 2] @OfxParamPropCustomValue;
-///         r/_ interpolation_amount: Double @OfxParamPropInterpolationAmount;
-///         r/w interpolation_time: [Double; 2] @OfxParamPropInterpolationTime;
-///     }
-/// }
-/// ```
-///
-/// ```rust,ignore
-/// openfx_internal_macros::low_make_property_set_structs! {
-///     ClipInstance {
-///         r/_ r#type: String @OfxPropType;
+/// make_property_set_structs_v2! {
+///     struct ImageClipInstancePropertySet {
 ///         // …
-///         r/_ supported_components: [Enum(ImageEffectPropSupportedComponents)] @OfxImageEffectPropSupportedComponents;
-///         r/_ temporal_clip_access: Bool @OfxImageEffectPropTemporalClipAccess;
-///     }
-///     // …
-///     EffectInstance {
-///         r/_ r#type: String @OfxPropType;
-///         r/_ context: Enum(ImageEffectPropContext) @OfxImageEffectPropContext;
-///         r/_ instance_data: Pointer @OfxPropInstanceData;
+///         #[meta(write = host, @OfxImageEffectPropSupportedComponents)]
+///         image_effect_supported_components: [ty_enum!(ImageEffectPropSupportedComponents)],
 ///         // …
-///     }
-///     // …
-///     ParamDouble1D {
+///         #[meta(write = host, @OfxImageEffectPropTemporalClipAccess)]
+///         image_effect_temporal_clip_access: Bool,
 ///         // …
-///         r/_ default: [(Int | Double | String | Pointer)] @OfxParamPropDefault;
+///         #[meta(write = host, @OfxPropType)]
+///         r#type: String,
+///     }
+/// // …
+///     struct ImageEffectInstancePropertySet {
+///         // …
+///         #[meta(write = host, @OfxImageEffectPropContext)]
+///         image_effect_context: ty_enum!(ImageEffectPropContext),
+///         // …
+///         #[meta(write = host, @OfxPropInstanceData)]
+///         instance_data: Pointer,
+///         // …
+///         #[meta(write = host, @OfxPropType)]
+///         r#type: String,
+///     }
+///     struct ParamDouble1DPropertySet {
+///         // …
+///         #[meta(write = plugin, @OfxParamPropDefault)]
+///         param_default: [ty_one_of!(Int | Double | String | Pointer)],
 ///         // …
 ///     }
 /// }
@@ -355,15 +359,30 @@ impl syn::parse::Parse for Input {
 
 struct InputPropertySet {
     name: syn::Ident,
-    items: syn::punctuated::Punctuated<InputPropertyItem, syn::Token![;]>,
+    items: syn::punctuated::Punctuated<InputPropertyItem, syn::Token![,]>,
 }
 
 impl syn::parse::Parse for InputPropertySet {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        input.parse::<syn::Token![struct]>()?;
         let name: syn::Ident = input.parse()?;
         let content;
         syn::braced!(content in input);
-        let items = content.parse_terminated(InputPropertyItem::parse, syn::Token![;])?;
+        let items = content.parse_terminated(InputPropertyItem::parse, syn::Token![,])?;
+
+        let mut seen = HashSet::new();
+        for item in &items {
+            if !seen.insert(&item.simple_name) {
+                return Err(syn::Error::new_spanned(
+                    &item.simple_name,
+                    format!(
+                        "duplicate item `{}` in property set `{}`",
+                        item.simple_name, name
+                    ),
+                ));
+            }
+        }
+
         Ok(InputPropertySet { name, items })
     }
 }
@@ -377,16 +396,48 @@ struct InputPropertyItem {
 
 impl syn::parse::Parse for InputPropertyItem {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let accessors: InputAccessorsFunctions = input.parse()?;
+        let meta = input.parse::<InputMetaAttribute>()?;
         let simple_name: syn::Ident = input.parse()?;
         input.parse::<syn::Token![:]>()?;
         let ty: InputContainerType = input.parse()?;
-        input.parse::<syn::Token![@]>()?;
-        let canonical_name: syn::Ident = input.parse()?;
         Ok(InputPropertyItem {
-            accessors,
+            accessors: meta.accessors,
             simple_name,
             ty,
+            canonical_name: meta.canonical_name,
+        })
+    }
+}
+
+/// The `#[meta(write = …, @CanonicalName)]` attribute on an [`InputPropertyItem`].
+struct InputMetaAttribute {
+    accessors: InputAccessorsFunctions,
+    canonical_name: syn::Ident,
+}
+
+impl syn::parse::Parse for InputMetaAttribute {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        input.parse::<syn::Token![#]>()?;
+        let content;
+        syn::bracketed!(content in input);
+        let attr_name = content.parse::<syn::Ident>()?;
+        if attr_name != "meta" {
+            return Err(syn::Error::new_spanned(attr_name, "expected `meta`"));
+        }
+        let inner;
+        syn::parenthesized!(inner in content);
+        let accessors = inner.parse::<InputAccessorsFunctions>()?;
+        inner.parse::<syn::Token![,]>()?;
+        inner.parse::<syn::Token![@]>()?;
+        let canonical_name = inner.parse::<syn::Ident>()?;
+        if !inner.is_empty() {
+            return Err(inner.error("unexpected tokens in `meta` attribute"));
+        }
+        if !content.is_empty() {
+            return Err(content.error("unexpected tokens in attribute"));
+        }
+        Ok(InputMetaAttribute {
+            accessors,
             canonical_name,
         })
     }
@@ -448,115 +499,87 @@ struct InputPossibleTypes {
 
 impl syn::parse::Parse for InputPossibleTypes {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let mut int = None;
-        let mut double = None;
-        let mut r#enum = None;
-        let mut bool = None;
-        let mut string = None;
-        let mut pointer = None;
+        let mut this = Self {
+            int: None,
+            double: None,
+            r#enum: None,
+            bool: None,
+            string: None,
+            pointer: None,
+        };
 
-        fn try_set(slot: &mut Option<syn::Ident>, value: syn::Ident) -> syn::Result<()> {
-            if slot.is_some() {
-                return Err(syn::Error::new_spanned(
-                    value,
-                    "duplicate type in property type set",
-                ));
-            }
-            *slot = Some(value);
-            Ok(())
-        }
-        fn try_set_enum(
-            slot: &mut Option<(syn::Ident, syn::Ident)>,
-            value: (syn::Ident, syn::Ident),
-        ) -> syn::Result<()> {
-            if slot.is_some() {
-                return Err(syn::Error::new_spanned(
-                    value.0.clone(),
-                    "duplicate type in property type set",
-                ));
-            }
-            *slot = Some(value);
-            Ok(())
-        }
+        let ty: syn::Ident = input.parse()?;
+        match ty.to_string().as_str() {
+            // `ty_one_of!(A | B | …)`
+            "ty_one_of" => {
+                input.parse::<syn::Token![!]>()?;
+                let content;
+                syn::parenthesized!(content in input);
 
-        if input.peek(syn::token::Paren) {
-            let content;
-            syn::parenthesized!(content in input);
-
-            while !content.is_empty() {
-                let ty: syn::Ident = content.parse()?;
-                match ty.to_string().as_str() {
-                    "Int" => try_set(&mut int, ty)?,
-                    "Double" => try_set(&mut double, ty)?,
-                    "Bool" => try_set(&mut bool, ty)?,
-                    "String" => try_set(&mut string, ty)?,
-                    "Pointer" => try_set(&mut pointer, ty)?,
-                    "Enum" => {
-                        let enum_content;
-                        syn::parenthesized!(enum_content in content);
-                        let enum_type = enum_content.parse()?;
-                        if !enum_content.is_empty() {
-                            return Err(enum_content.error("expected a single enum type"));
-                        }
-                        try_set_enum(&mut r#enum, (ty, enum_type))?;
-                    }
-                    _ => return Err(syn::Error::new_spanned(ty, "expected a property type")),
-                }
-
-                if content.peek(syn::Token![|]) {
-                    content.parse::<syn::Token![|]>()?;
-                }
-            }
-        } else {
-            let ty: syn::Ident = input.parse()?;
-            match ty.to_string().as_str() {
-                "Int" => int = Some(ty),
-                "Double" => double = Some(ty),
-                "Bool" => bool = Some(ty),
-                "String" => string = Some(ty),
-                "Pointer" => pointer = Some(ty),
-                "Enum" => {
-                    let content;
-                    syn::parenthesized!(content in input);
-                    let enum_type = content.parse()?;
+                while !content.is_empty() {
+                    let ty: syn::Ident = content.parse()?;
+                    this.set_simple(ty)?;
                     if !content.is_empty() {
-                        return Err(content.error("expected a single enum type"));
+                        content.parse::<syn::Token![|]>()?;
                     }
-                    r#enum = Some((ty, enum_type));
                 }
-                _ => return Err(syn::Error::new_spanned(ty, "expected a property type")),
             }
+            // `ty_enum!(EnumType)`
+            "ty_enum" => {
+                input.parse::<syn::Token![!]>()?;
+                let content;
+                syn::parenthesized!(content in input);
+                let enum_type = content.parse()?;
+                if !content.is_empty() {
+                    return Err(content.error("expected a single enum type"));
+                }
+                let enum_marker = syn::Ident::new("Enum", ty.span());
+                this.r#enum = Some((enum_marker, enum_type));
+            }
+            // A single simple type, e.g. `Int`.
+            _ => this.set_simple(ty)?,
         }
 
-        if let Some(bool) = &bool
-            && int.is_some()
+        if let Some(bool) = &this.bool
+            && this.int.is_some()
         {
             return Err(syn::Error::new_spanned(
                 bool,
                 "Int and Bool types are mutually exclusive.",
             ));
         }
-        if let Some(r#enum) = &r#enum
-            && string.is_some()
-        {
-            return Err(syn::Error::new_spanned(
-                r#enum.0.clone(),
-                "Enum and String types are mutually exclusive.",
-            ));
-        }
 
-        Ok(Self {
-            int,
-            double,
-            r#enum,
-            bool,
-            string,
-            pointer,
-        })
+        Ok(this)
     }
 }
 
 impl InputPossibleTypes {
+    /// Fills the slot of a simple property type (`Int`, `Double`, `Bool`,
+    /// `String` or `Pointer`), rejecting unknown or duplicated types.
+    fn set_simple(&mut self, ty: syn::Ident) -> syn::Result<()> {
+        let slot = match ty.to_string().as_str() {
+            "Int" => &mut self.int,
+            "Double" => &mut self.double,
+            "Bool" => &mut self.bool,
+            "String" => &mut self.string,
+            "Pointer" => &mut self.pointer,
+            _ => {
+                return Err(syn::Error::new_spanned(
+                    ty,
+                    "expected a simple property type",
+                ));
+            }
+        };
+        if slot.is_some() {
+            return Err(syn::Error::new_spanned(
+                ty,
+                "duplicate type in property type set",
+            ));
+        }
+        *slot = Some(ty);
+        Ok(())
+    }
+
     fn iter(&self) -> OpenFXTypeLowIterator {
         let mut types = Vec::new();
         if let Some(int) = &self.int {
@@ -596,33 +619,31 @@ struct InputAccessorsFunctions {
     write: Option<syn::Ident>,
 }
 
+/// Parses the `write = …` part of the `#[meta(…)]` attribute.
+///
+/// - `write = host`: the host writes the property, thus the plugin may only
+///   read it.
+/// - `write = plugin`: the plugin writes the property.
 impl syn::parse::Parse for InputAccessorsFunctions {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let read = if input.peek(syn::Token![_]) {
-            input.parse::<syn::Token![_]>()?;
-            None
-        } else {
-            let marker: syn::Ident = input.parse()?;
-            match marker.to_string().as_str() {
-                "r" => Some(marker),
-                _ => return Err(syn::Error::new(marker.span(), "expected `r` or `_`")),
-            }
-        };
+        let key = input.parse::<syn::Ident>()?;
+        if key != "write" {
+            return Err(syn::Error::new_spanned(key, "expected `write`"));
+        }
+        input.parse::<syn::Token![=]>()?;
 
-        input.parse::<syn::Token![/]>()?;
-
-        let write = if input.peek(syn::Token![_]) {
-            input.parse::<syn::Token![_]>()?;
-            None
-        } else {
-            let marker: syn::Ident = input.parse()?;
-            match marker.to_string().as_str() {
-                "w" => Some(marker),
-                _ => return Err(syn::Error::new(marker.span(), "expected `w` or `_`")),
-            }
-        };
-
-        Ok(InputAccessorsFunctions { read, write })
+        let side = input.parse::<syn::Ident>()?;
+        match side.to_string().as_str() {
+            "host" => Ok(InputAccessorsFunctions {
+                read: Some(side),
+                write: None,
+            }),
+            "plugin" => Ok(InputAccessorsFunctions {
+                read: None,
+                write: Some(side),
+            }),
+            _ => Err(syn::Error::new_spanned(side, "expected `host` or `plugin`")),
+        }
     }
 }
 
