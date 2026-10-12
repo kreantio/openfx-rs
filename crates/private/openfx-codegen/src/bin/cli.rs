@@ -51,7 +51,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     )?;
     openfx_codegen::ex_codegen_c::gen_low_plugin_objects(
         &codegen_config,
-        &output_folder_c.join("low_objects_plugin.rs"),
+        &output_folder_c.join("low_plugin_objects.rs"),
         info.direct_handle_usages_in_suite_functions,
     )?;
 

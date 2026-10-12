@@ -24,7 +24,7 @@ use crate::{
 
 include!(concat!(
     env!("CARGO_MANIFEST_DIR"),
-    "/generated/code_from_c/low_objects_plugin.rs",
+    "/generated/code_from_c/low_plugin_objects.rs",
 ));
 
 impl DrawContext {

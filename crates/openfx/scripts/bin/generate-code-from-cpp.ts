@@ -75,7 +75,7 @@ async function main(args: Args) {
   });
 
   await Deno.writeFile(
-    path.join(args["output-code-from-cpp"], "low_actions_plugin.rs"),
+    path.join(args["output-code-from-cpp"], "low_plugin_actions.rs"),
     new TextEncoder().encode(
       genLowActions(propsMetadata, propsBySet, {
         cfg: codegenConfig,
@@ -86,7 +86,7 @@ async function main(args: Args) {
   );
 
   await Deno.writeFile(
-    path.join(args["output-code-from-cpp"], "low_property_sets_plugin.rs"),
+    path.join(args["output-code-from-cpp"], "low_plugin_property_sets.rs"),
     new TextEncoder().encode(
       genLowPropertySets(propsMetadata, propsBySet, {
         cfg: codegenConfig,

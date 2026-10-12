@@ -191,7 +191,7 @@ pub fn gen_low_plugin_suites(
         }
 
         std::fs::write(
-            output_folder_c.join("low_suites_plugin.rs"),
+            output_folder_c.join("low_plugin_suites.rs"),
             prettyplease::unparse(&syn::parse2(output)?),
         )?;
     }

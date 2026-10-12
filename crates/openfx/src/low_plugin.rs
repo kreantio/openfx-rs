@@ -7,7 +7,7 @@ use crate::{
 pub mod actions {
     include!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/generated/code_from_cpp/low_actions_plugin.rs",
+        "/generated/code_from_cpp/low_plugin_actions.rs",
     ));
 }
 
@@ -17,7 +17,7 @@ pub mod suites;
 pub mod property_sets {
     include!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/generated/code_from_cpp/low_property_sets_plugin.rs",
+        "/generated/code_from_cpp/low_plugin_property_sets.rs",
     ));
 }
 
