@@ -7,6 +7,7 @@ pub struct CodegenConfig {
     pub statuses: CodegenConfigStatuses,
     pub suites: CodegenConfigSuites,
     pub objects: CodegenConfigObjects,
+    pub property_sets: CodegenConfigPropertySets,
 }
 
 impl CodegenConfig {
@@ -36,6 +37,11 @@ pub struct CodegenConfigSuiteSpecialCase {
 pub struct CodegenConfigObjects {
     #[serde(deserialize_with = "CodegenConfigObjectMappingEntry::deserialize_hashmap")]
     pub mapping: HashMap<String, CodegenConfigObjectMappingEntry>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct CodegenConfigPropertySets {
+    pub renaming: HashMap<String, String>,
 }
 
 #[derive(Default, serde::Deserialize)]

@@ -3,63 +3,8 @@ import { snakeCase } from "es-toolkit/string";
 import {
   FinalResult as FinalResultOfxPropsMetadata,
 } from "../vibe-zone/parsers/parser-ofxPropsMetadata/types.ts";
-import {
-  FinalResult as FinalResultOfxPropsBySet,
-} from "../vibe-zone/parsers/parser-ofxPropsBySet/types.ts";
 import { representTypeWithContainer } from "../utils/representations.ts";
 import { NameRegulator } from "../utils/name-regulator.ts";
-import { CodegenConfig } from "../definitions.ts";
-
-export function genLowPropertySets(
-  frM: FinalResultOfxPropsMetadata,
-  frS: FinalResultOfxPropsBySet,
-  opts: {
-    cfg: CodegenConfig;
-    nameRegulator: NameRegulator;
-    isForPlugin: boolean;
-  },
-): string {
-  const parts: string[] = [
-    "openfx_internal_macros::low_make_property_set_structs! {",
-  ];
-
-  for (const [name, set] of Object.entries(frS.infos.propSets)) {
-    parts.push(
-      `    ${opts.nameRegulator.propertySetNameWeUse(name)}PropertySet {`,
-    );
-
-    const props = Object.entries(set)
-      .map(([propName, prop]): PropertyItem => {
-        if (prop.pluginWrite === prop.hostWrite) {
-          throw new Error(
-            `Property ${propName} has the same pluginWrite and hostWrite value: ${prop.pluginWrite}`,
-          );
-        }
-
-        const writable = opts.isForPlugin ? prop.pluginWrite : prop.hostWrite;
-
-        return {
-          keyConstant: propName,
-          name: opts.nameRegulator.keyConstantToCanonicalName(propName),
-          readable: !writable,
-          writable: writable,
-        };
-      })
-      .toSorted((a, b) => a.name.localeCompare(b.name, "en"));
-
-    for (const prop of props) {
-      parts.push(
-        genPropertySetPropertyItem(frM, prop, opts),
-      );
-    }
-
-    parts.push("    }");
-  }
-
-  parts.push("}");
-
-  return parts.join("\n");
-}
 
 interface PropertyItem {
   keyConstant: string;

@@ -17,7 +17,7 @@ pub mod suites;
 pub mod property_sets {
     include!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/generated/code_from_cpp/low_plugin_property_sets.rs",
+        "/generated/code_from_metadata/low_plugin_property_sets.rs",
     ));
 }
 
