@@ -18,6 +18,8 @@ struct Args {
 }
 
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+    tracing_subscriber::fmt::init();
+
     let args = Args::parse();
 
     let codegen_config_str = std::fs::read_to_string(&args.codegen_config)?;

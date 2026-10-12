@@ -1,4 +1,4 @@
-use std::{ffi::CString, path::Path};
+use std::{collections::BTreeMap, ffi::CString, path::Path};
 
 use convert_case::Casing;
 use quote::quote;
@@ -108,13 +108,20 @@ pub fn gen_low_plugin_property_sets(
     let mut output_inner = proc_macro2::TokenStream::new();
 
     for (set_name, set) in &metadata.raw.propset_map {
-        let mut output_set_inner = proc_macro2::TokenStream::new();
+        let set_name = config
+            .property_sets
+            .renaming
+            .get(set_name)
+            .unwrap_or(set_name);
 
-        fn add_item(
-            output: &mut proc_macro2::TokenStream,
+        let mut items: BTreeMap<&str, proc_macro2::TokenStream> = BTreeMap::new();
+
+        fn add_item<'a>(
+            items: &mut BTreeMap<&'a str, proc_macro2::TokenStream>,
             metadata: &InputMetadata,
-            prop_cname: &str,
+            prop_cname: &'a str,
             write: &WriteSide,
+            set_name: &str,
         ) -> Result<(), Box<dyn std::error::Error>> {
             let Some(prop_canonical_name) = prop_cname.strip_prefix("k") else {
                 return Err(format!("Irregular property cname: {prop_cname}").into());
@@ -122,7 +129,8 @@ pub fn gen_low_plugin_property_sets(
             let Some(simple_name) = prop_cname.strip_prefix("kOfx") else {
                 return Err(format!("Irregular property cname: {prop_cname}").into());
             };
-            let prop_snake_name = simple_name.to_case(convert_case::Case::Snake);
+            let super_simple_name = simple_name.replacen("Prop", "", 1);
+            let prop_snake_name = super_simple_name.to_case(convert_case::Case::Snake);
 
             let Some(def) = metadata.raw.propdef_map.get(prop_cname) else {
                 return Err(format!("Missing propdef: {prop_cname}").into());
@@ -142,38 +150,31 @@ pub fn gen_low_plugin_property_sets(
                         tys.push(ty_tokens);
                     }
 
-                    let ty = if one_of.len() == 1 {
+                    if one_of.len() == 1 {
                         tys.pop().unwrap()
                     } else {
-                        quote! { (#(#tys)|*) }
-                    };
-
-                    let ty = match &def.dimension {
-                        openfx_datagen::metadata_extracting::PropdefDimension::Fixed { size }
-                            if *size == 1 =>
-                        {
-                            ty
-                        }
-                        openfx_datagen::metadata_extracting::PropdefDimension::Fixed { size } => {
-                            let size =
-                                syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
-                            quote! { [#ty; # size] }
-                        }
-                        openfx_datagen::metadata_extracting::PropdefDimension::Dynamic => {
-                            quote! { [#ty] }
-                        }
-                    };
-
-                    if one_of.len() == 1 {
-                        ty
-                    } else {
-                        quote! { ty_one_of!(#ty) }
+                        quote! { ty_one_of!(#(#tys)|*) }
                     }
                 }
                 PropdefType::StringEnum { .. } => {
                     let simple_name_ident =
                         syn::Ident::new(simple_name, proc_macro2::Span::call_site());
                     quote! { ty_enum!(#simple_name_ident) }
+                }
+            };
+
+            let ty = match &def.dimension {
+                openfx_datagen::metadata_extracting::PropdefDimension::Fixed { size }
+                    if *size == 1 =>
+                {
+                    ty
+                }
+                openfx_datagen::metadata_extracting::PropdefDimension::Fixed { size } => {
+                    let size = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
+                    quote! { [#ty; # size] }
+                }
+                openfx_datagen::metadata_extracting::PropdefDimension::Dynamic => {
+                    quote! { [#ty] }
                 }
             };
 
@@ -184,13 +185,29 @@ pub fn gen_low_plugin_property_sets(
 
             let prop_canonical_name_ident =
                 syn::Ident::new(prop_canonical_name, proc_macro2::Span::call_site());
-            let prop_snake_name_ident =
-                syn::Ident::new(&prop_snake_name, proc_macro2::Span::call_site());
+            let prop_snake_name_ident = match prop_snake_name.as_str() {
+                "type" => syn::Ident::new_raw("type", proc_macro2::Span::call_site()),
+                prop_snake_name => syn::Ident::new(prop_snake_name, proc_macro2::Span::call_site()),
+            };
 
-            output.extend(quote! {
+            let item = quote! {
                 #[meta(#meta_write, @#prop_canonical_name_ident)]
                 #prop_snake_name_ident: #ty,
-            });
+            };
+            match items.entry(prop_cname) {
+                std::collections::btree_map::Entry::Occupied(occupied_entry) => {
+                    if occupied_entry.get().to_string() == item.to_string() {
+                        tracing::warn!("Duplicate entry `{prop_cname}` on `{set_name}`.");
+                    } else {
+                        tracing::warn!(
+                            "FIXME: Duplicate entry `{prop_cname}` with different definition on `{set_name}`. The first one wins for now."
+                        );
+                    }
+                }
+                std::collections::btree_map::Entry::Vacant(vacant_entry) => {
+                    vacant_entry.insert(item);
+                }
+            };
 
             Ok(())
         }
@@ -198,7 +215,7 @@ pub fn gen_low_plugin_property_sets(
         for (prop_cname, prop) in &set.props {
             let write = prop.write.as_ref().unwrap_or(&set.write);
 
-            add_item(&mut output_set_inner, metadata, prop_cname, write)?;
+            add_item(&mut items, metadata, prop_cname, write, set_name)?;
         }
 
         for ref_name in &set.props_refs {
@@ -209,22 +226,19 @@ pub fn gen_low_plugin_property_sets(
             for (prop_cname, prop) in &propsetdef.props {
                 let write = prop.write.as_ref().unwrap_or(&set.write);
 
-                add_item(&mut output_set_inner, metadata, prop_cname, write)?;
+                add_item(&mut items, metadata, prop_cname, write, set_name)?;
             }
         }
 
-        let set_name = config
-            .property_sets
-            .renaming
-            .get(set_name)
-            .unwrap_or(set_name);
         let struct_name_ident = syn::Ident::new(
             &format!("{set_name}PropertySet"),
             proc_macro2::Span::call_site(),
         );
 
+        let items: Vec<_> = items.values().cloned().collect();
+
         output_inner.extend(quote! {
-            struct #struct_name_ident { #output_set_inner }
+            struct #struct_name_ident { #(#items)* }
         });
     }
 

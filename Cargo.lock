@@ -310,6 +310,8 @@ dependencies = [
  "snafu",
  "syn 3.0.3",
  "toml",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
