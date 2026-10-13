@@ -1,4 +1,5 @@
-openfx_internal_macros::low_make_property_enums_from_c! {
+#[openfx_internal_macros::low_make_property_enums_from_c]
+mod __ {
     #[sys(OfxDrawLineStipplePattern)]
     enum DrawLineStipplePattern {
         #[sys(kOfxDrawLineStipplePatternAltDash)]

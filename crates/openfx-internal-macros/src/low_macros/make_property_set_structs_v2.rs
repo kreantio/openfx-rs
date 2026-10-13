@@ -16,12 +16,16 @@ use std::collections::HashMap;
 use proc_macro::TokenStream;
 use quote::{quote, quote_spanned};
 
-use crate::common::type_sys::OpenFXTypeSys;
+use crate::{common::type_sys::OpenFXTypeSys, low_macros::utils};
 
-pub fn make_property_set_structs(tokens: TokenStream) -> TokenStream {
+pub fn make_property_set_structs(attr: TokenStream, item: TokenStream) -> TokenStream {
+    if let Err(error) = utils::err_if_attribute_is_not_empty(attr) {
+        return error;
+    }
+
     let mut output_inner = proc_macro2::TokenStream::new();
 
-    let input = syn::parse_macro_input!(tokens as Input);
+    let input = syn::parse_macro_input!(item as Input);
 
     let propsetdefs: HashMap<&syn::Ident, &InputPropsetdef> =
         input.defs.iter().map(|def| (&def.name, def)).collect();
@@ -388,15 +392,17 @@ struct Input {
 
 impl syn::parse::Parse for Input {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let content = utils::extract_dummy_mod_content(input)?;
+
         let mut sets = vec![];
         let mut defs = vec![];
 
-        while !input.is_empty() {
-            if peek_attribute(input, "propsetdefs") {
-                let propsetdefs_mod: InputPropsetdefs = input.parse()?;
+        while !content.is_empty() {
+            if peek_attribute(&content, "propsetdefs") {
+                let propsetdefs_mod: InputPropsetdefs = content.parse()?;
                 defs.extend(propsetdefs_mod.defs);
             } else {
-                let set: InputPropertySet = input.parse()?;
+                let set: InputPropertySet = content.parse()?;
                 sets.push(set);
             }
         }
@@ -584,10 +590,7 @@ impl syn::parse::Parse for InputPropsetdefs {
             return Err(content.error("unexpected tokens in attribute"));
         }
 
-        input.parse::<syn::Token![mod]>()?;
-        let _name: syn::Ident = input.parse()?;
-        let body;
-        syn::braced!(body in input);
+        let body = utils::extract_dummy_mod_content(input)?;
 
         let mut defs = vec![];
         while !body.is_empty() {

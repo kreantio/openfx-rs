@@ -1,4 +1,5 @@
-openfx_internal_macros::low_make_property_set_structs_v2! {
+#[openfx_internal_macros::low_make_property_set_structs_v2]
+mod __ {
     #[propset(write = plugin)]
     struct ImageClipDescriptorPropertySet {
         #[prop(@OfxImageClipPropFieldExtraction)]
@@ -8,7 +9,9 @@ openfx_internal_macros::low_make_property_set_structs_v2! {
         #[prop(@OfxImageClipPropOptional)]
         image_clip_optional: Bool,
         #[prop(@OfxImageEffectPropSupportedComponents)]
-        image_effect_supported_components: [ty_enum!(ImageEffectPropSupportedComponents)],
+        image_effect_supported_components: [ty_enum!(
+            ImageEffectPropSupportedComponents
+        )],
         #[prop(@OfxImageEffectPropSupportsTiles)]
         image_effect_supports_tiles: Bool,
         #[prop(@OfxImageEffectPropTemporalClipAccess)]
@@ -57,7 +60,9 @@ openfx_internal_macros::low_make_property_set_structs_v2! {
         #[prop(@OfxImageEffectPropPreMultiplication)]
         image_effect_pre_multiplication: ty_enum!(ImageEffectPropPreMultiplication),
         #[prop(@OfxImageEffectPropSupportedComponents)]
-        image_effect_supported_components: [ty_enum!(ImageEffectPropSupportedComponents)],
+        image_effect_supported_components: [ty_enum!(
+            ImageEffectPropSupportedComponents
+        )],
         #[prop(@OfxImageEffectPropSupportsTiles)]
         image_effect_supports_tiles: Bool,
         #[prop(@OfxImageEffectPropTemporalClipAccess)]
@@ -106,7 +111,9 @@ openfx_internal_macros::low_make_property_set_structs_v2! {
         #[prop(@OfxImageEffectPropColourManagementAvailableConfigs)]
         image_effect_colour_management_available_configs: [String],
         #[prop(@OfxImageEffectPropColourManagementStyle)]
-        image_effect_colour_management_style: ty_enum!(ImageEffectPropColourManagementStyle),
+        image_effect_colour_management_style: ty_enum!(
+            ImageEffectPropColourManagementStyle
+        ),
         #[prop(@OfxImageEffectPropNoSpatialAwareness)]
         image_effect_no_spatial_awareness: ty_enum!(ImageEffectPropNoSpatialAwareness),
         #[prop(@OfxImageEffectPropOpenCLSupported)]
@@ -118,7 +125,9 @@ openfx_internal_macros::low_make_property_set_structs_v2! {
         #[prop(@OfxImageEffectPropSupportedContexts)]
         image_effect_supported_contexts: [ty_enum!(ImageEffectPropSupportedContexts)],
         #[prop(@OfxImageEffectPropSupportedPixelDepths)]
-        image_effect_supported_pixel_depths: [ty_enum!(ImageEffectPropSupportedPixelDepths)],
+        image_effect_supported_pixel_depths: [ty_enum!(
+            ImageEffectPropSupportedPixelDepths
+        )],
         #[prop(@OfxImageEffectPropSupportsMultiResolution)]
         image_effect_supports_multi_resolution: Bool,
         #[prop(@OfxImageEffectPropSupportsMultipleClipDepths)]
@@ -159,7 +168,9 @@ openfx_internal_macros::low_make_property_set_structs_v2! {
         #[prop(@OfxImageEffectPropColourManagementConfig)]
         image_effect_colour_management_config: String,
         #[prop(@OfxImageEffectPropColourManagementStyle)]
-        image_effect_colour_management_style: ty_enum!(ImageEffectPropColourManagementStyle),
+        image_effect_colour_management_style: ty_enum!(
+            ImageEffectPropColourManagementStyle
+        ),
         #[prop(@OfxImageEffectPropContext)]
         image_effect_context: ty_enum!(ImageEffectPropContext),
         #[prop(@OfxImageEffectPropDisplayColourspace)]
@@ -235,7 +246,9 @@ openfx_internal_macros::low_make_property_set_structs_v2! {
         #[prop(@OfxImageEffectPropColourManagementAvailableConfigs)]
         image_effect_colour_management_available_configs: [String],
         #[prop(@OfxImageEffectPropColourManagementStyle)]
-        image_effect_colour_management_style: ty_enum!(ImageEffectPropColourManagementStyle),
+        image_effect_colour_management_style: ty_enum!(
+            ImageEffectPropColourManagementStyle
+        ),
         #[prop(@OfxImageEffectPropOpenCLSupported)]
         image_effect_open_cl_supported: ty_enum!(ImageEffectPropOpenCLSupported),
         #[prop(@OfxImageEffectPropOpenGLRenderSupported)]
@@ -249,7 +262,9 @@ openfx_internal_macros::low_make_property_set_structs_v2! {
         #[prop(@OfxImageEffectPropSetableFrameRate)]
         image_effect_setable_frame_rate: Bool,
         #[prop(@OfxImageEffectPropSupportedComponents)]
-        image_effect_supported_components: [ty_enum!(ImageEffectPropSupportedComponents)],
+        image_effect_supported_components: [ty_enum!(
+            ImageEffectPropSupportedComponents
+        )],
         #[prop(@OfxImageEffectPropSupportedContexts)]
         image_effect_supported_contexts: [ty_enum!(ImageEffectPropSupportedContexts)],
         #[prop(@OfxImageEffectPropSupportsMultiResolution)]
@@ -440,7 +455,7 @@ openfx_internal_macros::low_make_property_set_structs_v2! {
         param_string_mode: ty_enum!(ParamPropStringMode),
     }
     #[propsetdefs]
-    mod propsetdefs {
+    mod __ {
         #[propsetdef]
         struct ParamsAllButGroupPage {
             #[prop(@OfxParamPropHasHostOverlayHandle)]

@@ -1,4 +1,5 @@
-openfx_internal_macros::low_make_property_enums! {
+#[openfx_internal_macros::low_make_property_enums]
+mod __ {
     enum ImageClipPropFieldExtraction {
         #[sys(kOfxImageFieldBoth)]
         Both,

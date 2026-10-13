@@ -82,19 +82,14 @@ pub fn gen_low_enums_from_metadata(
         });
     }
 
-    let output_inner = prettyplease::unparse(&syn::parse2(output_inner)?)
-        .lines()
-        .map(|l| format!("    {l}"))
-        .collect::<Vec<_>>()
-        .join("\n");
-
     std::fs::write(
         output_file,
-        format!(
-            r#"openfx_internal_macros::low_make_property_enums! {{
-{output_inner}
-}}"#
-        ),
+        prettyplease::unparse(&syn::parse2(quote! {
+            #[openfx_internal_macros::low_make_property_enums]
+            mod __ {
+                #output_inner
+            }
+        })?),
     )?;
 
     Ok(())
@@ -277,23 +272,18 @@ pub fn gen_low_plugin_property_sets(
 
         output_inner.extend(quote! {
             #[propsetdefs]
-            mod propsetdefs { #output_def_inner }
+            mod __ { #output_def_inner }
         });
     }
 
-    let output_inner = prettyplease::unparse(&syn::parse2(output_inner)?)
-        .lines()
-        .map(|l| format!("    {l}"))
-        .collect::<Vec<_>>()
-        .join("\n");
-
     std::fs::write(
         output_file,
-        format!(
-            r#"openfx_internal_macros::low_make_property_set_structs_v2! {{
-{output_inner}
-}}"#
-        ),
+        prettyplease::unparse(&syn::parse2(quote! {
+            #[openfx_internal_macros::low_make_property_set_structs_v2]
+            mod __ {
+                #output_inner
+            }
+        })?),
     )?;
 
     Ok(())

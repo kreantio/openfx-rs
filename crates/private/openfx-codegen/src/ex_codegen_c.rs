@@ -121,19 +121,14 @@ pub fn gen_low_enums_from_c(
         });
     }
 
-    let output_inner = prettyplease::unparse(&syn::parse2(output_inner)?)
-        .lines()
-        .map(|l| format!("    {}", l))
-        .collect::<Vec<_>>()
-        .join("\n");
-
     std::fs::write(
         output_file,
-        format!(
-            "openfx_internal_macros::low_make_property_enums_from_c! {{
-{output_inner}
-}}"
-        ),
+        prettyplease::unparse(&syn::parse2(quote! {
+            #[openfx_internal_macros::low_make_property_enums_from_c]
+            mod __ {
+                #output_inner
+            }
+        })?),
     )?;
 
     Ok(())
