@@ -4,7 +4,7 @@ use convert_case::Casing;
 use quote::quote;
 
 use openfx_datagen::metadata_extracting::{
-    PropdefType, PropdefTypeSimple, StringEnumVariant, WriteSide,
+    PropdefDimension, PropdefType, PropdefTypeSimple, StringEnumVariant, WriteSide,
 };
 
 use crate::{config::CodegenConfig, input_metadata::InputMetadata, utils::strip_common_prefix};
@@ -107,6 +107,105 @@ pub fn gen_low_plugin_property_sets(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut output_inner = proc_macro2::TokenStream::new();
 
+    fn add_item<'a>(
+        items: &mut BTreeMap<&'a str, proc_macro2::TokenStream>,
+        metadata: &InputMetadata,
+        prop_cname: &'a str,
+        write: Option<&WriteSide>,
+        set_name: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let Some(prop_canonical_name) = prop_cname.strip_prefix("k") else {
+            return Err(format!("Irregular property cname: {prop_cname}").into());
+        };
+        let Some(simple_name) = prop_cname.strip_prefix("kOfx") else {
+            return Err(format!("Irregular property cname: {prop_cname}").into());
+        };
+        let super_simple_name = simple_name.replacen("Prop", "", 1);
+        let prop_snake_name = super_simple_name.to_case(convert_case::Case::Snake);
+
+        let Some(def) = metadata.raw.propdef_map.get(prop_cname) else {
+            return Err(format!("Missing propdef: {prop_cname}").into());
+        };
+
+        let ty = match &def.r#type {
+            PropdefType::Simple { one_of } => {
+                let mut tys: Vec<proc_macro2::TokenStream> = vec![];
+                for ty in one_of {
+                    let ty_tokens = match ty {
+                        PropdefTypeSimple::Int => quote! { Int },
+                        PropdefTypeSimple::Double => quote! { Double },
+                        PropdefTypeSimple::Bool => quote! { Bool },
+                        PropdefTypeSimple::String => quote! { String },
+                        PropdefTypeSimple::Pointer => quote! { Pointer },
+                    };
+                    tys.push(ty_tokens);
+                }
+
+                if one_of.len() == 1 {
+                    tys.pop().unwrap()
+                } else {
+                    quote! { ty_one_of!(#(#tys)|*) }
+                }
+            }
+            PropdefType::StringEnum { .. } => {
+                let simple_name_ident =
+                    syn::Ident::new(simple_name, proc_macro2::Span::call_site());
+                quote! { ty_enum!(#simple_name_ident) }
+            }
+        };
+
+        let ty = match &def.dimension {
+            PropdefDimension::Fixed { size } if *size == 1 => ty,
+            PropdefDimension::Fixed { size } => {
+                let size = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
+                quote! { [#ty; # size] }
+            }
+            PropdefDimension::Dynamic => {
+                quote! { [#ty] }
+            }
+        };
+
+        let mut meta_items: Vec<proc_macro2::TokenStream> = vec![];
+
+        if let Some(write) = write {
+            meta_items.push(match write {
+                WriteSide::Host => quote! { write = host },
+                WriteSide::Plugin => quote! { write = plugin },
+            });
+        }
+
+        let prop_canonical_name_ident =
+            syn::Ident::new(prop_canonical_name, proc_macro2::Span::call_site());
+        let prop_snake_name_ident = match prop_snake_name.as_str() {
+            "type" => syn::Ident::new_raw("type", proc_macro2::Span::call_site()),
+            prop_snake_name => syn::Ident::new(prop_snake_name, proc_macro2::Span::call_site()),
+        };
+
+        meta_items.push(quote! { @#prop_canonical_name_ident });
+
+        let parenthesized_meta_items = if meta_items.is_empty() {
+            quote! {}
+        } else {
+            quote! { (#(#meta_items),*) }
+        };
+
+        let item = quote! {
+            #[prop #parenthesized_meta_items]
+            #prop_snake_name_ident: #ty,
+        };
+        match items.entry(prop_cname) {
+            std::collections::btree_map::Entry::Occupied(occupied_entry) => {
+                assert_eq!(occupied_entry.get().to_string(), item.to_string());
+                tracing::warn!("Duplicate entry `{prop_cname}` on `{set_name}`.");
+            }
+            std::collections::btree_map::Entry::Vacant(vacant_entry) => {
+                vacant_entry.insert(item);
+            }
+        };
+
+        Ok(())
+    }
+
     for (set_name, set) in &metadata.raw.propset_map {
         let set_name = config
             .property_sets
@@ -116,119 +215,31 @@ pub fn gen_low_plugin_property_sets(
 
         let mut items: BTreeMap<&str, proc_macro2::TokenStream> = BTreeMap::new();
 
-        fn add_item<'a>(
-            items: &mut BTreeMap<&'a str, proc_macro2::TokenStream>,
-            metadata: &InputMetadata,
-            prop_cname: &'a str,
-            write: &WriteSide,
-            set_name: &str,
-        ) -> Result<(), Box<dyn std::error::Error>> {
-            let Some(prop_canonical_name) = prop_cname.strip_prefix("k") else {
-                return Err(format!("Irregular property cname: {prop_cname}").into());
-            };
-            let Some(simple_name) = prop_cname.strip_prefix("kOfx") else {
-                return Err(format!("Irregular property cname: {prop_cname}").into());
-            };
-            let super_simple_name = simple_name.replacen("Prop", "", 1);
-            let prop_snake_name = super_simple_name.to_case(convert_case::Case::Snake);
-
-            let Some(def) = metadata.raw.propdef_map.get(prop_cname) else {
-                return Err(format!("Missing propdef: {prop_cname}").into());
-            };
-
-            let ty = match &def.r#type {
-                PropdefType::Simple { one_of } => {
-                    let mut tys: Vec<proc_macro2::TokenStream> = vec![];
-                    for ty in one_of {
-                        let ty_tokens = match ty {
-                            PropdefTypeSimple::Int => quote! { Int },
-                            PropdefTypeSimple::Double => quote! { Double },
-                            PropdefTypeSimple::Bool => quote! { Bool },
-                            PropdefTypeSimple::String => quote! { String },
-                            PropdefTypeSimple::Pointer => quote! { Pointer },
-                        };
-                        tys.push(ty_tokens);
-                    }
-
-                    if one_of.len() == 1 {
-                        tys.pop().unwrap()
-                    } else {
-                        quote! { ty_one_of!(#(#tys)|*) }
-                    }
-                }
-                PropdefType::StringEnum { .. } => {
-                    let simple_name_ident =
-                        syn::Ident::new(simple_name, proc_macro2::Span::call_site());
-                    quote! { ty_enum!(#simple_name_ident) }
-                }
-            };
-
-            let ty = match &def.dimension {
-                openfx_datagen::metadata_extracting::PropdefDimension::Fixed { size }
-                    if *size == 1 =>
-                {
-                    ty
-                }
-                openfx_datagen::metadata_extracting::PropdefDimension::Fixed { size } => {
-                    let size = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
-                    quote! { [#ty; # size] }
-                }
-                openfx_datagen::metadata_extracting::PropdefDimension::Dynamic => {
-                    quote! { [#ty] }
-                }
-            };
-
-            let meta_write = match write {
-                openfx_datagen::metadata_extracting::WriteSide::Host => quote! { write = host },
-                openfx_datagen::metadata_extracting::WriteSide::Plugin => quote! { write = plugin },
-            };
-
-            let prop_canonical_name_ident =
-                syn::Ident::new(prop_canonical_name, proc_macro2::Span::call_site());
-            let prop_snake_name_ident = match prop_snake_name.as_str() {
-                "type" => syn::Ident::new_raw("type", proc_macro2::Span::call_site()),
-                prop_snake_name => syn::Ident::new(prop_snake_name, proc_macro2::Span::call_site()),
-            };
-
-            let item = quote! {
-                #[meta(#meta_write, @#prop_canonical_name_ident)]
-                #prop_snake_name_ident: #ty,
-            };
-            match items.entry(prop_cname) {
-                std::collections::btree_map::Entry::Occupied(occupied_entry) => {
-                    if occupied_entry.get().to_string() == item.to_string() {
-                        tracing::warn!("Duplicate entry `{prop_cname}` on `{set_name}`.");
-                    } else {
-                        tracing::warn!(
-                            "FIXME: Duplicate entry `{prop_cname}` with different definition on `{set_name}`. The first one wins for now."
-                        );
-                    }
-                }
-                std::collections::btree_map::Entry::Vacant(vacant_entry) => {
-                    vacant_entry.insert(item);
-                }
-            };
-
-            Ok(())
-        }
-
         for (prop_cname, prop) in &set.props {
-            let write = prop.write.as_ref().unwrap_or(&set.write);
-
+            let write = prop.write.as_ref();
             add_item(&mut items, metadata, prop_cname, write, set_name)?;
         }
 
-        for ref_name in &set.props_refs {
-            let Some(propsetdef) = metadata.raw.propsetdef_map.get(ref_name) else {
-                return Err(format!("Missing propsetdef: {ref_name}").into());
-            };
+        let mut meta_items: Vec<proc_macro2::TokenStream> = vec![];
 
-            for (prop_cname, prop) in &propsetdef.props {
-                let write = prop.write.as_ref().unwrap_or(&set.write);
+        meta_items.push(match set.write {
+            WriteSide::Host => quote! { write = host },
+            WriteSide::Plugin => quote! { write = plugin },
+        });
 
-                add_item(&mut items, metadata, prop_cname, write, set_name)?;
-            }
+        if !set.props_refs.is_empty() {
+            let refs = set
+                .props_refs
+                .iter()
+                .map(|str| syn::Ident::new(str, proc_macro2::Span::call_site()));
+            meta_items.push(quote! { refs = #(#refs)+* });
         }
+
+        let parenthesized_meta_items = if meta_items.is_empty() {
+            quote! {}
+        } else {
+            quote! { (#(#meta_items),*) }
+        };
 
         let struct_name_ident = syn::Ident::new(
             &format!("{set_name}PropertySet"),
@@ -238,7 +249,35 @@ pub fn gen_low_plugin_property_sets(
         let items: Vec<_> = items.values().cloned().collect();
 
         output_inner.extend(quote! {
+            #[propset #parenthesized_meta_items]
             struct #struct_name_ident { #(#items)* }
+        });
+    }
+
+    {
+        let mut output_def_inner = proc_macro2::TokenStream::new();
+
+        for (def_name, def) in &metadata.raw.propsetdef_map {
+            let mut items: BTreeMap<&str, proc_macro2::TokenStream> = BTreeMap::new();
+
+            for (prop_cname, prop) in &def.props {
+                let write = prop.write.as_ref();
+                add_item(&mut items, metadata, prop_cname, write, def_name)?;
+            }
+
+            let def_name_ident = syn::Ident::new(def_name, proc_macro2::Span::call_site());
+
+            let items: Vec<_> = items.values().cloned().collect();
+
+            output_def_inner.extend(quote! {
+                #[propsetdef]
+                struct #def_name_ident { #(#items)* }
+            });
+        }
+
+        output_inner.extend(quote! {
+            #[propsetdefs]
+            mod propsetdefs { #output_def_inner }
         });
     }
 

@@ -4,9 +4,14 @@
 //!   customized DSL to a pseudo-Rust syntax. The parsing logic for it was
 //!   adapted by AI:
 //!   - Author: OpenCode 2 / GLM 5.3 (provider: Z.AI, thinking: Max)
-//!   - Reviewed-by: Umaĵo
+//!   - Reviewed-by: Umaĵo (reviewing and refining)
+//! - The syntax of `make_property_set_structs!` was changed to support
+//!   `@propsetdef` directly. The parsing logic for it was adapted by AI:
+//!   - Author: OpenCode 2 / GLM 5.3 (provider: Z.AI, thinking: Max)
+//!   - Author: OpenCode 2 / GLM 5.3 (provider: OpenCode Go, thinking: Max)
+//!   - Reviewed-by: Umaĵo (reviewing and refining)
 
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 use proc_macro::TokenStream;
 use quote::{quote, quote_spanned};
@@ -18,18 +23,28 @@ pub fn make_property_set_structs(tokens: TokenStream) -> TokenStream {
 
     let input = syn::parse_macro_input!(tokens as Input);
 
-    for set in input.items {
-        make_property_set_struct(&mut output_inner, &set);
+    let propsetdefs: HashMap<&syn::Ident, &InputPropsetdef> =
+        input.defs.iter().map(|def| (&def.name, def)).collect();
+
+    for set in &input.sets {
+        match make_property_set_struct(&mut output_inner, &propsetdefs, set) {
+            Ok(()) => {}
+            Err(error) => return error.to_compile_error().into(),
+        }
     }
 
     output_inner.into()
 }
 
-fn make_property_set_struct(output: &mut proc_macro2::TokenStream, set: &InputPropertySet) {
+fn make_property_set_struct(
+    output: &mut proc_macro2::TokenStream,
+    propsetdefs: &HashMap<&syn::Ident, &InputPropsetdef>,
+    set: &InputPropertySet,
+) -> syn::Result<()> {
     let mut output_inner = proc_macro2::TokenStream::new();
 
-    for prop in &set.items {
-        make_property_accessors(&mut output_inner, prop);
+    for (prop, write) in set.resolved_props(propsetdefs)? {
+        make_property_accessors(&mut output_inner, prop, write);
     }
 
     let struct_name = &set.name;
@@ -53,9 +68,15 @@ fn make_property_set_struct(output: &mut proc_macro2::TokenStream, set: &InputPr
             #output_inner
         }
     });
+
+    Ok(())
 }
 
-fn make_property_accessors(output: &mut proc_macro2::TokenStream, prop: &InputPropertyItem) {
+fn make_property_accessors(
+    output: &mut proc_macro2::TokenStream,
+    prop: &InputPropertyItem,
+    write: &InputWriteSide,
+) {
     let tys: Vec<_> = prop.ty.possible_types().iter().collect();
     let is_ambiguous = tys.len() > 1;
 
@@ -79,18 +100,18 @@ fn make_property_accessors(output: &mut proc_macro2::TokenStream, prop: &InputPr
                 .to_owned()
         };
 
-        if prop.accessors.write.is_some() {
+        if write.is_plugin() {
             make_property_setter(output, prop, &cname, &ty, &fn_name_suffix);
         }
-        if prop.accessors.read.is_some() {
+        if write.is_host() {
             make_property_getter(output, prop, &cname, &ty, &fn_name_suffix);
         }
     }
 
-    if prop.accessors.write.is_some() {
+    if write.is_plugin() {
         make_property_resetter(output, prop, &cname);
     }
-    if prop.accessors.read.is_some() && matches!(prop.ty, InputContainerType::Slice(_)) {
+    if write.is_host() && matches!(prop.ty, InputContainerType::Slice(_)) {
         make_property_dimensions_getter(output, prop, &cname);
     }
 }
@@ -343,101 +364,319 @@ fn make_property_dimensions_getter(
 /// }
 /// ```
 struct Input {
-    items: Vec<InputPropertySet>,
+    sets: Vec<InputPropertySet>,
+    defs: Vec<InputPropsetdef>,
 }
 
 impl syn::parse::Parse for Input {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let mut items = Vec::new();
+        let mut sets = vec![];
+        let mut defs = vec![];
+
         while !input.is_empty() {
-            let item: InputPropertySet = input.parse()?;
-            items.push(item);
+            if peek_attribute(input, "propsetdefs") {
+                let propsetdefs_mod: InputPropsetdefs = input.parse()?;
+                defs.extend(propsetdefs_mod.defs);
+            } else {
+                let set: InputPropertySet = input.parse()?;
+                sets.push(set);
+            }
         }
-        Ok(Input { items })
+
+        Ok(Input { sets, defs })
     }
 }
 
+/// Returns whether the next tokens in `input` are a `#[<name> …]` attribute,
+/// without consuming anything.
+fn peek_attribute(input: syn::parse::ParseStream, name: &str) -> bool {
+    fn test(input: syn::parse::ParseStream, name: &str) -> syn::Result<bool> {
+        input.parse::<syn::Token![#]>()?;
+        let content;
+        syn::bracketed!(content in input);
+        let attr_name = content.parse::<syn::Ident>()?;
+        Ok(attr_name == name)
+    }
+
+    let fork = input.fork();
+    test(&fork, name).unwrap_or(false)
+}
+
+/// A `#[propset(write = …[, refs = …])] struct … { … }` item.
 struct InputPropertySet {
     name: syn::Ident,
+    /// The default `write` side for properties which do not specify one.
+    write: InputWriteSide,
+    /// The `refs = …` propsetdef names, in order.
+    refs: syn::punctuated::Punctuated<syn::Ident, syn::Token![+]>,
     items: syn::punctuated::Punctuated<InputPropertyItem, syn::Token![,]>,
 }
 
 impl syn::parse::Parse for InputPropertySet {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        input.parse::<syn::Token![struct]>()?;
-        let name: syn::Ident = input.parse()?;
+        // `#[propset(write = …[, refs = A+B+…])]`
+        input.parse::<syn::Token![#]>()?;
         let content;
-        syn::braced!(content in input);
-        let items = content.parse_terminated(InputPropertyItem::parse, syn::Token![,])?;
-
-        let mut seen = HashSet::new();
-        for item in &items {
-            if !seen.insert(&item.simple_name) {
-                return Err(syn::Error::new_spanned(
-                    &item.simple_name,
-                    format!(
-                        "duplicate item `{}` in property set `{}`",
-                        item.simple_name, name
-                    ),
-                ));
-            }
+        syn::bracketed!(content in input);
+        let attr_name = content.parse::<syn::Ident>()?;
+        if attr_name != "propset" {
+            return Err(syn::Error::new_spanned(attr_name, "expected `propset`"));
+        }
+        let inner;
+        syn::parenthesized!(inner in content);
+        if !content.is_empty() {
+            return Err(content.error("unexpected tokens in attribute"));
         }
 
-        Ok(InputPropertySet { name, items })
-    }
-}
+        let key = inner.parse::<syn::Ident>()?;
+        if key != "write" {
+            return Err(syn::Error::new_spanned(key, "expected `write`"));
+        }
+        inner.parse::<syn::Token![=]>()?;
+        let write: InputWriteSide = inner.parse()?;
 
-struct InputPropertyItem {
-    accessors: InputAccessorsFunctions,
-    simple_name: syn::Ident,
-    ty: InputContainerType,
-    canonical_name: syn::Ident,
-}
+        let refs = if inner.is_empty() {
+            syn::punctuated::Punctuated::new()
+        } else {
+            inner.parse::<syn::Token![,]>()?;
+            let key = inner.parse::<syn::Ident>()?;
+            if key != "refs" {
+                return Err(syn::Error::new_spanned(key, "expected `refs`"));
+            }
+            inner.parse::<syn::Token![=]>()?;
+            syn::punctuated::Punctuated::parse_separated_nonempty(&inner)?
+        };
+        if !inner.is_empty() {
+            return Err(inner.error("unexpected tokens in `propset` attribute"));
+        }
 
-impl syn::parse::Parse for InputPropertyItem {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let meta = input.parse::<InputMetaAttribute>()?;
-        let simple_name: syn::Ident = input.parse()?;
-        input.parse::<syn::Token![:]>()?;
-        let ty: InputContainerType = input.parse()?;
-        Ok(InputPropertyItem {
-            accessors: meta.accessors,
-            simple_name,
-            ty,
-            canonical_name: meta.canonical_name,
+        input.parse::<syn::Token![struct]>()?;
+        let name: syn::Ident = input.parse()?;
+        let body;
+        syn::braced!(body in input);
+        let items = body.parse_terminated(InputPropertyItem::parse, syn::Token![,])?;
+
+        Ok(InputPropertySet {
+            name,
+            write,
+            refs,
+            items,
         })
     }
 }
 
-/// The `#[meta(write = …, @CanonicalName)]` attribute on an [`InputPropertyItem`].
-struct InputMetaAttribute {
-    accessors: InputAccessorsFunctions,
+impl InputPropertySet {
+    /// Expands the `refs = …` propsetdefs into the set and resolves the
+    /// `write` side of every property:
+    ///
+    /// - a specified `write` decides over unspecified ones;
+    /// - multiple specified `write`s must agree, else it errors;
+    /// - if none is specified, the set-level `write` applies.
+    fn resolved_props<'a>(
+        &'a self,
+        propsetdefs: &HashMap<&'a syn::Ident, &'a InputPropsetdef>,
+    ) -> syn::Result<Vec<(&'a InputPropertyItem, &'a InputWriteSide)>> {
+        /// Adds an occurrence of a property; later occurrences of the same
+        /// canonical name only contribute their specified `write`.
+        fn add<'a>(
+            item: &'a InputPropertyItem,
+            merged: &mut Vec<&'a InputPropertyItem>,
+            specified_writes: &mut Vec<Vec<&'a InputWriteSide>>,
+            seen: &mut HashMap<&'a syn::Ident, usize>,
+        ) {
+            match seen.entry(&item.canonical_name) {
+                std::collections::hash_map::Entry::Occupied(occupied) => {
+                    if let Some(write) = &item.write {
+                        specified_writes[*occupied.get()].push(write);
+                    }
+                }
+                std::collections::hash_map::Entry::Vacant(vacant) => {
+                    vacant.insert(merged.len());
+                    merged.push(item);
+                    specified_writes.push(item.write.iter().collect());
+                }
+            }
+        }
+
+        let mut merged: Vec<&InputPropertyItem> = vec![];
+        let mut specified_writes: Vec<Vec<&InputWriteSide>> = vec![];
+        let mut seen: HashMap<&syn::Ident, usize> = HashMap::new();
+
+        for item in &self.items {
+            add(item, &mut merged, &mut specified_writes, &mut seen);
+        }
+        for ref_name in &self.refs {
+            let Some(def) = propsetdefs.get(ref_name) else {
+                return Err(syn::Error::new_spanned(
+                    ref_name,
+                    format!("unknown propsetdef `{ref_name}`"),
+                ));
+            };
+            for item in &def.items {
+                add(item, &mut merged, &mut specified_writes, &mut seen);
+            }
+        }
+
+        merged
+            .into_iter()
+            .zip(specified_writes)
+            .map(|(item, specified_writes)| {
+                let write = if specified_writes.is_empty() {
+                    &self.write
+                } else {
+                    let first = specified_writes[0];
+                    for write in &specified_writes[1..] {
+                        if *write != first {
+                            return Err(syn::Error::new_spanned(
+                                write.ident(),
+                                format!(
+                                    "conflicting `write` specifications for property `{}`: `{}` and `{}`",
+                                    item.canonical_name,
+                                    first.as_str(),
+                                    write.as_str(),
+                                ),
+                            ));
+                        }
+                    }
+                    first
+                };
+
+                Ok((item, write))
+            })
+            .collect()
+    }
+}
+
+/// A `#[propsetdefs] mod … { … }` item collecting named [`InputPropsetdef`]s.
+struct InputPropsetdefs {
+    defs: Vec<InputPropsetdef>,
+}
+
+impl syn::parse::Parse for InputPropsetdefs {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        // `#[propsetdefs]`
+        input.parse::<syn::Token![#]>()?;
+        let content;
+        syn::bracketed!(content in input);
+        let attr_name = content.parse::<syn::Ident>()?;
+        if attr_name != "propsetdefs" {
+            return Err(syn::Error::new_spanned(attr_name, "expected `propsetdefs`"));
+        }
+        if !content.is_empty() {
+            return Err(content.error("unexpected tokens in attribute"));
+        }
+
+        input.parse::<syn::Token![mod]>()?;
+        let _name: syn::Ident = input.parse()?;
+        let body;
+        syn::braced!(body in input);
+
+        let mut defs = vec![];
+        while !body.is_empty() {
+            defs.push(body.parse()?);
+        }
+
+        Ok(InputPropsetdefs { defs })
+    }
+}
+
+/// A `#[propsetdef] struct … { … }` definition inside an [`InputPropsetdefs`].
+struct InputPropsetdef {
+    name: syn::Ident,
+    items: syn::punctuated::Punctuated<InputPropertyItem, syn::Token![,]>,
+}
+
+impl syn::parse::Parse for InputPropsetdef {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        // `#[propsetdef]`
+        input.parse::<syn::Token![#]>()?;
+        let content;
+        syn::bracketed!(content in input);
+        let attr_name = content.parse::<syn::Ident>()?;
+        if attr_name != "propsetdef" {
+            return Err(syn::Error::new_spanned(attr_name, "expected `propsetdef`"));
+        }
+        if !content.is_empty() {
+            return Err(content.error("unexpected tokens in attribute"));
+        }
+
+        input.parse::<syn::Token![struct]>()?;
+        let name: syn::Ident = input.parse()?;
+        let body;
+        syn::braced!(body in input);
+        let items = body.parse_terminated(InputPropertyItem::parse, syn::Token![,])?;
+
+        Ok(InputPropsetdef { name, items })
+    }
+}
+
+/// A single `#[prop(…)] name: Type,` item of a set or a propsetdef.
+struct InputPropertyItem {
+    simple_name: syn::Ident,
+    ty: InputContainerType,
+    canonical_name: syn::Ident,
+    /// The property-level `write` side, if specified.
+    write: Option<InputWriteSide>,
+}
+
+impl syn::parse::Parse for InputPropertyItem {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let attr = input.parse::<InputPropAttribute>()?;
+        let simple_name: syn::Ident = input.parse()?;
+        input.parse::<syn::Token![:]>()?;
+        let ty: InputContainerType = input.parse()?;
+        Ok(InputPropertyItem {
+            simple_name,
+            ty,
+            canonical_name: attr.canonical_name,
+            write: attr.write,
+        })
+    }
+}
+
+/// The `#[prop([write = …,] @CanonicalName)]` attribute on an
+/// [`InputPropertyItem`].
+struct InputPropAttribute {
+    write: Option<InputWriteSide>,
     canonical_name: syn::Ident,
 }
 
-impl syn::parse::Parse for InputMetaAttribute {
+impl syn::parse::Parse for InputPropAttribute {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         input.parse::<syn::Token![#]>()?;
         let content;
         syn::bracketed!(content in input);
         let attr_name = content.parse::<syn::Ident>()?;
-        if attr_name != "meta" {
-            return Err(syn::Error::new_spanned(attr_name, "expected `meta`"));
+        if attr_name != "prop" {
+            return Err(syn::Error::new_spanned(attr_name, "expected `prop`"));
         }
         let inner;
         syn::parenthesized!(inner in content);
-        let accessors = inner.parse::<InputAccessorsFunctions>()?;
-        inner.parse::<syn::Token![,]>()?;
-        inner.parse::<syn::Token![@]>()?;
-        let canonical_name = inner.parse::<syn::Ident>()?;
-        if !inner.is_empty() {
-            return Err(inner.error("unexpected tokens in `meta` attribute"));
-        }
         if !content.is_empty() {
             return Err(content.error("unexpected tokens in attribute"));
         }
-        Ok(InputMetaAttribute {
-            accessors,
+
+        let write = if inner.peek(syn::Token![@]) {
+            None
+        } else {
+            let key = inner.parse::<syn::Ident>()?;
+            if key != "write" {
+                return Err(syn::Error::new_spanned(key, "expected `write`"));
+            }
+            inner.parse::<syn::Token![=]>()?;
+            let write: InputWriteSide = inner.parse()?;
+            inner.parse::<syn::Token![,]>()?;
+            Some(write)
+        };
+
+        inner.parse::<syn::Token![@]>()?;
+        let canonical_name = inner.parse::<syn::Ident>()?;
+        if !inner.is_empty() {
+            return Err(inner.error("unexpected tokens in `prop` attribute"));
+        }
+
+        Ok(InputPropAttribute {
+            write,
             canonical_name,
         })
     }
@@ -581,7 +820,7 @@ impl InputPossibleTypes {
     }
 
     fn iter(&self) -> OpenFXTypeLowIterator {
-        let mut types = Vec::new();
+        let mut types = vec![];
         if let Some(int) = &self.int {
             types.push(OpenFXTypeLow::Int(int.clone()));
         }
@@ -614,36 +853,47 @@ impl Iterator for OpenFXTypeLowIterator {
     }
 }
 
-struct InputAccessorsFunctions {
-    read: Option<syn::Ident>,
-    write: Option<syn::Ident>,
+/// The side which writes a property: `host` or `plugin`.
+///
+/// - `Host`: the host writes the property, thus the plugin may only read it.
+/// - `Plugin`: the plugin writes the property.
+#[derive(PartialEq)]
+enum InputWriteSide {
+    Host(syn::Ident),
+    Plugin(syn::Ident),
 }
 
-/// Parses the `write = …` part of the `#[meta(…)]` attribute.
-///
-/// - `write = host`: the host writes the property, thus the plugin may only
-///   read it.
-/// - `write = plugin`: the plugin writes the property.
-impl syn::parse::Parse for InputAccessorsFunctions {
+impl syn::parse::Parse for InputWriteSide {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let key = input.parse::<syn::Ident>()?;
-        if key != "write" {
-            return Err(syn::Error::new_spanned(key, "expected `write`"));
-        }
-        input.parse::<syn::Token![=]>()?;
-
         let side = input.parse::<syn::Ident>()?;
         match side.to_string().as_str() {
-            "host" => Ok(InputAccessorsFunctions {
-                read: Some(side),
-                write: None,
-            }),
-            "plugin" => Ok(InputAccessorsFunctions {
-                read: None,
-                write: Some(side),
-            }),
+            "host" => Ok(Self::Host(side)),
+            "plugin" => Ok(Self::Plugin(side)),
             _ => Err(syn::Error::new_spanned(side, "expected `host` or `plugin`")),
         }
+    }
+}
+
+impl InputWriteSide {
+    fn ident(&self) -> &syn::Ident {
+        match self {
+            Self::Host(ident) | Self::Plugin(ident) => ident,
+        }
+    }
+
+    fn as_str(&self) -> &'static str {
+        match self {
+            Self::Host(_) => "host",
+            Self::Plugin(_) => "plugin",
+        }
+    }
+
+    fn is_host(&self) -> bool {
+        matches!(self, Self::Host(_))
+    }
+
+    fn is_plugin(&self) -> bool {
+        matches!(self, Self::Plugin(_))
     }
 }
 
