@@ -115,7 +115,7 @@ pub fn gen_low_plugin_property_sets(
         let Some(simple_name) = prop_cname.strip_prefix("kOfx") else {
             return Err(format!("Irregular property cname: {prop_cname}").into());
         };
-        let super_simple_name = simple_name.replacen("Prop", "", 1);
+        let super_simple_name = get_property_super_simple_name_from_simple_name(simple_name);
         let prop_snake_name = super_simple_name.to_case(convert_case::Case::Snake);
 
         let Some(def) = metadata.raw.propdef_map.get(prop_cname) else {
@@ -287,4 +287,16 @@ pub fn gen_low_plugin_property_sets(
     )?;
 
     Ok(())
+}
+
+fn get_property_super_simple_name_from_simple_name(simple_name: &str) -> String {
+    static RE: std::sync::LazyLock<regex::Regex> =
+        std::sync::LazyLock::new(|| regex::Regex::new(r"Prop([A-Z])").unwrap());
+
+    if !RE.is_match(simple_name) {
+        tracing::warn!("Property simple name without the `Prop` part: {simple_name}");
+        return simple_name.to_string();
+    }
+
+    RE.replace(simple_name, "$1").to_string()
 }
