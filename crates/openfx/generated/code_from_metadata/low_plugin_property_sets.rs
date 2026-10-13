@@ -1,4 +1,4 @@
-#[openfx_internal_macros::low_make_property_set_structs_v2]
+#[openfx_internal_macros::low_make_property_set_structs]
 mod __ {
     #[propset(write = plugin)]
     struct ImageClipDescriptorPropertySet {

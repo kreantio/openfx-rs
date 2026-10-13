@@ -1,5 +1,5 @@
 pub mod pseudo {
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct CustomParamInterpFuncIn {
@@ -20,7 +20,7 @@ pub mod pseudo {
     }
 }
 pub mod core {
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionBeginInstanceChangedIn {
@@ -30,7 +30,7 @@ pub mod core {
             change_reason: ty_enum!(PropChangeReason),
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionEndInstanceChangedIn {
@@ -38,7 +38,7 @@ pub mod core {
             change_reason: ty_enum!(PropChangeReason),
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionInstanceChangedIn {
@@ -58,7 +58,7 @@ pub mod core {
     }
 }
 pub mod image_effect {
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionBeginSequenceRenderIn {
@@ -120,7 +120,7 @@ pub mod image_effect {
             is_interactive: Bool,
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionDescribeInContextIn {
@@ -128,7 +128,7 @@ pub mod image_effect {
             image_effect_context: ty_enum!(ImageEffectPropContext),
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionEndSequenceRenderIn {
@@ -184,7 +184,7 @@ pub mod image_effect {
             is_interactive: Bool,
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = plugin)]
         struct ActionGetClipPreferencesOut {
@@ -200,7 +200,7 @@ pub mod image_effect {
             image_effect_pre_multiplication: ty_enum!(ImageEffectPropPreMultiplication),
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionGetFramesNeededIn {
@@ -215,7 +215,7 @@ pub mod image_effect {
             image_effect_frame_range: [Double; 2],
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionGetOutputColourspaceIn {
@@ -228,7 +228,7 @@ pub mod image_effect {
             image_clip_colourspace: String,
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionGetRegionOfDefinitionIn {
@@ -245,7 +245,7 @@ pub mod image_effect {
             image_effect_region_of_definition: [Double; 4],
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionGetRegionsOfInterestIn {
@@ -259,7 +259,7 @@ pub mod image_effect {
             time: Double,
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = plugin)]
         struct ActionGetTimeDomainOut {
@@ -267,7 +267,7 @@ pub mod image_effect {
             image_effect_frame_range: [Double; 2],
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionIsIdentityIn {
@@ -283,7 +283,7 @@ pub mod image_effect {
             time: Double,
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionRenderIn {
@@ -343,7 +343,7 @@ pub mod image_effect {
     }
 }
 pub mod interact {
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionDrawIn {
@@ -361,7 +361,7 @@ pub mod interact {
             time: Double,
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionGainFocusIn {
@@ -377,7 +377,7 @@ pub mod interact {
             time: Double,
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionKeyDownIn {
@@ -393,7 +393,7 @@ pub mod interact {
             time: Double,
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionKeyRepeatIn {
@@ -409,7 +409,7 @@ pub mod interact {
             time: Double,
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionKeyUpIn {
@@ -425,7 +425,7 @@ pub mod interact {
             time: Double,
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionLoseFocusIn {
@@ -441,7 +441,7 @@ pub mod interact {
             time: Double,
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionPenDownIn {
@@ -463,7 +463,7 @@ pub mod interact {
             time: Double,
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionPenMotionIn {
@@ -485,7 +485,7 @@ pub mod interact {
             time: Double,
         }
     }
-    #[openfx_internal_macros::low_make_property_set_structs_v2]
+    #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionPenUpIn {

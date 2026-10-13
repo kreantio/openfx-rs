@@ -173,7 +173,7 @@ pub fn gen_low_plugin_actions(
             }
 
             output_inner.extend(quote! {
-                #[openfx_internal_macros::low_make_property_set_structs_v2]
+                #[openfx_internal_macros::low_make_property_set_structs]
                 mod __ { #output_inner_inner }
             });
         }
@@ -287,7 +287,7 @@ pub fn gen_low_plugin_property_sets(
     std::fs::write(
         output_file,
         prettyplease::unparse(&syn::parse2(quote! {
-            #[openfx_internal_macros::low_make_property_set_structs_v2]
+            #[openfx_internal_macros::low_make_property_set_structs]
             mod __ {
                 #output_inner
             }

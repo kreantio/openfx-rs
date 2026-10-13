@@ -10,8 +10,8 @@ pub fn low_make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStr
 }
 
 #[proc_macro_attribute]
-pub fn low_make_property_set_structs_v2(attr: TokenStream, item: TokenStream) -> TokenStream {
-    low_macros::make_property_set_structs_v2::make_property_set_structs(attr, item)
+pub fn low_make_property_set_structs(attr: TokenStream, item: TokenStream) -> TokenStream {
+    low_macros::make_property_set_structs::make_property_set_structs(attr, item)
 }
 
 #[proc_macro_attribute]
