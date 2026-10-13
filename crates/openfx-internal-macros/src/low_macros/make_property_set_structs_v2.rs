@@ -332,34 +332,52 @@ fn make_property_dimensions_getter(
 ///
 /// ```rust,ignore
 /// make_property_set_structs_v2! {
+///     #[propset(write = host)]
 ///     struct ImageClipInstancePropertySet {
 ///         // …
-///         #[meta(write = host, @OfxImageEffectPropSupportedComponents)]
+///         #[prop(@OfxImageEffectPropPreMultiplication)]
+///         image_effect_pre_multiplication: ty_enum!(ImageEffectPropPreMultiplication),
+///         #[prop(@OfxImageEffectPropSupportedComponents)]
 ///         image_effect_supported_components: [ty_enum!(ImageEffectPropSupportedComponents)],
+///         #[prop(@OfxImageEffectPropSupportsTiles)]
+///         image_effect_supports_tiles: Bool,
 ///         // …
-///         #[meta(write = host, @OfxImageEffectPropTemporalClipAccess)]
-///         image_effect_temporal_clip_access: Bool,
-///         // …
-///         #[meta(write = host, @OfxPropType)]
+///         #[prop(@OfxPropType)]
 ///         r#type: String,
 ///     }
-/// // …
-///     struct ImageEffectInstancePropertySet {
+///     #[propset(write = plugin)]
+///     struct ImageEffectDescriptorPropertySet {
 ///         // …
-///         #[meta(write = host, @OfxImageEffectPropContext)]
-///         image_effect_context: ty_enum!(ImageEffectPropContext),
+///         #[prop(@OfxImageEffectPluginPropOverlayInteractV1)]
+///         image_effect_plugin_overlay_interact_v_1: Pointer,
 ///         // …
-///         #[meta(write = host, @OfxPropInstanceData)]
-///         instance_data: Pointer,
+///         #[prop(write = host, @OfxPluginPropFilePath)]
+///         plugin_file_path: String,
 ///         // …
-///         #[meta(write = host, @OfxPropType)]
+///         #[prop(@OfxPropType)]
 ///         r#type: String,
+///         // …
 ///     }
+///     #[propset(
+///         write = plugin,
+///         refs = ParamsAllButGroupPage+ParamsCommon+ParamsDouble+ParamsNumeric+ParamsValue
+///     )]
 ///     struct ParamDouble1DPropertySet {
 ///         // …
-///         #[meta(write = plugin, @OfxParamPropDefault)]
-///         param_default: [ty_one_of!(Int | Double | String | Pointer)],
-///         // …
+///     }
+///     // …
+///     #[propsetdefs]
+///     mod propsetdefs {
+///         #[propsetdef]
+///         struct ParamsValue {
+///             // …
+///             #[prop(@OfxParamPropDefault)]
+///             param_default: [ty_one_of!(Int | Double | String | Pointer)],
+///             // …
+///             #[prop(write = host, @OfxParamPropIsAnimating)]
+///             param_is_animating: Bool,
+///             // …
+///         }
 ///     }
 /// }
 /// ```
