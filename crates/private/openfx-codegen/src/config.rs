@@ -8,6 +8,7 @@ pub struct CodegenConfig {
     pub suites: CodegenConfigSuites,
     pub objects: CodegenConfigObjects,
     pub property_sets: CodegenConfigPropertySets,
+    pub actions_v2: CodegenConfigActions,
 }
 
 impl CodegenConfig {
@@ -119,4 +120,54 @@ impl<'de> serde::Deserialize<'de> for CodegenConfigObjectMappingEntrySet {
             OneOf::String(name) => Self::PresentCustom(name),
         })
     }
+}
+
+#[derive(serde::Deserialize)]
+pub struct CodegenConfigActions {
+    pub pseudo: CodegenConfigActionsPseudo,
+    pub core: CodegenConfigActionsCore,
+    pub concretes: HashMap<String, CodegenConfigActionsConcrete>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct CodegenConfigActionsPseudo {
+    pub members: HashSet<String>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct CodegenConfigActionsCore {
+    pub members_prefix: String,
+    pub members: HashMap<String, CodegenConfigActionsMember>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct CodegenConfigActionsConcrete {
+    pub handle_prefix: String,
+    pub members_from_core: HashSet<String>,
+    pub members_prefix: String,
+    pub members: HashMap<String, CodegenConfigActionsMember>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct CodegenConfigActionsMember {
+    #[serde(deserialize_with = "deserialize_false_or_string")]
+    pub handle: Option<String>,
+}
+
+fn deserialize_false_or_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    #[derive(serde::Deserialize)]
+    #[serde(untagged)]
+    enum OneOf {
+        False(bool),
+        String(String),
+    }
+
+    Ok(match OneOf::deserialize(deserializer)? {
+        OneOf::False(false) => None,
+        OneOf::False(true) => unreachable!(),
+        OneOf::String(name) => Some(name),
+    })
 }

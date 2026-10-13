@@ -95,111 +95,119 @@ pub fn gen_low_enums_from_metadata(
     Ok(())
 }
 
+pub fn gen_low_plugin_actions(
+    config: &CodegenConfig,
+    output_file: &Path,
+    metadata: &InputMetadata,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut output_inner_pseudo = proc_macro2::TokenStream::new();
+    let mut output_inner_core = proc_macro2::TokenStream::new();
+    let mut output_inners: BTreeMap<String, proc_macro2::TokenStream> = BTreeMap::new();
+
+    for (name, action) in &metadata.raw.actiondef_map {
+        let (output_inner, action_simple_name) = if let Some(simple_name) =
+            config.actions_v2.pseudo.members.get(name)
+        {
+            (&mut output_inner_pseudo, simple_name.to_owned())
+        } else if let Some(simple_name) = name.strip_prefix(&config.actions_v2.core.members_prefix)
+        {
+            (&mut output_inner_core, format!("Action{simple_name}"))
+        } else {
+            'x: {
+                for (concrete_name, concrete) in &config.actions_v2.concretes {
+                    if let Some(simple_name) = name.strip_prefix(&concrete.members_prefix) {
+                        break 'x (
+                            output_inners.entry(concrete_name.to_owned()).or_default(),
+                            format!("Action{simple_name}"),
+                        );
+                    }
+                }
+
+                return Err(format!("Action missing in configuration: {name}").into());
+            }
+        };
+
+        let in_arg_set_name = format!("{action_simple_name}In");
+        let in_arg_set_ident = syn::Ident::new(&in_arg_set_name, proc_macro2::Span::call_site());
+        let out_arg_set_name = format!("{action_simple_name}Out");
+        let out_arg_set_ident = syn::Ident::new(&out_arg_set_name, proc_macro2::Span::call_site());
+
+        let mut in_arg_items: BTreeMap<&str, proc_macro2::TokenStream> = BTreeMap::new();
+        for in_arg_cname in &action.in_args {
+            add_property_set_item(
+                &mut in_arg_items,
+                metadata,
+                in_arg_cname,
+                None,
+                &in_arg_set_name,
+            )?;
+        }
+
+        let mut out_arg_items: BTreeMap<&str, proc_macro2::TokenStream> = BTreeMap::new();
+        for out_arg_cname in &action.out_args {
+            add_property_set_item(
+                &mut out_arg_items,
+                metadata,
+                out_arg_cname,
+                None,
+                &out_arg_set_name,
+            )?;
+        }
+
+        if !in_arg_items.is_empty() || !out_arg_items.is_empty() {
+            let mut output_inner_inner = proc_macro2::TokenStream::new();
+
+            if !in_arg_items.is_empty() {
+                let items: Vec<_> = in_arg_items.values().cloned().collect();
+                output_inner_inner.extend(quote! {
+                    #[propset(write = host)]
+                    struct #in_arg_set_ident { #(#items)* }
+                });
+            }
+            if !out_arg_items.is_empty() {
+                let items: Vec<_> = out_arg_items.values().cloned().collect();
+                output_inner_inner.extend(quote! {
+                    #[propset(write = plugin)]
+                    struct #out_arg_set_ident { #(#items)* }
+                });
+            }
+
+            output_inner.extend(quote! {
+                #[openfx_internal_macros::low_make_property_set_structs_v2]
+                mod __ { #output_inner_inner }
+            });
+        }
+    }
+
+    let mut output = quote! {
+        pub mod pseudo {
+            #output_inner_pseudo
+        }
+        pub mod core {
+            #output_inner_core
+        }
+    };
+
+    for (mod_name, output_inner) in &output_inners {
+        let mod_name_ident = syn::Ident::new(mod_name, proc_macro2::Span::call_site());
+        output.extend(quote! {
+            pub mod #mod_name_ident {
+                #output_inner
+            }
+        });
+    }
+
+    std::fs::write(output_file, prettyplease::unparse(&syn::parse2(output)?))?;
+
+    Ok(())
+}
+
 pub fn gen_low_plugin_property_sets(
     config: &CodegenConfig,
     output_file: &Path,
     metadata: &InputMetadata,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut output_inner = proc_macro2::TokenStream::new();
-
-    fn add_item<'a>(
-        items: &mut BTreeMap<&'a str, proc_macro2::TokenStream>,
-        metadata: &InputMetadata,
-        prop_cname: &'a str,
-        write: Option<&WriteSide>,
-        set_name: &str,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        let Some(prop_canonical_name) = prop_cname.strip_prefix("k") else {
-            return Err(format!("Irregular property cname: {prop_cname}").into());
-        };
-        let Some(simple_name) = prop_cname.strip_prefix("kOfx") else {
-            return Err(format!("Irregular property cname: {prop_cname}").into());
-        };
-        let super_simple_name = get_property_super_simple_name_from_simple_name(simple_name);
-        let prop_snake_name = super_simple_name.to_case(convert_case::Case::Snake);
-
-        let Some(def) = metadata.raw.propdef_map.get(prop_cname) else {
-            return Err(format!("Missing propdef: {prop_cname}").into());
-        };
-
-        let ty = match &def.r#type {
-            PropdefType::Simple { one_of } => {
-                let mut tys: Vec<proc_macro2::TokenStream> = vec![];
-                for ty in one_of {
-                    let ty_tokens = match ty {
-                        PropdefTypeSimple::Int => quote! { Int },
-                        PropdefTypeSimple::Double => quote! { Double },
-                        PropdefTypeSimple::Bool => quote! { Bool },
-                        PropdefTypeSimple::String => quote! { String },
-                        PropdefTypeSimple::Pointer => quote! { Pointer },
-                    };
-                    tys.push(ty_tokens);
-                }
-
-                if one_of.len() == 1 {
-                    tys.pop().unwrap()
-                } else {
-                    quote! { ty_one_of!(#(#tys)|*) }
-                }
-            }
-            PropdefType::StringEnum { .. } => {
-                let simple_name_ident =
-                    syn::Ident::new(simple_name, proc_macro2::Span::call_site());
-                quote! { ty_enum!(#simple_name_ident) }
-            }
-        };
-
-        let ty = match &def.dimension {
-            PropdefDimension::Fixed { size } if *size == 1 => ty,
-            PropdefDimension::Fixed { size } => {
-                let size = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
-                quote! { [#ty; # size] }
-            }
-            PropdefDimension::Dynamic => {
-                quote! { [#ty] }
-            }
-        };
-
-        let mut meta_items: Vec<proc_macro2::TokenStream> = vec![];
-
-        if let Some(write) = write {
-            meta_items.push(match write {
-                WriteSide::Host => quote! { write = host },
-                WriteSide::Plugin => quote! { write = plugin },
-            });
-        }
-
-        let prop_canonical_name_ident =
-            syn::Ident::new(prop_canonical_name, proc_macro2::Span::call_site());
-        let prop_snake_name_ident = match prop_snake_name.as_str() {
-            "type" => syn::Ident::new_raw("type", proc_macro2::Span::call_site()),
-            prop_snake_name => syn::Ident::new(prop_snake_name, proc_macro2::Span::call_site()),
-        };
-
-        meta_items.push(quote! { @#prop_canonical_name_ident });
-
-        let parenthesized_meta_items = if meta_items.is_empty() {
-            quote! {}
-        } else {
-            quote! { (#(#meta_items),*) }
-        };
-
-        let item = quote! {
-            #[prop #parenthesized_meta_items]
-            #prop_snake_name_ident: #ty,
-        };
-        match items.entry(prop_cname) {
-            std::collections::btree_map::Entry::Occupied(occupied_entry) => {
-                assert_eq!(occupied_entry.get().to_string(), item.to_string());
-                tracing::warn!("Duplicate entry `{prop_cname}` on `{set_name}`.");
-            }
-            std::collections::btree_map::Entry::Vacant(vacant_entry) => {
-                vacant_entry.insert(item);
-            }
-        };
-
-        Ok(())
-    }
 
     for (set_name, set) in &metadata.raw.propset_map {
         let set_name = config
@@ -212,7 +220,7 @@ pub fn gen_low_plugin_property_sets(
 
         for (prop_cname, prop) in &set.props {
             let write = prop.write.as_ref();
-            add_item(&mut items, metadata, prop_cname, write, set_name)?;
+            add_property_set_item(&mut items, metadata, prop_cname, write, set_name)?;
         }
 
         let mut meta_items: Vec<proc_macro2::TokenStream> = vec![];
@@ -257,7 +265,7 @@ pub fn gen_low_plugin_property_sets(
 
             for (prop_cname, prop) in &def.props {
                 let write = prop.write.as_ref();
-                add_item(&mut items, metadata, prop_cname, write, def_name)?;
+                add_property_set_item(&mut items, metadata, prop_cname, write, def_name)?;
             }
 
             let def_name_ident = syn::Ident::new(def_name, proc_macro2::Span::call_site());
@@ -285,6 +293,104 @@ pub fn gen_low_plugin_property_sets(
             }
         })?),
     )?;
+
+    Ok(())
+}
+
+fn add_property_set_item<'a>(
+    items: &mut BTreeMap<&'a str, proc_macro2::TokenStream>,
+    metadata: &InputMetadata,
+    prop_cname: &'a str,
+    write: Option<&WriteSide>,
+    set_name: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let Some(prop_canonical_name) = prop_cname.strip_prefix("k") else {
+        return Err(format!("Irregular property cname: {prop_cname}").into());
+    };
+    let Some(simple_name) = prop_cname.strip_prefix("kOfx") else {
+        return Err(format!("Irregular property cname: {prop_cname}").into());
+    };
+    let super_simple_name = get_property_super_simple_name_from_simple_name(simple_name);
+    let prop_snake_name = super_simple_name.to_case(convert_case::Case::Snake);
+
+    let Some(def) = metadata.raw.propdef_map.get(prop_cname) else {
+        return Err(format!("Missing propdef: {prop_cname}").into());
+    };
+
+    let ty = match &def.r#type {
+        PropdefType::Simple { one_of } => {
+            let mut tys: Vec<proc_macro2::TokenStream> = vec![];
+            for ty in one_of {
+                let ty_tokens = match ty {
+                    PropdefTypeSimple::Int => quote! { Int },
+                    PropdefTypeSimple::Double => quote! { Double },
+                    PropdefTypeSimple::Bool => quote! { Bool },
+                    PropdefTypeSimple::String => quote! { String },
+                    PropdefTypeSimple::Pointer => quote! { Pointer },
+                };
+                tys.push(ty_tokens);
+            }
+
+            if one_of.len() == 1 {
+                tys.pop().unwrap()
+            } else {
+                quote! { ty_one_of!(#(#tys)|*) }
+            }
+        }
+        PropdefType::StringEnum { .. } => {
+            let simple_name_ident = syn::Ident::new(simple_name, proc_macro2::Span::call_site());
+            quote! { ty_enum!(#simple_name_ident) }
+        }
+    };
+
+    let ty = match &def.dimension {
+        PropdefDimension::Fixed { size } if *size == 1 => ty,
+        PropdefDimension::Fixed { size } => {
+            let size = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
+            quote! { [#ty; # size] }
+        }
+        PropdefDimension::Dynamic => {
+            quote! { [#ty] }
+        }
+    };
+
+    let mut meta_items: Vec<proc_macro2::TokenStream> = vec![];
+
+    if let Some(write) = write {
+        meta_items.push(match write {
+            WriteSide::Host => quote! { write = host },
+            WriteSide::Plugin => quote! { write = plugin },
+        });
+    }
+
+    let prop_canonical_name_ident =
+        syn::Ident::new(prop_canonical_name, proc_macro2::Span::call_site());
+    let prop_snake_name_ident = match prop_snake_name.as_str() {
+        "type" => syn::Ident::new_raw("type", proc_macro2::Span::call_site()),
+        prop_snake_name => syn::Ident::new(prop_snake_name, proc_macro2::Span::call_site()),
+    };
+
+    meta_items.push(quote! { @#prop_canonical_name_ident });
+
+    let parenthesized_meta_items = if meta_items.is_empty() {
+        quote! {}
+    } else {
+        quote! { (#(#meta_items),*) }
+    };
+
+    let item = quote! {
+        #[prop #parenthesized_meta_items]
+        #prop_snake_name_ident: #ty,
+    };
+    match items.entry(prop_cname) {
+        std::collections::btree_map::Entry::Occupied(occupied_entry) => {
+            assert_eq!(occupied_entry.get().to_string(), item.to_string());
+            tracing::warn!("Duplicate entry `{prop_cname}` on `{set_name}`.");
+        }
+        std::collections::btree_map::Entry::Vacant(vacant_entry) => {
+            vacant_entry.insert(item);
+        }
+    };
 
     Ok(())
 }

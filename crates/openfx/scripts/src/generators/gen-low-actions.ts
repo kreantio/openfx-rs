@@ -6,7 +6,6 @@ import {
 } from "../vibe-zone/parsers/parser-ofxPropsBySet/types.ts";
 import { NameRegulator } from "../utils/name-regulator.ts";
 import { CodegenConfig } from "../definitions.ts";
-import { genPropertySetPropertyItem } from "./gen-low-property-sets.ts";
 import { pascalCase } from "es-toolkit/string";
 import { assertSetsEqual } from "../utils/assertions.ts";
 
@@ -72,7 +71,6 @@ function genLowActionsPseudo(
       `pub type ${m} = fn(${argParts.join(", ")}) -> crate::low::Result<()>;`,
     );
 
-    parts.push("openfx_internal_macros::low_make_property_set_structs! {");
     const inArgs = frS.infos.actionProps[m].inArgs;
     if (inArgs) {
       parts.push(
@@ -85,7 +83,6 @@ function genLowActionsPseudo(
         genLowPropertySetStructForArguments("out", frM, outName, outArgs, opts),
       );
     }
-    parts.push("}");
   }
 
   parts.push("}");
@@ -107,7 +104,6 @@ function genLowActionsCore(
 
   const parts: string[] = [
     "pub mod core {",
-    "openfx_internal_macros::low_make_property_set_structs! {",
   ];
 
   const actions = extractActions([...frS.infos.actions], membersRegex, opts);
@@ -147,7 +143,6 @@ function genLowActionsCore(
       );
     }
   }
-  parts.push("}");
 
   parts.push("}");
 
@@ -232,7 +227,6 @@ function genLowActionsInGroup(
   parts.push("        }");
   parts.push("    }");
 
-  parts.push("openfx_internal_macros::low_make_property_set_structs! {");
   for (const action of actionsSelf) {
     if (opts.seenActions.has(action.canonicalName)) {
       throw new Error(
@@ -262,7 +256,6 @@ function genLowActionsInGroup(
       );
     }
   }
-  parts.push("}");
 
   parts.push("}");
 
@@ -270,35 +263,16 @@ function genLowActionsInGroup(
 }
 
 function genLowPropertySetStructForArguments(
-  inout: "in" | "out",
-  frM: FinalResultOfxPropsMetadata,
+  _inout: "in" | "out",
+  _frM: FinalResultOfxPropsMetadata,
   name: string,
-  args_: Set<string>,
-  opts: {
+  _args_: Set<string>,
+  _opts: {
     nameRegulator: NameRegulator;
     isForPlugin: boolean;
   },
 ) {
-  const args = [...args_]
-    .map((keyConstant) => ({
-      keyConstant,
-      name: opts.nameRegulator.keyConstantToCanonicalName(keyConstant),
-    }))
-    .toSorted((a, b) => a.name.localeCompare(b.name, "en"));
-
-  const parts: string[] = [`    ${name} {`];
-
-  for (const arg of args) {
-    parts.push(genPropertySetPropertyItem(frM, {
-      ...arg,
-      readable: inout === "in",
-      writable: inout === "out",
-    }, opts));
-  }
-
-  parts.push("    }");
-
-  return parts.join("\n");
+  return `    pub use crate::low_plugin::actions::tmp::tmp_umbrella::${name};`;
 }
 
 function extractActions(actions: string[], membersRegex: RegExp, opts: {

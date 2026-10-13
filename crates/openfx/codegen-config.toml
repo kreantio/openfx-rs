@@ -261,3 +261,93 @@ KeyUp = { handle = "Instance", in = true, out = false }
 KeyRepeat = { handle = "Instance", in = true, out = false }
 GainFocus = { handle = "Instance", in = true, out = false }
 LoseFocus = { handle = "Instance", in = true, out = false }
+
+[actions_v2.pseudo]
+members = ["CustomParamInterpFunc"]
+
+[actions_v2.core]
+members_prefix = "kOfxAction"
+
+# source: openfx/include/ofxCore.h
+[actions_v2.core.members]
+Load = { handle = false }
+Describe = { handle = "Descriptor" }
+Unload = { handle = false }
+PurgeCaches = { handle = "Instance" }
+SyncPrivateData = { handle = "Instance" }
+CreateInstance = { handle = "Instance" }
+DestroyInstance = { handle = "Instance" }
+InstanceChanged = { handle = "Instance" }
+BeginInstanceChanged = { handle = "Instance" }
+EndInstanceChanged = { handle = "Instance" }
+BeginInstanceEdit = { handle = "Instance" }
+EndInstanceEdit = { handle = "Instance" }
+
+[actions_v2.concretes.image_effect]
+handle_prefix = "ImageEffect"
+
+# based on: https://openfx.readthedocs.io/en/main/Reference/ofxImageEffectActions.html
+# TODO: parse `ofxImageEffectActions.rst`?
+members_from_core = [
+  "Load",
+  "Unload",
+  "Describe",
+  "CreateInstance",
+  "DestroyInstance",
+  "BeginInstanceChanged",
+  "EndInstanceChanged",
+  "InstanceChanged",
+  "PurgeCaches",
+  "SyncPrivateData",
+  "BeginInstanceEdit",
+  "EndInstanceEdit",
+]
+
+members_prefix = "kOfxImageEffectAction"
+
+[actions_v2.concretes.image_effect.members]
+# source: openfx/include/ofxImageEffect.h
+GetRegionOfDefinition = { handle = "Instance" }
+GetRegionsOfInterest = { handle = "Instance" }
+GetTimeDomain = { handle = "Instance" }
+GetFramesNeeded = { handle = "Instance" }
+GetClipPreferences = { handle = "Instance" }
+IsIdentity = { handle = "Instance" }
+Render = { handle = "Instance" }
+BeginSequenceRender = { handle = "Instance" }
+EndSequenceRender = { handle = "Instance" }
+DescribeInContext = { handle = "Descriptor" }
+
+# source: openfx/include/ofxColour.h
+GetOutputColourspace = { handle = "Instance" }
+
+[actions_v2.concretes.interact]
+handle_prefix = "Interact"
+
+# based on: https://openfx.readthedocs.io/en/main/Reference/ofxInteractActions.html
+# TODO: parse `ofxInteractActions.rst`?
+members_from_core = [
+  # TODO: use the follwing:
+  # ```
+  # { name = "Describe", key = "kOfxActionDescribeInteract" },
+  # { name = "CreateInstance", key = "kOfxActionCreateInstanceInteract" },
+  # { name = "DestroyInstance", key = "kOfxActionDestroyInstanceInteract" },
+  # ```
+  "Describe",
+  "CreateInstance",
+  "DestroyInstance",
+]
+
+members_prefix = "kOfxInteractAction"
+
+# source: openfx/include/ofxInteract.h
+[actions_v2.concretes.interact.members]
+Draw = { handle = "Instance" }
+PenMotion = { handle = "Instance" }
+PenDown = { handle = "Instance" }
+PenUp = { handle = "Instance" }
+KeyDown = { handle = "Instance" }
+KeyUp = { handle = "Instance" }
+KeyRepeat = { handle = "Instance" }
+GainFocus = { handle = "Instance" }
+LoseFocus = { handle = "Instance" }

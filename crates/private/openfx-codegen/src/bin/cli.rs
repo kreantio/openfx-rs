@@ -61,6 +61,11 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
         &output_folder_metadata.join("low_enums.rs"),
         &input_metadata,
     )?;
+    openfx_codegen::ex_codegen_metadata::gen_low_plugin_actions(
+        &codegen_config,
+        &output_folder_metadata.join("low_plugin_actions.rs"),
+        &input_metadata,
+    )?;
     openfx_codegen::ex_codegen_metadata::gen_low_plugin_property_sets(
         &codegen_config,
         &output_folder_metadata.join("low_plugin_property_sets.rs"),
