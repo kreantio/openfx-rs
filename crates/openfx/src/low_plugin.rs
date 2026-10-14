@@ -7,22 +7,8 @@ use crate::{
 pub mod actions {
     include!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/generated/code_from_cpp/low_plugin_actions.rs",
+        "/generated/code_from_metadata/low_plugin_actions.rs",
     ));
-
-    mod tmp {
-        include!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/generated/code_from_metadata/low_plugin_actions.rs",
-        ));
-
-        pub(crate) mod tmp_umbrella {
-            pub use super::core::*;
-            pub use super::image_effect::*;
-            pub use super::interact::*;
-            pub use super::pseudo::*;
-        }
-    }
 }
 
 pub mod objects;

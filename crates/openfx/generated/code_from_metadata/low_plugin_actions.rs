@@ -1,4 +1,9 @@
 pub mod pseudo {
+    pub type CustomParamInterpFunc = fn(
+        *const std::ffi::c_void,
+        in_args: CustomParamInterpFuncIn,
+        out_args: CustomParamInterpFuncOut,
+    ) -> crate::low::Result<()>;
     #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
@@ -58,6 +63,55 @@ pub mod core {
     }
 }
 pub mod image_effect {
+    #[openfx_internal_macros::low_make_action_enum]
+    enum ImageEffectAction {
+        #[action(core, handle = ImageEffectInstance, in_args)]
+        BeginInstanceChanged,
+        #[action(core, handle = ImageEffectInstance)]
+        BeginInstanceEdit,
+        #[action(core, handle = ImageEffectInstance)]
+        CreateInstance,
+        #[action(core, handle = ImageEffectDescriptor)]
+        Describe,
+        #[action(core, handle = ImageEffectInstance)]
+        DestroyInstance,
+        #[action(core, handle = ImageEffectInstance, in_args)]
+        EndInstanceChanged,
+        #[action(core, handle = ImageEffectInstance)]
+        EndInstanceEdit,
+        #[action(core, handle = ImageEffectInstance, in_args)]
+        InstanceChanged,
+        #[action(core)]
+        Load,
+        #[action(core, handle = ImageEffectInstance)]
+        PurgeCaches,
+        #[action(core, handle = ImageEffectInstance)]
+        SyncPrivateData,
+        #[action(core)]
+        Unload,
+        #[action(handle = ImageEffectInstance, in_args)]
+        BeginSequenceRender,
+        #[action(handle = ImageEffectDescriptor, in_args)]
+        DescribeInContext,
+        #[action(handle = ImageEffectInstance, in_args)]
+        EndSequenceRender,
+        #[action(handle = ImageEffectInstance, out_args)]
+        GetClipPreferences,
+        #[action(handle = ImageEffectInstance, in_args, out_args)]
+        GetFramesNeeded,
+        #[action(handle = ImageEffectInstance, in_args, out_args)]
+        GetOutputColourspace,
+        #[action(handle = ImageEffectInstance, in_args, out_args)]
+        GetRegionOfDefinition,
+        #[action(handle = ImageEffectInstance, in_args)]
+        GetRegionsOfInterest,
+        #[action(handle = ImageEffectInstance, out_args)]
+        GetTimeDomain,
+        #[action(handle = ImageEffectInstance, in_args)]
+        IsIdentity,
+        #[action(handle = ImageEffectInstance, in_args)]
+        Render,
+    }
     #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
@@ -343,6 +397,33 @@ pub mod image_effect {
     }
 }
 pub mod interact {
+    #[openfx_internal_macros::low_make_action_enum]
+    enum InteractAction {
+        #[action(core, handle = InteractInstance)]
+        CreateInstance,
+        #[action(core, handle = InteractDescriptor)]
+        Describe,
+        #[action(core, handle = InteractInstance)]
+        DestroyInstance,
+        #[action(handle = InteractInstance, in_args)]
+        Draw,
+        #[action(handle = InteractInstance, in_args)]
+        GainFocus,
+        #[action(handle = InteractInstance, in_args)]
+        KeyDown,
+        #[action(handle = InteractInstance, in_args)]
+        KeyRepeat,
+        #[action(handle = InteractInstance, in_args)]
+        KeyUp,
+        #[action(handle = InteractInstance, in_args)]
+        LoseFocus,
+        #[action(handle = InteractInstance, in_args)]
+        PenDown,
+        #[action(handle = InteractInstance, in_args)]
+        PenMotion,
+        #[action(handle = InteractInstance, in_args)]
+        PenUp,
+    }
     #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]

@@ -1,10 +1,15 @@
-use std::{collections::BTreeMap, ffi::CString, path::Path};
+use std::{
+    collections::{BTreeMap, BTreeSet, HashSet},
+    ffi::CString,
+    path::Path,
+};
 
 use convert_case::Casing;
 use quote::quote;
 
 use openfx_datagen::metadata_extracting::{
-    PropdefDimension, PropdefType, PropdefTypeSimple, StringEnumVariant, WriteSide,
+    ActiondefMetadataEntry, PropdefDimension, PropdefType, PropdefTypeSimple, StringEnumVariant,
+    WriteSide,
 };
 
 use crate::{config::CodegenConfig, input_metadata::InputMetadata, utils::strip_common_prefix};
@@ -103,80 +108,147 @@ pub fn gen_low_plugin_actions(
     let mut output_inner_pseudo = proc_macro2::TokenStream::new();
     let mut output_inner_core = proc_macro2::TokenStream::new();
     let mut output_inners: BTreeMap<String, proc_macro2::TokenStream> = BTreeMap::new();
+    let mut output_action_inners: BTreeMap<String, proc_macro2::TokenStream> = BTreeMap::new();
+
+    let mut remain_actions: HashSet<&str> = HashSet::new();
 
     for (name, action) in &metadata.raw.actiondef_map {
-        let (output_inner, action_simple_name) = if let Some(simple_name) =
-            config.actions_v2.pseudo.members.get(name)
-        {
-            (&mut output_inner_pseudo, simple_name.to_owned())
-        } else if let Some(simple_name) = name.strip_prefix(&config.actions_v2.core.members_prefix)
-        {
-            (&mut output_inner_core, format!("Action{simple_name}"))
-        } else {
-            'x: {
-                for (concrete_name, concrete) in &config.actions_v2.concretes {
-                    if let Some(simple_name) = name.strip_prefix(&concrete.members_prefix) {
-                        break 'x (
-                            output_inners.entry(concrete_name.to_owned()).or_default(),
-                            format!("Action{simple_name}"),
-                        );
-                    }
-                }
+        if let Some(action_simple_name) = config.actions_v2.pseudo.members.get(name) {
+            let action_simple_name_ident =
+                syn::Ident::new(action_simple_name, proc_macro2::Span::call_site());
 
-                return Err(format!("Action missing in configuration: {name}").into());
-            }
-        };
+            let in_arg_set_name = format!("{action_simple_name}In");
+            let out_arg_set_name = format!("{action_simple_name}Out");
 
-        let in_arg_set_name = format!("{action_simple_name}In");
-        let in_arg_set_ident = syn::Ident::new(&in_arg_set_name, proc_macro2::Span::call_site());
-        let out_arg_set_name = format!("{action_simple_name}Out");
-        let out_arg_set_ident = syn::Ident::new(&out_arg_set_name, proc_macro2::Span::call_site());
-
-        let mut in_arg_items: BTreeMap<&str, proc_macro2::TokenStream> = BTreeMap::new();
-        for in_arg_cname in &action.in_args {
-            add_property_set_item(
-                &mut in_arg_items,
+            let ProcessActionPropertySetsOutput {
+                property_set_structs,
+                has_in_args,
+                in_arg_set_ident,
+                has_out_args,
+                out_arg_set_ident,
+            } = process_action_property_sets(
+                action,
                 metadata,
-                in_arg_cname,
-                None,
                 &in_arg_set_name,
-            )?;
-        }
-
-        let mut out_arg_items: BTreeMap<&str, proc_macro2::TokenStream> = BTreeMap::new();
-        for out_arg_cname in &action.out_args {
-            add_property_set_item(
-                &mut out_arg_items,
-                metadata,
-                out_arg_cname,
-                None,
                 &out_arg_set_name,
             )?;
-        }
 
-        if !in_arg_items.is_empty() || !out_arg_items.is_empty() {
-            let mut output_inner_inner = proc_macro2::TokenStream::new();
-
-            if !in_arg_items.is_empty() {
-                let items: Vec<_> = in_arg_items.values().cloned().collect();
-                output_inner_inner.extend(quote! {
-                    #[propset(write = host)]
-                    struct #in_arg_set_ident { #(#items)* }
-                });
+            let mut params: Vec<proc_macro2::TokenStream> =
+                vec![quote! { *const std::ffi::c_void }];
+            if has_in_args {
+                params.push(quote! { in_args: #in_arg_set_ident });
             }
-            if !out_arg_items.is_empty() {
-                let items: Vec<_> = out_arg_items.values().cloned().collect();
-                output_inner_inner.extend(quote! {
-                    #[propset(write = plugin)]
-                    struct #out_arg_set_ident { #(#items)* }
-                });
+            if has_out_args {
+                params.push(quote! { out_args: #out_arg_set_ident });
             }
 
-            output_inner.extend(quote! {
-                #[openfx_internal_macros::low_make_property_set_structs]
-                mod __ { #output_inner_inner }
+            output_inner_pseudo.extend(quote! {
+                pub type #action_simple_name_ident = fn(#(#params),*) -> crate::low::Result<()>;
             });
+            output_inner_pseudo.extend(property_set_structs);
+        } else if let Some(action_simple_name) =
+            name.strip_prefix(&config.actions_v2.core.members_prefix)
+        {
+            let Some(_member) = config.actions_v2.core.members.get(action_simple_name) else {
+                return Err(format!("Core action member missing in configuration: {name}").into());
+            };
+
+            let in_arg_set_name = format!("Action{action_simple_name}In");
+            let out_arg_set_name = format!("Action{action_simple_name}Out");
+
+            let ProcessActionPropertySetsOutput {
+                property_set_structs,
+                ..
+            } = process_action_property_sets(
+                action,
+                metadata,
+                &in_arg_set_name,
+                &out_arg_set_name,
+            )?;
+
+            output_inner_core.extend(property_set_structs);
+        } else {
+            remain_actions.insert(name);
+        };
+    }
+
+    let concretes: BTreeMap<_, _> = config.actions_v2.concretes.iter().collect();
+    for (concrete_name, concrete) in concretes {
+        let output_inner = output_inners.entry(concrete_name.to_owned()).or_default();
+        let output_action_inner = output_action_inners
+            .entry(concrete_name.to_owned())
+            .or_default();
+
+        let members_from_core: BTreeSet<_> = concrete.members_from_core.iter().collect();
+        for simple_name in members_from_core {
+            let full_name = format!("{}{}", config.actions_v2.core.members_prefix, simple_name);
+            let Some(member) = config.actions_v2.core.members.get(simple_name) else {
+                return Err(format!(
+                    "Core member specified in {} not found in metadata: {}",
+                    concrete_name, full_name
+                )
+                .into());
+            };
+            let Some(actiondef) = metadata.raw.actiondef_map.get(&full_name) else {
+                unreachable!()
+            };
+
+            let output_action_enum_item = process_action_enum_item(
+                simple_name,
+                &concrete.handle_prefix,
+                member.handle.as_deref(),
+                !actiondef.in_args.is_empty(),
+                !actiondef.out_args.is_empty(),
+                &[quote! { core }],
+            )?;
+
+            output_action_inner.extend(output_action_enum_item);
         }
+
+        let members: BTreeMap<_, _> = concrete.members.iter().collect();
+        for (simple_name, member) in members {
+            let full_name = format!("{}{}", concrete.members_prefix, simple_name);
+            let Some(actiondef) = metadata.raw.actiondef_map.get(&full_name) else {
+                return Err(format!("Action not found in metadata: {full_name}").into());
+            };
+            remain_actions.remove(full_name.as_str());
+
+            let in_arg_set_name = format!("Action{simple_name}In");
+            let out_arg_set_name = format!("Action{simple_name}Out");
+
+            let ProcessActionPropertySetsOutput {
+                property_set_structs,
+                has_in_args,
+                has_out_args,
+                ..
+            } = process_action_property_sets(
+                actiondef,
+                metadata,
+                &in_arg_set_name,
+                &out_arg_set_name,
+            )?;
+
+            output_inner.extend(property_set_structs);
+
+            let output_action_enum_item = process_action_enum_item(
+                simple_name,
+                &concrete.handle_prefix,
+                member.handle.as_deref(),
+                has_in_args,
+                has_out_args,
+                &[],
+            )?;
+
+            output_action_inner.extend(output_action_enum_item);
+        }
+    }
+
+    if !remain_actions.is_empty() {
+        return Err(format!(
+            "Some actions are missing in the configuration: {:?}",
+            remain_actions
+        )
+        .into());
     }
 
     let mut output = quote! {
@@ -188,10 +260,21 @@ pub fn gen_low_plugin_actions(
         }
     };
 
-    for (mod_name, output_inner) in &output_inners {
+    assert!(output_inners.keys().eq(output_action_inners.keys()));
+
+    for (mod_name, output_action_inner) in &output_action_inners {
+        let output_inner = output_inners.get(mod_name);
+
+        let action_enum_name = format!("{}Action", mod_name.to_case(convert_case::Case::Pascal));
+
         let mod_name_ident = syn::Ident::new(mod_name, proc_macro2::Span::call_site());
+        let action_enum_name_ident =
+            syn::Ident::new(&action_enum_name, proc_macro2::Span::call_site());
         output.extend(quote! {
             pub mod #mod_name_ident {
+                #[openfx_internal_macros::low_make_action_enum]
+                enum #action_enum_name_ident { #output_action_inner }
+
                 #output_inner
             }
         });
@@ -200,6 +283,116 @@ pub fn gen_low_plugin_actions(
     std::fs::write(output_file, prettyplease::unparse(&syn::parse2(output)?))?;
 
     Ok(())
+}
+
+struct ProcessActionPropertySetsOutput {
+    property_set_structs: proc_macro2::TokenStream,
+    has_in_args: bool,
+    in_arg_set_ident: syn::Ident,
+    has_out_args: bool,
+    out_arg_set_ident: syn::Ident,
+}
+
+fn process_action_property_sets(
+    action: &ActiondefMetadataEntry,
+    metadata: &InputMetadata,
+    in_arg_set_name: &str,
+    out_arg_set_name: &str,
+) -> Result<ProcessActionPropertySetsOutput, Box<dyn std::error::Error>> {
+    let in_arg_set_ident = syn::Ident::new(in_arg_set_name, proc_macro2::Span::call_site());
+    let out_arg_set_ident = syn::Ident::new(out_arg_set_name, proc_macro2::Span::call_site());
+
+    let mut in_arg_items: BTreeMap<&str, proc_macro2::TokenStream> = BTreeMap::new();
+    for in_arg_cname in &action.in_args {
+        add_property_set_item(
+            &mut in_arg_items,
+            metadata,
+            in_arg_cname,
+            None,
+            in_arg_set_name,
+        )?;
+    }
+
+    let mut out_arg_items: BTreeMap<&str, proc_macro2::TokenStream> = BTreeMap::new();
+    for out_arg_cname in &action.out_args {
+        add_property_set_item(
+            &mut out_arg_items,
+            metadata,
+            out_arg_cname,
+            None,
+            out_arg_set_name,
+        )?;
+    }
+
+    if !in_arg_items.is_empty() || !out_arg_items.is_empty() {
+        let mut output_inner_inner = proc_macro2::TokenStream::new();
+
+        if !in_arg_items.is_empty() {
+            let items: Vec<_> = in_arg_items.values().cloned().collect();
+            output_inner_inner.extend(quote! {
+                #[propset(write = host)]
+                struct #in_arg_set_ident { #(#items)* }
+            });
+        }
+        if !out_arg_items.is_empty() {
+            let items: Vec<_> = out_arg_items.values().cloned().collect();
+            output_inner_inner.extend(quote! {
+                #[propset(write = plugin)]
+                struct #out_arg_set_ident { #(#items)* }
+            });
+        }
+
+        Ok(ProcessActionPropertySetsOutput {
+            property_set_structs: quote! {
+                #[openfx_internal_macros::low_make_property_set_structs]
+                mod __ { #output_inner_inner }
+            },
+            has_in_args: !in_arg_items.is_empty(),
+            in_arg_set_ident,
+            has_out_args: !out_arg_items.is_empty(),
+            out_arg_set_ident,
+        })
+    } else {
+        Ok(ProcessActionPropertySetsOutput {
+            property_set_structs: Default::default(),
+            has_in_args: false,
+            in_arg_set_ident,
+            has_out_args: false,
+            out_arg_set_ident,
+        })
+    }
+}
+
+fn process_action_enum_item(
+    action_simple_name: &str,
+    handle_prefix: &str,
+    handle_name: Option<&str>,
+    has_in_args: bool,
+    has_out_args: bool,
+    extra_meta_args: &[proc_macro2::TokenStream],
+) -> Result<proc_macro2::TokenStream, Box<dyn std::error::Error>> {
+    let action_name_ident = syn::Ident::new(action_simple_name, proc_macro2::Span::call_site());
+
+    let mut meta_args: Vec<proc_macro2::TokenStream> = extra_meta_args.to_vec();
+
+    if let Some(handle_name) = handle_name {
+        let handle_name_ident = syn::Ident::new(
+            &format!("{handle_prefix}{handle_name}"),
+            proc_macro2::Span::call_site(),
+        );
+        meta_args.push(quote! { handle = #handle_name_ident });
+    }
+    if has_in_args {
+        meta_args.push(quote! { in_args });
+    }
+    if has_out_args {
+        meta_args.push(quote! { out_args });
+    }
+
+    Ok(quote! {
+        #[action(#(#meta_args),*)]
+        #action_name_ident,
+    })
 }
 
 pub fn gen_low_plugin_property_sets(
