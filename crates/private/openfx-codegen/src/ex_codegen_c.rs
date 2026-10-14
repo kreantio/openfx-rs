@@ -198,11 +198,11 @@ pub fn gen_low_plugin_suites(
         for simple_ident in &simple_idents {
             let special_case = &config.suites.special_cases.get(&simple_ident.to_string());
 
-            if let Some(corrected_k_name) = special_case.and_then(|sc| sc.key_name.as_deref()) {
-                let corrected_k_ident =
-                    syn::Ident::new(corrected_k_name, proc_macro2::Span::call_site());
+            if let Some(corrected_cname) = special_case.and_then(|sc| sc.key_name.as_deref()) {
+                let corrected_cname_ident =
+                    syn::Ident::new(corrected_cname, proc_macro2::Span::call_site());
                 output.extend(quote! {
-                    openfx_internal_macros::low_plugin_impl_host_for_fetch_suite!(#simple_ident @ #corrected_k_ident);
+                    openfx_internal_macros::low_plugin_impl_host_for_fetch_suite!(#simple_ident @ #corrected_cname_ident);
                 });
             } else {
                 output.extend(quote! {

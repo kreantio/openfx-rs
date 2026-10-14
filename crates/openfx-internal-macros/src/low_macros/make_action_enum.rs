@@ -100,8 +100,8 @@ fn make_from_sys_fn(enum_name: &str, items: &[InputItem]) -> proc_macro2::TokenS
 
     for var in items {
         let var_name = &var.name;
-        let k_name = get_k_name(var, enum_name);
-        let k_name = syn::Ident::new(&k_name, var.name.span());
+        let cname = get_cname(var, enum_name);
+        let cname = syn::Ident::new(&cname, var.name.span());
         let (handle_ident, handle_from_sys) = if let Some(handle_type) = &var.meta.handle {
             (
                 quote! { handle },
@@ -121,7 +121,7 @@ fn make_from_sys_fn(enum_name: &str, items: &[InputItem]) -> proc_macro2::TokenS
             (quote! { sys_out_args }, quote! { out_args })
         };
         branches.push(quote! {
-            _ if action == crate::sys_umbrella::#k_name => {
+            _ if action == crate::sys_umbrella::#cname => {
                 Self::#var_name {
                     #handle_ident: #handle_from_sys,
                     #in_args_ident: #in_args_from_sys,
@@ -167,9 +167,9 @@ fn make_from_sys_fn(enum_name: &str, items: &[InputItem]) -> proc_macro2::TokenS
 
 fn make_sys_fns(enum_name: &str, items: &[InputItem]) -> proc_macro2::TokenStream {
     let var_names: Vec<_> = items.iter().map(|v| &v.name).collect();
-    let k_names: Vec<_> = items
+    let cnames: Vec<_> = items
         .iter()
-        .map(|v| syn::Ident::new(&get_k_name(v, enum_name), v.name.span()))
+        .map(|v| syn::Ident::new(&get_cname(v, enum_name), v.name.span()))
         .collect();
 
     let mut vars_with_handle = Vec::new();
@@ -204,7 +204,7 @@ fn make_sys_fns(enum_name: &str, items: &[InputItem]) -> proc_macro2::TokenStrea
     quote! {
         pub fn sys_action(&self) -> Option<&::std::ffi::CStr> {
             match self {
-                #(Self::#var_names { .. } => Some(crate::sys_umbrella::#k_names),)*
+                #(Self::#var_names { .. } => Some(crate::sys_umbrella::#cnames),)*
                 Self::UnknownDontUseThisDirectly { action, .. } => action.map(|a| unsafe { ::std::ffi::CStr::from_ptr(a.as_ptr()) }),
             }
         }
@@ -235,7 +235,7 @@ fn make_sys_fns(enum_name: &str, items: &[InputItem]) -> proc_macro2::TokenStrea
     }
 }
 
-fn get_k_name(var: &InputItem, enum_name: &str) -> String {
+fn get_cname(var: &InputItem, enum_name: &str) -> String {
     format!(
         "kOfx{}{}",
         if var.meta.core.is_some() {
