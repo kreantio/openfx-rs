@@ -165,14 +165,14 @@ ParamsStrChoice = "ParamStrChoice"
 ParamsString = "ParamString"
 
 
-[actions_v2.pseudo]
+[actions.pseudo]
 members = ["CustomParamInterpFunc"]
 
-[actions_v2.core]
+[actions.core]
 members_prefix = "kOfxAction"
 
 # source: openfx/include/ofxCore.h
-[actions_v2.core.members]
+[actions.core.members]
 Load = { handle = false }
 Describe = { handle = "Descriptor" }
 Unload = { handle = false }
@@ -186,7 +186,7 @@ EndInstanceChanged = { handle = "Instance" }
 BeginInstanceEdit = { handle = "Instance" }
 EndInstanceEdit = { handle = "Instance" }
 
-[actions_v2.concretes.image_effect]
+[actions.concretes.image_effect]
 handle_prefix = "ImageEffect"
 
 # based on: https://openfx.readthedocs.io/en/main/Reference/ofxImageEffectActions.html
@@ -208,7 +208,7 @@ members_from_core = [
 
 members_prefix = "kOfxImageEffectAction"
 
-[actions_v2.concretes.image_effect.members]
+[actions.concretes.image_effect.members]
 # source: openfx/include/ofxImageEffect.h
 GetRegionOfDefinition = { handle = "Instance" }
 GetRegionsOfInterest = { handle = "Instance" }
@@ -224,7 +224,7 @@ DescribeInContext = { handle = "Descriptor" }
 # source: openfx/include/ofxColour.h
 GetOutputColourspace = { handle = "Instance" }
 
-[actions_v2.concretes.interact]
+[actions.concretes.interact]
 handle_prefix = "Interact"
 
 # based on: https://openfx.readthedocs.io/en/main/Reference/ofxInteractActions.html
@@ -244,7 +244,7 @@ members_from_core = [
 members_prefix = "kOfxInteractAction"
 
 # source: openfx/include/ofxInteract.h
-[actions_v2.concretes.interact.members]
+[actions.concretes.interact.members]
 Draw = { handle = "Instance" }
 PenMotion = { handle = "Instance" }
 PenDown = { handle = "Instance" }

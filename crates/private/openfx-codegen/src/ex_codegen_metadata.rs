@@ -113,7 +113,7 @@ pub fn gen_low_plugin_actions(
     let mut remain_actions: HashSet<&str> = HashSet::new();
 
     for (name, action) in &metadata.raw.actiondef_map {
-        if let Some(action_simple_name) = config.actions_v2.pseudo.members.get(name) {
+        if let Some(action_simple_name) = config.actions.pseudo.members.get(name) {
             let action_simple_name_ident =
                 syn::Ident::new(action_simple_name, proc_macro2::Span::call_site());
 
@@ -147,9 +147,9 @@ pub fn gen_low_plugin_actions(
             });
             output_inner_pseudo.extend(property_set_structs);
         } else if let Some(action_simple_name) =
-            name.strip_prefix(&config.actions_v2.core.members_prefix)
+            name.strip_prefix(&config.actions.core.members_prefix)
         {
-            let Some(_member) = config.actions_v2.core.members.get(action_simple_name) else {
+            let Some(_member) = config.actions.core.members.get(action_simple_name) else {
                 return Err(format!("Core action member missing in configuration: {name}").into());
             };
 
@@ -172,7 +172,7 @@ pub fn gen_low_plugin_actions(
         };
     }
 
-    let concretes: BTreeMap<_, _> = config.actions_v2.concretes.iter().collect();
+    let concretes: BTreeMap<_, _> = config.actions.concretes.iter().collect();
     for (concrete_name, concrete) in concretes {
         let output_inner = output_inners.entry(concrete_name.to_owned()).or_default();
         let output_action_inner = output_action_inners
@@ -181,8 +181,8 @@ pub fn gen_low_plugin_actions(
 
         let members_from_core: BTreeSet<_> = concrete.members_from_core.iter().collect();
         for simple_name in members_from_core {
-            let full_name = format!("{}{}", config.actions_v2.core.members_prefix, simple_name);
-            let Some(member) = config.actions_v2.core.members.get(simple_name) else {
+            let full_name = format!("{}{}", config.actions.core.members_prefix, simple_name);
+            let Some(member) = config.actions.core.members.get(simple_name) else {
                 return Err(format!(
                     "Core member specified in {} not found in metadata: {}",
                     concrete_name, full_name

@@ -8,7 +8,7 @@ pub struct CodegenConfig {
     pub suites: CodegenConfigSuites,
     pub objects: CodegenConfigObjects,
     pub property_sets: CodegenConfigPropertySets,
-    pub actions_v2: CodegenConfigActions,
+    pub actions: CodegenConfigActions,
 }
 
 impl CodegenConfig {
