@@ -9,6 +9,9 @@
 
 See Also:
 
+- Official OpenFX links:
+  - https://openeffects.org
+  - https://github.com/AcademySoftwareFoundation/openfx
 - [ATTRIBUTION.md](./ATTRIBUTION.md)
 - [CONTRIBUTING.md](./CONTRIBUTING.md)
 
