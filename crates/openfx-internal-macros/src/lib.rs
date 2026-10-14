@@ -19,9 +19,9 @@ pub fn low_make_property_enums_from_c(attr: TokenStream, item: TokenStream) -> T
     low_macros::make_property_enums_from_c::make_property_enums_from_c(attr, item)
 }
 
-#[proc_macro]
-pub fn low_make_action_enum(tokens: TokenStream) -> TokenStream {
-    low_macros::make_action_enum::make_action_enum(tokens)
+#[proc_macro_attribute]
+pub fn low_make_action_enum(attr: TokenStream, item: TokenStream) -> TokenStream {
+    low_macros::make_action_enum::make_action_enum(attr, item)
 }
 
 #[proc_macro]

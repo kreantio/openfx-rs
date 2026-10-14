@@ -27,3 +27,22 @@ pub fn extract_dummy_mod_content(
 
     Ok(content)
 }
+
+/// Returns whether the next tokens in `input` are a `#[<name> …]` attribute,
+/// without consuming anything.
+///
+/// - Author: OpenCode 2 / GLM 5.3 (provider: either Z.AI or OpenCode Go,
+///   thinking: Max)
+/// - Reviewed-by: Umaĵo
+pub fn peek_attribute(input: syn::parse::ParseStream, name: &str) -> bool {
+    fn test(input: syn::parse::ParseStream, name: &str) -> syn::Result<bool> {
+        input.parse::<syn::Token![#]>()?;
+        let content;
+        syn::bracketed!(content in input);
+        let attr_name = content.parse::<syn::Ident>()?;
+        Ok(attr_name == name)
+    }
+
+    let fork = input.fork();
+    test(&fork, name).unwrap_or(false)
+}

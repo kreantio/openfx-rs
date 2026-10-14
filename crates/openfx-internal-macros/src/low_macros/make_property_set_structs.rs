@@ -398,7 +398,7 @@ impl syn::parse::Parse for Input {
         let mut defs = vec![];
 
         while !content.is_empty() {
-            if peek_attribute(&content, "propsetdefs") {
+            if utils::peek_attribute(&content, "propsetdefs") {
                 let propsetdefs_mod: InputPropsetdefs = content.parse()?;
                 defs.extend(propsetdefs_mod.defs);
             } else {
@@ -409,21 +409,6 @@ impl syn::parse::Parse for Input {
 
         Ok(Input { sets, defs })
     }
-}
-
-/// Returns whether the next tokens in `input` are a `#[<name> …]` attribute,
-/// without consuming anything.
-fn peek_attribute(input: syn::parse::ParseStream, name: &str) -> bool {
-    fn test(input: syn::parse::ParseStream, name: &str) -> syn::Result<bool> {
-        input.parse::<syn::Token![#]>()?;
-        let content;
-        syn::bracketed!(content in input);
-        let attr_name = content.parse::<syn::Ident>()?;
-        Ok(attr_name == name)
-    }
-
-    let fork = input.fork();
-    test(&fork, name).unwrap_or(false)
 }
 
 /// A `#[propset(write = …[, refs = …])] struct … { … }` item.

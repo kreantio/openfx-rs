@@ -1,10 +1,16 @@
 use proc_macro::TokenStream;
 use quote::{quote, quote_spanned};
 
-pub fn make_action_enum(tokens: TokenStream) -> TokenStream {
+use crate::low_macros::utils;
+
+pub fn make_action_enum(attr: TokenStream, item: TokenStream) -> TokenStream {
+    if let Err(error) = utils::err_if_attribute_is_not_empty(attr) {
+        return error;
+    }
+
     let mut output_inner = proc_macro2::TokenStream::new();
 
-    let input = syn::parse_macro_input!(tokens as Input);
+    let input = syn::parse_macro_input!(item as Input);
     let enum_name = &input.name;
 
     for var in &input.items {
@@ -47,18 +53,18 @@ pub fn make_action_enum(tokens: TokenStream) -> TokenStream {
     .into()
 }
 
-fn make_variant(output: &mut proc_macro2::TokenStream, var: &InputVariant) {
+fn make_variant(output: &mut proc_macro2::TokenStream, var: &InputItem) {
     let name = &var.name;
-    let handle_field = if let Some(handle_type) = &var.handle_type {
-        quote! { handle: #handle_type }
+    let handle_field = if let Some(handle_type) = &var.meta.handle {
+        quote! { handle: crate::low_plugin::objects::#handle_type }
     } else {
         // TODO: use `NonNull<std::ffi::c_void>` instead.
         quote! { sys_handle: *const ::std::ffi::c_void }
     };
-    let in_args_field = if let Some(in_args) = &var.in_args {
+    let in_args_field = if let Some(in_args) = &var.meta.in_args {
         let name = syn::Ident::new(&format!("Action{}In", name), in_args.span());
-        let path = if let Some(from_core) = &var.from_core {
-            let core = quote_spanned! { from_core.span() => core };
+        let path = if let Some(core) = &var.meta.core {
+            let core = quote_spanned! { core.span() => core };
             quote! { super::#core:: }
         } else {
             quote! {}
@@ -67,10 +73,10 @@ fn make_variant(output: &mut proc_macro2::TokenStream, var: &InputVariant) {
     } else {
         quote! { sys_in_args: crate::sys::generic::core::OfxPropertySetHandle }
     };
-    let out_args_field = if let Some(out_args) = &var.out_args {
+    let out_args_field = if let Some(out_args) = &var.meta.out_args {
         let name = syn::Ident::new(&format!("Action{}Out", name), out_args.span());
-        let path = if let Some(from_core) = &var.from_core {
-            let core = quote_spanned! { from_core.span() => core };
+        let path = if let Some(core) = &var.meta.core {
+            let core = quote_spanned! { core.span() => core };
             quote! { super::#core:: }
         } else {
             quote! {}
@@ -89,27 +95,27 @@ fn make_variant(output: &mut proc_macro2::TokenStream, var: &InputVariant) {
     });
 }
 
-fn make_from_sys_fn(enum_name: &str, items: &[InputVariant]) -> proc_macro2::TokenStream {
+fn make_from_sys_fn(enum_name: &str, items: &[InputItem]) -> proc_macro2::TokenStream {
     let mut branches: Vec<proc_macro2::TokenStream> = vec![];
 
     for var in items {
         let var_name = &var.name;
         let k_name = get_k_name(var, enum_name);
         let k_name = syn::Ident::new(&k_name, var.name.span());
-        let (handle_ident, handle_from_sys) = if let Some(handle_type) = &var.handle_type {
+        let (handle_ident, handle_from_sys) = if let Some(handle_type) = &var.meta.handle {
             (
                 quote! { handle },
-                quote! { #handle_type::from_sys_ptr(handle) },
+                quote! { crate::low_plugin::objects::#handle_type::from_sys_ptr(handle) },
             )
         } else {
             (quote! { sys_handle }, quote! { handle })
         };
-        let (in_args_ident, in_args_from_sys) = if var.in_args.is_some() {
+        let (in_args_ident, in_args_from_sys) = if var.meta.in_args.is_some() {
             (quote! { in_args }, quote! { in_args.into() })
         } else {
             (quote! { sys_in_args }, quote! { in_args })
         };
-        let (out_args_ident, out_args_from_sys) = if var.out_args.is_some() {
+        let (out_args_ident, out_args_from_sys) = if var.meta.out_args.is_some() {
             (quote! { out_args }, quote! { out_args.into() })
         } else {
             (quote! { sys_out_args }, quote! { out_args })
@@ -159,7 +165,7 @@ fn make_from_sys_fn(enum_name: &str, items: &[InputVariant]) -> proc_macro2::Tok
     }
 }
 
-fn make_sys_fns(enum_name: &str, items: &[InputVariant]) -> proc_macro2::TokenStream {
+fn make_sys_fns(enum_name: &str, items: &[InputItem]) -> proc_macro2::TokenStream {
     let var_names: Vec<_> = items.iter().map(|v| &v.name).collect();
     let k_names: Vec<_> = items
         .iter()
@@ -176,19 +182,19 @@ fn make_sys_fns(enum_name: &str, items: &[InputVariant]) -> proc_macro2::TokenSt
     for item in items {
         let name = item.name.clone();
 
-        if item.handle_type.is_some() {
+        if item.meta.handle.is_some() {
             vars_with_handle.push(name.clone());
         } else {
             vars_with_sys_handle.push(name.clone());
         }
 
-        if item.in_args.is_some() {
+        if item.meta.in_args.is_some() {
             vars_with_in_args.push(name.clone());
         } else {
             vars_with_sys_in_args.push(name.clone());
         }
 
-        if item.out_args.is_some() {
+        if item.meta.out_args.is_some() {
             vars_with_out_args.push(name);
         } else {
             vars_with_sys_out_args.push(name);
@@ -229,10 +235,10 @@ fn make_sys_fns(enum_name: &str, items: &[InputVariant]) -> proc_macro2::TokenSt
     }
 }
 
-fn get_k_name(var: &InputVariant, enum_name: &str) -> String {
+fn get_k_name(var: &InputItem, enum_name: &str) -> String {
     format!(
         "kOfx{}{}",
-        if var.from_core.is_some() {
+        if var.meta.core.is_some() {
             "Action"
         } else {
             enum_name
@@ -259,80 +265,108 @@ fn get_k_name(var: &InputVariant, enum_name: &str) -> String {
 /// ```
 struct Input {
     name: syn::Ident,
-    items: Vec<InputVariant>,
+    items: Vec<InputItem>,
 }
 
 impl syn::parse::Parse for Input {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        input.parse::<syn::Token![enum]>()?;
         let name = input.parse()?;
         let content;
         syn::braced!(content in input);
         let items = content
-            .parse_terminated(InputVariant::parse, syn::Token![,])?
+            .parse_terminated(InputItem::parse, syn::Token![,])?
             .into_iter()
             .collect();
         Ok(Input { name, items })
     }
 }
 
-struct InputVariant {
-    in_args: Option<syn::Ident>,
-    out_args: Option<syn::Ident>,
-    from_core: Option<syn::Ident>,
+struct InputItem {
+    meta: InputItemMeta,
     name: syn::Ident,
-    handle_type: Option<syn::Type>,
 }
 
-impl syn::parse::Parse for InputVariant {
+impl syn::parse::Parse for InputItem {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let in_args = if input.peek(syn::Token![_]) {
-            input.parse::<syn::Token![_]>()?;
-            None
-        } else {
-            let marker: syn::Ident = input.parse()?;
-            match marker.to_string().as_str() {
-                "i" => Some(syn::Ident::new("in_args", marker.span())),
-                _ => return Err(syn::Error::new(marker.span(), "expected `i` or `_`")),
-            }
-        };
-
-        input.parse::<syn::Token![/]>()?;
-
-        let out_args = if input.peek(syn::Token![_]) {
-            input.parse::<syn::Token![_]>()?;
-            None
-        } else {
-            let marker: syn::Ident = input.parse()?;
-            match marker.to_string().as_str() {
-                "o" => Some(syn::Ident::new("out_args", marker.span())),
-                _ => return Err(syn::Error::new(marker.span(), "expected `o` or `_`")),
-            }
-        };
-
-        let from_core: Option<syn::Ident>;
-        let name: syn::Ident;
-        if input.peek(syn::Ident) && input.peek2(syn::Token![::]) {
-            from_core = Some(input.parse()?);
-            input.parse::<syn::Token![::]>()?;
-            name = input.parse()?;
-        } else {
-            from_core = None;
-            name = input.parse()?;
+        if !utils::peek_attribute(input, "action") {
+            return Err(input.error("expected attribute `#[action]`"));
         }
 
-        let handle_type = if input.peek(syn::Token![:]) {
-            input.parse::<syn::Token![:]>()?;
-            Some(input.parse()?)
-        } else {
-            None
-        };
+        let meta: InputItemMeta = input.parse()?;
+        let name: syn::Ident = input.parse()?;
 
-        Ok(InputVariant {
+        Ok(InputItem { meta, name })
+    }
+}
+
+struct InputItemMeta {
+    core: Option<syn::Ident>,
+    handle: Option<syn::Type>,
+    in_args: Option<syn::Ident>,
+    out_args: Option<syn::Ident>,
+}
+
+impl syn::parse::Parse for InputItemMeta {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        input.parse::<syn::Token![#]>()?;
+        let content;
+        syn::bracketed!(content in input);
+
+        let attr_name = content.parse::<syn::Ident>()?;
+        if attr_name != "action" {
+            return Err(syn::Error::new_spanned(attr_name, "expected `action`"));
+        }
+
+        let mut core = None;
+        let mut handle = None;
+        let mut in_args = None;
+        let mut out_args = None;
+
+        let inner;
+        syn::parenthesized!(inner in content);
+
+        while !inner.is_empty() {
+            let key = inner.parse::<syn::Ident>()?;
+            match key.to_string().as_str() {
+                "core" => {
+                    if core.replace(key.clone()).is_some() {
+                        return Err(syn::Error::new_spanned(key, "duplicate `core`"));
+                    }
+                }
+                "handle" => {
+                    inner.parse::<syn::Token![=]>()?;
+                    if handle.replace(inner.parse()?).is_some() {
+                        return Err(syn::Error::new_spanned(key, "duplicate `handle`"));
+                    }
+                }
+                "in_args" => {
+                    if in_args.replace(key.clone()).is_some() {
+                        return Err(syn::Error::new_spanned(key, "duplicate `in_args`"));
+                    }
+                }
+                "out_args" => {
+                    if out_args.replace(key.clone()).is_some() {
+                        return Err(syn::Error::new_spanned(key, "duplicate `out_args`"));
+                    }
+                }
+                _ => {
+                    return Err(syn::Error::new_spanned(
+                        key,
+                        "expected `core`, `handle`, `in_args` or `out_args`",
+                    ));
+                }
+            }
+            if !inner.is_empty() {
+                inner.parse::<syn::Token![,]>()?;
+            }
+        }
+
+        Ok(InputItemMeta {
+            core,
             in_args,
             out_args,
-            from_core,
-            name,
-            handle_type,
+            handle,
         })
     }
 }
