@@ -106,14 +106,6 @@ jobs:
         with:
           submodules: true
 
-      - name: Check whether the submodule `openfx` is on main or an ancestor of main
-        uses: jtmullen/submodule-branch-check-action@v1
-        with:
-          path: vendor/openfx
-          branch: main
-          first_parent: true
-          disable_progression: true
-
       - name: Check whether the submodule `openfx-data` is on main or an ancestor of main
         if: always()
         uses: jtmullen/submodule-branch-check-action@v1

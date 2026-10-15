@@ -19,11 +19,11 @@ See Also:
 
 The following tools are required:
 
-| Tool(s)                                 | Building Examples? | Updating Generated Code in Crate `openfx`? |
-| --------------------------------------- | ------------------ | ------------------------------------------ |
-| POSIX tools (`sh`, `rm`, `mkdir`, etc.) | yes (I assume)     | yes                                        |
-| [`just`]                                | yes                | yes                                        |
-| [`deno`]                                | yes                | yes                                        |
+| Tool(s) \\ To                           | Build Examples | Update Generated Code in Crate `openfx` |
+| --------------------------------------- | -------------- | --------------------------------------- |
+| POSIX tools (`sh`, `rm`, `mkdir`, etc.) | yes (I assume) | yes                                     |
+| [`just`]                                | yes            | yes                                     |
+| [`deno`]                                | yes            | no                                      |
 
 [`just`]: https://github.com/casey/just
 [`deno`]: https://deno.com/
