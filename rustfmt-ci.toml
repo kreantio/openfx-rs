@@ -1,2 +1,2 @@
-format_strings = true
+# format_strings = true
 ignore = ["vendor/*"]

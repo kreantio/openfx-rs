@@ -1,8 +1,14 @@
 use proc_macro::TokenStream;
 use quote::quote;
 
-pub fn make_property_enums(tokens: TokenStream) -> TokenStream {
-    let input = syn::parse_macro_input!(tokens as Input);
+use crate::low_macros::utils;
+
+pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream {
+    if let Err(error) = utils::err_if_attribute_is_not_empty(attr) {
+        return error;
+    }
+
+    let input = syn::parse_macro_input!(item as Input);
 
     let mut output = proc_macro2::TokenStream::new();
 
@@ -140,7 +146,8 @@ pub fn make_property_enums(tokens: TokenStream) -> TokenStream {
 /// ## Examples
 ///
 /// ```rust,ignore
-/// make_property_enums! {
+/// #[make_property_enums]
+/// mod __ {
 ///     enum ImageClipPropFieldOrder {
 ///         #[sys(kOfxImageFieldLower)]
 ///         Lower,
@@ -164,9 +171,11 @@ struct Input {
 
 impl syn::parse::Parse for Input {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let content = utils::extract_dummy_mod_content(input)?;
+
         let mut items = Vec::new();
-        while !input.is_empty() {
-            let item = input.parse::<InputEnumItem>()?;
+        while !content.is_empty() {
+            let item = content.parse::<InputEnumItem>()?;
             items.push(item);
         }
         Ok(Input { items })

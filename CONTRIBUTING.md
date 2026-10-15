@@ -58,26 +58,28 @@ See [AI_POLICY.md](./AI_POLICY.md).
 
 ## Terminology
 
-### Terminology for Property Names
+### Terms for Property Names
 
 This project refers to properties in three ways:
 
-- **Key names** (also called **k names** and offically **cname**) are macro
-  names defined in the OpenFX C headers, such as `kOfxPropAPIVersion`. They
-  always begin with `k`.
-- **Canonical names** are key names with the leading `k` removed, such as
-  `OfxPropAPIVersion`.
-- **Key constant values** (also called **key constants** and officially
-  **stringname**) are the values of key-name macros, such as
+- **Cname** are macro names defined in the OpenFX C headers, such as
+  `kOfxPropAPIVersion`. They always begin with `k`. This is a term that appears
+  in the official repository[^1].
+- **Canonical names** are cnames with the leading `k` removed, such as
+  `OfxPropAPIVersion`. This is not an official term.
+- **Stringname** are the values of key-value macros, such as
   `OfxPropAPIVersion`. Most match their canonical names, but some are irregular.
   For example, the property with canonical name `OfxPropKeyString` has the key
   constant `kOfxPropKeyString` rather than `OfxPropKeyString`: the `k` was
-  included in the key constant.
+  included in the key constant. This is a term that appears in the official
+  repository[^2].
+- **Simple names** are cnames with the leading `kOfx` removed. This is not an
+  official term.
 
-In this project, the `sys` layer exposes properties by their key names, while
-other layers, such as the `low` layer, use their canonical names (or simplified
-forms derived from those names). Because the official C++ headers use key
-constants, processing must map those values back to canonical names.
+In this project, the `sys` layer exposes properties by their cnames, while other
+layers, such as the `low` layer, use their canonical names (or simplified forms
+derived from those names). Because the official C++ headers use key constants,
+processing must map those values back to canonical names.
 
 #### Examples
 
@@ -92,13 +94,13 @@ constants, processing must map those values back to canonical names.
 #define kOfxPropKeySym "kOfxPropKeySym"
 ```
 
-| Key Name                                      | Canonical Name                               | Key Constant                         | Regular? |
+| Cname                                         | Canonical Name                               | Stringname                           | Regular? |
 | --------------------------------------------- | -------------------------------------------- | ------------------------------------ | -------- |
 | kOfxPropAPIVersion                            | OfxPropAPIVersion                            | OfxPropAPIVersion                    | yes      |
 | kOfxImageEffectPropSupportsMultipleClipDepths | OfxImageEffectPropSupportsMultipleClipDepths | OfxImageEffectPropMultipleClipDepths | no       |
 | kOfxPropKeySym                                | OfxPropKeySym                                | kOfxPropKeySym                       | no       |
 
-### Terminology for Property Enum Variant Names
+### Terms for Property Enum Variant Names
 
 Property enum variant names follow the same terminology as property names.
 
@@ -112,12 +114,12 @@ Property enum variant names follow the same terminology as property names.
 #define kOfxImageFieldNone "OfxFieldNone"
 ```
 
-| Key Name               | Canonical Name        | Key Constant          | Regular? |
+| Cname                  | Canonical Name        | Stringname            | Regular? |
 | ---------------------- | --------------------- | --------------------- | -------- |
 | kOfxImageComponentNone | OfxImageComponentNone | OfxImageComponentNone | yes      |
 | kOfxImageFieldNone     | OfxImageFieldNone     | OfxFieldNone          | no       |
 
-### Terminology for Action Names
+### Terms for Action Names
 
 Action names follow the same terminology as property names.
 
@@ -128,9 +130,13 @@ Action names follow the same terminology as property names.
 #define  kOfxActionLoad "OfxActionLoad"
 ```
 
-| Key Name       | Canonical Name | Key Constant  | Regular? |
+| Cname          | Canonical Name | Stringname    | Regular? |
 | -------------- | -------------- | ------------- | -------- |
 | kOfxActionLoad | OfxActionLoad  | OfxActionLoad | yes      |
 
 [`openfx-datagen`]: https://github.com/kreantio/openfx-datagen
 [`openfx-data`]: https://github.com/kreantio/openfx-data
+
+[^1]: https://github.com/AcademySoftwareFoundation/openfx/blob/e40728885390ec16276d11e00025de9b4282060c/scripts/gen-props.py#L215
+
+[^2]: https://github.com/AcademySoftwareFoundation/openfx/blob/e40728885390ec16276d11e00025de9b4282060c/scripts/gen-props.py#L236
