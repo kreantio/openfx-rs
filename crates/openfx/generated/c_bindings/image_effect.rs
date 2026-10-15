@@ -1730,7 +1730,7 @@ pub const kOfxImageEffectRetimerParamName: &::std::ffi::CStr = c"SourceTime";
 /// ```
 pub const kOfxImageEffectSuite: &::std::ffi::CStr = c"OfxImageEffectSuite";
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug)]
 pub struct OfxImageEffectStruct {
     _unused: [u8; 0],
 }
@@ -1739,7 +1739,7 @@ pub struct OfxImageEffectStruct {
 /// ```
 pub type OfxImageEffectHandle = *mut OfxImageEffectStruct;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug)]
 pub struct OfxImageClipStruct {
     _unused: [u8; 0],
 }
@@ -1748,7 +1748,7 @@ pub struct OfxImageClipStruct {
 /// ```
 pub type OfxImageClipHandle = *mut OfxImageClipStruct;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug)]
 pub struct OfxImageMemoryStruct {
     _unused: [u8; 0],
 }

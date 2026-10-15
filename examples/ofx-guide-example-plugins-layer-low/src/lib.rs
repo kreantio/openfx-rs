@@ -1,8 +1,6 @@
-#![feature(decl_macro)]
-
 use openfx::{
     sys::generic::core::{OfxHost, OfxPlugin},
-    sys_helpers::generic::{Plugins, export_plugins, plugin_struct},
+    sys_plugin_helpers::{Plugins, export_plugins, plugin_struct},
 };
 
 use crate::{

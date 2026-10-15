@@ -10,7 +10,7 @@
 > This crate is in the early stages of development:
 >
 > - Its API is expected to change.
-> - At present, only `openfx::{sys, sys_helpers}` is fully implemented.
+> - At present, only `openfx::sys` is fully implemented.
 >   `openfx::{low, low_plugin}` is still under development.
 >
 > Although `openfx::{low, low_plugin}` already provides some functionality, it
@@ -46,79 +46,19 @@ crate-type = ["cdylib"]
 
 ### Examples
 
-#### writing plugins in layer `sys`
-
-##### The barest way
-
-<details><summary>example code</summary>
-
-```rs
-use std::ffi::c_int;
-
-use openfx::sys::{
-    generic::core::{OfxHost, OfxPlugin, OfxPropertySetHandle, OfxStatus},
-    image_effect_v1::image_effect::kOfxImageEffectPluginApi,
-};
-
-// …
-
-const EFFECT_PLUGIN_STRUCTS: [*const OfxPlugin; 1] = [&EFFECT_PLUGIN_STRUCT_FOO];
-
-#[unsafe(no_mangle)]
-pub extern "C" fn OfxGetNumberOfPlugins() -> c_int {
-    EFFECT_PLUGIN_STRUCTS.len() as c_int
-}
-
-#[unsafe(no_mangle)]
-pub extern "C" fn OfxGetPlugin(nth: c_int) -> *const OfxPlugin {
-    EFFECT_PLUGIN_STRUCTS
-        .get(nth as usize)
-        .copied()
-        .unwrap_or(std::ptr::null())
-}
-
-static EFFECT_PLUGIN_STRUCT_FOO: OfxPlugin = OfxPlugin {
-    pluginApi: kOfxImageEffectPluginApi.as_ptr(),
-    apiVersion: 1,
-    pluginIdentifier: c"org.openeffects:BasicExamplePlugin".as_ptr(),
-    pluginVersionMajor: 1,
-    pluginVersionMinor: 0,
-    setHost: Some(set_host),
-    mainEntry: Some(main_entry),
-};
-
-unsafe extern "C" fn set_host(host: *mut OfxHost) {
-    todo!()
-}
-
-unsafe extern "C" fn main_entry(
-    action: *const c_char,
-    handle: *const c_void,
-    in_args: OfxPropertySetHandle,
-    out_args: OfxPropertySetHandle,
-) -> OfxStatus {
-    todo!()
-}
-
-// …
-```
-
-</details>
-
-##### The `sys_helpers` way
+#### WIP: writing plugins in layer `low_plugin`
 
 See also:
-[$REPO_ROOT/examples/ofx-guide-example-plugins-layer-sys/src/lib.rs](../../examples/ofx-guide-example-plugins-layer-sys/src/lib.rs)
+[$REPO_ROOT/examples/ofx-guide-example-plugins-layer-low/src/lib.rs](../../examples/ofx-guide-example-plugins-layer-low/src/lib.rs)
 
-<details><summary>example code</summary>
+<details open><summary>example code</summary>
 
 ```rs
 use openfx::{
-    sys::generic::{OfxHost, OfxPlugin, OfxPropertySetHandle, OfxStatus},
-    sys_helpers::{
-        generic::{Plugins, export_plugins, plugin_struct},
-        image_effect_v1::Plugin,
-    },
+    low::Status,
+    low_plugin::{Action, Host, Plugin},
+    sys_plugin_helpers::{Plugins, export_plugins, plugin_struct},
+    sys::generic::core::{OfxHost, OfxPlugin},
 };
 
 // …
@@ -128,54 +68,6 @@ export_plugins!(MyPlugins);
 
 impl Plugins for MyPlugins {
     fn plugins(_host: Option<*const OfxHost>) -> Vec<OfxPlugin> {
-        vec![plugin_struct!(BasicExamplePlugin)]
-    }
-}
-
-struct BasicExamplePlugin;
-impl Plugin for BasicExamplePlugin {
-    const PLUGIN_IDENTIFIER: &'static CStr = c"org.openeffects:BasicExamplePlugin";
-    const PLUGIN_VERSION_MAJOR: c_uint = 1;
-    const PLUGIN_VERSION_MINOR: c_uint = 0;
-    extern "C" fn set_host(host: *mut OfxHost) {
-        todo!()
-    }
-    extern "C" fn main_entry(
-        action: *const c_char,
-        handle: *const c_void,
-        in_args: OfxPropertySetHandle,
-        out_args: OfxPropertySetHandle,
-    ) -> OfxStatus {
-        todo!()
-    }
-}
-
-// …
-```
-
-</details>
-
-#### WIP: writing plugins in layer `low_plugin`
-
-See also:
-[$REPO_ROOT/examples/ofx-guide-example-plugins-layer-low/src/lib.rs](../../examples/ofx-guide-example-plugins-layer-low/src/lib.rs)
-
-<details><summary>example code</summary>
-
-```rs
-use openfx::{
-    low::Status,
-    low_plugin::{Action, Host, Plugin},
-    sys_helpers::generic::{PluginStruct, Plugins, export_plugins, plugin_struct},
-};
-
-// …
-
-struct MyPlugins;
-export_plugins!(MyPlugins);
-
-impl Plugins for MyPlugins {
-    fn plugins(_host: Option<*const OfxHost>) -> Vec<PluginStruct> {
         vec![plugin_struct!(BasicExamplePlugin)]
     }
 }
