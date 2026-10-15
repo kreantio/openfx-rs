@@ -167,7 +167,7 @@ where
 
     Ok(match OneOf::deserialize(deserializer)? {
         OneOf::False(false) => None,
-        OneOf::False(true) => unreachable!(),
         OneOf::String(name) => Some(name),
+        _ => return Err(serde::de::Error::custom("expected `false` or a string")),
     })
 }
