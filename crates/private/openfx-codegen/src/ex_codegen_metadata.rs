@@ -537,7 +537,7 @@ fn add_property_set_item<'a>(
     };
 
     let ty = match &def.dimension {
-        PropdefDimension::Fixed { size } if *size == 1 => ty,
+        PropdefDimension::Fixed { size } if size.get() == 1 => ty,
         PropdefDimension::Fixed { size } => {
             let size = syn::LitInt::new(&size.to_string(), proc_macro2::Span::call_site());
             quote! { [#ty; # size] }
