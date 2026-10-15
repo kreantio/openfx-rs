@@ -60,6 +60,12 @@ mod __ {
         #[sys(kOfxImageEffectRenderUnsafe)]
         Unsafe,
     }
+    enum ImageEffectPropBehaviourWhenUnlicensed {
+        #[sys(kOfxUnlicensedContinue)]
+        Continue,
+        #[sys(kOfxUnlicensedFail)]
+        Fail,
+    }
     enum ImageEffectPropCPURenderSupported {
         #[sys_literal(c"false")]
         False,
@@ -255,6 +261,14 @@ mod __ {
         ValueChange,
         #[sys(kOfxParamInvalidateValueChangeToEnd)]
         ValueChangeToEnd,
+    }
+    enum ParamPropColourManagement {
+        #[sys(kOfxParamColourManagementManaged)]
+        Managed,
+        #[sys(kOfxParamColourManagementNone)]
+        None,
+        #[sys(kOfxParamColourManagementSRGB)]
+        SRGB,
     }
     enum ParamPropDefaultCoordinateSystem {
         #[sys(kOfxParamCoordinatesCanonical)]

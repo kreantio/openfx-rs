@@ -13,10 +13,12 @@ use openfx::{
     },
     low_plugin::{
         Host, Plugin,
-        actions::image_effect::{ActionDescribeInContextIn, ImageEffectAction},
+        actions::image_effect::{
+            ActionDescribeInContextIn, ActionIsIdentityOut, ImageEffectAction,
+        },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
     },
-    sys::generic::core::{OfxPropertySetHandle, kOfxPropInstanceData, kOfxPropLabel},
+    sys::generic::core::{kOfxPropInstanceData, kOfxPropLabel},
 };
 
 use crate::{
@@ -53,7 +55,7 @@ impl Plugin for PluginExampleBasic {
             } => action_describe_in_context(handle, in_args),
             ImageEffectAction::CreateInstance { handle, .. } => action_create_instance(handle),
             ImageEffectAction::DestroyInstance { handle, .. } => action_destroy_instance(handle),
-            ImageEffectAction::IsIdentity { sys_out_args, .. } => action_is_identity(sys_out_args),
+            ImageEffectAction::IsIdentity { out_args, .. } => action_is_identity(out_args),
             _ => Err(Status::ReplyDefault),
         }
     }
@@ -203,7 +205,7 @@ fn action_destroy_instance(instance: ImageEffectInstance) -> openfx::low::Result
     Ok(())
 }
 
-fn action_is_identity(out_args: OfxPropertySetHandle) -> openfx::low::Result<()> {
+fn action_is_identity(out_args: ActionIsIdentityOut) -> openfx::low::Result<()> {
     let data = {
         let data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
         let data = data.as_ref().ok_or(Status::Failed)?;
@@ -212,7 +214,7 @@ fn action_is_identity(out_args: OfxPropertySetHandle) -> openfx::low::Result<()>
 
     let s_prop = &data.property_suite.0;
 
-    (unsafe { s_prop.prop_set_string(out_args, kOfxPropLabel, Some(c"Source")) })?;
+    (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })?;
 
     Ok(())
 }

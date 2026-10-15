@@ -17,17 +17,15 @@ use openfx::{
     low_plugin::{
         Host, Plugin,
         actions::image_effect::{
-            ActionDescribeInContextIn, ActionIsIdentityIn, ActionRenderIn, ImageEffectAction,
+            ActionDescribeInContextIn, ActionIsIdentityIn, ActionIsIdentityOut, ActionRenderIn,
+            ImageEffectAction,
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
-        property_sets::{ParamBytePropertySet, ParamDouble1DPropertySet},
+        property_sets::{ParamsBytePropertySet, ParamsDouble1DPropertySet},
     },
     sys::{
-        generic::core::{OfxPropertySetHandle, kOfxPropInstanceData, kOfxPropLabel},
-        image_effect_v1::{
-            image_effect::kOfxImageEffectPropRenderWindow,
-            param::{OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble},
-        },
+        generic::core::{kOfxPropInstanceData, kOfxPropLabel},
+        image_effect_v1::param::{OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble},
     },
 };
 
@@ -89,8 +87,8 @@ impl Plugin for PluginExampleGain {
             ImageEffectAction::IsIdentity {
                 handle,
                 in_args,
-                sys_out_args,
-            } => action_is_identity(handle, in_args, sys_out_args),
+                out_args,
+            } => action_is_identity(handle, in_args, out_args),
             ImageEffectAction::Render {
                 handle, in_args, ..
             } => action_render(handle, in_args),
@@ -190,7 +188,7 @@ fn action_describe_in_context(
 
     {
         let param_props = param_set.param_define(kOfxParamTypeDouble, GAIN_PARAM_NAME)?;
-        let param_props = ParamDouble1DPropertySet::from(param_props);
+        let param_props = ParamsDouble1DPropertySet::from(param_props);
 
         unsafe {
             param_props.set_param_double_type(s_prop, ParamPropDoubleType::Scale)?;
@@ -206,7 +204,7 @@ fn action_describe_in_context(
     {
         let param_props =
             param_set.param_define(kOfxParamTypeBoolean, APPLY_TO_ALPHA_PARAM_NAME)?;
-        let param_props = ParamBytePropertySet::from(param_props);
+        let param_props = ParamsBytePropertySet::from(param_props);
 
         unsafe {
             param_props.set_param_default_int(s_prop, &[0])?;
@@ -283,7 +281,7 @@ fn action_destroy_instance(instance: ImageEffectInstance) -> openfx::low::Result
 fn action_is_identity(
     effect: ImageEffectInstance,
     in_args: ActionIsIdentityIn,
-    out_args: OfxPropertySetHandle,
+    out_args: ActionIsIdentityOut,
 ) -> openfx::low::Result<()> {
     let data = shared_data_lockless()?;
 
@@ -302,7 +300,7 @@ fn action_is_identity(
     let gain = unsafe { s_param.param_get_value_at_time_double(my_data.gain_param, time) }?;
 
     if (gain - 1.0).abs() < 0.000000001 {
-        (unsafe { s_prop.prop_set_string(out_args, kOfxPropLabel, Some(c"Source")) })?;
+        (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })?;
         Ok(())
     } else {
         Err(Status::ReplyDefault)
@@ -322,9 +320,7 @@ fn action_render(
     let instance_props = unsafe { instance.get_property_set(s_ifx) }?;
 
     let time = unsafe { in_args.get_time(s_prop) }?;
-    let render_window = unsafe {
-        s_prop.prop_get_int_array::<4>(in_args.sys_handle(), kOfxImageEffectPropRenderWindow)
-    }?;
+    let render_window = unsafe { in_args.get_image_effect_render_window(s_prop) }?;
     let render_window = rect_i_from_array(&render_window);
 
     let Some(my_data_ptr) = (unsafe { instance_props.get_instance_data(s_prop)? }) else {

@@ -410,6 +410,100 @@ pub const kOfxParamPropHint: &::std::ffi::CStr = c"OfxParamPropHint";
 /// ```
 pub const kOfxParamPropDefault: &::std::ffi::CStr = c"OfxParamPropDefault";
 /// ```doxygen
+/// @brief Declares how an RGB or RGBA parameter's colour values are encoded,
+/// so that a host can interpret, convert and display them correctly.
+///
+/// This property applies only to parameters of type ::kOfxParamTypeRGB and
+/// ::kOfxParamTypeRGBA. It governs the colourspace of *every* value exchanged for
+/// the parameter through the parameter suite, including its default
+/// (::kOfxParamPropDefault), its current value, and any keyframes. It does not
+/// change the parameter's type, dimension, or numeric API: values are still 3 or 4
+/// doubles passed through the ordinary ::OfxParameterSuiteV1 calls.
+///
+///    - Valid Values - This must be one of
+///       - ::kOfxParamColourManagementNone - the parameter is not colour-managed;
+///         its values are interpreted as they always have been (the legacy,
+///         unmanaged behaviour). This is the default.
+///       - ::kOfxParamColourManagementManaged - the parameter's values are in the
+///         ACES2065-1 (AP0) reference colourspace. The values are scene-linear and
+///         are not constrained to the [0..1] range.
+///       - ::kOfxParamColourManagementSRGB - the parameter's values are in the sRGB
+///         colourspace (IEC 61966-2-1, i.e. "web" RGB, with the sRGB transfer
+///         function), constrained to the [0..1] range. This is intended for
+///         display-referred user-interface colours such as overlay and on-screen
+///         control colours drawn with the Draw Suite, not for processing image
+///         pixels.
+///
+/// ACES2065-1 is the reference colourspace of the OFX native colour management
+/// config (see @ref ofxColour.h), chosen because it is a single, well-specified,
+/// scene-referred linear space wide enough to carry any colour the host or plug-in
+/// may need without clamping. Restricting the managed encoding to this one space
+/// (rather than an arbitrary colourspace name) keeps both hosts and plug-ins simple
+/// and makes stored colours portable between applications.
+///
+/// A plug-in MUST set this property, if at all, only during the describe-in-context
+/// / parameter-definition stage, before the parameter instance exists. A plug-in
+/// MUST NOT change it on a parameter instance, and in particular MUST NOT change it
+/// during a render or other action in order to influence a subsequent read: hosts
+/// may evaluate parameters concurrently, and the encoding is a fixed property of
+/// the parameter, not a per-read mode.
+///
+/// A plug-in MUST check the status returned when setting this property. A host that
+/// does not implement it will fail the set; in that case the plug-in MUST fall back
+/// to ::kOfxParamColourManagementNone behaviour (old-style, unmanaged values). A
+/// plug-in that sets ::kOfxParamColourManagementManaged or
+/// ::kOfxParamColourManagementSRGB MUST supply every value it sets (defaults
+/// included) in the declared colourspace, and MUST interpret every value it reads
+/// as being in that colourspace.
+///
+/// This property does not require the host to advertise any particular
+/// ::kOfxImageEffectPropColourManagementStyle: the managed and sRGB encodings are
+/// fully specified by this spec and need no OCIO config. A host that supports this
+/// property MUST accept all three values; a host SHOULD convert the parameter's
+/// colour from its declared encoding into whatever space it needs (for example to
+/// draw an accurate swatch, to feed the value to the Draw Suite, or to hand a
+/// wide-gamut colour to the plug-in at render time).
+///
+/// A host SHOULD store ::kOfxParamColourManagementManaged values as ACES2065-1 and
+/// ::kOfxParamColourManagementSRGB values as sRGB in its project files, so that
+/// colour params are portable between applications and across versions. When a host
+/// first loads a project saved before the parameter became colour-managed, it
+/// SHOULD convert the previously stored values into the parameter's declared
+/// colourspace (assuming the legacy values were sRGB if it has no better
+/// information).
+///
+/// The property is ignored on parameter types other than RGB and RGBA. It defaults
+/// to ::kOfxParamColourManagementNone, so existing plug-ins are unaffected.
+///
+///     @propdef
+///     type: enum
+///     dimension: 1
+///     introduced: "1.5.1"
+///     values:
+///       - OfxParamColourManagementNone
+///       - OfxParamColourManagementManaged
+///       - OfxParamColourManagementSRGB
+/// ```
+pub const kOfxParamPropColourManagement: &::std::ffi::CStr = c"OfxParamPropColourManagement";
+/// ```doxygen
+/// @brief Value for ::kOfxParamPropColourManagement: the colour parameter is
+/// not colour-managed; its values are interpreted as in legacy OpenFX. This is the
+/// default.
+/// ```
+pub const kOfxParamColourManagementNone: &::std::ffi::CStr = c"OfxParamColourManagementNone";
+/// ```doxygen
+/// @brief Value for ::kOfxParamPropColourManagement: the colour parameter's
+/// values (defaults, current value and keyframes) are in the ACES2065-1 (AP0)
+/// reference colourspace, scene-linear and not constrained to [0..1].
+/// ```
+pub const kOfxParamColourManagementManaged: &::std::ffi::CStr = c"OfxParamColourManagementManaged";
+/// ```doxygen
+/// @brief Value for ::kOfxParamPropColourManagement: the colour parameter's
+/// values are in the sRGB colourspace, constrained to [0..1], intended for
+/// display-referred user-interface colours such as Draw Suite overlays.
+/// ```
+pub const kOfxParamColourManagementSRGB: &::std::ffi::CStr = c"OfxParamColourManagementSRGB";
+/// ```doxygen
 /// @brief Describes how the double parameter should be interpreted by a host.
 ///
 ///    - Valid Values -This must be one of
@@ -454,15 +548,15 @@ pub const kOfxParamDoubleTypePlain: &::std::ffi::CStr = c"OfxParamDoubleTypePlai
 /// ```
 pub const kOfxParamDoubleTypeScale: &::std::ffi::CStr = c"OfxParamDoubleTypeScale";
 /// ```doxygen
-/// @brief value for the ::kOfxParamDoubleTypeAngle property, indicating the parameter is to be interpreted as an angle. See \ref ::kOfxParamPropDoubleType.
+/// @brief value for the ::kOfxParamPropDoubleType property, indicating the parameter is to be interpreted as an angle. See \ref ::kOfxParamPropDoubleType.
 /// ```
 pub const kOfxParamDoubleTypeAngle: &::std::ffi::CStr = c"OfxParamDoubleTypeAngle";
 /// ```doxygen
-/// @brief value for the ::kOfxParamDoubleTypeAngle property, indicating the parameter is to be interpreted as a time. See \ref ::kOfxParamPropDoubleType.
+/// @brief value for the ::kOfxParamPropDoubleType property, indicating the parameter is to be interpreted as a time. See \ref ::kOfxParamPropDoubleType.
 /// ```
 pub const kOfxParamDoubleTypeTime: &::std::ffi::CStr = c"OfxParamDoubleTypeTime";
 /// ```doxygen
-/// @brief value for the ::kOfxParamDoubleTypeAngle property, indicating the parameter is to be interpreted as an absolute time from the start of the effect. See \ref ::kOfxParamPropDoubleType.
+/// @brief value for the ::kOfxParamPropDoubleType property, indicating the parameter is to be interpreted as an absolute time from the start of the effect. See \ref ::kOfxParamPropDoubleType.
 /// ```
 pub const kOfxParamDoubleTypeAbsoluteTime: &::std::ffi::CStr = c"OfxParamDoubleTypeAbsoluteTime";
 /// ```doxygen
@@ -696,8 +790,8 @@ pub const kOfxParamPropChoiceOrder: &::std::ffi::CStr = c"OfxParamPropChoiceOrde
 /// \since Version 1.5
 ///
 ///     @propdef
-///     type: bool
-///     dimension: 1
+///     type: string
+///     dimension: 0
 ///     added: "1.5"
 /// ```
 pub const kOfxParamPropChoiceEnum: &::std::ffi::CStr = c"OfxParamPropChoiceEnum";
@@ -791,7 +885,7 @@ pub const kOfxParamPropDigits: &::std::ffi::CStr = c"OfxParamPropDigits";
 ///     - Valid Values - any
 ///     @propdef
 ///     type: string
-///     dimension: 1
+///     dimension: 0
 /// ```
 pub const kOfxParamPropDimensionLabel: &::std::ffi::CStr = c"OfxParamPropDimensionLabel";
 /// ```doxygen
@@ -963,12 +1057,13 @@ pub struct OfxBytes {
 ///
 ///     @actiondef
 ///     inArgs:
+///       - OfxPropName
+///       - OfxPropTime
 ///       - OfxParamPropCustomValue
 ///       - OfxParamPropInterpolationTime
 ///       - OfxParamPropInterpolationAmount
 ///     outArgs:
 ///       - OfxParamPropCustomValue
-///       - OfxParamPropInterpolationTime
 /// ```
 pub type OfxCustomParamInterpFuncV1 = ::std::option::Option<
     unsafe extern "C" fn(

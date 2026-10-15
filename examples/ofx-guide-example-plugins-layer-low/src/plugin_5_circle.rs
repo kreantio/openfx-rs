@@ -19,24 +19,20 @@ use openfx::{
         Host, Plugin,
         actions::image_effect::{
             ActionDescribeInContextIn, ActionGetRegionOfDefinitionIn,
-            ActionGetRegionOfDefinitionOut, ActionIsIdentityIn, ActionRenderIn, ImageEffectAction,
+            ActionGetRegionOfDefinitionOut, ActionIsIdentityIn, ActionIsIdentityOut,
+            ActionRenderIn, ImageEffectAction,
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
         property_sets::{
-            ParamBytePropertySet, ParamDouble1DPropertySet, ParamDouble2D3DPropertySet,
-            ParamNormalizedSpatialPropertySet,
+            ParamsBytePropertySet, ParamsDouble1DPropertySet, ParamsDouble2D3DPropertySet,
+            ParamsNormalizedSpatialPropertySet,
         },
     },
     sys::{
-        generic::core::{
-            OfxPropertySetHandle, kOfxPropInstanceData, kOfxPropLabel, kOfxStatFailed,
-        },
-        image_effect_v1::{
-            image_effect::{kOfxImageEffectPropRenderScale, kOfxImageEffectPropRenderWindow},
-            param::{
-                OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble, kOfxParamTypeDouble2D,
-                kOfxParamTypeRGBA,
-            },
+        generic::core::{kOfxPropInstanceData, kOfxPropLabel, kOfxStatFailed},
+        image_effect_v1::param::{
+            OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble, kOfxParamTypeDouble2D,
+            kOfxParamTypeRGBA,
         },
     },
 };
@@ -109,8 +105,8 @@ impl Plugin for PluginExampleCircle {
             ImageEffectAction::IsIdentity {
                 handle,
                 in_args,
-                sys_out_args,
-            } => action_is_identity(handle, in_args, sys_out_args),
+                out_args,
+            } => action_is_identity(handle, in_args, out_args),
             ImageEffectAction::GetRegionOfDefinition {
                 handle,
                 in_args,
@@ -240,8 +236,8 @@ fn action_describe_in_context(
 
     {
         let param_props = param_set.param_define(kOfxParamTypeDouble, RADIUS_PARAM_NAME)?;
-        let param_props_d = ParamDouble1DPropertySet::from(param_props);
-        let param_props_ns = ParamNormalizedSpatialPropertySet::from(param_props);
+        let param_props_d = ParamsDouble1DPropertySet::from(param_props);
+        let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
 
         unsafe {
             param_props_d.set_param_double_type(s_prop, ParamPropDoubleType::X)?;
@@ -265,8 +261,8 @@ fn action_describe_in_context(
 
     {
         let param_props = param_set.param_define(kOfxParamTypeDouble2D, CENTRE_PARAM_NAME)?;
-        let param_props_d = ParamDouble2D3DPropertySet::from(param_props);
-        let param_props_ns = ParamNormalizedSpatialPropertySet::from(param_props);
+        let param_props_d = ParamsDouble2D3DPropertySet::from(param_props);
+        let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
 
         unsafe {
             param_props_d.set_param_double_type(s_prop, ParamPropDoubleType::XYAbsolute)?;
@@ -284,7 +280,7 @@ fn action_describe_in_context(
 
     {
         let param_props = param_set.param_define(kOfxParamTypeRGBA, COLOUR_PARAM_NAME)?;
-        let param_props_d = ParamDouble2D3DPropertySet::from(param_props);
+        let param_props_d = ParamsDouble2D3DPropertySet::from(param_props);
 
         unsafe {
             param_props_d.set_param_default_double(s_prop, &[1.0, 1.0, 1.0, 0.5])?;
@@ -295,7 +291,7 @@ fn action_describe_in_context(
 
     if additional.host_supports_multi_res {
         let param_props = param_set.param_define(kOfxParamTypeBoolean, GROW_ROD_PARAM_NAME)?;
-        let param_props = ParamBytePropertySet::from(param_props);
+        let param_props = ParamsBytePropertySet::from(param_props);
 
         unsafe {
             param_props.set_param_default_int(s_prop, &[0])?;
@@ -442,7 +438,7 @@ fn action_get_region_of_definition(
 fn action_is_identity(
     effect: ImageEffectInstance,
     in_args: ActionIsIdentityIn,
-    out_args: OfxPropertySetHandle,
+    out_args: ActionIsIdentityOut,
 ) -> openfx::low::Result<()> {
     let (data, _additional) = shared_data_lockless()?;
 
@@ -498,7 +494,7 @@ fn action_is_identity(
     };
 
     if is_identity {
-        (unsafe { s_prop.prop_set_string(out_args, kOfxPropLabel, Some(c"Source")) })?;
+        (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })?;
         Ok(())
     } else {
         Err(Status::ReplyDefault)
@@ -518,13 +514,9 @@ fn action_render(
     let instance_props = unsafe { instance.get_property_set(s_ifx) }?;
 
     let time = unsafe { in_args.get_time(s_prop) }?;
-    let render_window = unsafe {
-        s_prop.prop_get_int_array::<4>(in_args.sys_handle(), kOfxImageEffectPropRenderWindow)
-    }?;
+    let render_window = unsafe { in_args.get_image_effect_render_window(s_prop) }?;
     let render_window = rect_i_from_array(&render_window);
-    let render_scale = unsafe {
-        s_prop.prop_get_double_array::<2>(in_args.sys_handle(), kOfxImageEffectPropRenderScale)
-    }?;
+    let render_scale = unsafe { in_args.get_image_effect_render_scale(s_prop) }?;
 
     let Some(my_data_ptr) = (unsafe { instance_props.get_instance_data(s_prop)? }) else {
         return Err(Status::Failed);
