@@ -176,7 +176,7 @@ pub const kOfxImageEffectActionGetRegionOfDefinition: &::std::ffi::CStr = c"OfxI
 ///       - OfxImageEffectPropRegionOfInterest
 ///       - OfxImageEffectPropThumbnailRender
 ///     outArgs:
-///     # - OfxImageEffectClipPropRoI_ # with clip name
+///     # - OfxImageClipPropRoI_ # with clip name
 /// ```
 pub const kOfxImageEffectActionGetRegionsOfInterest: &::std::ffi::CStr = c"OfxImageEffectActionGetRegionsOfInterest";
 /// ```doxygen
@@ -285,7 +285,7 @@ pub const kOfxImageEffectActionGetTimeDomain: &::std::ffi::CStr = c"OfxImageEffe
 ///       - OfxPropTime
 ///       - OfxImageEffectPropThumbnailRender
 ///     outArgs:
-///       - OfxImageEffectPropFrameRange
+///     # - OfxImageEffectPropFrameRange_ # with clip name
 /// ```
 pub const kOfxImageEffectActionGetFramesNeeded: &::std::ffi::CStr = c"OfxImageEffectActionGetFramesNeeded";
 /// ```doxygen
@@ -419,6 +419,8 @@ pub const kOfxImageEffectActionGetClipPreferences: &::std::ffi::CStr = c"OfxImag
 ///       - OfxImageEffectPropRenderScale
 ///       - OfxImageEffectPropThumbnailRender
 ///     outArgs:
+///       - OfxPropName
+///       - OfxPropTime
 /// ```
 pub const kOfxImageEffectActionIsIdentity: &::std::ffi::CStr = c"OfxImageEffectActionIsIdentity";
 /// ```doxygen
@@ -467,6 +469,9 @@ pub const kOfxImageEffectActionIsIdentity: &::std::ffi::CStr = c"OfxImageEffectA
 ///     @actiondef
 ///     inArgs:
 ///       - OfxPropTime
+///       - OfxImageEffectPropFieldToRender
+///       - OfxImageEffectPropRenderWindow
+///       - OfxImageEffectPropRenderScale
 ///       - OfxImageEffectPropSequentialRenderStatus
 ///       - OfxImageEffectPropInteractiveRenderStatus
 ///       - OfxImageEffectPropRenderQualityDraft
@@ -487,6 +492,7 @@ pub const kOfxImageEffectActionIsIdentity: &::std::ffi::CStr = c"OfxImageEffectA
 ///       - OfxImageEffectPropOpenGLTextureTarget
 ///       - OfxImageEffectPropNoSpatialAwareness
 ///       - OfxImageEffectPropThumbnailRender
+///       - OfxImageEffectPropBehaviourWhenUnlicensed
 ///     outArgs:
 /// ```
 pub const kOfxImageEffectActionRender: &::std::ffi::CStr = c"OfxImageEffectActionRender";
@@ -553,9 +559,9 @@ pub const kOfxImageEffectActionRender: &::std::ffi::CStr = c"OfxImageEffectActio
 ///       - OfxImageEffectPropOpenGLEnabled
 ///       - OfxImageEffectPropOpenGLTextureIndex
 ///       - OfxImageEffectPropOpenGLTextureTarget
-///       - OfxImageEffectPropInteractiveRenderStatus
 ///       - OfxImageEffectPropNoSpatialAwareness
 ///       - OfxImageEffectPropThumbnailRender
+///       - OfxImageEffectPropBehaviourWhenUnlicensed
 ///     outArgs:
 /// ```
 pub const kOfxImageEffectActionBeginSequenceRender: &::std::ffi::CStr = c"OfxImageEffectActionBeginSequenceRender";
@@ -619,7 +625,6 @@ pub const kOfxImageEffectActionBeginSequenceRender: &::std::ffi::CStr = c"OfxIma
 ///       - OfxImageEffectPropOpenGLEnabled
 ///       - OfxImageEffectPropOpenGLTextureIndex
 ///       - OfxImageEffectPropOpenGLTextureTarget
-///       - OfxImageEffectPropInteractiveRenderStatus
 ///     outArgs:
 /// ```
 pub const kOfxImageEffectActionEndSequenceRender: &::std::ffi::CStr = c"OfxImageEffectActionEndSequenceRender";
@@ -980,7 +985,8 @@ pub const kOfxImageEffectPropSupportsMultiResolution: &::std::ffi::CStr = c"OfxI
 ///
 /// If a clip or plugin does not support tiled images, then the host should supply full RoD images to the effect whenever it fetches one.
 ///
-/// V1.4:  It is now possible (defined) to change OfxImageEffectPropSupportsTiles in Instance Changed
+/// V1.4:  It is now possible (defined) to change OfxImageEffectPropSupportsTiles in Instance Changed.
+/// An instance inherits the value set on the plug-in descriptor until the plug-in sets this property on the instance; a host must not substitute its own default at the instance level.
 ///
 ///    @propdef
 ///    type: bool
@@ -1667,10 +1673,6 @@ pub const kOfxImageFieldDoubled: &::std::ffi::CStr = c"OfxFieldDoubled";
 /// ```doxygen
 /// @brief The host's behaviour when the plug-in is unlicensed
 ///
-///     - Type - string X 1
-///     - Property Set - inArgs property set of the \ref kOfxImageEffectActionBeginSequenceRender
-///                      and \ref kOfxImageEffectActionRender actions
-///
 /// If the plug-in determines that it is unlicensed during a \ref
 /// kOfxImageEffectActionBeginSequenceRender or \ref kOfxImageEffectActionRender
 /// action, it should check this property.
@@ -1694,6 +1696,13 @@ pub const kOfxImageFieldDoubled: &::std::ffi::CStr = c"OfxFieldDoubled";
 /// - plug-in should return \ref kOfxStatUnlicensed and may do this
 ///   without any rendering, because it knows the host will fail the
 ///   render.
+///
+///     @propdef
+///     type: enum
+///     dimension: 1
+///     values:
+///       - OfxUnlicensedContinue
+///       - OfxUnlicensedFail
 /// ```
 pub const kOfxImageEffectPropBehaviourWhenUnlicensed: &::std::ffi::CStr = c"OfxImageEffectPropBehaviourWhenUnlicensed";
 /// ```doxygen

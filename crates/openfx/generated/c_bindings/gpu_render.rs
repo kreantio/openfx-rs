@@ -21,6 +21,7 @@ pub const kOfxOpenGLRenderSuite: &::std::ffi::CStr = c"OfxImageEffectOpenGLRende
 ///                   OpenGL support, without which it cannot work.
 ///
 /// V1.4: It is now expected from host reporting v1.4 that the plug-in can during instance change switch from true to false and false to true.
+/// An instance inherits the value set on the plug-in descriptor until the plug-in sets this property on the instance; a host must not substitute its own default at the instance level.
 ///
 ///     @propdef
 ///     type: enum
@@ -100,6 +101,10 @@ pub const kOfxImageEffectPropOpenGLEnabled: &::std::ffi::CStr = c"OfxImageEffect
 ///       - ::kOfxImageEffectActionBeginSequenceRender
 ///       - ::kOfxImageEffectActionEndSequenceRender
 ///
+///    This property also lives on the texture handle returned by
+///    \ref OfxImageEffectOpenGLRenderSuiteV1::clipLoadTexture via the
+///    \c textureHandle argument.
+///
 ///     @propdef
 ///     type: int
 ///     dimension: 1
@@ -116,6 +121,10 @@ pub const kOfxImageEffectPropOpenGLTextureIndex: &::std::ffi::CStr = c"OfxImageE
 ///       - ::kOfxImageEffectActionRender
 ///       - ::kOfxImageEffectActionBeginSequenceRender
 ///       - ::kOfxImageEffectActionEndSequenceRender
+///
+///    This property also lives on the texture handle returned by
+///    \ref OfxImageEffectOpenGLRenderSuiteV1::clipLoadTexture via the
+///    \c textureHandle argument.
 ///
 ///     @propdef
 ///     type: int
@@ -174,6 +183,10 @@ pub const kOfxImageEffectPropCPURenderSupported: &::std::ffi::CStr = c"OfxImageE
 ///   - ::kOfxStatFailed, something went wrong, but no error code appropriate,
 ///     the plug-in should to post a message if possible and the host should not
 ///     attempt to run the plug-in in OpenGL render mode.
+///
+///     @actiondef
+///     inArgs:
+///     outArgs:
 /// ```
 pub const kOfxActionOpenGLContextAttached: &::std::ffi::CStr = c"OfxActionOpenGLContextAttached";
 /// ```doxygen
@@ -200,6 +213,10 @@ pub const kOfxActionOpenGLContextAttached: &::std::ffi::CStr = c"OfxActionOpenGL
 ///   - ::kOfxStatFailed, something went wrong, but no error code appropriate,
 ///     the plug-in should to post a message if possible and the host should not
 ///     attempt to run the plug-in in OpenGL render mode.
+///
+///     @actiondef
+///     inArgs:
+///     outArgs:
 /// ```
 pub const kOfxActionOpenGLContextDetached: &::std::ffi::CStr = c"kOfxActionOpenGLContextDetached";
 /// ```doxygen
@@ -208,6 +225,8 @@ pub const kOfxActionOpenGLContextDetached: &::std::ffi::CStr = c"kOfxActionOpenG
 ///     - Valid Values -
 ///       - "false"  - the host or plug-in does not support CUDA render
 ///       - "true"   - the host or plug-in can support CUDA render
+///
+/// An instance inherits the value set on the plug-in descriptor until the plug-in sets this property on the instance; a host must not substitute its own default at the instance level.
 ///
 ///     @propdef
 ///     type: enum
@@ -244,6 +263,8 @@ pub const kOfxImageEffectPropCudaEnabled: &::std::ffi::CStr = c"OfxImageEffectPr
 ///     - Valid Values -
 ///       - "false"  - in which case the host or plug-in does not support CUDA streams
 ///       - "true"   - which means a host or plug-in can support CUDA streams
+///
+/// An instance inherits the value set on the plug-in descriptor until the plug-in sets this property on the instance; a host must not substitute its own default at the instance level.
 ///
 ///     @propdef
 ///     type: enum
@@ -287,6 +308,8 @@ pub const kOfxImageEffectPropCudaStream: &::std::ffi::CStr = c"OfxImageEffectPro
 ///     - Valid Values -
 ///       - "false"  - the host or plug-in does not support Metal render
 ///       - "true"   - the host or plug-in can support Metal render
+///
+/// An instance inherits the value set on the plug-in descriptor until the plug-in sets this property on the instance; a host must not substitute its own default at the instance level.
 ///
 ///     @propdef
 ///     type: enum
@@ -344,6 +367,8 @@ pub const kOfxImageEffectPropMetalCommandQueue: &::std::ffi::CStr = c"OfxImageEf
 ///     - Valid Values -
 ///       - "false"  - the host or plug-in does not support OpenCL Buffers render
 ///       - "true"   - the host or plug-in can support OpenCL Buffers render
+///
+/// An instance inherits the value set on the plug-in descriptor until the plug-in sets this property on the instance; a host must not substitute its own default at the instance level.
 ///
 ///     @propdef
 ///     type: enum

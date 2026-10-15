@@ -152,18 +152,6 @@ EffectInstance = "ImageEffectInstance"
 
 ParameterSet = "ParamSet"
 
-ParamsByte = "ParamByte"
-ParamsChoice = "ParamChoice"
-ParamsCustom = "ParamCustom"
-ParamsDouble2D3D = "ParamDouble2D3D"
-ParamsGroup = "ParamGroup"
-ParamsInt2D3D = "ParamInteger2D3D"
-ParamsNormalizedSpatial = "ParamNormalizedSpatial"
-ParamsPage = "ParamPage"
-ParamsParametric = "ParamParametric"
-ParamsStrChoice = "ParamStrChoice"
-ParamsString = "ParamString"
-
 
 [actions.pseudo]
 members = ["CustomParamInterpFunc"]
@@ -186,6 +174,15 @@ EndInstanceChanged = { handle = "Instance" }
 BeginInstanceEdit = { handle = "Instance" }
 EndInstanceEdit = { handle = "Instance" }
 
+# source: openfx/include/ofxDialog.h
+# FIXME(umajho): If I understand correctly, the first parameter (which would
+# usually be the handle) is `user_data`. We currently cannot express that.
+Dialog = { handle = false }
+
+# source: openfx/include/ofxGPURender.h
+OpenGLContextAttached = { handle = "Instance" }
+OpenGLContextDetached = { handle = "Instance" }
+
 [actions.concretes.image_effect]
 handle_prefix = "ImageEffect"
 
@@ -204,6 +201,9 @@ members_from_core = [
   "SyncPrivateData",
   "BeginInstanceEdit",
   "EndInstanceEdit",
+  "Dialog",
+  "OpenGLContextAttached",
+  "OpenGLContextDetached",
 ]
 
 members_prefix = "kOfxImageEffectAction"

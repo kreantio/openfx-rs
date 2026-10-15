@@ -398,7 +398,7 @@ pub const kOfxActionInstanceChanged: &::std::ffi::CStr = c"OfxActionInstanceChan
 ///     inArgs:
 ///       - OfxPropChangeReason
 ///       - OfxImageEffectPropThumbnailRender
-///     outArgs: []
+///     outArgs:
 /// ```
 pub const kOfxActionBeginInstanceChanged: &::std::ffi::CStr = c"OfxActionBeginInstanceChanged";
 /// ```doxygen

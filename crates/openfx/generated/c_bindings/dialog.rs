@@ -16,6 +16,10 @@ pub const kOfxDialogSuite: &::std::ffi::CStr = c"OfxDialogSuite";
 /// 	   Plugin should return from this action when all Dialog interactions are done.
 /// 	   At that point the host will continue again.
 /// 	   The host will not send any other messages asynchronous to this one.
+///
+///     @actiondef
+///     inArgs:
+///     outArgs:
 /// ```
 pub const kOfxActionDialog: &::std::ffi::CStr = c"OfxActionDialog";
 #[repr(C)]

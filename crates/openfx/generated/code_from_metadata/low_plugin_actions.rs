@@ -14,13 +14,15 @@ pub mod pseudo {
             param_interpolation_amount: Double,
             #[prop(@OfxParamPropInterpolationTime)]
             param_interpolation_time: [Double; 2],
+            #[prop(@OfxPropName)]
+            name: String,
+            #[prop(@OfxPropTime)]
+            time: Double,
         }
         #[propset(write = plugin)]
         struct CustomParamInterpFuncOut {
             #[prop(@OfxParamPropCustomValue)]
             param_custom_value: [String; 2],
-            #[prop(@OfxParamPropInterpolationTime)]
-            param_interpolation_time: [Double; 2],
         }
     }
 }
@@ -75,6 +77,8 @@ pub mod image_effect {
         Describe,
         #[action(core, handle = ImageEffectInstance)]
         DestroyInstance,
+        #[action(core)]
+        Dialog,
         #[action(core, handle = ImageEffectInstance, in_args)]
         EndInstanceChanged,
         #[action(core, handle = ImageEffectInstance)]
@@ -83,6 +87,10 @@ pub mod image_effect {
         InstanceChanged,
         #[action(core)]
         Load,
+        #[action(core, handle = ImageEffectInstance)]
+        OpenGLContextAttached,
+        #[action(core, handle = ImageEffectInstance)]
+        OpenGLContextDetached,
         #[action(core, handle = ImageEffectInstance)]
         PurgeCaches,
         #[action(core, handle = ImageEffectInstance)]
@@ -97,7 +105,7 @@ pub mod image_effect {
         EndSequenceRender,
         #[action(handle = ImageEffectInstance, out_args)]
         GetClipPreferences,
-        #[action(handle = ImageEffectInstance, in_args, out_args)]
+        #[action(handle = ImageEffectInstance, in_args)]
         GetFramesNeeded,
         #[action(handle = ImageEffectInstance, in_args, out_args)]
         GetOutputColourspace,
@@ -107,7 +115,7 @@ pub mod image_effect {
         GetRegionsOfInterest,
         #[action(handle = ImageEffectInstance, out_args)]
         GetTimeDomain,
-        #[action(handle = ImageEffectInstance, in_args)]
+        #[action(handle = ImageEffectInstance, in_args, out_args)]
         IsIdentity,
         #[action(handle = ImageEffectInstance, in_args)]
         Render,
@@ -116,6 +124,10 @@ pub mod image_effect {
     mod __ {
         #[propset(write = host)]
         struct ActionBeginSequenceRenderIn {
+            #[prop(@OfxImageEffectPropBehaviourWhenUnlicensed)]
+            image_effect_behaviour_when_unlicensed: ty_enum!(
+                ImageEffectPropBehaviourWhenUnlicensed
+            ),
             #[prop(@OfxImageEffectPropCudaEnabled)]
             image_effect_cuda_enabled: Bool,
             #[prop(@OfxImageEffectPropCudaRenderSupported)]
@@ -263,11 +275,6 @@ pub mod image_effect {
             #[prop(@OfxPropTime)]
             time: Double,
         }
-        #[propset(write = plugin)]
-        struct ActionGetFramesNeededOut {
-            #[prop(@OfxImageEffectPropFrameRange)]
-            image_effect_frame_range: [Double; 2],
-        }
     }
     #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
@@ -336,11 +343,22 @@ pub mod image_effect {
             #[prop(@OfxPropTime)]
             time: Double,
         }
+        #[propset(write = plugin)]
+        struct ActionIsIdentityOut {
+            #[prop(@OfxPropName)]
+            name: String,
+            #[prop(@OfxPropTime)]
+            time: Double,
+        }
     }
     #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         #[propset(write = host)]
         struct ActionRenderIn {
+            #[prop(@OfxImageEffectPropBehaviourWhenUnlicensed)]
+            image_effect_behaviour_when_unlicensed: ty_enum!(
+                ImageEffectPropBehaviourWhenUnlicensed
+            ),
             #[prop(@OfxImageEffectPropCudaEnabled)]
             image_effect_cuda_enabled: Bool,
             #[prop(@OfxImageEffectPropCudaRenderSupported)]
@@ -353,6 +371,8 @@ pub mod image_effect {
             image_effect_cuda_stream_supported: ty_enum!(
                 ImageEffectPropCudaStreamSupported
             ),
+            #[prop(@OfxImageEffectPropFieldToRender)]
+            image_effect_field_to_render: ty_enum!(ImageEffectPropFieldToRender),
             #[prop(@OfxImageEffectPropInteractiveRenderStatus)]
             image_effect_interactive_render_status: Bool,
             #[prop(@OfxImageEffectPropMetalCommandQueue)]
@@ -387,6 +407,10 @@ pub mod image_effect {
             image_effect_open_gl_texture_target: Int,
             #[prop(@OfxImageEffectPropRenderQualityDraft)]
             image_effect_render_quality_draft: Bool,
+            #[prop(@OfxImageEffectPropRenderScale)]
+            image_effect_render_scale: [Double; 2],
+            #[prop(@OfxImageEffectPropRenderWindow)]
+            image_effect_render_window: [Int; 4],
             #[prop(@OfxImageEffectPropSequentialRenderStatus)]
             image_effect_sequential_render_status: Bool,
             #[prop(@OfxImageEffectPropThumbnailRender)]

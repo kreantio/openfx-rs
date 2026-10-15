@@ -342,15 +342,34 @@ mod __ {
         #[prop(@OfxPropInstanceData)]
         instance_data: Pointer,
     }
-    #[propset(
-        write = plugin,
-        refs = ParamsAllButGroupPage+ParamsCommon+ParamsDouble+ParamsNumeric+ParamsValue
-    )]
-    struct ParamDouble1DPropertySet {
-        #[prop(@OfxParamPropDoubleType)]
-        param_double_type: ty_enum!(ParamPropDoubleType),
-        #[prop(@OfxParamPropShowTimeMarker)]
-        param_show_time_marker: Bool,
+    #[propset(write = host)]
+    struct OpenGLTexturePropertySet {
+        #[prop(@OfxImageEffectPropComponents)]
+        image_effect_components: ty_enum!(ImageEffectPropComponents),
+        #[prop(@OfxImageEffectPropOpenGLTextureIndex)]
+        image_effect_open_gl_texture_index: Int,
+        #[prop(@OfxImageEffectPropOpenGLTextureTarget)]
+        image_effect_open_gl_texture_target: Int,
+        #[prop(@OfxImageEffectPropPixelDepth)]
+        image_effect_pixel_depth: ty_enum!(ImageEffectPropPixelDepth),
+        #[prop(@OfxImageEffectPropPreMultiplication)]
+        image_effect_pre_multiplication: ty_enum!(ImageEffectPropPreMultiplication),
+        #[prop(@OfxImageEffectPropRenderScale)]
+        image_effect_render_scale: [Double; 2],
+        #[prop(@OfxImagePropBounds)]
+        image_bounds: [Int; 4],
+        #[prop(@OfxImagePropField)]
+        image_field: ty_enum!(ImagePropField),
+        #[prop(@OfxImagePropPixelAspectRatio)]
+        image_pixel_aspect_ratio: Double,
+        #[prop(@OfxImagePropRegionOfDefinition)]
+        image_region_of_definition: [Int; 4],
+        #[prop(@OfxImagePropRowBytes)]
+        image_row_bytes: Int,
+        #[prop(@OfxImagePropUniqueIdentifier)]
+        image_unique_identifier: String,
+        #[prop(@OfxPropType)]
+        r#type: String,
     }
     #[propset(write = plugin)]
     struct ParamSetPropertySet {
@@ -363,16 +382,16 @@ mod __ {
         write = plugin,
         refs = ParamsAllButGroupPage+ParamsCommon+ParamsNumeric+ParamsValue
     )]
-    struct ParamBytePropertySet {}
+    struct ParamsBytePropertySet {}
     #[propset(write = plugin, refs = ParamsAllButGroupPage+ParamsCommon+ParamsValue)]
-    struct ParamChoicePropertySet {
+    struct ParamsChoicePropertySet {
         #[prop(@OfxParamPropChoiceOption)]
         param_choice_option: [String],
         #[prop(@OfxParamPropChoiceOrder)]
         param_choice_order: [Int],
     }
     #[propset(write = plugin, refs = ParamsAllButGroupPage+ParamsCommon+ParamsValue)]
-    struct ParamCustomPropertySet {
+    struct ParamsCustomPropertySet {
         #[prop(@OfxParamPropCustomInterpCallbackV1)]
         param_custom_interp_callback_v_1: Pointer,
     }
@@ -380,12 +399,22 @@ mod __ {
         write = plugin,
         refs = ParamsAllButGroupPage+ParamsCommon+ParamsDouble+ParamsNumeric+ParamsValue
     )]
-    struct ParamDouble2D3DPropertySet {
+    struct ParamsDouble1DPropertySet {
+        #[prop(@OfxParamPropDoubleType)]
+        param_double_type: ty_enum!(ParamPropDoubleType),
+        #[prop(@OfxParamPropShowTimeMarker)]
+        param_show_time_marker: Bool,
+    }
+    #[propset(
+        write = plugin,
+        refs = ParamsAllButGroupPage+ParamsCommon+ParamsDouble+ParamsNumeric+ParamsValue
+    )]
+    struct ParamsDouble2D3DPropertySet {
         #[prop(@OfxParamPropDoubleType)]
         param_double_type: ty_enum!(ParamPropDoubleType),
     }
     #[propset(write = plugin, refs = ParamsCommon)]
-    struct ParamGroupPropertySet {
+    struct ParamsGroupPropertySet {
         #[prop(@OfxParamPropGroupOpen)]
         param_group_open: Bool,
     }
@@ -393,25 +422,25 @@ mod __ {
         write = plugin,
         refs = ParamsAllButGroupPage+ParamsCommon+ParamsNumeric+ParamsValue
     )]
-    struct ParamInteger2D3DPropertySet {
+    struct ParamsInt2D3DPropertySet {
         #[prop(@OfxParamPropDimensionLabel)]
-        param_dimension_label: String,
+        param_dimension_label: [String],
     }
     #[propset(
         write = plugin,
         refs = ParamsAllButGroupPage+ParamsCommon+ParamsDouble+ParamsNumeric+ParamsValue
     )]
-    struct ParamNormalizedSpatialPropertySet {
+    struct ParamsNormalizedSpatialPropertySet {
         #[prop(@OfxParamPropDefaultCoordinateSystem)]
         param_default_coordinate_system: ty_enum!(ParamPropDefaultCoordinateSystem),
     }
     #[propset(write = plugin, refs = ParamsCommon)]
-    struct ParamPagePropertySet {
+    struct ParamsPagePropertySet {
         #[prop(@OfxParamPropPageChild)]
         param_page_child: [String],
     }
     #[propset(write = plugin, refs = ParamsAllButGroupPage+ParamsCommon+ParamsValue)]
-    struct ParamParametricPropertySet {
+    struct ParamsParametricPropertySet {
         #[prop(@OfxParamPropAnimates)]
         param_animates: Bool,
         #[prop(@OfxParamPropCacheInvalidation)]
@@ -437,10 +466,26 @@ mod __ {
         #[prop(@OfxParamPropPluginMayWrite)]
         param_plugin_may_write: Bool,
     }
+    #[propset(
+        write = plugin,
+        refs = ParamsAllButGroupPage+ParamsCommon+ParamsNumeric+ParamsValue
+    )]
+    struct ParamsRGBPropertySet {
+        #[prop(@OfxParamPropColourManagement)]
+        param_colour_management: ty_enum!(ParamPropColourManagement),
+    }
+    #[propset(
+        write = plugin,
+        refs = ParamsAllButGroupPage+ParamsCommon+ParamsNumeric+ParamsValue
+    )]
+    struct ParamsRGBAPropertySet {
+        #[prop(@OfxParamPropColourManagement)]
+        param_colour_management: ty_enum!(ParamPropColourManagement),
+    }
     #[propset(write = plugin, refs = ParamsAllButGroupPage+ParamsCommon+ParamsValue)]
-    struct ParamStrChoicePropertySet {
+    struct ParamsStrChoicePropertySet {
         #[prop(@OfxParamPropChoiceEnum)]
-        param_choice_enum: Bool,
+        param_choice_enum: [String],
         #[prop(@OfxParamPropChoiceOption)]
         param_choice_option: [String],
     }
@@ -448,7 +493,7 @@ mod __ {
         write = plugin,
         refs = ParamsAllButGroupPage+ParamsCommon+ParamsNumeric+ParamsValue
     )]
-    struct ParamStringPropertySet {
+    struct ParamsStringPropertySet {
         #[prop(@OfxParamPropStringFilePathExists)]
         param_string_file_path_exists: Bool,
         #[prop(@OfxParamPropStringMode)]

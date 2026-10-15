@@ -17,10 +17,7 @@ use openfx::{
         actions::image_effect::{ActionDescribeInContextIn, ActionRenderIn, ImageEffectAction},
         objects::{ImageEffectDescriptor, ImageEffectInstance},
     },
-    sys::{
-        generic::core::{OfxRectI, kOfxStatFailed},
-        image_effect_v1::image_effect::kOfxImageEffectPropRenderWindow,
-    },
+    sys::generic::core::{OfxRectI, kOfxStatFailed},
 };
 
 use crate::{
@@ -275,9 +272,7 @@ fn action_render(
     let s_ifx = &data.image_effect_suite.0;
 
     let time = unsafe { in_args.get_time(s_prop) }?;
-    let render_window = unsafe {
-        s_prop.prop_get_int_array::<4>(in_args.sys_handle(), kOfxImageEffectPropRenderWindow)
-    }?;
+    let render_window = unsafe { in_args.get_image_effect_render_window(s_prop) }?;
     let render_window = rect_i_from_array(&render_window);
 
     let output_clip = unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }?;
