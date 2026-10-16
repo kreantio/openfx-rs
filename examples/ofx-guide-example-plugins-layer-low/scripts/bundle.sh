@@ -64,7 +64,7 @@ EOF
     exit 1
   fi
 
-  CRATE_MANIFEST_DIR=$(dirname "$(cargo locate-project --message-format plain)")
+  CRATE_MANIFEST_DIR=$(dirname "$(cargo +nightly locate-project --message-format plain)")
   if [ -z "$CRATE_MANIFEST_DIR" ]; then
     echo "Error: \$CRATE_MANIFEST_DIR is empty!" >&2
     exit 1
