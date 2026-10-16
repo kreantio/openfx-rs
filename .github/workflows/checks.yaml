@@ -9,6 +9,9 @@ on:
       - main
   pull_request:
 
+env:
+  RUSTUP_AUTO_INSTALL: "0"
+
 jobs:
   fmt-crank-check-test:
     name: Format + check
@@ -77,9 +80,9 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: "1.99.0"
+          toolchain: nightly-2026-10-10 # after 1.99.0
 
       - uses: extractions/setup-just@v4
 

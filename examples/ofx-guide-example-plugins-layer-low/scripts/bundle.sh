@@ -59,7 +59,7 @@ EOF
   echo LIBRARY_EXTENSION="$LIBRARY_EXTENSION"
   echo LIBRARY_PREFIX="$LIBRARY_PREFIX"
 
-  if [ -z "$OFX_ARCHITECTURE" ] || [ -z "$LIBRARY_EXTENSION" ] || [ -z "$LIBRARY_PREFIX" ]; then
+  if [ -z "$OFX_ARCHITECTURE" ] || [ -z "$LIBRARY_EXTENSION" ]; then
     echo "Error: Failed to parse target info: $TARGET_INFO" >&2
     exit 1
   fi
