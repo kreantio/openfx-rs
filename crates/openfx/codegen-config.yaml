@@ -173,9 +173,9 @@ actions:
     members_prefix: kOfxAction
     members:
       # source: openfx/include/ofxCore.h
-      Load: { handle: false }
+      Load: { handle: null }
       Describe: { handle: Descriptor }
-      Unload: { handle: false }
+      Unload: { handle: null }
       PurgeCaches: { handle: Instance }
       SyncPrivateData: { handle: Instance }
       CreateInstance: { handle: Instance }
@@ -190,7 +190,7 @@ actions:
       # FIXME(umajho): If I understand correctly, the first parameter (which
       # would usually be the handle) is `user_data`. We currently cannot express
       # that.
-      Dialog: { handle: false }
+      Dialog: { handle: null }
 
       # source: openfx/include/ofxGPURender.h
       OpenGLContextAttached: { handle: Instance }
