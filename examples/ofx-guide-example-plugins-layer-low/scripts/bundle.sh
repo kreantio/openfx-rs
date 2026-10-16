@@ -51,10 +51,18 @@ main() {
   echo ARG_INFO_PLIST="$ARG_INFO_PLIST"
 
   TARGET_INFO=$(get_target_info "$ARG_TARGET_TRIPLE")
-  IFS=' ' read -r OFX_ARCHITECTURE LIBRARY_EXTENSION LIBRARY_PREFIX <<< "$TARGET_INFO"
+  # IFS=' ' read -r OFX_ARCHITECTURE LIBRARY_EXTENSION LIBRARY_PREFIX <<< "$TARGET_INFO"
+  IFS=' ' read -r OFX_ARCHITECTURE LIBRARY_EXTENSION LIBRARY_PREFIX <<EOF
+$TARGET_INFO
+EOF
   echo OFX_ARCHITECTURE="$OFX_ARCHITECTURE"
   echo LIBRARY_EXTENSION="$LIBRARY_EXTENSION"
   echo LIBRARY_PREFIX="$LIBRARY_PREFIX"
+
+  if [ -z "$OFX_ARCHITECTURE" ] || [ -z "$LIBRARY_EXTENSION" ] || [ -z "$LIBRARY_PREFIX" ]; then
+    echo "Error: Failed to parse target info: $TARGET_INFO" >&2
+    exit 1
+  fi
 
   CRATE_MANIFEST_DIR=$(dirname "$(cargo locate-project --message-format plain)")
   if [ -z "$CRATE_MANIFEST_DIR" ]; then
@@ -66,7 +74,7 @@ main() {
   rm -rf "$CRATE_MANIFEST_DIR/artifact"
   cargo +nightly build -Z unstable-options --release --target "$ARG_TARGET_TRIPLE" --artifact-dir artifact
 
-  set -- $CRATE_MANIFEST_DIR/artifact/*
+  set -- "$CRATE_MANIFEST_DIR/artifact"/*
   case $# in
     0)
       echo "Error: No artifacts were found in: $CRATE_MANIFEST_DIR/artifact" >&2
@@ -88,7 +96,7 @@ main() {
   BUILD_BUNDLE_CONTENTS_PATH="$BUILD_ARCHITECTURE_PATH/$ARG_BASE_NAME.ofx.bundle/Contents"
   mkdir -p "$BUILD_BUNDLE_CONTENTS_PATH/Resources" "$BUILD_BUNDLE_CONTENTS_PATH/$OFX_ARCHITECTURE"
 
-  cp "$ARG_INFO_PLIST" "$BUILD_BUNDLE_CONTENTS_PATH/Resources"
+  cp "$ARG_INFO_PLIST" "$BUILD_BUNDLE_CONTENTS_PATH/Info.plist"
   cp "$ARTIFACT_BINARY_PATH" "$BUILD_BUNDLE_CONTENTS_PATH/$OFX_ARCHITECTURE/$ARG_BASE_NAME.ofx"
 }
 
