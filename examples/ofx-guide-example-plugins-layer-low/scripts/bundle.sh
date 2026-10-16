@@ -64,7 +64,7 @@ EOF
     exit 1
   fi
 
-  CRATE_MANIFEST_DIR=$(dirname "$(cargo +nightly locate-project --message-format plain)")
+  CRATE_MANIFEST_DIR=$(dirname "$(cargo +nightly-2026-10-10 locate-project --message-format plain)")
   if [ -z "$CRATE_MANIFEST_DIR" ]; then
     echo "Error: \$CRATE_MANIFEST_DIR is empty!" >&2
     exit 1
@@ -72,7 +72,7 @@ EOF
   echo CRATE_MANIFEST_DIR="$CRATE_MANIFEST_DIR"
 
   rm -rf "$CRATE_MANIFEST_DIR/artifact"
-  cargo +nightly build -Z unstable-options --release --target "$ARG_TARGET_TRIPLE" --artifact-dir artifact
+  cargo +nightly-2026-10-10 build -Z unstable-options --release --target "$ARG_TARGET_TRIPLE" --artifact-dir artifact
 
   set -- "$CRATE_MANIFEST_DIR/artifact"/*
   case $# in
