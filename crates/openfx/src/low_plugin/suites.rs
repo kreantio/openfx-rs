@@ -18,7 +18,7 @@ use crate::{
             ImageClipDescriptorPropertySet, ImageClipInstancePropertySet,
             ImageEffectDescriptorPropertySet, ImageEffectInstancePropertySet,
             ImageInstancePropertySet, InteractDescriptorPropertySet, InteractInstancePropertySet,
-            ParamSetPropertySet,
+            OpenGLTexturePropertySet, ParamSetPropertySet,
         },
     },
     sys_umbrella::{
@@ -172,30 +172,26 @@ impl ImageEffectOpenGLRenderSuiteV1 {
     ///
     /// ## TODO
     ///
-    /// dedicate object `Texture`.
+    /// See [ImageEffectSuiteV1::clip_release_image]'s TODO.
     pub unsafe fn clip_free_texture(
         &self,
-        texture_handle: OfxPropertySetHandle,
+        texture_handle: &OpenGLTexturePropertySet,
     ) -> crate::low::Result<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        crate::low::Status::result_from(unsafe { sys_fn(texture_handle) })
+        crate::low::Status::result_from(unsafe { sys_fn(texture_handle.sys_handle()) })
     }
 
     /// ## SAFETY
     ///
     /// `self` and `clip` must be valid.
-    ///
-    /// ## TODO
-    ///
-    /// See [Self::clip_free_texture].
     pub(crate) unsafe fn clip_load_texture(
         &self,
         clip: &ImageClipInstance,
         time: OfxTime,
         format: &CStr,
         region: &OfxRectD,
-    ) -> crate::low::Result<OfxPropertySetHandle> {
+    ) -> crate::low::Result<OpenGLTexturePropertySet> {
         let sys_fn = unsafe { sys_fn!() };
 
         let mut texture_handle = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
@@ -210,7 +206,7 @@ impl ImageEffectOpenGLRenderSuiteV1 {
             )
         })?;
 
-        Ok(unsafe { texture_handle.assume_init() })
+        Ok(unsafe { OpenGLTexturePropertySet::from(texture_handle.assume_init()) })
     }
 
     /// ## SAFETY
