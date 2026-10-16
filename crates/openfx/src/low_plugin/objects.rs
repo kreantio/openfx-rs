@@ -10,7 +10,7 @@ use crate::{
             ImageClipDescriptorPropertySet, ImageClipInstancePropertySet,
             ImageEffectDescriptorPropertySet, ImageEffectInstancePropertySet,
             ImageInstancePropertySet, InteractDescriptorPropertySet, InteractInstancePropertySet,
-            ParamSetPropertySet,
+            OpenGLTexturePropertySet, ParamSetPropertySet,
         },
         suites::{
             DrawSuiteV1, ImageEffectOpenGLRenderSuiteV1, ImageEffectSuiteV1, InteractSuiteV1,
@@ -156,7 +156,7 @@ impl ImageClipInstance {
         time: OfxTime,
         format: &CStr,
         region: &OfxRectD,
-    ) -> crate::low::Result<OfxPropertySetHandle> {
+    ) -> crate::low::Result<OpenGLTexturePropertySet> {
         unsafe { image_effect_open_gl_render_suite.clip_load_texture(self, time, format, region) }
     }
 }

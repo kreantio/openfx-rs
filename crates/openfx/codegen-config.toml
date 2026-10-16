@@ -109,9 +109,12 @@ ImageInstance = { is = "OfxPropertySetHandle", omit = true, set = true }
 
 # concrete properties are used instead.
 PropertySet = { is = "OfxPropertySetHandle", omit = true }
+
 DrawContext = "OfxDrawContextHandle"
 ImageMemory = "OfxImageMemoryHandle"
 Mutex = "OfxMutexHandle"
+
+OpenGLTexture = { is = "OfxPropertySetHandle", omit = true }
 
 [objects.parameter_set_mapping]
 # sources:
