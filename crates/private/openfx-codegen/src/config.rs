@@ -12,8 +12,8 @@ pub struct CodegenConfig {
 }
 
 impl CodegenConfig {
-    pub fn from_toml_str(toml_str: &str) -> Result<Self, toml::de::Error> {
-        toml::from_str(toml_str)
+    pub fn from_yaml_str(yaml_str: &str) -> Result<Self, serde_saphyr::Error> {
+        serde_saphyr::from_str(yaml_str)
     }
 }
 
@@ -150,24 +150,5 @@ pub struct CodegenConfigActionsConcrete {
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigActionsMember {
-    #[serde(deserialize_with = "deserialize_false_or_string")]
     pub handle: Option<String>,
-}
-
-fn deserialize_false_or_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
-where
-    D: serde::Deserializer<'de>,
-{
-    #[derive(serde::Deserialize)]
-    #[serde(untagged)]
-    enum OneOf {
-        False(bool),
-        String(String),
-    }
-
-    Ok(match OneOf::deserialize(deserializer)? {
-        OneOf::False(false) => None,
-        OneOf::String(name) => Some(name),
-        _ => return Err(serde::de::Error::custom("expected `false` or a string")),
-    })
 }

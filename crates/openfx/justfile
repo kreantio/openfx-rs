@@ -5,7 +5,7 @@ generated-path := "generated"
 generated-c-bindings-path := "generated/c_bindings"
 generated-code-from-c-path := "generated/code_from_c"
 generated-code-from-metadata-path := "generated/code_from_metadata"
-codegen-config-path := "codegen-config.toml"
+codegen-config-path := "codegen-config.yaml"
 
 generate-all: generate-bindings generate-code
 

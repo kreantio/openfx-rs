@@ -1,0 +1,261 @@
+statuses:
+  identical_ones:
+    - [kOfxStatGPUOutOfMemory, kOfxStatGLOutOfMemory]
+    - [kOfxStatGPURenderFailed, kOfxStatGLRenderFailed]
+
+suites:
+  special_cases:
+    ImageEffectOpenGLRenderSuiteV1:
+      key_name: kOfxOpenGLRenderSuite
+    # MessageSuiteV1:
+    #   # C variadic arguments:
+    #   omit_functions: [message]
+    # MessageSuiteV2:
+    #   # C variadic arguments:
+    #   omit_functions: [message, setPersistentMessage]
+    MultiThreadSuiteV1:
+      function_rust_names:
+        multiThreadNumCPUs: multi_thread_num_cpus
+        mutexUnLock: mutex_unlock
+    # The documentation is unclear, and I have absolutely zero knowledge about
+    # OpenCL:
+    OpenCLProgramSuiteV1:
+      omit_functions: [compileProgram]
+    ParameterSuiteV1:
+      omit_functions:
+        # C variadic arguments:
+        - paramGetValue
+        - paramGetValueAtTime
+        - paramGetDerivative
+        - paramGetIntegral
+        - paramSetValue
+        - paramSetValueAtTime
+
+objects:
+  unused_property_sets_in_metadata: # NOTE: This configuration is currently unused.
+    # no corresponding `kOfxParamType*`, and it is deprecated anyway.
+    - ParamNormalizedSpatial
+  mapping:
+    # source: https://openfx.readthedocs.io/en/main/Reference/ofxImageEffectAPI.html#main-objects-used-by-the-api
+    # (`openfx/Documentation/sources/Reference/ofxImageEffectAPI.rst`)
+    #
+    # The keys are named after (high priority -> low priority):
+    # 1. Canonical names of the property sets they use. (e.g.,
+    #    `ImageEffect{Descriptor,Instance}` from `OfxImageEffectHandle`)
+    # 2. The names in the source. (e.g., `ImageInstance`)
+    # 3. Names derived (e.g., `Param*` from `Params*`) from the names in
+    #    `openfx/openfx-cpp/include/openfx/ofxPropsBySet.h`.
+    #
+    # The names in the comments follows the source.
+
+    # Image Effect Descriptor / Instance
+    ImageEffectDescriptor:
+      is: OfxImageEffectHandle
+      set: true
+      # instance-specific
+      omit_functions: [abort, clipGetHandle, imageMemoryAlloc]
+    ImageEffectInstance:
+      is: OfxImageEffectHandle
+      set: true
+      # descriptor-specific
+      omit_functions: [clipDefine]
+
+    # Clip Descriptor / Instance
+    ImageClipDescriptor:
+      is: OfxImageClipHandle
+      set: true
+      # instance-specific
+      omit_functions:
+        - clipGetImage
+        - clipGetHandle
+        - clipGetRegionOfDefinition
+        - clipLoadTexture
+    ImageClipInstance: { is: OfxImageClipHandle, set: true }
+
+    # Parameter Set Descriptor / Instance
+    ParamSetDescriptor:
+      is: OfxParamSetHandle
+      set: ParamSet
+      # instance-specific
+      omit_functions: [paramEditBegin, paramEditEnd, paramGetHandle]
+    ParamSetInstance:
+      is: OfxParamSetHandle
+      set: ParamSet
+      # descriptor-specific
+      omit_functions: [paramDefine]
+
+    # Interact Descriptor / Instance
+    InteractDescriptor:
+      is: OfxInteractHandle
+      set: true
+      # instance-specific
+      omit_functions: [interactRedraw, interactSwapBuffers]
+    InteractInstance: { is: OfxInteractHandle, set: true }
+
+    # Host Descriptor: This is just a property set handle.
+    ImageEffectHostDescriptor:
+      is: OfxPropertySetHandle
+      omit: true
+      set: true
+    # Parameter Descriptor/Instance: Concrete parameter descriptors/instances
+    # ~~are~~ will be used instead.
+    # TO REVIEWERS: remind me if the statement above needs updating.
+    # TODO: Ask the upstream why there is not a corresponding instance object.
+    ParamDescriptor: { is: OfxParamHandle, omit: true }
+    # Image Instance: This is also a property set handle, so we need to handle
+    # this specifically.
+    ImageInstance: { is: OfxPropertySetHandle, omit: true, set: true }
+
+    # remain (not in the source):
+
+    # concrete properties are used instead.
+    PropertySet: { is: OfxPropertySetHandle, omit: true }
+
+    DrawContext: OfxDrawContextHandle
+    ImageMemory: OfxImageMemoryHandle
+    Mutex: OfxMutexHandle
+
+    OpenGLTexture: { is: OfxPropertySetHandle, omit: true }
+
+parameters:
+  # Some of the property sets are wrong. There is a PR that fixes them, but it
+  # has not been merged yet:
+  # https://github.com/AcademySoftwareFoundation/openfx/pull/279
+  mapping: # NOTE: This configuration is currently unused.
+    # sources:
+    # - `openfx/openfx-cpp/include/openfx/ofxPropsBySet.h`'s `prop_sets`
+    # - `openfx/include/ofxParam.h`'s defines that start with `kOfxParamType`
+    # - `openfx/include/ofxParametricParam.h`'s defines that start with
+    #   `kOfxParamType`.
+    #
+    # The keys follows the defines mentioned in the sources above (with the
+    # prefix `"kOfx"` and the infix `"Type"` removed).
+
+    # The property set is wrong.
+    ParamInteger: { property_set: ParamsByte, ty: [1, Int] }
+    ParamDouble: { property_set: ParamsDouble1D, ty: [1, Double] }
+    # The property set is wrong.
+    ParamBoolean: { property_set: ParamsByte, ty: [1, Bool] }
+    ParamChoice: { property_set: ParamsChoice, ty: [1, Int] }
+    ParamStrChoice: { property_set: ParamsStrChoice, ty: [1, String] }
+    ParamRGBA: { property_set: ParamsDouble2D3D, ty: [4, Double] }
+    ParamRGB: { property_set: ParamsDouble2D3D, ty: [3, Double] }
+    ParamDouble2D: { property_set: ParamsDouble2D3D, ty: [2, Double] }
+    ParamInteger2D: { property_set: ParamsInteger2D3D, ty: [2, Int] }
+    ParamDouble3D: { property_set: ParamsDouble2D3D, ty: [3, Double] }
+    ParamInteger3D: { property_set: ParamsInteger2D3D, ty: [3, Int] }
+    ParamString: { property_set: ParamsString, ty: [1, String] }
+    ParamCustom: { property_set: ParamsCustom, ty: [1, Custom] }
+    ParamBytes: { property_set: ParamsByte, ty: [1, Pointer] }
+    ParamGroup: { property_set: ParamsGroup, ty: null }
+    ParamPage: { property_set: ParamsPage, ty: null }
+    # The property set is wrong.
+    ParamPushButton: { property_set: ParamsByte, ty: null }
+    ParamParametric: { property_set: ParamsParametric, ty: null }
+
+property_sets:
+  renaming:
+    ImageEffectHost: ImageEffectHostDescriptor
+    Image: ImageInstance
+
+    ClipDescriptor: ImageClipDescriptor
+    ClipInstance: ImageClipInstance
+    EffectDescriptor: ImageEffectDescriptor
+    EffectInstance: ImageEffectInstance
+
+    ParameterSet: ParamSet
+
+actions:
+  pseudo:
+    members: [CustomParamInterpFunc]
+
+  core:
+    members_prefix: kOfxAction
+    members:
+      # source: openfx/include/ofxCore.h
+      Load: { handle: null }
+      Describe: { handle: Descriptor }
+      Unload: { handle: null }
+      PurgeCaches: { handle: Instance }
+      SyncPrivateData: { handle: Instance }
+      CreateInstance: { handle: Instance }
+      DestroyInstance: { handle: Instance }
+      InstanceChanged: { handle: Instance }
+      BeginInstanceChanged: { handle: Instance }
+      EndInstanceChanged: { handle: Instance }
+      BeginInstanceEdit: { handle: Instance }
+      EndInstanceEdit: { handle: Instance }
+
+      # source: openfx/include/ofxDialog.h
+      # FIXME(umajho): If I understand correctly, the first parameter (which
+      # would usually be the handle) is `user_data`. We currently cannot express
+      # that.
+      Dialog: { handle: null }
+
+      # source: openfx/include/ofxGPURender.h
+      OpenGLContextAttached: { handle: Instance }
+      OpenGLContextDetached: { handle: Instance }
+
+  concretes:
+    image_effect:
+      handle_prefix: ImageEffect
+      # based on: https://openfx.readthedocs.io/en/main/Reference/ofxImageEffectActions.html
+      # TODO: parse `ofxImageEffectActions.rst`?
+      members_from_core:
+        - Load
+        - Unload
+        - Describe
+        - CreateInstance
+        - DestroyInstance
+        - BeginInstanceChanged
+        - EndInstanceChanged
+        - InstanceChanged
+        - PurgeCaches
+        - SyncPrivateData
+        - BeginInstanceEdit
+        - EndInstanceEdit
+        - Dialog
+        - OpenGLContextAttached
+        - OpenGLContextDetached
+      members_prefix: kOfxImageEffectAction
+      members:
+        # source: openfx/include/ofxImageEffect.h
+        GetRegionOfDefinition: { handle: Instance }
+        GetRegionsOfInterest: { handle: Instance }
+        GetTimeDomain: { handle: Instance }
+        GetFramesNeeded: { handle: Instance }
+        GetClipPreferences: { handle: Instance }
+        IsIdentity: { handle: Instance }
+        Render: { handle: Instance }
+        BeginSequenceRender: { handle: Instance }
+        EndSequenceRender: { handle: Instance }
+        DescribeInContext: { handle: Descriptor }
+
+        # source: openfx/include/ofxColour.h
+        GetOutputColourspace: { handle: Instance }
+
+    interact:
+      handle_prefix: Interact
+      # based on: https://openfx.readthedocs.io/en/main/Reference/ofxInteractActions.html
+      # TODO: parse `ofxInteractActions.rst`?
+      members_from_core:
+        # TODO: use the follwing:
+        # ```
+        # - { name: Describe, key: kOfxActionDescribeInteract }
+        # - { name: CreateInstance, key: kOfxActionCreateInstanceInteract }
+        # - { name: DestroyInstance, key: kOfxActionDestroyInstanceInteract }
+        # ```
+        - Describe
+        - CreateInstance
+        - DestroyInstance
+      members_prefix: kOfxInteractAction
+      members: # source: openfx/include/ofxInteract.h
+        Draw: { handle: Instance }
+        PenMotion: { handle: Instance }
+        PenDown: { handle: Instance }
+        PenUp: { handle: Instance }
+        KeyDown: { handle: Instance }
+        KeyUp: { handle: Instance }
+        KeyRepeat: { handle: Instance }
+        GainFocus: { handle: Instance }
+        LoseFocus: { handle: Instance }
