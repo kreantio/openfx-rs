@@ -125,24 +125,24 @@ OpenGLTexture = { is = "OfxPropertySetHandle", omit = true }
 #
 # The keys follows the defines mentioned in the sources above (with the prefix
 # `"kOfx"` and the infix `"Type"` removed).
-ParamInteger = { is = "OfxParamHandle", set = "ParamByte", d = 1, ty = "Int" }           # I guess? 
-ParamDouble = { is = "OfxParamHandle", set = "ParamDouble1D", d = 1, ty = "Double" }
-ParamBoolean = { is = "OfxParamHandle", set = "ParamByte", d = 1, ty = "Bool" }          # I guess? 
-ParamChoice = { is = "OfxParamHandle", set = "ParamChoice", d = 1, ty = "Int" }
-ParamStrChoice = { is = "OfxParamHandle", set = "ParamStrChoice", d = 1, ty = "String" }
-ParamRGBA = { is = "OfxParamHandle", set = "ParamDouble2D3D", d = 4, ty = "Double" }
-ParamRGB = { is = "OfxParamHandle", set = "ParamDouble2D3D", d = 3, ty = "Double" }
-ParamDouble2D = { is = "OfxParamHandle", set = "ParamDouble2D3D", d = 2, ty = "Double" }
-ParamInteger2D = { is = "OfxParamHandle", set = "ParamInteger2D3D", d = 2, ty = "Int" }
-ParamDouble3D = { is = "OfxParamHandle", set = "ParamDouble2D3D", d = 3, ty = "Double" }
-ParamInteger3D = { is = "OfxParamHandle", set = "ParamInteger2D3D", d = 3, ty = "Int" }
-ParamString = { is = "OfxParamHandle", set = "ParamString", d = 1, ty = "String" }
-ParamCustom = { is = "OfxParamHandle", set = "ParamCustom", d = 1, ty = "Custom" }
-ParamBytes = { is = "OfxParamHandle", set = "ParamByte", d = 1, ty = "Pointer" }
-ParamGroup = { is = "OfxParamHandle", set = "ParamGroup", d = 0, ty = "" }
-ParamPage = { is = "OfxParamHandle", set = "ParamPage", d = 0, ty = "" }
-ParamPushButton = { is = "OfxParamHandle", set = "ParamByte", d = 0, ty = "" }           # FIXME: This definitely does not correspond to `ParamByte`.
-ParamParametric = { is = "OfxParamHandle", set = "ParamParametric", d = 0, ty = "" }
+ParamsInteger = { is = "OfxParamHandle", set = "ParamByte", d = 1, ty = "Int" }           # I guess? 
+ParamsDouble = { is = "OfxParamHandle", set = "ParamDouble1D", d = 1, ty = "Double" }
+ParamsBoolean = { is = "OfxParamHandle", set = "ParamByte", d = 1, ty = "Bool" }          # I guess? 
+ParamsChoice = { is = "OfxParamHandle", set = "ParamChoice", d = 1, ty = "Int" }
+ParamsStrChoice = { is = "OfxParamHandle", set = "ParamStrChoice", d = 1, ty = "String" }
+ParamsRGBA = { is = "OfxParamHandle", set = "ParamDouble2D3D", d = 4, ty = "Double" }
+ParamsRGB = { is = "OfxParamHandle", set = "ParamDouble2D3D", d = 3, ty = "Double" }
+ParamsDouble2D = { is = "OfxParamHandle", set = "ParamDouble2D3D", d = 2, ty = "Double" }
+ParamsInteger2D = { is = "OfxParamHandle", set = "ParamInteger2D3D", d = 2, ty = "Int" }
+ParamsDouble3D = { is = "OfxParamHandle", set = "ParamDouble2D3D", d = 3, ty = "Double" }
+ParamsInteger3D = { is = "OfxParamHandle", set = "ParamInteger2D3D", d = 3, ty = "Int" }
+ParamsString = { is = "OfxParamHandle", set = "ParamString", d = 1, ty = "String" }
+ParamsCustom = { is = "OfxParamHandle", set = "ParamCustom", d = 1, ty = "Custom" }
+ParamsBytes = { is = "OfxParamHandle", set = "ParamByte", d = 1, ty = "Pointer" }
+ParamsGroup = { is = "OfxParamHandle", set = "ParamGroup", d = 0, ty = "" }
+ParamsPage = { is = "OfxParamHandle", set = "ParamPage", d = 0, ty = "" }
+ParamsPushButton = { is = "OfxParamHandle", set = "ParamByte", d = 0, ty = "" }           # FIXME: This definitely does not correspond to `ParamByte`.
+ParamsParametric = { is = "OfxParamHandle", set = "ParamParametric", d = 0, ty = "" }
 
 [property_sets.renaming]
 ImageEffectHost = "ImageEffectHostDescriptor"
