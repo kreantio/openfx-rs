@@ -67,6 +67,30 @@ jobs:
 
   # ---------------------------------------------------------------------------
 
+  try-building-examples:
+    name: Try building examples (artifacts will not be preserved)
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.99.0"
+
+      - uses: extractions/setup-just@v4
+
+      - name: Set up cargo cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: "Try building example: ofx-guide-example-plugins-layer-low"
+        run: cd examples/ofx-guide-example-plugins-layer-low && just build-preferring-dash
+
+  # ---------------------------------------------------------------------------
+
   check-stale-generated-contents:
     name: Check whether some generated contents are stale
     permissions:
