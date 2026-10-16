@@ -14,7 +14,7 @@ use crate::{
         },
         suites::{
             DrawSuiteV1, ImageEffectOpenGLRenderSuiteV1, ImageEffectSuiteV1, InteractSuiteV1,
-            MessageSuiteV1Compatible, MessageSuiteV2, MultiThreadSuiteV1, ParameterSuiteV1,
+            MultiThreadSuiteV1, ParameterSuiteV1,
         },
     },
     sys_umbrella::{
@@ -192,56 +192,6 @@ impl ImageEffectDescriptor {
     ) -> crate::low::Result<ImageEffectDescriptorPropertySet> {
         unsafe { image_effect_suite.get_descriptor_property_set(self) }
     }
-
-    /// ## SAFETY
-    ///
-    /// `self` and `message_suite_v1` must be valid.
-    pub unsafe fn message(
-        &self,
-        message_suite_v1: impl MessageSuiteV1Compatible,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe {
-            message_suite_v1.message_with_image_effect_descriptor(
-                self,
-                message_type,
-                message_id,
-                message,
-            )
-        }
-    }
-
-    /// ## SAFETY
-    ///
-    /// `self` and `message_suite_v2` must be valid.
-    pub unsafe fn clear_persistent_message(
-        &self,
-        message_suite_v2: MessageSuiteV2,
-    ) -> crate::low::Result<()> {
-        unsafe { message_suite_v2.clear_persistent_message_with_image_effect_descriptor(self) }
-    }
-
-    /// ## SAFETY
-    ///
-    /// `self` and `message_suite_v2` must be valid.
-    pub unsafe fn set_persistent_message(
-        &self,
-        message_suite_v2: MessageSuiteV2,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe {
-            message_suite_v2.set_persistent_message_with_image_effect_descriptor(
-                self,
-                message_type,
-                message_id,
-                message,
-            )
-        }
-    }
 }
 
 impl ImageEffectInstance {
@@ -303,56 +253,6 @@ impl ImageEffectInstance {
         n_bytes: usize,
     ) -> crate::low::Result<ImageMemory> {
         unsafe { image_effect_suite.image_memory_alloc(self, n_bytes) }
-    }
-
-    /// ## SAFETY
-    ///
-    /// `self` and `message_suite_v1` must be valid.
-    pub unsafe fn message(
-        &self,
-        message_suite_v1: impl MessageSuiteV1Compatible,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe {
-            message_suite_v1.message_with_image_effect_instance(
-                self,
-                message_type,
-                message_id,
-                message,
-            )
-        }
-    }
-
-    /// ## SAFETY
-    ///
-    /// `self` and `message_suite_v2` must be valid.
-    pub unsafe fn clear_persistent_message(
-        &self,
-        message_suite_v2: MessageSuiteV2,
-    ) -> crate::low::Result<()> {
-        unsafe { message_suite_v2.clear_persistent_message_with_image_effect_instance(self) }
-    }
-
-    /// ## SAFETY
-    ///
-    /// `self` and `message_suite_v2` must be valid.
-    pub unsafe fn set_persistent_message(
-        &self,
-        message_suite_v2: MessageSuiteV2,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe {
-            message_suite_v2.set_persistent_message_with_image_effect_instance(
-                self,
-                message_type,
-                message_id,
-                message,
-            )
-        }
     }
 }
 
