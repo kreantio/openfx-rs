@@ -20,14 +20,17 @@ See Also:
 
 The following tools are required:
 
-| Tool(s) \\ To                           | Build Examples | Update Generated Code in Crate `openfx` |
-| --------------------------------------- | -------------- | --------------------------------------- |
-| POSIX tools (`sh`, `rm`, `mkdir`, etc.) | yes (I assume) | yes                                     |
-| [`just`]                                | yes            | yes                                     |
-| [`deno`]                                | yes            | no                                      |
+| Tool(s) \\ To                           | Use crate `openfx` | Build Examples           | Update Generated Code in Crate `openfx` |
+| --------------------------------------- | ------------------ | ------------------------ | --------------------------------------- |
+| The [Rust] programming language         | `stable`           | `nightly-2026-10-10`[^1] | `stable`                                |
+| POSIX tools (`sh`, `rm`, `mkdir`, etc.) | no                 | yes                      | not strictly                            |
+| [`just`]                                | no                 | not strictly             | not strictly                            |
 
+[Rust]: https://rust-lang.org/
 [`just`]: https://github.com/casey/just
-[`deno`]: https://deno.com/
+
+[^1]: Only because
+    [`cargo build --artifact-dir` is unstable](https://github.com/rust-lang/cargo/issues/6790).
 
 ## Crate `openfx`
 

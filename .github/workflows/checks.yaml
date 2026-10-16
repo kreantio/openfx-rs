@@ -9,6 +9,9 @@ on:
       - main
   pull_request:
 
+env:
+  RUSTUP_AUTO_INSTALL: "0"
+
 jobs:
   fmt-crank-check-test:
     name: Format + check
@@ -34,7 +37,7 @@ jobs:
 
       - run: cargo +nightly-2026-10-10 clippy --locked --all-features --all-targets
 
-      - run: cargo doc --lib --no-deps --all-features
+      - run: cargo +nightly-2026-10-10 doc --lib --no-deps --all-features
 
       - name: clippy release
         run: cargo +nightly-2026-10-10 clippy --all-targets --all-features --release -- -D warnings
@@ -67,6 +70,30 @@ jobs:
 
   # ---------------------------------------------------------------------------
 
+  try-building-examples:
+    name: Try building examples (artifacts will not be preserved)
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          toolchain: nightly-2026-10-10 # after 1.99.0
+
+      - uses: extractions/setup-just@v4
+
+      - name: Set up cargo cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: "Try building example: ofx-guide-example-plugins-layer-low"
+        run: cd examples/ofx-guide-example-plugins-layer-low && just build-preferring-dash
+
+  # ---------------------------------------------------------------------------
+
   check-stale-generated-contents:
     name: Check whether some generated contents are stale
     permissions:
@@ -83,10 +110,6 @@ jobs:
           components: rustfmt
 
       - uses: extractions/setup-just@v4
-
-      - uses: denoland/setup-deno@v2
-        with:
-          cache: true
 
       - name: Set up cargo cache
         uses: Swatinem/rust-cache@v2
