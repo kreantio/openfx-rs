@@ -20,9 +20,9 @@ serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 snafu.workspace = true
 syn = { workspace = true, features = ["full", "visit", "visit-mut"] }
-toml.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
+serde-saphyr.workspace = true
 
 [[bin]]
 name = "cli"

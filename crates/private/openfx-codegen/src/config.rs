@@ -12,8 +12,8 @@ pub struct CodegenConfig {
 }
 
 impl CodegenConfig {
-    pub fn from_toml_str(toml_str: &str) -> Result<Self, toml::de::Error> {
-        toml::from_str(toml_str)
+    pub fn from_yaml_str(yaml_str: &str) -> Result<Self, serde_saphyr::Error> {
+        serde_saphyr::from_str(yaml_str)
     }
 }
 
