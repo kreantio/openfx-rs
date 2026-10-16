@@ -32,7 +32,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -z "$ARG_TARGET_TRIPLE" ]; then
-  ARG_TARGET_TRIPLE=$(rustc -vV | sed -n 's/host: //p')
+  ARG_TARGET_TRIPLE=$(rustc +nightly-2026-10-10 -vV | sed -n 's/host: //p')
 fi
 
 if [ -z "$ARG_BASE_NAME" ]; then

@@ -20,11 +20,11 @@ See Also:
 
 The following tools are required:
 
-| Tool(s) \\ To                           | Use crate `openfx` | Build Examples | Update Generated Code in Crate `openfx` |
-| --------------------------------------- | ------------------ | -------------- | --------------------------------------- |
-| The [Rust] programming language         | stable             | nightly[^1]    | stable                                  |
-| POSIX tools (`sh`, `rm`, `mkdir`, etc.) | no                 | yes            | not strictly                            |
-| [`just`]                                | no                 | not strictly   | not strictly                            |
+| Tool(s) \\ To                           | Use crate `openfx` | Build Examples           | Update Generated Code in Crate `openfx` |
+| --------------------------------------- | ------------------ | ------------------------ | --------------------------------------- |
+| The [Rust] programming language         | `stable`           | `nightly-2026-10-10`[^1] | `stable`                                |
+| POSIX tools (`sh`, `rm`, `mkdir`, etc.) | no                 | yes                      | not strictly                            |
+| [`just`]                                | no                 | not strictly             | not strictly                            |
 
 [Rust]: https://rust-lang.org/
 [`just`]: https://github.com/casey/just
