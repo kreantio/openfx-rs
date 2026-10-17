@@ -39,6 +39,8 @@ pub struct CodegenConfigSuiteSpecialCaseFunction {
     pub omit: bool,
     #[serde(default)]
     pub rust_name: Option<String>,
+    #[serde(default)]
+    pub prefer_checking_sys_name_in_suite: bool,
 }
 
 #[derive(serde::Deserialize)]
