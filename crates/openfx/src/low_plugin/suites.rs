@@ -891,7 +891,7 @@ impl MultiThreadSuiteV1 {
     /// ## SAFETY
     ///
     /// `self` must be valid.
-    unsafe fn multi_thread(
+    unsafe fn sys_multi_thread(
         &self,
         sys_func: unsafe extern "C" fn(
             thread_index: c_uint,
@@ -901,7 +901,7 @@ impl MultiThreadSuiteV1 {
         n_threads: c_uint,
         custom_arg: *mut c_void,
     ) -> crate::low::Result<()> {
-        let sys_fn = unsafe { sys_fn!() };
+        let sys_fn = unsafe { sys_fn!("multiThread") };
 
         crate::low::Status::result_from(unsafe { sys_fn(Some(sys_func), n_threads, custom_arg) })
     }
@@ -914,7 +914,7 @@ impl MultiThreadSuiteV1 {
     ///
     /// Find a better name for this function?
     #[no_sys_fn]
-    pub unsafe fn multi_thread_<T: Send + Sync>(
+    pub unsafe fn multi_thread<T: Send + Sync>(
         &self,
         func: extern "C" fn(thread_index: c_uint, thread_max: c_uint, custom_arg: &T),
         n_threads: c_uint,
@@ -926,7 +926,7 @@ impl MultiThreadSuiteV1 {
             custom_arg: *mut c_void,
         ) = unsafe { std::mem::transmute(func) };
 
-        unsafe { self.multi_thread(func, n_threads, custom_arg as *const T as *mut c_void) }
+        unsafe { self.sys_multi_thread(func, n_threads, custom_arg as *const T as *mut c_void) }
     }
 
     /// ## SAFETY

@@ -23,6 +23,7 @@ suites:
         setPersistentMessage: #{ omit: true }
     MultiThreadSuiteV1:
       functions:
+        multiThread: { prefer_checking_sys_name_in_suite: true }
         multiThreadNumCPUs: { rust_name: multi_thread_num_cpus }
         mutexUnLock: { rust_name: mutex_unlock }
     # The documentation is unclear, and I have absolutely zero knowledge about

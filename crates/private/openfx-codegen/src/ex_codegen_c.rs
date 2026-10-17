@@ -174,13 +174,16 @@ pub fn gen_low_plugin_suites(
                     continue;
                 }
 
-                let fn_ident = syn::Ident::new(
-                    &fn_cfg
-                        .and_then(|cfg| cfg.rust_name.as_ref())
-                        .cloned()
-                        .unwrap_or_else(|| fn_raw_name.to_case(convert_case::Case::Snake)),
-                    proc_macro2::Span::call_site(),
-                );
+                let mut fn_name = fn_cfg
+                    .and_then(|cfg| cfg.rust_name.as_ref())
+                    .cloned()
+                    .unwrap_or_else(|| fn_raw_name.to_case(convert_case::Case::Snake));
+
+                if fn_cfg.is_some_and(|cfg| cfg.prefer_checking_sys_name_in_suite) {
+                    fn_name = format!("sys_{fn_name}");
+                }
+
+                let fn_ident = syn::Ident::new(&fn_name, proc_macro2::Span::call_site());
                 fns.push(fn_ident);
             }
             fns.sort();

@@ -30,9 +30,9 @@ openfx_internal_macros::low_make_suite_struct!(
     set_persistent_message,
 );
 openfx_internal_macros::low_make_suite_struct!(
-    MultiThreadSuiteV1 : OfxMultiThreadSuiteV1 : multi_thread, multi_thread_index,
+    MultiThreadSuiteV1 : OfxMultiThreadSuiteV1 : multi_thread_index,
     multi_thread_is_spawned_thread, multi_thread_num_cpus, mutex_create, mutex_destroy,
-    mutex_lock, mutex_try_lock, mutex_unlock,
+    mutex_lock, mutex_try_lock, mutex_unlock, sys_multi_thread,
 );
 openfx_internal_macros::low_make_suite_struct!(
     OpenCLProgramSuiteV1 : OfxOpenCLProgramSuiteV1 :
