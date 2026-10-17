@@ -18,7 +18,10 @@
 //! respective objects don't implement the corresponding functions either,
 //! so that there is only a single way to call those functions.
 
-use std::ffi::{CStr, c_int, c_uint, c_void};
+use std::{
+    ffi::{CStr, c_char, c_int, c_uint, c_void},
+    ptr::NonNull,
+};
 
 use crate::{
     low::enums::{DrawLineStipplePattern, DrawPrimitive, DrawTextAlignment, StandardColour},
@@ -38,7 +41,7 @@ use crate::{
     sys_umbrella::{
         OfxImageClipHandle, OfxImageEffectHandle, OfxImageMemoryHandle, OfxInteractHandle,
         OfxMutexHandle, OfxParamHandle, OfxParamSetHandle, OfxPointD, OfxPropertySetHandle,
-        OfxRGBAColourF, OfxRangeD, OfxRectD, OfxTime,
+        OfxRGBAColourF, OfxRangeD, OfxRectD, OfxStatus, OfxTime,
     },
 };
 
@@ -716,16 +719,20 @@ impl From<&ImageEffectInstance> for MessageHandle {
 }
 
 #[repr(transparent)]
-pub struct PersistentMessageHandle(*mut c_void);
+pub struct PersistentMessageHandle(NonNull<c_void>);
 
 impl From<&ImageEffectDescriptor> for PersistentMessageHandle {
     fn from(descriptor: &ImageEffectDescriptor) -> Self {
-        Self(descriptor.sys_handle() as *mut c_void)
+        // TODO: make objects store non-null pointers so that `.sys_handle()`
+        // can return `NonNull` and `new_unchecked` can be removed here?
+        Self(unsafe { NonNull::new_unchecked(descriptor.sys_handle() as *mut c_void) })
     }
 }
 impl From<&ImageEffectInstance> for PersistentMessageHandle {
     fn from(instance: &ImageEffectInstance) -> Self {
-        Self(instance.sys_handle() as *mut c_void)
+        // TODO: make objects store non-null pointers so that `.sys_handle()`
+        // can return `NonNull` and `new_unchecked` can be removed here?
+        Self(unsafe { NonNull::new_unchecked(instance.sys_handle() as *mut c_void) })
     }
 }
 
@@ -737,31 +744,32 @@ impl MessageSuiteV1 {
     ///
     /// ## Note
     ///
-    /// The parameters of this function diverge from the original function,
-    /// because the original function uses variadic arguments which are not
-    /// directly representable in Rust.
+    /// This function is `pub` so that callers who need to pass variadic
+    /// arguments more flexibly can do so. Regular use should prefer
+    /// [`Self::message`].
     ///
     /// ## TODO
     ///
     /// We currently don't have an enum type for `kOfxMessageType*`?
-    unsafe fn sys_message(
+    pub unsafe extern "C" fn sys_message(
         &self,
         sys_handle: *mut c_void,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
+        message_type: NonNull<c_char>,
+        message_id: *const c_char,
+        format: NonNull<c_char>,
+        args: ...
+    ) -> OfxStatus {
         let sys_fn = unsafe { sys_fn!("message") };
 
-        crate::low::Status::result_from(unsafe {
+        unsafe {
             sys_fn(
                 sys_handle,
                 message_type.as_ptr(),
-                message_id.map_or(std::ptr::null(), |s| s.as_ptr()),
-                c"%s".as_ptr(),
-                message.as_ptr(),
+                message_id,
+                format.as_ptr(),
+                args,
             )
-        })
+        }
     }
 
     /// ## SAFETY
@@ -775,7 +783,15 @@ impl MessageSuiteV1 {
         message_id: Option<&CStr>,
         message: &CStr,
     ) -> crate::low::Result<()> {
-        unsafe { self.sys_message(handle.0, message_type, message_id, message) }
+        crate::low::Status::result_from(unsafe {
+            self.sys_message(
+                handle.0,
+                NonNull::new_unchecked(message_type.as_ptr() as *mut c_char),
+                message_id.map_or(std::ptr::null(), |s| s.as_ptr()),
+                NonNull::new_unchecked(c"%s".as_ptr() as *mut c_char),
+                message,
+            )
+        })
     }
 }
 
@@ -806,24 +822,25 @@ impl MessageSuiteV2 {
     /// ## TODO
     ///
     /// See [`MessageSuiteV1::sys_message`].
-    unsafe fn sys_message(
+    pub unsafe extern "C" fn sys_message(
         &self,
         sys_handle: *mut c_void,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
+        message_type: NonNull<c_char>,
+        message_id: *const c_char,
+        format: NonNull<c_char>,
+        args: ...
+    ) -> OfxStatus {
         let sys_fn = unsafe { sys_fn!("message") };
 
-        crate::low::Status::result_from(unsafe {
+        unsafe {
             sys_fn(
                 sys_handle,
                 message_type.as_ptr(),
-                message_id.map_or(std::ptr::null(), |s| s.as_ptr()),
-                c"%s".as_ptr(),
-                message.as_ptr(),
+                message_id,
+                format.as_ptr(),
+                args,
             )
-        })
+        }
     }
 
     /// ## SAFETY
@@ -837,7 +854,15 @@ impl MessageSuiteV2 {
         message_id: Option<&CStr>,
         message: &CStr,
     ) -> crate::low::Result<()> {
-        unsafe { self.sys_message(handle.0, message_type, message_id, message) }
+        crate::low::Status::result_from(unsafe {
+            self.sys_message(
+                handle.0,
+                NonNull::new_unchecked(message_type.as_ptr() as *mut c_char),
+                message_id.map_or(std::ptr::null(), |s| s.as_ptr()),
+                NonNull::new_unchecked(c"%s".as_ptr() as *mut c_char),
+                message,
+            )
+        })
     }
 
     /// ## SAFETY
@@ -846,29 +871,32 @@ impl MessageSuiteV2 {
     ///
     /// ## Note
     ///
-    /// See [`MessageSuiteV1::sys_message`] for more.
+    /// This function is `pub` so that callers who need to pass variadic
+    /// arguments more flexibly can do so. Regular use should prefer
+    /// [`Self::set_persistent_message`].
     ///
     /// ## TODO
     ///
     /// See [`MessageSuiteV1::sys_message`] for more.
-    unsafe fn sys_set_persistent_message(
+    pub unsafe extern "C" fn sys_set_persistent_message(
         &self,
-        sys_handle: *mut c_void,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
+        sys_handle: NonNull<c_void>,
+        message_type: NonNull<c_char>,
+        message_id: *const c_char,
+        format: NonNull<c_char>,
+        args: ...
+    ) -> OfxStatus {
         let sys_fn = unsafe { sys_fn!("setPersistentMessage") };
 
-        crate::low::Status::result_from(unsafe {
+        unsafe {
             sys_fn(
-                sys_handle,
+                sys_handle.as_ptr(),
                 message_type.as_ptr(),
-                message_id.map_or(std::ptr::null(), |s| s.as_ptr()),
-                c"%s".as_ptr(),
-                message.as_ptr(),
+                message_id,
+                format.as_ptr(),
+                args,
             )
-        })
+        }
     }
 
     /// ## SAFETY
@@ -882,7 +910,15 @@ impl MessageSuiteV2 {
         message_id: Option<&CStr>,
         message: &CStr,
     ) -> crate::low::Result<()> {
-        unsafe { self.sys_set_persistent_message(handle.0, message_type, message_id, message) }
+        unsafe {
+            crate::low::Status::result_from(self.sys_set_persistent_message(
+                handle.0,
+                NonNull::new_unchecked(message_type.as_ptr() as *mut c_char),
+                message_id.map_or(std::ptr::null(), |s| s.as_ptr()),
+                NonNull::new_unchecked(c"%s".as_ptr() as *mut c_char),
+                message,
+            ))
+        }
     }
 }
 

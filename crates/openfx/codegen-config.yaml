@@ -15,12 +15,12 @@ suites:
     MessageSuiteV1:
       # C variadic arguments:
       functions:
-        message: #{ omit: true }
+        message: { prefer_checking_sys_name_in_suite: true }
     MessageSuiteV2:
       # C variadic arguments:
       functions:
-        message: #{ omit: true }
-        setPersistentMessage: #{ omit: true }
+        message: { prefer_checking_sys_name_in_suite: true }
+        setPersistentMessage: { prefer_checking_sys_name_in_suite: true }
     MultiThreadSuiteV1:
       functions:
         multiThread: { prefer_checking_sys_name_in_suite: true }
