@@ -41,6 +41,9 @@ pub fn make_action_enum(attr: TokenStream, item: TokenStream) -> TokenStream {
             #from_sys_fn
             #sys_fns
 
+            /// ## Safety
+            /// 
+            /// TODO
             pub fn sys_match(&self, action: &::std::ffi::CStr) -> Option<(*const ::std::ffi::c_void, crate::sys::generic::core::OfxPropertySetHandle, crate::sys::generic::core::OfxPropertySetHandle)> {
                 if let Some(self_action) = self.sys_action() && self_action == action {
                     Some((self.sys_handle(), self.sys_in_args(), self.sys_out_args()))
