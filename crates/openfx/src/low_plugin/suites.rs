@@ -1,10 +1,27 @@
 //! ## Note
 //!
-//! Functions whose first parameter is an object from
-//! [`crate::low_plugin::objects`] should be `pub(crate)`. They may then be
-//! invoked only indirectly through methods on that object.
+//! ### `pub` vs `pub(crate)`
+//!
+//! Functions implemented on suites whose first parameter (excluding the
+//! receiver) is an object from [`crate::low_plugin::objects`] should be
+//! `pub(crate)`. They may then be invoked only indirectly through functions
+//! implemented on the respective objects.
+//!
+//! Since the first parameters of functions on [`PropertySuiteV1`] are
+//! [`OfxPropertySetHandle`]s rather than the objects mentioned above, those
+//! functions remain `pub`.
+//!
+//! Since the first parameters of functions on [`MessageSuiteV1`] and
+//! [`MessageSuiteV2`] are either [`MessageHandle`] or
+//! [`PersistentMessageHandle`], both defined in this module, they also don't
+//! fall under the rule mentioned above and remain `pub`. Besides, the
+//! respective objects don't implement the corresponding functions either,
+//! so that there is only a single way to call those functions.
 
-use std::ffi::{CStr, c_int, c_uint, c_void};
+use std::{
+    ffi::{CStr, c_char, c_int, c_uint, c_void},
+    ptr::NonNull,
+};
 
 use crate::{
     low::enums::{DrawLineStipplePattern, DrawPrimitive, DrawTextAlignment, StandardColour},
@@ -24,7 +41,7 @@ use crate::{
     sys_umbrella::{
         OfxImageClipHandle, OfxImageEffectHandle, OfxImageMemoryHandle, OfxInteractHandle,
         OfxMutexHandle, OfxParamHandle, OfxParamSetHandle, OfxPointD, OfxPropertySetHandle,
-        OfxRGBAColourF, OfxRangeD, OfxRectD, OfxTime,
+        OfxRGBAColourF, OfxRangeD, OfxRectD, OfxStatus, OfxTime,
     },
 };
 
@@ -683,6 +700,42 @@ impl MemorySuiteV1 {
     }
 }
 
+#[repr(transparent)]
+pub struct MessageHandle(*mut c_void);
+
+impl MessageHandle {
+    pub const NULL: Self = Self(std::ptr::null_mut());
+}
+
+impl From<&ImageEffectDescriptor> for MessageHandle {
+    fn from(descriptor: &ImageEffectDescriptor) -> Self {
+        Self(descriptor.sys_handle() as *mut c_void)
+    }
+}
+impl From<&ImageEffectInstance> for MessageHandle {
+    fn from(instance: &ImageEffectInstance) -> Self {
+        Self(instance.sys_handle() as *mut c_void)
+    }
+}
+
+#[repr(transparent)]
+pub struct PersistentMessageHandle(NonNull<c_void>);
+
+impl From<&ImageEffectDescriptor> for PersistentMessageHandle {
+    fn from(descriptor: &ImageEffectDescriptor) -> Self {
+        // TODO: make objects store non-null pointers so that `.sys_handle()`
+        // can return `NonNull` and `new_unchecked` can be removed here?
+        Self(unsafe { NonNull::new_unchecked(descriptor.sys_handle() as *mut c_void) })
+    }
+}
+impl From<&ImageEffectInstance> for PersistentMessageHandle {
+    fn from(instance: &ImageEffectInstance) -> Self {
+        // TODO: make objects store non-null pointers so that `.sys_handle()`
+        // can return `NonNull` and `new_unchecked` can be removed here?
+        Self(unsafe { NonNull::new_unchecked(instance.sys_handle() as *mut c_void) })
+    }
+}
+
 #[openfx_internal_macros::low_impl_suite]
 impl MessageSuiteV1 {
     /// ## SAFETY
@@ -691,49 +744,30 @@ impl MessageSuiteV1 {
     ///
     /// ## Note
     ///
-    /// The parameters of this function diverge from the original function,
-    /// because the original function uses variadic arguments which are not
-    /// directly representable in Rust.
+    /// This function is `pub` so that callers who need to pass variadic
+    /// arguments more flexibly can do so. Regular use should prefer
+    /// [`Self::message`].
     ///
     /// ## TODO
     ///
     /// We currently don't have an enum type for `kOfxMessageType*`?
-    unsafe fn message(
+    pub unsafe extern "C" fn sys_message(
         &self,
-        sys_handle: OfxImageEffectHandle,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        let sys_fn = unsafe { sys_fn!() };
+        sys_handle: *mut c_void,
+        message_type: NonNull<c_char>,
+        message_id: *const c_char,
+        format: NonNull<c_char>,
+        args: ...
+    ) -> OfxStatus {
+        let sys_fn = unsafe { sys_fn!("message") };
 
-        crate::low::Status::result_from(unsafe {
-            sys_fn(
-                sys_handle as *mut c_void,
-                message_type.as_ptr(),
-                message_id.map_or(std::ptr::null(), |s| s.as_ptr()),
-                c"%s".as_ptr(),
-                message.as_ptr(),
-            )
-        })
-    }
-
-    /// ## SAFETY
-    ///
-    /// `self` must be valid.
-    #[no_sys_fn]
-    pub unsafe fn message_with_null(
-        &self,
-        message_type: &CStr,
-        message_id: &CStr,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
         unsafe {
-            self.message(
-                std::ptr::null_mut(),
-                message_type,
-                Some(message_id),
-                message,
+            sys_fn(
+                sys_handle,
+                message_type.as_ptr(),
+                message_id,
+                format.as_ptr(),
+                args,
             )
         }
     }
@@ -742,28 +776,22 @@ impl MessageSuiteV1 {
     ///
     /// `self` and `handle` must be valid.
     #[no_sys_fn]
-    pub(crate) unsafe fn message_with_image_effect_descriptor(
+    pub unsafe fn message(
         &self,
-        handle: &ImageEffectDescriptor,
+        handle: MessageHandle,
         message_type: &CStr,
         message_id: Option<&CStr>,
         message: &CStr,
     ) -> crate::low::Result<()> {
-        unsafe { self.message(handle.into(), message_type, message_id, message) }
-    }
-
-    /// ## SAFETY
-    ///
-    /// `self` and `handle` must be valid.
-    #[no_sys_fn]
-    pub(crate) unsafe fn message_with_image_effect_instance(
-        &self,
-        handle: &ImageEffectInstance,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe { self.message(handle.into(), message_type, message_id, message) }
+        crate::low::Status::result_from(unsafe {
+            self.sys_message(
+                handle.0,
+                NonNull::new_unchecked(message_type.as_ptr() as *mut c_char),
+                message_id.map_or(std::ptr::null(), |s| s.as_ptr()),
+                NonNull::new_unchecked(c"%s".as_ptr() as *mut c_char),
+                message,
+            )
+        })
     }
 }
 
@@ -777,35 +805,10 @@ impl MessageSuiteV2 {
     ///
     /// For `clear_persistent_message_with_*`, don't use
     /// `impl Into<OfxImageEffectHandle>`, because that would allow NULL.
-    unsafe fn clear_persistent_message(
-        &self,
-        sys_handle: OfxImageEffectHandle,
-    ) -> crate::low::Result<()> {
+    pub unsafe fn clear_persistent_message(&self, handle: MessageHandle) -> crate::low::Result<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        crate::low::Status::result_from(unsafe { sys_fn(sys_handle as *mut c_void) })
-    }
-
-    /// ## SAFETY
-    ///
-    /// `self` and `handle` must be valid.
-    #[no_sys_fn]
-    pub(crate) unsafe fn clear_persistent_message_with_image_effect_descriptor(
-        &self,
-        handle: &ImageEffectDescriptor,
-    ) -> crate::low::Result<()> {
-        unsafe { self.clear_persistent_message(handle.into()) }
-    }
-
-    /// ## SAFETY
-    ///
-    /// `self` and `handle` must be valid.
-    #[no_sys_fn]
-    pub(crate) unsafe fn clear_persistent_message_with_image_effect_instance(
-        &self,
-        handle: &ImageEffectInstance,
-    ) -> crate::low::Result<()> {
-        unsafe { self.clear_persistent_message(handle.into()) }
+        crate::low::Status::result_from(unsafe { sys_fn(handle.0) })
     }
 
     /// ## SAFETY
@@ -814,77 +817,52 @@ impl MessageSuiteV2 {
     ///
     /// ## Note
     ///
-    /// See [`MessageSuiteV1::message`].
+    /// See [`MessageSuiteV1::sys_message`].
     ///
     /// ## TODO
     ///
-    /// See [`MessageSuiteV1::message`].
-    unsafe fn message(
+    /// See [`MessageSuiteV1::sys_message`].
+    pub unsafe extern "C" fn sys_message(
         &self,
-        sys_handle: OfxImageEffectHandle,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        let sys_fn = unsafe { sys_fn!() };
+        sys_handle: *mut c_void,
+        message_type: NonNull<c_char>,
+        message_id: *const c_char,
+        format: NonNull<c_char>,
+        args: ...
+    ) -> OfxStatus {
+        let sys_fn = unsafe { sys_fn!("message") };
 
-        crate::low::Status::result_from(unsafe {
+        unsafe {
             sys_fn(
-                sys_handle as *mut c_void,
+                sys_handle,
                 message_type.as_ptr(),
-                message_id.map_or(std::ptr::null(), |s| s.as_ptr()),
-                c"%s".as_ptr(),
-                message.as_ptr(),
+                message_id,
+                format.as_ptr(),
+                args,
             )
-        })
+        }
     }
 
     /// ## SAFETY
     ///
-    /// `self` must be valid.
+    /// `self` and `handle` must be valid.
     #[no_sys_fn]
-    pub unsafe fn message_with_null(
+    pub unsafe fn message(
         &self,
+        handle: MessageHandle,
         message_type: &CStr,
-        message_id: &CStr,
+        message_id: Option<&CStr>,
         message: &CStr,
     ) -> crate::low::Result<()> {
-        unsafe {
-            self.message(
-                std::ptr::null_mut(),
-                message_type,
-                Some(message_id),
+        crate::low::Status::result_from(unsafe {
+            self.sys_message(
+                handle.0,
+                NonNull::new_unchecked(message_type.as_ptr() as *mut c_char),
+                message_id.map_or(std::ptr::null(), |s| s.as_ptr()),
+                NonNull::new_unchecked(c"%s".as_ptr() as *mut c_char),
                 message,
             )
-        }
-    }
-
-    /// ## SAFETY
-    ///
-    /// `self` and `handle` must be valid.
-    #[no_sys_fn]
-    pub(crate) unsafe fn message_with_image_effect_descriptor(
-        &self,
-        handle: &ImageEffectDescriptor,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe { self.message(handle.into(), message_type, message_id, message) }
-    }
-
-    /// ## SAFETY
-    ///
-    /// `self` and `handle` must be valid.
-    #[no_sys_fn]
-    pub(crate) unsafe fn message_with_image_effect_instance(
-        &self,
-        handle: &ImageEffectInstance,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe { self.message(handle.into(), message_type, message_id, message) }
+        })
     }
 
     /// ## SAFETY
@@ -893,161 +871,53 @@ impl MessageSuiteV2 {
     ///
     /// ## Note
     ///
-    /// For `set_persistent_message_with_*`, don't use
-    /// `impl Into<OfxImageEffectHandle>`, because that would allow NULL.
-    ///
-    /// See [`MessageSuiteV1::message`] for more.
+    /// This function is `pub` so that callers who need to pass variadic
+    /// arguments more flexibly can do so. Regular use should prefer
+    /// [`Self::set_persistent_message`].
     ///
     /// ## TODO
     ///
-    /// See [`MessageSuiteV1::message`] for more.
-    unsafe fn set_persistent_message(
+    /// See [`MessageSuiteV1::sys_message`] for more.
+    pub unsafe extern "C" fn sys_set_persistent_message(
         &self,
-        sys_handle: OfxImageEffectHandle,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        let sys_fn = unsafe { sys_fn!() };
+        sys_handle: NonNull<c_void>,
+        message_type: NonNull<c_char>,
+        message_id: *const c_char,
+        format: NonNull<c_char>,
+        args: ...
+    ) -> OfxStatus {
+        let sys_fn = unsafe { sys_fn!("setPersistentMessage") };
 
-        crate::low::Status::result_from(unsafe {
+        unsafe {
             sys_fn(
-                sys_handle as *mut c_void,
+                sys_handle.as_ptr(),
                 message_type.as_ptr(),
-                message_id.map_or(std::ptr::null(), |s| s.as_ptr()),
-                c"%s".as_ptr(),
-                message.as_ptr(),
+                message_id,
+                format.as_ptr(),
+                args,
             )
-        })
+        }
     }
 
     /// ## SAFETY
     ///
     /// `self` and `handle` must be valid.
     #[no_sys_fn]
-    pub(crate) unsafe fn set_persistent_message_with_image_effect_descriptor(
+    pub unsafe fn set_persistent_message(
         &self,
-        handle: &ImageEffectDescriptor,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe { self.set_persistent_message(handle.into(), message_type, message_id, message) }
-    }
-
-    /// ## SAFETY
-    ///
-    /// `self` and `handle` must be valid.
-    #[no_sys_fn]
-    pub(crate) unsafe fn set_persistent_message_with_image_effect_instance(
-        &self,
-        handle: &ImageEffectInstance,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe { self.set_persistent_message(handle.into(), message_type, message_id, message) }
-    }
-}
-
-pub trait MessageSuiteV1Compatible {
-    /// ## SAFETY
-    ///
-    /// `self` must be valid.
-    unsafe fn message_with_null(
-        &self,
-        message_type: &CStr,
-        message_id: &CStr,
-        message: &CStr,
-    ) -> crate::low::Result<()>;
-    /// ## SAFETY
-    ///
-    /// `self` and `handle` must be valid.
-    unsafe fn message_with_image_effect_descriptor(
-        &self,
-        handle: &ImageEffectDescriptor,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()>;
-    /// ## SAFETY
-    ///
-    /// `self` and `handle` must be valid.
-    unsafe fn message_with_image_effect_instance(
-        &self,
-        handle: &ImageEffectInstance,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()>;
-}
-
-impl MessageSuiteV1Compatible for MessageSuiteV1 {
-    unsafe fn message_with_null(
-        &self,
-        message_type: &CStr,
-        message_id: &CStr,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe { self.message_with_null(message_type, message_id, message) }
-    }
-
-    unsafe fn message_with_image_effect_descriptor(
-        &self,
-        handle: &ImageEffectDescriptor,
+        handle: PersistentMessageHandle,
         message_type: &CStr,
         message_id: Option<&CStr>,
         message: &CStr,
     ) -> crate::low::Result<()> {
         unsafe {
-            self.message_with_image_effect_descriptor(handle, message_type, message_id, message)
-        }
-    }
-
-    unsafe fn message_with_image_effect_instance(
-        &self,
-        handle: &ImageEffectInstance,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe {
-            self.message_with_image_effect_instance(handle, message_type, message_id, message)
-        }
-    }
-}
-
-impl MessageSuiteV1Compatible for MessageSuiteV2 {
-    unsafe fn message_with_null(
-        &self,
-        message_type: &CStr,
-        message_id: &CStr,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe { self.message_with_null(message_type, message_id, message) }
-    }
-
-    unsafe fn message_with_image_effect_descriptor(
-        &self,
-        handle: &ImageEffectDescriptor,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe {
-            self.message_with_image_effect_descriptor(handle, message_type, message_id, message)
-        }
-    }
-
-    unsafe fn message_with_image_effect_instance(
-        &self,
-        handle: &ImageEffectInstance,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe {
-            self.message_with_image_effect_instance(handle, message_type, message_id, message)
+            crate::low::Status::result_from(self.sys_set_persistent_message(
+                handle.0,
+                NonNull::new_unchecked(message_type.as_ptr() as *mut c_char),
+                message_id.map_or(std::ptr::null(), |s| s.as_ptr()),
+                NonNull::new_unchecked(c"%s".as_ptr() as *mut c_char),
+                message,
+            ))
         }
     }
 }
@@ -1057,7 +927,7 @@ impl MultiThreadSuiteV1 {
     /// ## SAFETY
     ///
     /// `self` must be valid.
-    unsafe fn multi_thread(
+    unsafe fn sys_multi_thread(
         &self,
         sys_func: unsafe extern "C" fn(
             thread_index: c_uint,
@@ -1067,7 +937,7 @@ impl MultiThreadSuiteV1 {
         n_threads: c_uint,
         custom_arg: *mut c_void,
     ) -> crate::low::Result<()> {
-        let sys_fn = unsafe { sys_fn!() };
+        let sys_fn = unsafe { sys_fn!("multiThread") };
 
         crate::low::Status::result_from(unsafe { sys_fn(Some(sys_func), n_threads, custom_arg) })
     }
@@ -1080,7 +950,7 @@ impl MultiThreadSuiteV1 {
     ///
     /// Find a better name for this function?
     #[no_sys_fn]
-    pub unsafe fn multi_thread_<T: Send + Sync>(
+    pub unsafe fn multi_thread<T: Send + Sync>(
         &self,
         func: extern "C" fn(thread_index: c_uint, thread_max: c_uint, custom_arg: &T),
         n_threads: c_uint,
@@ -1092,7 +962,7 @@ impl MultiThreadSuiteV1 {
             custom_arg: *mut c_void,
         ) = unsafe { std::mem::transmute(func) };
 
-        unsafe { self.multi_thread(func, n_threads, custom_arg as *const T as *mut c_void) }
+        unsafe { self.sys_multi_thread(func, n_threads, custom_arg as *const T as *mut c_void) }
     }
 
     /// ## SAFETY

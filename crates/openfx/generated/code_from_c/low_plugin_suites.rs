@@ -23,16 +23,16 @@ openfx_internal_macros::low_make_suite_struct!(
     MemorySuiteV1 : OfxMemorySuiteV1 : memory_alloc, memory_free,
 );
 openfx_internal_macros::low_make_suite_struct!(
-    MessageSuiteV1 : OfxMessageSuiteV1 : message,
+    MessageSuiteV1 : OfxMessageSuiteV1 : sys_message,
 );
 openfx_internal_macros::low_make_suite_struct!(
-    MessageSuiteV2 : OfxMessageSuiteV2 : clear_persistent_message, message,
-    set_persistent_message,
+    MessageSuiteV2 : OfxMessageSuiteV2 : clear_persistent_message, sys_message,
+    sys_set_persistent_message,
 );
 openfx_internal_macros::low_make_suite_struct!(
-    MultiThreadSuiteV1 : OfxMultiThreadSuiteV1 : multi_thread, multi_thread_index,
+    MultiThreadSuiteV1 : OfxMultiThreadSuiteV1 : multi_thread_index,
     multi_thread_is_spawned_thread, multi_thread_num_cpus, mutex_create, mutex_destroy,
-    mutex_lock, mutex_try_lock, mutex_unlock,
+    mutex_lock, mutex_try_lock, mutex_unlock, sys_multi_thread,
 );
 openfx_internal_macros::low_make_suite_struct!(
     OpenCLProgramSuiteV1 : OfxOpenCLProgramSuiteV1 :
