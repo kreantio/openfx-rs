@@ -28,7 +28,7 @@ pub fn make_property_enums_from_c(attr: TokenStream, item: TokenStream) -> Token
                 inner.extend(quote! { #var_name, });
             }
             inner.extend(quote! {
-                /// Use [`Self::matches`] instead. Even if matching this variant
+                /// Use [`Self::sys_matches`] instead. Even if matching this variant
                 /// for unrecognized values works now, it will break when this
                 /// crate adds dedicated variants for those values in a future
                 /// release.
@@ -75,11 +75,9 @@ pub fn make_property_enums_from_c(attr: TokenStream, item: TokenStream) -> Token
 
                     /// ## SAFETY
                     ///
-                    /// For enum variants unknown to this crate, this enum
-                    /// stores a pointer to a C string owned by the host. The
-                    /// caller must ensure that this pointer remains valid for
-                    /// the duration of this call.
-                    pub unsafe fn matches(&self, val: crate::sys_umbrella::#sys_name) -> bool {
+                    /// This is safe because C enums are represented as
+                    /// primitive integers, and comparing them is safe.
+                    pub fn sys_matches(&self, val: crate::sys_umbrella::#sys_name) -> bool {
                         self.as_sys() == val
                     }
                 }
