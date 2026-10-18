@@ -43,7 +43,12 @@ pub fn make_action_enum(attr: TokenStream, item: TokenStream) -> TokenStream {
 
             /// ## Safety
             /// 
-            /// TODO
+            /// This is safe because action names are, by definition, [label
+            /// strings][^1], which have static lifetimes. (TODO: remove the
+            /// footnote once the documentation is updated.)
+            /// 
+            /// [label strings]: https://openfx.readthedocs.io/en/latest/Reference/ofxCoreAPI.html#strings
+            /// [^1]: <https://github.com/AcademySoftwareFoundation/openfx/issues/273#issuecomment-6233931086>
             pub fn sys_match(&self, action: &::std::ffi::CStr) -> Option<(*const ::std::ffi::c_void, crate::sys::generic::core::OfxPropertySetHandle, crate::sys::generic::core::OfxPropertySetHandle)> {
                 if let Some(self_action) = self.sys_action() && self_action == action {
                     Some((self.sys_handle(), self.sys_in_args(), self.sys_out_args()))
