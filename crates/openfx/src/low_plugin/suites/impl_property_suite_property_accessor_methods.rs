@@ -17,7 +17,7 @@ use crate::{low_plugin::suites::PropertySuiteV1, sys_umbrella::OfxPropertySetHan
 ///   freely rather than going through [`crate::low_plugin::property_sets`].
 #[openfx_internal_macros::low_impl_suite]
 impl PropertySuiteV1 {
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `properties` must be valid.
     pub unsafe fn prop_get_dimension(
@@ -36,7 +36,7 @@ impl PropertySuiteV1 {
         Ok(unsafe { count.assume_init() })
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `properties` must be valid.
     pub unsafe fn prop_reset(
@@ -52,7 +52,7 @@ impl PropertySuiteV1 {
 
 macro_rules! impl_accessor_methods {
     (@doc) => {
-        r#"## SAFETY
+        r#"## Safety
 
  - `self.0` must be a valid pointer to
    [`crate::sys_umbrella::OfxPropertySuiteV1`].

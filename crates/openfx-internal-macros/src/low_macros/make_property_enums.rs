@@ -63,7 +63,7 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
 
             output.extend(quote! {
                 impl #name {
-                    /// ## SAFETY
+                    /// ## Safety
                     ///
                     /// - The pointer must be valid and point to a null-
                     ///   terminated C string.
@@ -77,7 +77,7 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
                         }
                     }
 
-                    /// ## SAFETY
+                    /// ## Safety
                     ///
                     /// - The pointer must be either null or valid and point to
                     ///   a null-terminated C string.
@@ -91,7 +91,7 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
                         }
                     }
 
-                    /// ## SAFETY
+                    /// ## Safety
                     ///
                     /// The returned pointer is valid as long as the
                     /// [`std::ffi::CString`] inside
@@ -103,7 +103,7 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
                         }
                     }
 
-                    /// ## SAFETY
+                    /// ## Safety
                     ///
                     /// The returned pointer is valid as long as the
                     /// [`std::ffi::CString`] inside
@@ -121,7 +121,7 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
                         }
                     }
 
-                    /// ## SAFETY
+                    /// ## Safety
                     ///
                     /// For enum variants unknown to this crate, this enum
                     /// stores a pointer to a C string owned by the host. The

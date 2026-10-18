@@ -73,7 +73,7 @@ pub fn make_property_enums_from_c(attr: TokenStream, item: TokenStream) -> Token
                         }
                     }
 
-                    /// ## SAFETY
+                    /// ## Safety
                     ///
                     /// This is safe because C enums are represented as
                     /// primitive integers, and comparing them is safe.

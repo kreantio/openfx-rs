@@ -163,7 +163,7 @@ fn make_property_setter(
 
     output.extend(
         quote! {
-            /// ## SAFETY
+            /// ## Safety
             ///
             /// - `self.0` must be a valid handle of
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
@@ -217,7 +217,7 @@ fn make_property_getter(
     };
 
     let docs = quote! {
-        /// ## SAFETY
+        /// ## Safety
         ///
         /// - `self.0` must be a valid handle of
         ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
@@ -289,7 +289,7 @@ fn make_property_resetter(
 
     output.extend(
         quote! {
-            /// ## SAFETY
+            /// ## Safety
             ///
             /// - `self.0` must be a valid handle of
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
@@ -318,7 +318,7 @@ fn make_property_dimensions_getter(
 
     output.extend(
         quote! {
-            /// ## SAFETY
+            /// ## Safety
             ///
             /// - `self.0` must be a valid handle of
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
