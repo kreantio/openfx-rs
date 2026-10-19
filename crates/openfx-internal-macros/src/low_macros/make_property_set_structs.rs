@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
 use proc_macro::TokenStream;
-use quote::quote;
+use quote::{quote, quote_spanned};
 
-use crate::{common::type_sys::OpenFXTypeSys, low_macros::utils};
+use crate::low_macros::utils;
 
 mod inputs;
 use inputs::*;
@@ -118,19 +118,22 @@ fn make_property_setter(
     fn_name_suffix: &str,
 ) {
     let fn_name = syn::Ident::new(&format!("set_{}", fn_name_suffix), prop.simple_name.span());
+
+    let preset = ty.make_impl_setter_preset();
+
     let fn_name_on_suite = syn::Ident::new(
         &format!(
-            "prop_set_{}{}",
-            match ty.sys() {
-                OpenFXTypeSys::String(_) => "string_ptr".to_owned(),
-                other => other.name_snake_case().to_owned(),
-            },
-            prop.ty.as_name_suffix()
+            "prop_set_{}{}{}",
+            ty.sys().name_snake_case().to_owned(),
+            preset
+                .sys_type_suffix()
+                .map_or(String::new(), |s| format!("_{s}")),
+            prop.ty.as_name_suffix(),
         ),
         proc_macro2::Span::call_site(),
     );
 
-    let low_ty = ty.quote_for_low_setter_type();
+    let low_ty = preset.low_type(ty.ident());
     let low_container_ty = match &prop.ty {
         InputContainerType::Scalar(_) => low_ty.clone(),
         InputContainerType::Array(_, size) => {
@@ -139,19 +142,16 @@ fn make_property_setter(
         InputContainerType::Slice(_) => quote! { &[#low_ty] },
     };
 
-    let low_to_sys_quote = ty.quote_for_low_setter_type_to_sys_type(quote! { value });
-    let low_value_to_sys_quote = match &prop.ty {
-        InputContainerType::Scalar(_) => low_to_sys_quote,
-        InputContainerType::Array(_, _) if ty.is_low_setter_type_and_sys_type_identical() => {
-            quote! { value }
-        }
-        InputContainerType::Array(_, _) => quote! { value.map(|value| #low_to_sys_quote) },
-        InputContainerType::Slice(_) if ty.is_low_setter_type_and_sys_type_identical() => {
-            quote! { value }
-        }
-        InputContainerType::Slice(_) => {
-            quote! { &value.iter().map(|value| #low_to_sys_quote).collect::<Vec<_>>() }
-        }
+    // let low_to_sys_quote = preset.low_type_to_sys_type(quote! { value });
+    let low_value_to_sys_quote = match preset.low_type_to_sys_type(quote! { value }) {
+        Some(low_to_sys_quote) => match &prop.ty {
+            InputContainerType::Scalar(_) => low_to_sys_quote,
+            InputContainerType::Array(_, _) => quote! { value.map(|value| #low_to_sys_quote) },
+            InputContainerType::Slice(_) => {
+                quote! { &value.iter().map(|value| #low_to_sys_quote).collect::<Vec<_>>() }
+            }
+        },
+        _ => quote! { value },
     };
 
     output.extend(
@@ -177,33 +177,35 @@ fn make_property_getter(
     fn_name_suffix: &str,
 ) {
     let fn_name = syn::Ident::new(&format!("get_{}", fn_name_suffix), prop.simple_name.span());
+
+    let preset = ty.make_impl_getter_preset();
+
     let fn_name_on_suite = syn::Ident::new(
         &format!(
-            "prop_get_{}{}",
-            match ty.sys() {
-                OpenFXTypeSys::String(_) => "string_ptr".to_owned(),
-                other => other.name_snake_case().to_owned(),
-            },
-            prop.ty.as_name_suffix()
+            "prop_get_{}{}{}",
+            ty.sys().name_snake_case().to_owned(),
+            preset
+                .sys_type_suffix()
+                .map_or(String::new(), |s| format!("_{s}")),
+            prop.ty.as_name_suffix(),
         ),
         proc_macro2::Span::call_site(),
     );
 
-    let low_ty = ty.quote_for_low_getter_type();
-    let low_from_sys_quote = ty.quote_for_sys_type_to_low_getter_type(quote! { value_simple });
-    let low_value_from_sys_quote = match &prop.ty {
-        InputContainerType::Scalar(_) => quote! { #low_from_sys_quote },
-        InputContainerType::Array(_, _) | InputContainerType::Slice(_)
-            if ty.is_sys_type_and_low_getter_type_identical() =>
-        {
-            quote! { value_simple }
-        }
-        InputContainerType::Array(_, _) => {
-            quote! { value_simple.into_iter().map(|value_simple| #low_from_sys_quote) }
-        }
-        InputContainerType::Slice(_) => {
-            quote! { value_simple.into_iter().map(|value_simple| #low_from_sys_quote).collect() }
-        }
+    let low_ty = preset.low_type(ty.ident());
+    let sys_to_low_quote = preset.sys_type_to_low_type(quote! { value_sys });
+    let is_low_type_and_sys_type_identical = sys_to_low_quote.is_none();
+    let sys_value_to_low_quote = match sys_to_low_quote {
+        Some(low_from_sys_quote) => match &prop.ty {
+            InputContainerType::Scalar(_) => quote! { #low_from_sys_quote },
+            InputContainerType::Array(_, _) => {
+                quote! { value_sys.into_iter().map(|value_sys| #low_from_sys_quote) }
+            }
+            InputContainerType::Slice(_) => {
+                quote! { value_sys.into_iter().map(|value_sys| #low_from_sys_quote).collect() }
+            }
+        },
+        _ => quote! { value_sys },
     };
 
     let docs = quote! {
@@ -221,13 +223,13 @@ fn make_property_getter(
                 pub unsafe fn #fn_name<'a, 'b>(&'a self, suite: &'b crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<#low_ty>
                     where 'b: 'a
                 {
-                    let value_simple = suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname)?;
-                    let value = #low_value_from_sys_quote;
+                    let value_sys = suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname)?;
+                    let value = #sys_value_to_low_quote;
                     Ok(value)
                 }
             },
         ),
-        InputContainerType::Array(_, size) if ty.is_sys_type_and_low_getter_type_identical() => output.extend(
+        InputContainerType::Array(_, size) if is_low_type_and_sys_type_identical => output.extend(
             quote! {
                 #docs
                 pub unsafe fn #fn_name<'a, 'b>(&'a self, suite: &'b crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#low_ty; #size]>
@@ -242,8 +244,8 @@ fn make_property_getter(
             quote! {
                 #docs
                 pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#low_ty; #size]> {
-                    let value_simple = suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)?;
-                    let value = #low_value_from_sys_quote;
+                    let value_sys = suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)?;
+                    let value = #sys_value_to_low_quote;
                     Ok(value)
                 }
             },
@@ -253,10 +255,10 @@ fn make_property_getter(
                 #docs
                 pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<::std::vec::Vec<#low_ty>> {
                     let dimensions = suite.prop_get_dimension(self.sys_handle(), crate::sys_umbrella::#cname)? as usize;
-                    let mut value_simple = ::std::vec::Vec::with_capacity(dimensions);
-                    unsafe { value_simple.set_len(dimensions); }
-                    suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, &mut value_simple)?;
-                    let value = #low_value_from_sys_quote;
+                    let mut value_sys = ::std::vec::Vec::with_capacity(dimensions);
+                    unsafe { value_sys.set_len(dimensions); }
+                    suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, &mut value_sys)?;
+                    let value = #sys_value_to_low_quote;
                     Ok(value)
                 }
             },
@@ -320,4 +322,215 @@ fn make_property_dimensions_getter(
             }
         }
     );
+}
+
+impl OpenFXTypeLow {
+    fn make_impl_setter_preset(&self) -> Box<dyn ImplSetterPreset> {
+        match self {
+            OpenFXTypeLow::Int(_) => Box::new(ImplAccessorsPresetInt),
+            OpenFXTypeLow::Double(_) => Box::new(ImplAccessorsPresetDouble),
+            OpenFXTypeLow::Enum(_, name) => {
+                Box::new(ImplAccessorsPresetEnum { name: name.clone() })
+            }
+            OpenFXTypeLow::Bool(_) => Box::new(ImplAccessorsPresetBool),
+            OpenFXTypeLow::String(_) => Box::new(ImplAccessorsPresetString),
+            OpenFXTypeLow::Pointer(_) => Box::new(ImplAccessorsPresetPointer),
+        }
+    }
+    fn make_impl_getter_preset(&self) -> Box<dyn ImplGetterPreset> {
+        match self {
+            OpenFXTypeLow::Int(_) => Box::new(ImplAccessorsPresetInt),
+            OpenFXTypeLow::Double(_) => Box::new(ImplAccessorsPresetDouble),
+            OpenFXTypeLow::Enum(_, name) => {
+                Box::new(ImplAccessorsPresetEnum { name: name.clone() })
+            }
+            OpenFXTypeLow::Bool(_) => Box::new(ImplAccessorsPresetBool),
+            OpenFXTypeLow::String(_) => Box::new(ImplAccessorsPresetString),
+            OpenFXTypeLow::Pointer(_) => Box::new(ImplAccessorsPresetPointer),
+        }
+    }
+}
+
+trait ImplSetterPreset {
+    fn sys_type_suffix(&self) -> Option<&'static str> {
+        None
+    }
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream;
+    /// `None` means that the low type and the sys type are identical.
+    fn low_type_to_sys_type(
+        &self,
+        _low_val: proc_macro2::TokenStream,
+    ) -> Option<proc_macro2::TokenStream> {
+        None
+    }
+}
+
+trait ImplGetterPreset {
+    fn sys_type_suffix(&self) -> Option<&'static str> {
+        None
+    }
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream;
+    /// `None` means that the low type and the sys type are identical.
+    fn sys_type_to_low_type(
+        &self,
+        _sys_val: proc_macro2::TokenStream,
+    ) -> Option<proc_macro2::TokenStream> {
+        None
+    }
+}
+
+struct ImplAccessorsPresetInt;
+impl ImplAccessorsPresetInt {
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        let c_int = quote_spanned! { ident.span() => c_int };
+        quote! { ::std::os::raw::#c_int }
+    }
+}
+impl ImplSetterPreset for ImplAccessorsPresetInt {
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        self.low_type(ident)
+    }
+}
+impl ImplGetterPreset for ImplAccessorsPresetInt {
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        self.low_type(ident)
+    }
+}
+
+struct ImplAccessorsPresetDouble;
+impl ImplAccessorsPresetDouble {
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        let f64 = quote_spanned! { ident.span() => f64 };
+        quote! { ::core::primitive::#f64 }
+    }
+}
+impl ImplSetterPreset for ImplAccessorsPresetDouble {
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        self.low_type(ident)
+    }
+}
+impl ImplGetterPreset for ImplAccessorsPresetDouble {
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        self.low_type(ident)
+    }
+}
+
+struct ImplAccessorsPresetBool;
+impl ImplAccessorsPresetBool {
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        let bool = quote_spanned! { ident.span() => bool };
+        quote! { ::core::primitive::#bool }
+    }
+}
+impl ImplSetterPreset for ImplAccessorsPresetBool {
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        self.low_type(ident)
+    }
+    fn low_type_to_sys_type(
+        &self,
+        low_val: proc_macro2::TokenStream,
+    ) -> Option<proc_macro2::TokenStream> {
+        Some(quote! { #low_val as ::std::os::raw::c_int })
+    }
+}
+impl ImplGetterPreset for ImplAccessorsPresetBool {
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        self.low_type(ident)
+    }
+    fn sys_type_to_low_type(
+        &self,
+        sys_val: proc_macro2::TokenStream,
+    ) -> Option<proc_macro2::TokenStream> {
+        Some(quote! { #sys_val != 0 })
+    }
+}
+
+struct ImplAccessorsPresetPointer;
+impl ImplAccessorsPresetPointer {
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        let c_void = quote_spanned! { ident.span() => c_void };
+        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::#c_void>> }
+    }
+}
+impl ImplSetterPreset for ImplAccessorsPresetPointer {
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        self.low_type(ident)
+    }
+}
+impl ImplGetterPreset for ImplAccessorsPresetPointer {
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        self.low_type(ident)
+    }
+}
+
+struct ImplAccessorsPresetString;
+impl ImplAccessorsPresetString {
+    const SYS_TYPE_SUFFIX: Option<&'static str> = Some("ptr");
+}
+impl ImplSetterPreset for ImplAccessorsPresetString {
+    fn sys_type_suffix(&self) -> Option<&'static str> {
+        Self::SYS_TYPE_SUFFIX
+    }
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        let cstr = quote_spanned! { ident.span() => CStr };
+        quote! { ::std::option::Option<&::std::ffi::#cstr> }
+    }
+    fn low_type_to_sys_type(
+        &self,
+        low_val: proc_macro2::TokenStream,
+    ) -> Option<proc_macro2::TokenStream> {
+        Some(quote! { #low_val.and_then(|s| ::std::ptr::NonNull::new(s.as_ptr() as *mut _)) })
+    }
+}
+impl ImplGetterPreset for ImplAccessorsPresetString {
+    fn sys_type_suffix(&self) -> Option<&'static str> {
+        Self::SYS_TYPE_SUFFIX
+    }
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        let c_char = quote_spanned! { ident.span() => c_char };
+        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::#c_char>> }
+    }
+}
+
+struct ImplAccessorsPresetEnum {
+    name: syn::Ident,
+}
+impl ImplAccessorsPresetEnum {
+    const SYS_TYPE_SUFFIX: Option<&'static str> = ImplAccessorsPresetString::SYS_TYPE_SUFFIX;
+}
+impl ImplSetterPreset for ImplAccessorsPresetEnum {
+    fn sys_type_suffix(&self) -> Option<&'static str> {
+        Self::SYS_TYPE_SUFFIX
+    }
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        let name = &self.name;
+        let known = quote_spanned! { ident.span() => crate::low::enums::#name };
+        quote_spanned! { ident.span() => crate::low_plugin::property_sets::EnumPropertyPtr<#known> }
+    }
+    fn low_type_to_sys_type(
+        &self,
+        low_val: proc_macro2::TokenStream,
+    ) -> Option<proc_macro2::TokenStream> {
+        Some(quote! { #low_val.as_ptr() })
+    }
+}
+impl ImplGetterPreset for ImplAccessorsPresetEnum {
+    fn sys_type_suffix(&self) -> Option<&'static str> {
+        Self::SYS_TYPE_SUFFIX
+    }
+    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        let name = &self.name;
+        let known = quote_spanned! { ident.span() => crate::low::enums::#name };
+        quote! { crate::low_plugin::property_sets::LosslessEnumProperty<#known> }
+    }
+    fn sys_type_to_low_type(
+        &self,
+        sys_val: proc_macro2::TokenStream,
+    ) -> Option<proc_macro2::TokenStream> {
+        let name = &self.name;
+        let known = quote_spanned! { name.span() => crate::low::enums::#name };
+        Some(
+            quote! { unsafe { crate::low_plugin::property_sets::LosslessEnumProperty::<#known>::from_ptr(#sys_val) } },
+        )
+    }
 }

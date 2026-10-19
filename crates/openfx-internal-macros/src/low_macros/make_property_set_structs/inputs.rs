@@ -13,8 +13,6 @@
 
 use std::collections::HashMap;
 
-use quote::{quote, quote_spanned};
-
 use crate::{common::type_sys::OpenFXTypeSys, low_macros::utils};
 
 /// ## Examples
@@ -598,6 +596,17 @@ pub enum OpenFXTypeLow {
 }
 
 impl OpenFXTypeLow {
+    pub fn ident(&self) -> &syn::Ident {
+        match self {
+            OpenFXTypeLow::Int(ident)
+            | OpenFXTypeLow::Double(ident)
+            | OpenFXTypeLow::Bool(ident)
+            | OpenFXTypeLow::String(ident)
+            | OpenFXTypeLow::Pointer(ident) => ident,
+            OpenFXTypeLow::Enum(ident, _) => ident,
+        }
+    }
+
     pub fn sys(&self) -> OpenFXTypeSys {
         match self {
             OpenFXTypeLow::Int(ident) | OpenFXTypeLow::Bool(ident) => {
@@ -608,122 +617,6 @@ impl OpenFXTypeLow {
                 OpenFXTypeSys::String(ident.clone())
             }
             OpenFXTypeLow::Pointer(ident) => OpenFXTypeSys::Pointer(ident.clone()),
-        }
-    }
-
-    pub fn quote_for_low_setter_type(&self) -> proc_macro2::TokenStream {
-        match self {
-            OpenFXTypeLow::Int(ident) => {
-                let c_int = quote_spanned! { ident.span() => c_int };
-                quote! { ::std::os::raw::#c_int }
-            }
-            OpenFXTypeLow::Double(ident) => {
-                let f64 = quote_spanned! { ident.span() => f64 };
-                quote! { ::core::primitive::#f64 }
-            }
-            OpenFXTypeLow::Enum(ident, name) => {
-                let known = quote_spanned! { ident.span() => crate::low::enums::#name };
-                quote_spanned! { ident.span() => crate::low_plugin::property_sets::EnumPropertyPtr<#known> }
-            }
-            OpenFXTypeLow::Bool(ident) => {
-                let bool = quote_spanned! { ident.span() => bool };
-                quote! { ::core::primitive::#bool }
-            }
-            OpenFXTypeLow::String(ident) => {
-                let cstr = quote_spanned! { ident.span() => CStr };
-                quote! { ::std::option::Option<&::std::ffi::#cstr> }
-            }
-            OpenFXTypeLow::Pointer(ident) => {
-                let c_void = quote_spanned! { ident.span() => c_void };
-                quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::#c_void>> }
-            }
-        }
-    }
-
-    pub fn quote_for_low_getter_type(&self) -> proc_macro2::TokenStream {
-        match self {
-            OpenFXTypeLow::Int(ident) => {
-                let c_int = quote_spanned! { ident.span() => c_int };
-                quote! { ::std::os::raw::#c_int }
-            }
-            OpenFXTypeLow::Double(ident) => {
-                let f64 = quote_spanned! { ident.span() => f64 };
-                quote! { ::core::primitive::#f64 }
-            }
-            OpenFXTypeLow::Enum(ident, name) => {
-                let known = quote_spanned! { ident.span() => crate::low::enums::#name };
-                quote! { crate::low_plugin::property_sets::LosslessEnumProperty<#known> }
-            }
-            OpenFXTypeLow::Bool(ident) => {
-                let bool = quote_spanned! { ident.span() => bool };
-                quote! { ::core::primitive::#bool }
-            }
-            OpenFXTypeLow::String(ident) => {
-                let c_char = quote_spanned! { ident.span() => c_char };
-                quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::#c_char>> }
-            }
-            OpenFXTypeLow::Pointer(ident) => {
-                let c_void = quote_spanned! { ident.span() => c_void };
-                quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::#c_void>> }
-            }
-        }
-    }
-
-    pub fn quote_for_low_setter_type_to_sys_type(
-        &self,
-        low_val: proc_macro2::TokenStream,
-    ) -> proc_macro2::TokenStream {
-        match self {
-            OpenFXTypeLow::Int(_) | OpenFXTypeLow::Double(_) | OpenFXTypeLow::Pointer(_) => {
-                quote! { #low_val }
-            }
-            OpenFXTypeLow::String(_) => {
-                quote! { #low_val.and_then(|s| ::std::ptr::NonNull::new(s.as_ptr() as *mut _)) }
-            }
-            OpenFXTypeLow::Bool(_) => {
-                quote! { #low_val as ::std::os::raw::c_int }
-            }
-            OpenFXTypeLow::Enum(_, _) => {
-                quote! { #low_val.as_ptr() }
-            }
-        }
-    }
-
-    pub fn is_low_setter_type_and_sys_type_identical(&self) -> bool {
-        match self {
-            OpenFXTypeLow::Int(_) | OpenFXTypeLow::Double(_) | OpenFXTypeLow::Pointer(_) => true,
-            OpenFXTypeLow::Bool(_) | OpenFXTypeLow::String(_) | OpenFXTypeLow::Enum(_, _) => false,
-        }
-    }
-
-    pub fn quote_for_sys_type_to_low_getter_type(
-        &self,
-        sys_val: proc_macro2::TokenStream,
-    ) -> proc_macro2::TokenStream {
-        match self {
-            OpenFXTypeLow::Int(_)
-            | OpenFXTypeLow::Double(_)
-            | OpenFXTypeLow::String(_)
-            | OpenFXTypeLow::Pointer(_) => {
-                quote! { #sys_val }
-            }
-            OpenFXTypeLow::Enum(_, name) => {
-                let known = quote_spanned! { name.span() => crate::low::enums::#name };
-                quote! { unsafe { crate::low_plugin::property_sets::LosslessEnumProperty::<#known>::from_ptr(#sys_val) } }
-            }
-            OpenFXTypeLow::Bool(_) => {
-                quote! { #sys_val != 0 }
-            }
-        }
-    }
-
-    pub fn is_sys_type_and_low_getter_type_identical(&self) -> bool {
-        match self {
-            OpenFXTypeLow::Int(_)
-            | OpenFXTypeLow::Double(_)
-            | OpenFXTypeLow::String(_)
-            | OpenFXTypeLow::Pointer(_) => true,
-            OpenFXTypeLow::Bool(_) | OpenFXTypeLow::Enum(_, _) => false,
         }
     }
 }
