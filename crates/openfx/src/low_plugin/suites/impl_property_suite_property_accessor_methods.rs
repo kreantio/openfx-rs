@@ -384,6 +384,21 @@ impl_accessor_methods!(
 );
 
 impl_accessor_methods!(
+    @set
+    type = { sys_set = *const c_char, low = Option<NonNull<c_char>> },
+    names = {
+        set = prop_set_string_ptr, set_at = prop_set_string_ptr_at, set_array = prop_set_string_ptr_array, set_all = prop_set_string_ptr_n,
+    },
+    sys_fn_names = {
+        set = "propSetString", set_n = "propSetStringN",
+    },
+    conversions = {
+        sys_get_to_low = { () },
+        low_to_sys_set = { (|s: Option<NonNull<c_char>>| s.map_or(std::ptr::null(), |s| s.as_ptr())) },
+    },
+);
+
+impl_accessor_methods!(
     type = { sys_get = *mut c_void, sys_set = *mut c_void, low = Option<std::ptr::NonNull<::std::ffi::c_void>> },
     names = {
         get = prop_get_pointer, get_at = prop_get_pointer_at, get_array = prop_get_pointer_array, get_all = prop_get_pointer_n,

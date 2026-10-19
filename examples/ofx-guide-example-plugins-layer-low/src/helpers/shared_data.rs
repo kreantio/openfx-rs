@@ -156,16 +156,16 @@ impl ClipImageManaged {
             return Err(Status::Failed);
         };
 
-        let n_comps = match unsafe { props.get_image_effect_components(s_prop)? } {
-            low::enums::ImageEffectPropComponents::Alpha => 1,
-            low::enums::ImageEffectPropComponents::RGB => 3,
-            low::enums::ImageEffectPropComponents::RGBA => 4,
+        let n_comps = match unsafe { props.get_image_effect_components(s_prop)?.known() } {
+            Some(low::enums::ImageEffectPropComponents::Alpha) => 1,
+            Some(low::enums::ImageEffectPropComponents::RGB) => 3,
+            Some(low::enums::ImageEffectPropComponents::RGBA) => 4,
             _ => 0,
         };
-        let pixel_depth = match unsafe { props.get_image_effect_pixel_depth(s_prop)? } {
-            low::enums::ImageEffectPropPixelDepth::Byte => BitDepth::Byte,
-            low::enums::ImageEffectPropPixelDepth::Short => BitDepth::Short,
-            low::enums::ImageEffectPropPixelDepth::Float => BitDepth::Float,
+        let pixel_depth = match unsafe { props.get_image_effect_pixel_depth(s_prop)?.known() } {
+            Some(low::enums::ImageEffectPropPixelDepth::Byte) => BitDepth::Byte,
+            Some(low::enums::ImageEffectPropPixelDepth::Short) => BitDepth::Short,
+            Some(low::enums::ImageEffectPropPixelDepth::Float) => BitDepth::Float,
             _ => return Err(Status::ErrUnsupported),
         };
         let row_bytes = unsafe { props.get_image_row_bytes(s_prop)? };

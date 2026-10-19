@@ -32,25 +32,10 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
                 });
             }
             output.extend(quote! {
-                /// ## Safety
-                ///
-                /// If an enum variant is unknown to this crate, a pointer to
-                /// that variant's value is stored. The underlying data is
-                /// controlled by the openFX host, and it is the caller's
-                /// responsibility to ensure that the pointer remains valid
-                /// while it is in use.
-                ///
-                /// To keep the unknown variant value around, call
-                /// [`Self::to_owned`] while this pointer is still valid.
-                #[derive(Debug, Clone, PartialEq, Eq)]
+                #[derive(Debug, Clone, Copy, PartialEq, Eq)]
                 #[non_exhaustive]
                 pub enum #name {
                     #(#variant_items)*
-                    /// Use [`Self::matches`] instead. Even if matching this
-                    /// variant for unrecognized values works now, it will break
-                    /// when this crate adds dedicated variants for those values
-                    /// in a future release.
-                    UnknownDontUseThisDirectly(Option<std::ptr::NonNull<std::os::raw::c_char>>),
                 }
             });
         }
@@ -76,7 +61,7 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
                 .collect::<Vec<_>>();
 
             output.extend(quote! {
-                impl #name {
+                impl crate::low_plugin::property_sets::EnumProperty for #name {
                     /// ## Safety
                     ///
                     /// `ptr` must either:
@@ -84,67 +69,39 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
                     /// - be valid and point to a null-terminated C string.
                     ///
                     /// See the Safety section of [`Self`] for more information.
-                    pub unsafe fn from_ptr(ptr: Option<std::ptr::NonNull<std::os::raw::c_char>>) -> Self {
-                        let Some(ptr) = ptr else {
-                            return Self::UnknownDontUseThisDirectly(None);
-                        };
+                    unsafe fn try_from_ptr(ptr: Option<std::ptr::NonNull<std::os::raw::c_char>>) -> Option<Self> {
+                        let ptr = ptr?;
 
                         let cstr = unsafe { std::ffi::CStr::from_ptr(ptr.as_ptr()) };
                         match true {
-                            #( _ if cstr == #vals => Self::#vars, )*
-                            _ => Self::UnknownDontUseThisDirectly(Some(ptr)),
+                            #( _ if cstr == #vals => Some(Self::#vars), )*
+                            _ => None,
                         }
                     }
 
-                    /// ## Safety
-                    ///
-                    /// `ptr` must either:
-                    /// - be null, or
-                    /// - be valid and point to a null-terminated C string.
-                    ///
-                    /// See the Safety section of [`Self`] for more information.
-                    pub unsafe fn from_raw_ptr(ptr: *const std::os::raw::c_char) -> Self {
-                        Self::from_ptr(std::ptr::NonNull::new(ptr as *mut std::os::raw::c_char))
-                    }
-
-                    /// ## Safety
-                    ///
-                    /// See the Safety section of [`Self`] for more information.
-                    pub fn as_raw_ptr(&self) -> *const std::os::raw::c_char {
+                    fn as_cstr(&self) -> &std::ffi::CStr {
                         match self {
-                            #( Self::#vars => #vals.as_ptr(), )*
-                            Self::UnknownDontUseThisDirectly(ptr) => ptr.map_or(std::ptr::null(), |p| p.as_ptr()),
+                            #( Self::#vars => #vals, )*
                         }
                     }
+                }
 
-                    /// FIXME!!!: Remove this.
-                    pub fn as_cstr(&self) -> Option<&std::ffi::CStr> {
-                        match self {
-                            #( Self::#vars => Some(#vals), )*
-                            Self::UnknownDontUseThisDirectly(ptr) => {
-                                match ptr {
-                                    Some(ptr) => Some(unsafe { &*std::ffi::CStr::from_ptr(ptr.as_ptr()) }),
-                                    None => None,
-                                }
-                            }
-                        }
+                impl From<#name> for crate::low_plugin::property_sets::EnumPropertyPtr<#name> {
+                    fn from(value: #name) -> Self {
+                        let ptr = crate::low_plugin::property_sets::EnumProperty::as_cstr(&value).as_ptr();
+                        Self::new(std::ptr::NonNull::new(ptr as *mut std::os::raw::c_char)) 
                     }
+                }
 
-                    /// ## Safety
-                    ///
-                    /// If the comparison involves a variant unknown to this
-                    /// crate, the caller must ensure that the pointer to the
-                    /// unknown variant remains valid for the duration of this
-                    /// call.
-                    ///
-                    /// See the Safety section of [`Self`] for more information.
-                    pub unsafe fn matches(&self, val: &std::ffi::CStr) -> bool {
-                        let ptr = self.as_raw_ptr();
-                        if ptr.is_null() {
-                            false
-                        } else {
-                            std::ffi::CStr::from_ptr(ptr) == val
-                        }
+                impl PartialEq<crate::low_plugin::property_sets::LosslessEnumProperty<#name>> for #name {
+                    fn eq(&self, other: &crate::low_plugin::property_sets::LosslessEnumProperty<#name>) -> bool {
+                        other == self
+                    }
+                }
+
+                impl PartialEq<crate::low_plugin::property_sets::LosslessEnumPropertyOwned<#name>> for #name {
+                    fn eq(&self, other: &crate::low_plugin::property_sets::LosslessEnumPropertyOwned<#name>) -> bool {
+                        other == self
                     }
                 }
             });

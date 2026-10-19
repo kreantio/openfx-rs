@@ -102,7 +102,7 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> openfx::low::Result<()>
         props.set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?;
         props.set_image_effect_supported_contexts(
             s_prop,
-            &[ImageEffectPropSupportedContexts::Filter],
+            &[ImageEffectPropSupportedContexts::Filter.into()],
         )?;
     }
 
@@ -132,8 +132,8 @@ fn action_describe_in_context(
         props.set_image_effect_supported_components(
             s_prop,
             &[
-                ImageEffectPropSupportedComponents::RGBA,
-                ImageEffectPropSupportedComponents::Alpha,
+                ImageEffectPropSupportedComponents::RGBA.into(),
+                ImageEffectPropSupportedComponents::Alpha.into(),
             ],
         )
     })?;
@@ -143,8 +143,8 @@ fn action_describe_in_context(
         props.set_image_effect_supported_components(
             s_prop,
             &[
-                ImageEffectPropSupportedComponents::RGBA,
-                ImageEffectPropSupportedComponents::Alpha,
+                ImageEffectPropSupportedComponents::RGBA.into(),
+                ImageEffectPropSupportedComponents::Alpha.into(),
             ],
         )
     })?;

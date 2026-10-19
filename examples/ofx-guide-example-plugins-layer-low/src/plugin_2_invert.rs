@@ -105,19 +105,19 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> openfx::low::Result<()>
         props.set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?;
         props.set_image_effect_supported_contexts(
             s_prop,
-            &[ImageEffectPropSupportedContexts::Filter],
+            &[ImageEffectPropSupportedContexts::Filter.into()],
         )?;
         props.set_image_effect_supported_pixel_depths(
             s_prop,
             &[
-                ImageEffectPropSupportedPixelDepths::Float,
-                ImageEffectPropSupportedPixelDepths::Short,
-                ImageEffectPropSupportedPixelDepths::Byte,
+                ImageEffectPropSupportedPixelDepths::Float.into(),
+                ImageEffectPropSupportedPixelDepths::Short.into(),
+                ImageEffectPropSupportedPixelDepths::Byte.into(),
             ],
         )?;
         props.set_image_effect_plugin_render_thread_safety(
             s_prop,
-            ImageEffectPluginRenderThreadSafety::FullySafe,
+            ImageEffectPluginRenderThreadSafety::FullySafe.into(),
         )?;
         props.set_image_effect_plugin_host_frame_threading(s_prop, true)?;
     }
@@ -146,9 +146,9 @@ fn action_describe_in_context(
             props.set_image_effect_supported_components(
                 s_prop,
                 &[
-                    ImageEffectPropSupportedComponents::RGBA,
-                    ImageEffectPropSupportedComponents::Alpha,
-                    ImageEffectPropSupportedComponents::RGB,
+                    ImageEffectPropSupportedComponents::RGBA.into(),
+                    ImageEffectPropSupportedComponents::Alpha.into(),
+                    ImageEffectPropSupportedComponents::RGB.into(),
                 ],
             )
         })?;
