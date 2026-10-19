@@ -20,7 +20,7 @@ use crate::{common::type_sys::OpenFXTypeSys, low_macros::utils};
 /// ## Examples
 ///
 /// ```rust,ignore
-/// make_property_set_structs_v2! {
+/// make_property_set_structs! {
 ///     #[propset(write = host)]
 ///     struct ImageClipInstancePropertySet {
 ///         // …
@@ -611,7 +611,7 @@ impl OpenFXTypeLow {
         }
     }
 
-    pub fn rust_type_quote_for_setter(&self) -> proc_macro2::TokenStream {
+    pub fn quote_for_low_setter_type(&self) -> proc_macro2::TokenStream {
         match self {
             OpenFXTypeLow::Int(ident) => {
                 let c_int = quote_spanned! { ident.span() => c_int };
@@ -640,7 +640,7 @@ impl OpenFXTypeLow {
         }
     }
 
-    pub fn rust_type_quote_for_getter(&self) -> proc_macro2::TokenStream {
+    pub fn quote_for_low_getter_type(&self) -> proc_macro2::TokenStream {
         match self {
             OpenFXTypeLow::Int(ident) => {
                 let c_int = quote_spanned! { ident.span() => c_int };
@@ -669,7 +669,10 @@ impl OpenFXTypeLow {
         }
     }
 
-    pub fn as_simple_quote(&self, low_val: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
+    pub fn quote_for_low_setter_type_to_sys_type(
+        &self,
+        low_val: proc_macro2::TokenStream,
+    ) -> proc_macro2::TokenStream {
         match self {
             OpenFXTypeLow::Int(_) | OpenFXTypeLow::Double(_) | OpenFXTypeLow::Pointer(_) => {
                 quote! { #low_val }
@@ -686,36 +689,35 @@ impl OpenFXTypeLow {
         }
     }
 
-    pub fn is_as_simple_identity(&self) -> bool {
+    pub fn is_low_setter_type_and_sys_type_identical(&self) -> bool {
         match self {
             OpenFXTypeLow::Int(_) | OpenFXTypeLow::Double(_) | OpenFXTypeLow::Pointer(_) => true,
             OpenFXTypeLow::Bool(_) | OpenFXTypeLow::String(_) | OpenFXTypeLow::Enum(_, _) => false,
         }
     }
 
-    #[expect(clippy::wrong_self_convention)]
-    pub fn from_simple_quote(
+    pub fn quote_for_sys_type_to_low_getter_type(
         &self,
-        simple_val: proc_macro2::TokenStream,
+        sys_val: proc_macro2::TokenStream,
     ) -> proc_macro2::TokenStream {
         match self {
             OpenFXTypeLow::Int(_)
             | OpenFXTypeLow::Double(_)
             | OpenFXTypeLow::String(_)
             | OpenFXTypeLow::Pointer(_) => {
-                quote! { #simple_val }
+                quote! { #sys_val }
             }
             OpenFXTypeLow::Enum(_, name) => {
                 let known = quote_spanned! { name.span() => crate::low::enums::#name };
-                quote! { unsafe { crate::low_plugin::property_sets::LosslessEnumProperty::<#known>::from_ptr(#simple_val) } }
+                quote! { unsafe { crate::low_plugin::property_sets::LosslessEnumProperty::<#known>::from_ptr(#sys_val) } }
             }
             OpenFXTypeLow::Bool(_) => {
-                quote! { #simple_val != 0 }
+                quote! { #sys_val != 0 }
             }
         }
     }
 
-    pub fn is_from_simple_identity(&self) -> bool {
+    pub fn is_sys_type_and_low_getter_type_identical(&self) -> bool {
         match self {
             OpenFXTypeLow::Int(_)
             | OpenFXTypeLow::Double(_)

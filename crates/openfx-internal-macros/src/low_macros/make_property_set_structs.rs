@@ -130,27 +130,27 @@ fn make_property_setter(
         proc_macro2::Span::call_site(),
     );
 
-    let rust_ty = ty.rust_type_quote_for_setter();
-    let container_ty = match &prop.ty {
-        InputContainerType::Scalar(_) => rust_ty.clone(),
+    let low_ty = ty.quote_for_low_setter_type();
+    let low_container_ty = match &prop.ty {
+        InputContainerType::Scalar(_) => low_ty.clone(),
         InputContainerType::Array(_, size) => {
-            quote! { [#rust_ty; #size] }
+            quote! { [#low_ty; #size] }
         }
-        InputContainerType::Slice(_) => quote! { &[#rust_ty] },
+        InputContainerType::Slice(_) => quote! { &[#low_ty] },
     };
 
-    let as_simple_quote = ty.as_simple_quote(quote! { value });
-    let value_as_simple_quote = match &prop.ty {
-        InputContainerType::Scalar(_) => as_simple_quote,
-        InputContainerType::Array(_, _) if ty.is_as_simple_identity() => {
+    let low_to_sys_quote = ty.quote_for_low_setter_type_to_sys_type(quote! { value });
+    let low_value_to_sys_quote = match &prop.ty {
+        InputContainerType::Scalar(_) => low_to_sys_quote,
+        InputContainerType::Array(_, _) if ty.is_low_setter_type_and_sys_type_identical() => {
             quote! { value }
         }
-        InputContainerType::Array(_, _) => quote! { value.map(|value| #as_simple_quote) },
-        InputContainerType::Slice(_) if ty.is_as_simple_identity() => {
+        InputContainerType::Array(_, _) => quote! { value.map(|value| #low_to_sys_quote) },
+        InputContainerType::Slice(_) if ty.is_low_setter_type_and_sys_type_identical() => {
             quote! { value }
         }
         InputContainerType::Slice(_) => {
-            quote! { &value.iter().map(|value| #as_simple_quote).collect::<Vec<_>>() }
+            quote! { &value.iter().map(|value| #low_to_sys_quote).collect::<Vec<_>>() }
         }
     };
 
@@ -161,8 +161,8 @@ fn make_property_setter(
             /// - `self.0` must be a valid handle of
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
             /// - `suite` must be valid.
-            pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1, value: #container_ty) -> crate::low::Result<()> {
-                let value_simple = #value_as_simple_quote;
+            pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1, value: #low_container_ty) -> crate::low::Result<()> {
+                let value_simple = #low_value_to_sys_quote;
                 suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, value_simple)
             }
         }
@@ -189,20 +189,20 @@ fn make_property_getter(
         proc_macro2::Span::call_site(),
     );
 
-    let rust_ty = ty.rust_type_quote_for_getter();
-    let from_simple_quote = ty.from_simple_quote(quote! { value_simple });
-    let value_from_simple_quote = match &prop.ty {
-        InputContainerType::Scalar(_) => quote! { #from_simple_quote },
+    let low_ty = ty.quote_for_low_getter_type();
+    let low_from_sys_quote = ty.quote_for_sys_type_to_low_getter_type(quote! { value_simple });
+    let low_value_from_sys_quote = match &prop.ty {
+        InputContainerType::Scalar(_) => quote! { #low_from_sys_quote },
         InputContainerType::Array(_, _) | InputContainerType::Slice(_)
-            if ty.is_from_simple_identity() =>
+            if ty.is_sys_type_and_low_getter_type_identical() =>
         {
             quote! { value_simple }
         }
         InputContainerType::Array(_, _) => {
-            quote! { value_simple.into_iter().map(|value_simple| #from_simple_quote) }
+            quote! { value_simple.into_iter().map(|value_simple| #low_from_sys_quote) }
         }
         InputContainerType::Slice(_) => {
-            quote! { value_simple.into_iter().map(|value_simple| #from_simple_quote).collect() }
+            quote! { value_simple.into_iter().map(|value_simple| #low_from_sys_quote).collect() }
         }
     };
 
@@ -218,19 +218,19 @@ fn make_property_getter(
         InputContainerType::Scalar(_) => output.extend(
             quote! {
                 #docs
-                pub unsafe fn #fn_name<'a, 'b>(&'a self, suite: &'b crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<#rust_ty>
+                pub unsafe fn #fn_name<'a, 'b>(&'a self, suite: &'b crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<#low_ty>
                     where 'b: 'a
                 {
                     let value_simple = suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname)?;
-                    let value = #value_from_simple_quote;
+                    let value = #low_value_from_sys_quote;
                     Ok(value)
                 }
             },
         ),
-        InputContainerType::Array(_, size) if ty.is_from_simple_identity() => output.extend(
+        InputContainerType::Array(_, size) if ty.is_sys_type_and_low_getter_type_identical() => output.extend(
             quote! {
                 #docs
-                pub unsafe fn #fn_name<'a, 'b>(&'a self, suite: &'b crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#rust_ty; #size]>
+                pub unsafe fn #fn_name<'a, 'b>(&'a self, suite: &'b crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#low_ty; #size]>
                     where 'b: 'a
                 {
                     let value = suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)?;
@@ -241,9 +241,9 @@ fn make_property_getter(
         InputContainerType::Array(_, size) => output.extend(
             quote! {
                 #docs
-                pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#rust_ty; #size]> {
+                pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#low_ty; #size]> {
                     let value_simple = suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)?;
-                    let value = #value_from_simple_quote;
+                    let value = #low_value_from_sys_quote;
                     Ok(value)
                 }
             },
@@ -251,12 +251,12 @@ fn make_property_getter(
         InputContainerType::Slice(_) => output.extend(
             quote! {
                 #docs
-                pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<::std::vec::Vec<#rust_ty>> {
+                pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<::std::vec::Vec<#low_ty>> {
                     let dimensions = suite.prop_get_dimension(self.sys_handle(), crate::sys_umbrella::#cname)? as usize;
                     let mut value_simple = ::std::vec::Vec::with_capacity(dimensions);
                     unsafe { value_simple.set_len(dimensions); }
                     suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, &mut value_simple)?;
-                    let value = #value_from_simple_quote;
+                    let value = #low_value_from_sys_quote;
                     Ok(value)
                 }
             },
