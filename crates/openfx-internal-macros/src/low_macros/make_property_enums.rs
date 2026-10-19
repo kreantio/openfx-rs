@@ -17,27 +17,41 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
 
         // enum
         {
-            let mut inner = proc_macro2::TokenStream::new();
+            let mut variant_items: Vec<proc_macro2::TokenStream> = vec![];
             for variant in &enum_item.variants {
-                if let InputEnumVariantAttribute::Sys(sys) = &variant.value {
-                    let path_str = format!("crate::sys_umbrella::{}", sys);
-                    let docstr = format!("See: [`{}`].", path_str);
-                    inner.extend(quote! { #[doc = #docstr] });
-                }
                 let var_name = &variant.name;
-                inner.extend(quote! { #var_name, });
+                let var_doc = if let InputEnumVariantAttribute::Sys(sys) = &variant.value {
+                    let docstr = format!("See: [`crate::sys_umbrella::{sys}`]");
+                    Some(quote! { #[doc = #docstr] })
+                } else {
+                    None
+                };
+                variant_items.push(quote! {
+                    #var_doc
+                    #var_name,
+                });
             }
-            inner.extend(quote! {
-                /// Use [`Self::matches`] instead. Even if matching this variant
-                /// for unrecognized values works now, it will break when this
-                /// crate adds dedicated variants for those values in a future
-                /// release.
-                UnknownDontUseThisDirectly(*const std::os::raw::c_char),
-            });
             output.extend(quote! {
+                /// ## Safety
+                ///
+                /// If an enum variant is unknown to this crate, a pointer to
+                /// that variant's value is stored. The underlying data is
+                /// controlled by the openFX host, and it is the caller's
+                /// responsibility to ensure that the pointer remains valid
+                /// while it is in use.
+                ///
+                /// To keep the unknown variant value around, call
+                /// [`Self::to_owned`] while this pointer is still valid.
                 #[derive(Debug, Clone, PartialEq, Eq)]
                 #[non_exhaustive]
-                pub enum #name { #inner }
+                pub enum #name {
+                    #(#variant_items)*
+                    /// Use [`Self::matches`] instead. Even if matching this
+                    /// variant for unrecognized values works now, it will break
+                    /// when this crate adds dedicated variants for those values
+                    /// in a future release.
+                    UnknownDontUseThisDirectly(Option<std::ptr::NonNull<std::os::raw::c_char>>),
+                }
             });
         }
 
@@ -65,57 +79,52 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
                 impl #name {
                     /// ## Safety
                     ///
-                    /// - The pointer must be valid and point to a null-
-                    ///   terminated C string.
-                    /// - The pointer must live at least as long as the returned
-                    ///   [`Self`] value.
-                    pub unsafe fn from_ptr(ptr: *const std::os::raw::c_char) -> Self {
-                        let cstr = unsafe { std::ffi::CStr::from_ptr(ptr) };
+                    /// `ptr` must either:
+                    /// - be `None`, or
+                    /// - be valid and point to a null-terminated C string.
+                    ///
+                    /// See the Safety section of [`Self`] for more information.
+                    pub unsafe fn from_ptr(ptr: Option<std::ptr::NonNull<std::os::raw::c_char>>) -> Self {
+                        let Some(ptr) = ptr else {
+                            return Self::UnknownDontUseThisDirectly(None);
+                        };
+
+                        let cstr = unsafe { std::ffi::CStr::from_ptr(ptr.as_ptr()) };
                         match true {
                             #( _ if cstr == #vals => Self::#vars, )*
-                            _ => Self::UnknownDontUseThisDirectly(cstr.as_ptr()),
+                            _ => Self::UnknownDontUseThisDirectly(Some(ptr)),
                         }
                     }
 
                     /// ## Safety
                     ///
-                    /// - The pointer must be either null or valid and point to
-                    ///   a null-terminated C string.
-                    /// - The pointer must live at least as long as the returned
-                    ///   [`Self`] value.
-                    pub unsafe fn from_ptr_null_checked(ptr: *const std::os::raw::c_char) -> Self {
-                        if ptr.is_null() {
-                            Self::UnknownDontUseThisDirectly(std::ptr::null())
-                        } else {
-                            Self::from_ptr(ptr)
-                        }
+                    /// `ptr` must either:
+                    /// - be null, or
+                    /// - be valid and point to a null-terminated C string.
+                    ///
+                    /// See the Safety section of [`Self`] for more information.
+                    pub unsafe fn from_raw_ptr(ptr: *const std::os::raw::c_char) -> Self {
+                        Self::from_ptr(std::ptr::NonNull::new(ptr as *mut std::os::raw::c_char))
                     }
 
                     /// ## Safety
                     ///
-                    /// The returned pointer is valid as long as the
-                    /// [`std::ffi::CString`] inside
-                    /// [`Self::UnknownDontUseThisDirectly`] is not dropped.
-                    pub fn as_ptr(&self) -> *const std::os::raw::c_char {
+                    /// See the Safety section of [`Self`] for more information.
+                    pub fn as_raw_ptr(&self) -> *const std::os::raw::c_char {
                         match self {
                             #( Self::#vars => #vals.as_ptr(), )*
-                            Self::UnknownDontUseThisDirectly(ptr) => *ptr,
+                            Self::UnknownDontUseThisDirectly(ptr) => ptr.map_or(std::ptr::null(), |p| p.as_ptr()),
                         }
                     }
 
-                    /// ## Safety
-                    ///
-                    /// The returned pointer is valid as long as the
-                    /// [`std::ffi::CString`] inside
-                    /// [`Self::UnknownDontUseThisDirectly`] is not dropped.
+                    /// FIXME!!!: Remove this.
                     pub fn as_cstr(&self) -> Option<&std::ffi::CStr> {
                         match self {
                             #( Self::#vars => Some(#vals), )*
                             Self::UnknownDontUseThisDirectly(ptr) => {
-                                if ptr.is_null() {
-                                    None
-                                } else {
-                                    Some(unsafe { &*::std::ffi::CStr::from_ptr(*ptr) })
+                                match ptr {
+                                    Some(ptr) => Some(unsafe { &*std::ffi::CStr::from_ptr(ptr.as_ptr()) }),
+                                    None => None,
                                 }
                             }
                         }
@@ -123,16 +132,18 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
 
                     /// ## Safety
                     ///
-                    /// For enum variants unknown to this crate, this enum
-                    /// stores a pointer to a C string owned by the host. The
-                    /// caller must ensure that this pointer remains valid for
-                    /// the duration of this call.
-                    pub unsafe fn matches(&self, val: &::std::ffi::CStr) -> bool {
-                        let ptr = self.as_ptr();
+                    /// If the comparison involves a variant unknown to this
+                    /// crate, the caller must ensure that the pointer to the
+                    /// unknown variant remains valid for the duration of this
+                    /// call.
+                    ///
+                    /// See the Safety section of [`Self`] for more information.
+                    pub unsafe fn matches(&self, val: &std::ffi::CStr) -> bool {
+                        let ptr = self.as_raw_ptr();
                         if ptr.is_null() {
                             false
                         } else {
-                            ::std::ffi::CStr::from_ptr(ptr) == val
+                            std::ffi::CStr::from_ptr(ptr) == val
                         }
                     }
                 }

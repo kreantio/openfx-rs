@@ -187,19 +187,16 @@ fn make_property_getter(
     let fn_name_on_suite = syn::Ident::new(
         &format!(
             "prop_get_{}{}",
-            ty.sys().name_snake_case(),
+            match ty.sys() {
+                OpenFXTypeSys::String(_) => "string_ptr".to_owned(),
+                other => other.name_snake_case().to_owned(),
+            },
             prop.ty.as_name_suffix()
         ),
         proc_macro2::Span::call_site(),
     );
 
-    let rust_ty = match &prop.ty {
-        InputContainerType::Scalar(_) => ty.rust_type_quote_for_getter(Some(quote! {'a})),
-        InputContainerType::Array(_, size) if ty.is_from_simple_identity() => {
-            ty.rust_type_quote_for_getter(Some(quote! {'a}))
-        }
-        _ => ty.rust_type_quote_for_getter(None),
-    };
+    let rust_ty = ty.rust_type_quote_for_getter();
     let from_simple_quote = ty.from_simple_quote(quote! { value_simple });
     let value_from_simple_quote = match &prop.ty {
         InputContainerType::Scalar(_) => quote! { #from_simple_quote },
@@ -954,10 +951,7 @@ impl OpenFXTypeLow {
         }
     }
 
-    fn rust_type_quote_for_getter(
-        &self,
-        life_time: Option<proc_macro2::TokenStream>,
-    ) -> proc_macro2::TokenStream {
+    fn rust_type_quote_for_getter(&self) -> proc_macro2::TokenStream {
         match self {
             OpenFXTypeLow::Int(ident) => {
                 let c_int = quote_spanned! { ident.span() => c_int };
@@ -975,8 +969,8 @@ impl OpenFXTypeLow {
                 quote! { ::core::primitive::#bool }
             }
             OpenFXTypeLow::String(ident) => {
-                let cstr = quote_spanned! { ident.span() => CStr };
-                quote! { ::std::option::Option<& #life_time ::std::ffi::#cstr> }
+                let c_char = quote_spanned! { ident.span() => c_char };
+                quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::#c_char>> }
             }
             OpenFXTypeLow::Pointer(ident) => {
                 let c_void = quote_spanned! { ident.span() => c_void };
@@ -1022,7 +1016,7 @@ impl OpenFXTypeLow {
                 quote! { #simple_val }
             }
             OpenFXTypeLow::Enum(_, name) => {
-                quote! { unsafe { crate::low::enums::#name::from_ptr_null_checked(#simple_val.map_or(std::ptr::null(), |s| s.as_ptr())) } }
+                quote! { unsafe { crate::low::enums::#name::from_ptr(#simple_val) } }
             }
             OpenFXTypeLow::Bool(_) => {
                 quote! { #simple_val != 0 }
