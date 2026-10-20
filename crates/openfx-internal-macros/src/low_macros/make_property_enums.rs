@@ -61,7 +61,7 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
                 .collect::<Vec<_>>();
 
             output.extend(quote! {
-                impl crate::low_plugin::property_sets::EnumProperty for #name {
+                impl crate::low_plugin::property_sets::KnownEnumProperty for #name {
                     /// ## Safety
                     ///
                     /// `ptr` must either:
@@ -69,9 +69,7 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
                     /// - be valid and point to a null-terminated C string.
                     ///
                     /// See the Safety section of [`Self`] for more information.
-                    unsafe fn try_from_ptr(ptr: Option<std::ptr::NonNull<std::os::raw::c_char>>) -> Option<Self> {
-                        let ptr = ptr?;
-
+                    unsafe fn try_from_ptr(ptr: std::ptr::NonNull<std::os::raw::c_char>) -> Option<Self> {
                         let cstr = unsafe { std::ffi::CStr::from_ptr(ptr.as_ptr()) };
                         match true {
                             #( _ if cstr == #vals => Some(Self::#vars), )*
@@ -88,7 +86,7 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
 
                 impl From<#name> for crate::low_plugin::property_sets::EnumPropertyPtr<#name> {
                     fn from(value: #name) -> Self {
-                        let ptr = crate::low_plugin::property_sets::EnumProperty::as_cstr(&value).as_ptr();
+                        let ptr = crate::low_plugin::property_sets::KnownEnumProperty::as_cstr(&value).as_ptr();
                         Self::new(std::ptr::NonNull::new(ptr as *mut std::os::raw::c_char))
                     }
                 }

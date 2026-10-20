@@ -8,23 +8,23 @@ include!(concat!(
     "/generated/code_from_metadata/low_plugin_property_sets.rs",
 ));
 
-pub trait EnumProperty: Sized + Clone + Copy + PartialEq + Eq {
+pub trait KnownEnumProperty: Sized + Clone + Copy + PartialEq + Eq {
     /// ## Safety
     ///
     /// `ptr` must either:
     /// - be `None`, or
     /// - be valid and point to a null-terminated C string.
-    unsafe fn try_from_ptr(ptr: Option<NonNull<c_char>>) -> Option<Self>;
+    unsafe fn try_from_ptr(ptr: NonNull<c_char>) -> Option<Self>;
     fn as_cstr(&self) -> &CStr;
 }
 
 #[derive(Clone, Copy)]
-pub struct EnumPropertyPtr<T: EnumProperty> {
+pub struct EnumPropertyPtr<T: KnownEnumProperty> {
     inner: Option<NonNull<c_char>>,
     _marker: std::marker::PhantomData<T>,
 }
 
-impl<T: EnumProperty> EnumPropertyPtr<T> {
+impl<T: KnownEnumProperty> EnumPropertyPtr<T> {
     pub fn new(inner: Option<NonNull<c_char>>) -> Self {
         Self {
             inner,
@@ -47,7 +47,7 @@ impl<T: EnumProperty> EnumPropertyPtr<T> {
 /// To keep the unknown variant value around, call [`Self::to_owned`] while this
 /// pointer is still valid.
 #[derive(Clone, Copy)]
-pub enum LosslessEnumProperty<T: EnumProperty> {
+pub enum LosslessEnumProperty<T: KnownEnumProperty> {
     Known(T),
     /// Use [`Self::matches`] instead. Even if matching this variant for
     /// unrecognized values works now, it will break when this crate adds
@@ -56,7 +56,7 @@ pub enum LosslessEnumProperty<T: EnumProperty> {
 }
 
 #[derive(Clone, PartialEq, Eq)]
-pub enum LosslessEnumPropertyOwned<T: EnumProperty> {
+pub enum LosslessEnumPropertyOwned<T: KnownEnumProperty> {
     Known(T),
     /// Use [`Self::matches`] instead. Even if matching this variant for
     /// unrecognized values works now, it will break when this crate adds
@@ -64,7 +64,7 @@ pub enum LosslessEnumPropertyOwned<T: EnumProperty> {
     UnknownDontUseThisDirectly(Option<CString>),
 }
 
-impl<T: EnumProperty> LosslessEnumProperty<T> {
+impl<T: KnownEnumProperty> LosslessEnumProperty<T> {
     /// ## Safety
     ///
     /// `ptr` must either:
@@ -73,10 +73,14 @@ impl<T: EnumProperty> LosslessEnumProperty<T> {
     ///
     /// See the Safety section of [`LosslessEnumProperty`] for more information.
     pub unsafe fn from_ptr(ptr: Option<NonNull<c_char>>) -> Self {
+        let Some(ptr) = ptr else {
+            return Self::UnknownDontUseThisDirectly(None);
+        };
+
         if let Some(value) = unsafe { T::try_from_ptr(ptr) } {
             Self::Known(value)
         } else {
-            Self::UnknownDontUseThisDirectly(ptr)
+            Self::UnknownDontUseThisDirectly(Some(ptr))
         }
     }
 
@@ -129,7 +133,7 @@ impl<T: EnumProperty> LosslessEnumProperty<T> {
     }
 }
 
-impl<T: EnumProperty> PartialEq<T> for LosslessEnumProperty<T> {
+impl<T: KnownEnumProperty> PartialEq<T> for LosslessEnumProperty<T> {
     fn eq(&self, other: &T) -> bool {
         match self {
             Self::Known(value) => value == other,
@@ -138,7 +142,7 @@ impl<T: EnumProperty> PartialEq<T> for LosslessEnumProperty<T> {
     }
 }
 
-impl<T: EnumProperty> From<&LosslessEnumProperty<T>> for EnumPropertyPtr<T> {
+impl<T: KnownEnumProperty> From<&LosslessEnumProperty<T>> for EnumPropertyPtr<T> {
     /// ## Safety
     ///
     /// See the Safety section of [`LosslessEnumProperty`] for more information.
@@ -152,7 +156,28 @@ impl<T: EnumProperty> From<&LosslessEnumProperty<T>> for EnumPropertyPtr<T> {
     }
 }
 
-impl<T: EnumProperty> LosslessEnumPropertyOwned<T> {
+impl<T: KnownEnumProperty> LosslessEnumPropertyOwned<T> {
+    /// ## Safety
+    ///
+    /// `ptr` must either:
+    /// - be `None`, or
+    /// - be valid and point to a null-terminated C string.
+    ///
+    /// See the Safety section of [`LosslessEnumProperty`] for more information.
+    pub unsafe fn from_ptr(ptr: Option<NonNull<c_char>>) -> Self {
+        let Some(ptr) = ptr else {
+            return Self::UnknownDontUseThisDirectly(None);
+        };
+
+        if let Some(value) = unsafe { T::try_from_ptr(ptr) } {
+            Self::Known(value)
+        } else {
+            Self::UnknownDontUseThisDirectly(Some(unsafe {
+                CStr::from_ptr(ptr.as_ptr()).to_owned()
+            }))
+        }
+    }
+
     pub fn known(&self) -> Option<Self> {
         match self {
             Self::Known(value) => Some(Self::Known(*value)),
@@ -168,7 +193,7 @@ impl<T: EnumProperty> LosslessEnumPropertyOwned<T> {
     }
 }
 
-impl<T: EnumProperty> PartialEq<T> for LosslessEnumPropertyOwned<T> {
+impl<T: KnownEnumProperty> PartialEq<T> for LosslessEnumPropertyOwned<T> {
     fn eq(&self, other: &T) -> bool {
         match self {
             Self::Known(value) => value == other,
@@ -177,7 +202,7 @@ impl<T: EnumProperty> PartialEq<T> for LosslessEnumPropertyOwned<T> {
     }
 }
 
-impl<T: EnumProperty> From<&LosslessEnumPropertyOwned<T>> for EnumPropertyPtr<T> {
+impl<T: KnownEnumProperty> From<&LosslessEnumPropertyOwned<T>> for EnumPropertyPtr<T> {
     fn from(value: &LosslessEnumPropertyOwned<T>) -> Self {
         match value {
             LosslessEnumPropertyOwned::Known(v) => {

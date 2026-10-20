@@ -156,13 +156,13 @@ impl ClipImageManaged {
             return Err(Status::Failed);
         };
 
-        let n_comps = match unsafe { props.get_image_effect_components(s_prop)?.known() } {
+        let n_comps = match unsafe { props.get_image_effect_components_known(s_prop)? } {
             Some(low::enums::ImageEffectPropComponents::Alpha) => 1,
             Some(low::enums::ImageEffectPropComponents::RGB) => 3,
             Some(low::enums::ImageEffectPropComponents::RGBA) => 4,
             _ => 0,
         };
-        let pixel_depth = match unsafe { props.get_image_effect_pixel_depth(s_prop)?.known() } {
+        let pixel_depth = match unsafe { props.get_image_effect_pixel_depth_known(s_prop)? } {
             Some(low::enums::ImageEffectPropPixelDepth::Byte) => BitDepth::Byte,
             Some(low::enums::ImageEffectPropPixelDepth::Short) => BitDepth::Short,
             Some(low::enums::ImageEffectPropPixelDepth::Float) => BitDepth::Float,
