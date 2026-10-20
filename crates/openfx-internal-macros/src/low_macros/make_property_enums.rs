@@ -89,7 +89,7 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
                 impl From<#name> for crate::low_plugin::property_sets::EnumPropertyPtr<#name> {
                     fn from(value: #name) -> Self {
                         let ptr = crate::low_plugin::property_sets::EnumProperty::as_cstr(&value).as_ptr();
-                        Self::new(std::ptr::NonNull::new(ptr as *mut std::os::raw::c_char)) 
+                        Self::new(std::ptr::NonNull::new(ptr as *mut std::os::raw::c_char))
                     }
                 }
 
