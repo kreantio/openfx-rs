@@ -180,6 +180,13 @@ impl<T: KnownEnumProperty> LosslessEnumPropertyOwned<T> {
         }
     }
 
+    pub fn as_c_str(&self) -> Option<&CStr> {
+        match self {
+            Self::Known(value) => Some(value.as_cstr()),
+            Self::UnknownDontUseThisDirectly(cstr) => cstr.as_ref().map(|cstr| cstr.as_c_str()),
+        }
+    }
+
     pub fn matches(&self, val: &std::ffi::CStr) -> bool {
         match self {
             Self::Known(value) => value.as_cstr() == val,

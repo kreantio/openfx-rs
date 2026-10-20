@@ -10,7 +10,7 @@ use openfx::{
     low_plugin::{
         Host, LifetimePlugin,
         objects::{ImageClipInstance, ImageEffectDescriptor, ImageEffectInstance},
-        property_sets::ImageInstancePropertySet,
+        property_sets::{ImageInstancePropertySet, LosslessEnumPropertyOwned},
         suites::{ImageEffectSuiteV1, ParameterSuiteV1, PropertySuiteV1},
     },
     sys::{
@@ -156,21 +156,27 @@ impl ClipImageManaged {
             return Err(Status::Failed);
         };
 
-        let n_comps = match unsafe { props.get_image_effect_components_known(s_prop)? } {
-            Some(low::enums::ImageEffectPropComponents::Alpha) => 1,
-            Some(low::enums::ImageEffectPropComponents::RGB) => 3,
-            Some(low::enums::ImageEffectPropComponents::RGBA) => 4,
+        let n_comps = match unsafe { props.get_image_effect_components_owned(s_prop)? } {
+            LosslessEnumPropertyOwned::Known(low::enums::ImageEffectPropComponents::Alpha) => 1,
+            LosslessEnumPropertyOwned::Known(low::enums::ImageEffectPropComponents::RGB) => 3,
+            LosslessEnumPropertyOwned::Known(low::enums::ImageEffectPropComponents::RGBA) => 4,
             x => {
-                tracing::error!("Unsupported image effect components: {:?}", x);
+                tracing::error!("Unsupported image effect components: {:?}", x.as_c_str());
                 return Err(Status::ErrUnsupported);
             }
         };
-        let pixel_depth = match unsafe { props.get_image_effect_pixel_depth_known(s_prop)? } {
-            Some(low::enums::ImageEffectPropPixelDepth::Byte) => BitDepth::Byte,
-            Some(low::enums::ImageEffectPropPixelDepth::Short) => BitDepth::Short,
-            Some(low::enums::ImageEffectPropPixelDepth::Float) => BitDepth::Float,
+        let pixel_depth = match unsafe { props.get_image_effect_pixel_depth_owned(s_prop)? } {
+            LosslessEnumPropertyOwned::Known(low::enums::ImageEffectPropPixelDepth::Byte) => {
+                BitDepth::Byte
+            }
+            LosslessEnumPropertyOwned::Known(low::enums::ImageEffectPropPixelDepth::Short) => {
+                BitDepth::Short
+            }
+            LosslessEnumPropertyOwned::Known(low::enums::ImageEffectPropPixelDepth::Float) => {
+                BitDepth::Float
+            }
             x => {
-                tracing::error!("Unsupported image effect pixel depth: {:?}", x);
+                tracing::error!("Unsupported image effect pixel depth: {:?}", x.as_c_str());
                 return Err(Status::ErrUnsupported);
             }
         };
