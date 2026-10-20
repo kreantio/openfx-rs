@@ -13,7 +13,7 @@
 
 use std::collections::HashMap;
 
-use crate::{common::type_sys::OpenFXTypeSys, low_macros::utils};
+use crate::{common::OpenFXTypeSimple, low_macros::utils};
 
 /// ## Examples
 ///
@@ -508,34 +508,34 @@ impl InputPossibleTypes {
         Ok(())
     }
 
-    pub fn iter(&self) -> OpenFXTypeLowIterator {
+    pub fn iter(&self) -> OpenFXTypeExpressiveIterator {
         let mut types = vec![];
         if let Some(int) = &self.int {
-            types.push(OpenFXTypeLow::Int(int.clone()));
+            types.push(OpenFXTypeExpressive::Int(int.clone()));
         }
         if let Some(double) = &self.double {
-            types.push(OpenFXTypeLow::Double(double.clone()));
+            types.push(OpenFXTypeExpressive::Double(double.clone()));
         }
         if let Some((r#enum, name)) = &self.r#enum {
-            types.push(OpenFXTypeLow::Enum(r#enum.clone(), name.clone()));
+            types.push(OpenFXTypeExpressive::Enum(r#enum.clone(), name.clone()));
         }
         if let Some(bool) = &self.bool {
-            types.push(OpenFXTypeLow::Bool(bool.clone()));
+            types.push(OpenFXTypeExpressive::Bool(bool.clone()));
         }
         if let Some(string) = &self.string {
-            types.push(OpenFXTypeLow::String(string.clone()));
+            types.push(OpenFXTypeExpressive::String(string.clone()));
         }
         if let Some(pointer) = &self.pointer {
-            types.push(OpenFXTypeLow::Pointer(pointer.clone()));
+            types.push(OpenFXTypeExpressive::Pointer(pointer.clone()));
         }
-        OpenFXTypeLowIterator(types)
+        OpenFXTypeExpressiveIterator(types)
     }
 }
 
-pub struct OpenFXTypeLowIterator(Vec<OpenFXTypeLow>);
+pub struct OpenFXTypeExpressiveIterator(Vec<OpenFXTypeExpressive>);
 
-impl Iterator for OpenFXTypeLowIterator {
-    type Item = OpenFXTypeLow;
+impl Iterator for OpenFXTypeExpressiveIterator {
+    type Item = OpenFXTypeExpressive;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.0.pop()
@@ -586,7 +586,7 @@ impl InputWriteSide {
     }
 }
 
-pub enum OpenFXTypeLow {
+pub enum OpenFXTypeExpressive {
     Int(syn::Ident),
     Double(syn::Ident),
     Enum(syn::Ident, syn::Ident),
@@ -595,28 +595,28 @@ pub enum OpenFXTypeLow {
     Pointer(syn::Ident),
 }
 
-impl OpenFXTypeLow {
+impl OpenFXTypeExpressive {
     pub fn ident(&self) -> &syn::Ident {
         match self {
-            OpenFXTypeLow::Int(ident)
-            | OpenFXTypeLow::Double(ident)
-            | OpenFXTypeLow::Bool(ident)
-            | OpenFXTypeLow::String(ident)
-            | OpenFXTypeLow::Pointer(ident) => ident,
-            OpenFXTypeLow::Enum(ident, _) => ident,
+            OpenFXTypeExpressive::Int(ident)
+            | OpenFXTypeExpressive::Double(ident)
+            | OpenFXTypeExpressive::Bool(ident)
+            | OpenFXTypeExpressive::String(ident)
+            | OpenFXTypeExpressive::Pointer(ident) => ident,
+            OpenFXTypeExpressive::Enum(ident, _) => ident,
         }
     }
 
-    pub fn sys(&self) -> OpenFXTypeSys {
+    pub fn simple(&self) -> OpenFXTypeSimple {
         match self {
-            OpenFXTypeLow::Int(ident) | OpenFXTypeLow::Bool(ident) => {
-                OpenFXTypeSys::Int(ident.clone())
+            OpenFXTypeExpressive::Int(ident) | OpenFXTypeExpressive::Bool(ident) => {
+                OpenFXTypeSimple::Int(ident.clone())
             }
-            OpenFXTypeLow::Double(ident) => OpenFXTypeSys::Double(ident.clone()),
-            OpenFXTypeLow::String(ident) | OpenFXTypeLow::Enum(ident, _) => {
-                OpenFXTypeSys::String(ident.clone())
+            OpenFXTypeExpressive::Double(ident) => OpenFXTypeSimple::Double(ident.clone()),
+            OpenFXTypeExpressive::String(ident) | OpenFXTypeExpressive::Enum(ident, _) => {
+                OpenFXTypeSimple::String(ident.clone())
             }
-            OpenFXTypeLow::Pointer(ident) => OpenFXTypeSys::Pointer(ident.clone()),
+            OpenFXTypeExpressive::Pointer(ident) => OpenFXTypeSimple::Pointer(ident.clone()),
         }
     }
 }

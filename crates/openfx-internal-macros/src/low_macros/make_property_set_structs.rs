@@ -80,12 +80,12 @@ fn make_property_accessors(
     );
 
     for ty in prop.ty.possible_types().iter() {
-        let sys_ty = ty.sys();
+        let simple_ty = ty.simple();
         let fn_name_suffix = if is_ambiguous {
             format!(
                 "{}_{}",
                 prop.simple_name.to_string().trim_start_matches("r#"),
-                sys_ty.to_string().to_lowercase()
+                simple_ty.to_string().to_lowercase()
             )
         } else {
             prop.simple_name
@@ -114,7 +114,7 @@ fn make_property_setter(
     output: &mut proc_macro2::TokenStream,
     prop: &InputPropertyItem,
     cname: &syn::Ident,
-    ty: &OpenFXTypeLow,
+    ty: &OpenFXTypeExpressive,
     fn_name_suffix: &str,
 ) {
     let fn_name = syn::Ident::new(&format!("set_{}", fn_name_suffix), prop.simple_name.span());
@@ -124,31 +124,34 @@ fn make_property_setter(
     let fn_name_on_suite = syn::Ident::new(
         &format!(
             "prop_set_{}{}{}",
-            ty.sys().name_snake_case().to_owned(),
+            ty.simple().name_snake_case().to_owned(),
             preset
-                .sys_type_suffix()
+                .simple_type_suffix()
                 .map_or(String::new(), |s| format!("_{s}")),
             prop.ty.as_name_suffix(),
         ),
         proc_macro2::Span::call_site(),
     );
 
-    let low_ty = preset.low_type(ty.ident());
-    let low_container_ty = match &prop.ty {
-        InputContainerType::Scalar(_) => low_ty.clone(),
+    let expressive_ty = preset.expressive_type(ty.ident());
+    let expressive_container_ty = match &prop.ty {
+        InputContainerType::Scalar(_) => expressive_ty.clone(),
         InputContainerType::Array(_, size) => {
-            quote! { [#low_ty; #size] }
+            quote! { [#expressive_ty; #size] }
         }
-        InputContainerType::Slice(_) => quote! { &[#low_ty] },
+        InputContainerType::Slice(_) => quote! { &[#expressive_ty] },
     };
 
-    // let low_to_sys_quote = preset.low_type_to_sys_type(quote! { value });
-    let low_value_to_sys_quote = match preset.low_type_to_sys_type(quote! { value }) {
-        Some(low_to_sys_quote) => match &prop.ty {
-            InputContainerType::Scalar(_) => low_to_sys_quote,
-            InputContainerType::Array(_, _) => quote! { value.map(|value| #low_to_sys_quote) },
+    let expressive_value_to_simple_quote = match preset
+        .expressive_type_to_simple_type(quote! { value })
+    {
+        Some(expressive_to_simple_quote) => match &prop.ty {
+            InputContainerType::Scalar(_) => expressive_to_simple_quote,
+            InputContainerType::Array(_, _) => {
+                quote! { value.map(|value| #expressive_to_simple_quote) }
+            }
             InputContainerType::Slice(_) => {
-                quote! { &value.iter().map(|value| #low_to_sys_quote).collect::<Vec<_>>() }
+                quote! { &value.iter().map(|value| #expressive_to_simple_quote).collect::<Vec<_>>() }
             }
         },
         _ => quote! { value },
@@ -161,8 +164,8 @@ fn make_property_setter(
             /// - `self.0` must be a valid handle of
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
             /// - `suite` must be valid.
-            pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1, value: #low_container_ty) -> crate::low::Result<()> {
-                let value_simple = #low_value_to_sys_quote;
+            pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1, value: #expressive_container_ty) -> crate::low::Result<()> {
+                let value_simple = #expressive_value_to_simple_quote;
                 suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, value_simple)
             }
         }
@@ -173,7 +176,7 @@ fn make_property_getter(
     output: &mut proc_macro2::TokenStream,
     prop: &InputPropertyItem,
     cname: &syn::Ident,
-    ty: &OpenFXTypeLow,
+    ty: &OpenFXTypeExpressive,
     fn_name_suffix: &str,
 ) {
     let fn_name = syn::Ident::new(&format!("get_{}", fn_name_suffix), prop.simple_name.span());
@@ -183,29 +186,29 @@ fn make_property_getter(
     let fn_name_on_suite = syn::Ident::new(
         &format!(
             "prop_get_{}{}{}",
-            ty.sys().name_snake_case().to_owned(),
+            ty.simple().name_snake_case().to_owned(),
             preset
-                .sys_type_suffix()
+                .simple_type_suffix()
                 .map_or(String::new(), |s| format!("_{s}")),
             prop.ty.as_name_suffix(),
         ),
         proc_macro2::Span::call_site(),
     );
 
-    let low_ty = preset.low_type(ty.ident());
-    let sys_to_low_quote = preset.sys_type_to_low_type(quote! { value_sys });
-    let is_low_type_and_sys_type_identical = sys_to_low_quote.is_none();
-    let sys_value_to_low_quote = match sys_to_low_quote {
-        Some(low_from_sys_quote) => match &prop.ty {
-            InputContainerType::Scalar(_) => quote! { #low_from_sys_quote },
+    let expressive_ty = preset.expressive_type(ty.ident());
+    let simple_to_expressive_quote = preset.simple_type_to_expressive_type(quote! { value_simple });
+    let is_conversion_unnecessary = simple_to_expressive_quote.is_none();
+    let simple_value_to_expressive_quote = match simple_to_expressive_quote {
+        Some(simple_to_expressive_quote) => match &prop.ty {
+            InputContainerType::Scalar(_) => quote! { #simple_to_expressive_quote },
             InputContainerType::Array(_, _) => {
-                quote! { value_sys.into_iter().map(|value_sys| #low_from_sys_quote) }
+                quote! { value_simple.into_iter().map(|value_simple| #simple_to_expressive_quote) }
             }
             InputContainerType::Slice(_) => {
-                quote! { value_sys.into_iter().map(|value_sys| #low_from_sys_quote).collect() }
+                quote! { value_simple.into_iter().map(|value_simple| #simple_to_expressive_quote).collect() }
             }
         },
-        _ => quote! { value_sys },
+        _ => quote! { value_simple },
     };
 
     let docs = quote! {
@@ -220,19 +223,19 @@ fn make_property_getter(
         InputContainerType::Scalar(_) => output.extend(
             quote! {
                 #docs
-                pub unsafe fn #fn_name<'a, 'b>(&'a self, suite: &'b crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<#low_ty>
+                pub unsafe fn #fn_name<'a, 'b>(&'a self, suite: &'b crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<#expressive_ty>
                     where 'b: 'a
                 {
-                    let value_sys = suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname)?;
-                    let value = #sys_value_to_low_quote;
+                    let value_simple = suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname)?;
+                    let value = #simple_value_to_expressive_quote;
                     Ok(value)
                 }
             },
         ),
-        InputContainerType::Array(_, size) if is_low_type_and_sys_type_identical => output.extend(
+        InputContainerType::Array(_, size) if is_conversion_unnecessary => output.extend(
             quote! {
                 #docs
-                pub unsafe fn #fn_name<'a, 'b>(&'a self, suite: &'b crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#low_ty; #size]>
+                pub unsafe fn #fn_name<'a, 'b>(&'a self, suite: &'b crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#expressive_ty; #size]>
                     where 'b: 'a
                 {
                     let value = suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)?;
@@ -243,9 +246,9 @@ fn make_property_getter(
         InputContainerType::Array(_, size) => output.extend(
             quote! {
                 #docs
-                pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#low_ty; #size]> {
-                    let value_sys = suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)?;
-                    let value = #sys_value_to_low_quote;
+                pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#expressive_ty; #size]> {
+                    let value_simple = suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)?;
+                    let value = #simple_value_to_expressive_quote;
                     Ok(value)
                 }
             },
@@ -253,12 +256,12 @@ fn make_property_getter(
         InputContainerType::Slice(_) => output.extend(
             quote! {
                 #docs
-                pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<::std::vec::Vec<#low_ty>> {
+                pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<::std::vec::Vec<#expressive_ty>> {
                     let dimensions = suite.prop_get_dimension(self.sys_handle(), crate::sys_umbrella::#cname)? as usize;
-                    let mut value_sys = ::std::vec::Vec::with_capacity(dimensions);
-                    unsafe { value_sys.set_len(dimensions); }
-                    suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, &mut value_sys)?;
-                    let value = #sys_value_to_low_quote;
+                    let mut value_simple = ::std::vec::Vec::with_capacity(dimensions);
+                    unsafe { value_simple.set_len(dimensions); }
+                    suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, &mut value_simple)?;
+                    let value = #simple_value_to_expressive_quote;
                     Ok(value)
                 }
             },
@@ -324,29 +327,29 @@ fn make_property_dimensions_getter(
     );
 }
 
-impl OpenFXTypeLow {
+impl OpenFXTypeExpressive {
     fn make_impl_setter_preset(&self) -> Box<dyn ImplSetterPreset> {
         match self {
-            OpenFXTypeLow::Int(_) => Box::new(ImplAccessorsPresetInt),
-            OpenFXTypeLow::Double(_) => Box::new(ImplAccessorsPresetDouble),
-            OpenFXTypeLow::Enum(_, name) => {
+            OpenFXTypeExpressive::Int(_) => Box::new(ImplAccessorsPresetInt),
+            OpenFXTypeExpressive::Double(_) => Box::new(ImplAccessorsPresetDouble),
+            OpenFXTypeExpressive::Enum(_, name) => {
                 Box::new(ImplAccessorsPresetEnum { name: name.clone() })
             }
-            OpenFXTypeLow::Bool(_) => Box::new(ImplAccessorsPresetBool),
-            OpenFXTypeLow::String(_) => Box::new(ImplAccessorsPresetString),
-            OpenFXTypeLow::Pointer(_) => Box::new(ImplAccessorsPresetPointer),
+            OpenFXTypeExpressive::Bool(_) => Box::new(ImplAccessorsPresetBool),
+            OpenFXTypeExpressive::String(_) => Box::new(ImplAccessorsPresetString),
+            OpenFXTypeExpressive::Pointer(_) => Box::new(ImplAccessorsPresetPointer),
         }
     }
     fn make_impl_getter_preset(&self) -> Box<dyn ImplGetterPreset> {
         match self {
-            OpenFXTypeLow::Int(_) => Box::new(ImplAccessorsPresetInt),
-            OpenFXTypeLow::Double(_) => Box::new(ImplAccessorsPresetDouble),
-            OpenFXTypeLow::Enum(_, name) => {
+            OpenFXTypeExpressive::Int(_) => Box::new(ImplAccessorsPresetInt),
+            OpenFXTypeExpressive::Double(_) => Box::new(ImplAccessorsPresetDouble),
+            OpenFXTypeExpressive::Enum(_, name) => {
                 Box::new(ImplAccessorsPresetEnum { name: name.clone() })
             }
-            OpenFXTypeLow::Bool(_) => Box::new(ImplAccessorsPresetBool),
-            OpenFXTypeLow::String(_) => Box::new(ImplAccessorsPresetString),
-            OpenFXTypeLow::Pointer(_) => Box::new(ImplAccessorsPresetPointer),
+            OpenFXTypeExpressive::Bool(_) => Box::new(ImplAccessorsPresetBool),
+            OpenFXTypeExpressive::String(_) => Box::new(ImplAccessorsPresetString),
+            OpenFXTypeExpressive::Pointer(_) => Box::new(ImplAccessorsPresetPointer),
         }
     }
 }
@@ -354,49 +357,47 @@ impl OpenFXTypeLow {
 trait ImplSetterPreset {
     /// Determines which setter functions on
     /// [`openfx::low_plugin::suites::PropertySuiteV1`] to use, by adding a
-    /// suffix to the sys type's name if the returned value is `Some`.
+    /// suffix to the simple type's name if the returned value is `Some`.
     ///
-    /// For example, if the sys type is
-    /// [`crate::common::type_sys::OpenFXTypeSys::Int`], the setter functions
-    /// would normally be `prop_set_string{,_at,_array,_n}`, but if this
-    /// function returns `Some("ptr")`, the setter functions become
+    /// For example, if the simple type is
+    /// [`crate::common::OpenFXTypeSimple::Int`], the setter functions would
+    /// normally be `prop_set_string{,_at,_array,_n}`, but if this function
+    /// returns `Some("ptr")`, the setter functions become
     /// `prop_set_string_ptr{,_at,_array,_n}`.
-    fn sys_type_suffix(&self) -> Option<&'static str> {
+    fn simple_type_suffix(&self) -> Option<&'static str> {
         None
     }
-    /// The type used in the `low` layer, i.e., the type of the value passed to
-    /// the setter function that this preset adds.
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream;
-    /// `None` means that the low type and the sys type are identical.
-    /// A quote of the expression that converts the type used in the `low`
-    /// layer into the type used in the `sys` layer.
+    /// The expressive type used in the `low` layer, i.e., the type of the value
+    /// passed to the setter function that this preset adds.
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream;
+    /// A quote of the expression that converts the expressive type into the
+    /// simple type.
     ///
     /// Returning `None` means that the two types are identical, therefore no
     /// conversion is needed.
-    fn low_type_to_sys_type(
+    fn expressive_type_to_simple_type(
         &self,
-        _low_val: proc_macro2::TokenStream,
+        _expressive_val: proc_macro2::TokenStream,
     ) -> Option<proc_macro2::TokenStream> {
         None
     }
 }
 
 trait ImplGetterPreset {
-    /// See [`ImplSetterPreset::sys_type_suffix`].
-    fn sys_type_suffix(&self) -> Option<&'static str> {
+    /// See [`ImplSetterPreset::simple_type_suffix`].
+    fn simple_type_suffix(&self) -> Option<&'static str> {
         None
     }
-    /// See [`ImplSetterPreset::fn_name_suffix`].
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream;
-    /// `None` means that the low type and the sys type are identical.
-    /// A quote of the expression that converts the type used in the `sys`
-    /// layer into the type used in the `low` layer.
+    /// See [`ImplSetterPreset::expressive_type`].
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream;
+    /// A quote of the expression that converts the simple type into the
+    /// expressive type.
     ///
     /// Returning `None` means that the two types are identical, therefore no
     /// conversion is needed.
-    fn sys_type_to_low_type(
+    fn simple_type_to_expressive_type(
         &self,
-        _sys_val: proc_macro2::TokenStream,
+        _simple_val: proc_macro2::TokenStream,
     ) -> Option<proc_macro2::TokenStream> {
         None
     }
@@ -404,112 +405,114 @@ trait ImplGetterPreset {
 
 struct ImplAccessorsPresetInt;
 impl ImplAccessorsPresetInt {
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let c_int = quote_spanned! { ident.span() => c_int };
         quote! { ::std::os::raw::#c_int }
     }
 }
 impl ImplSetterPreset for ImplAccessorsPresetInt {
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
-        self.low_type(ident)
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        self.expressive_type(ident)
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetInt {
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
-        self.low_type(ident)
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        self.expressive_type(ident)
     }
 }
 
 struct ImplAccessorsPresetDouble;
 impl ImplAccessorsPresetDouble {
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let f64 = quote_spanned! { ident.span() => f64 };
         quote! { ::core::primitive::#f64 }
     }
 }
 impl ImplSetterPreset for ImplAccessorsPresetDouble {
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
-        self.low_type(ident)
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        self.expressive_type(ident)
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetDouble {
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
-        self.low_type(ident)
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        self.expressive_type(ident)
     }
 }
 
 struct ImplAccessorsPresetBool;
 impl ImplAccessorsPresetBool {
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let bool = quote_spanned! { ident.span() => bool };
         quote! { ::core::primitive::#bool }
     }
 }
 impl ImplSetterPreset for ImplAccessorsPresetBool {
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
-        self.low_type(ident)
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        self.expressive_type(ident)
     }
-    fn low_type_to_sys_type(
+    fn expressive_type_to_simple_type(
         &self,
-        low_val: proc_macro2::TokenStream,
+        expressive_val: proc_macro2::TokenStream,
     ) -> Option<proc_macro2::TokenStream> {
-        Some(quote! { #low_val as ::std::os::raw::c_int })
+        Some(quote! { #expressive_val as ::std::os::raw::c_int })
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetBool {
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
-        self.low_type(ident)
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        self.expressive_type(ident)
     }
-    fn sys_type_to_low_type(
+    fn simple_type_to_expressive_type(
         &self,
-        sys_val: proc_macro2::TokenStream,
+        simple_val: proc_macro2::TokenStream,
     ) -> Option<proc_macro2::TokenStream> {
-        Some(quote! { #sys_val != 0 })
+        Some(quote! { #simple_val != 0 })
     }
 }
 
 struct ImplAccessorsPresetPointer;
 impl ImplAccessorsPresetPointer {
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let c_void = quote_spanned! { ident.span() => c_void };
         quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::#c_void>> }
     }
 }
 impl ImplSetterPreset for ImplAccessorsPresetPointer {
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
-        self.low_type(ident)
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        self.expressive_type(ident)
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetPointer {
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
-        self.low_type(ident)
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        self.expressive_type(ident)
     }
 }
 
 struct ImplAccessorsPresetString;
 impl ImplAccessorsPresetString {
-    const SYS_TYPE_SUFFIX: Option<&'static str> = Some("ptr");
+    const SIMPLE_TYPE_SUFFIX: Option<&'static str> = Some("ptr");
 }
 impl ImplSetterPreset for ImplAccessorsPresetString {
-    fn sys_type_suffix(&self) -> Option<&'static str> {
-        Self::SYS_TYPE_SUFFIX
+    fn simple_type_suffix(&self) -> Option<&'static str> {
+        Self::SIMPLE_TYPE_SUFFIX
     }
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let cstr = quote_spanned! { ident.span() => CStr };
         quote! { ::std::option::Option<&::std::ffi::#cstr> }
     }
-    fn low_type_to_sys_type(
+    fn expressive_type_to_simple_type(
         &self,
-        low_val: proc_macro2::TokenStream,
+        expressive_val: proc_macro2::TokenStream,
     ) -> Option<proc_macro2::TokenStream> {
-        Some(quote! { #low_val.and_then(|s| ::std::ptr::NonNull::new(s.as_ptr() as *mut _)) })
+        Some(
+            quote! { #expressive_val.and_then(|s| ::std::ptr::NonNull::new(s.as_ptr() as *mut _)) },
+        )
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetString {
-    fn sys_type_suffix(&self) -> Option<&'static str> {
-        Self::SYS_TYPE_SUFFIX
+    fn simple_type_suffix(&self) -> Option<&'static str> {
+        Self::SIMPLE_TYPE_SUFFIX
     }
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let c_char = quote_spanned! { ident.span() => c_char };
         quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::#c_char>> }
     }
@@ -519,41 +522,41 @@ struct ImplAccessorsPresetEnum {
     name: syn::Ident,
 }
 impl ImplAccessorsPresetEnum {
-    const SYS_TYPE_SUFFIX: Option<&'static str> = ImplAccessorsPresetString::SYS_TYPE_SUFFIX;
+    const SIMPLE_TYPE_SUFFIX: Option<&'static str> = ImplAccessorsPresetString::SIMPLE_TYPE_SUFFIX;
 }
 impl ImplSetterPreset for ImplAccessorsPresetEnum {
-    fn sys_type_suffix(&self) -> Option<&'static str> {
-        Self::SYS_TYPE_SUFFIX
+    fn simple_type_suffix(&self) -> Option<&'static str> {
+        Self::SIMPLE_TYPE_SUFFIX
     }
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let name = &self.name;
         let known = quote_spanned! { ident.span() => crate::low::enums::#name };
         quote_spanned! { ident.span() => crate::low_plugin::property_sets::EnumPropertyPtr<#known> }
     }
-    fn low_type_to_sys_type(
+    fn expressive_type_to_simple_type(
         &self,
-        low_val: proc_macro2::TokenStream,
+        expressive_val: proc_macro2::TokenStream,
     ) -> Option<proc_macro2::TokenStream> {
-        Some(quote! { #low_val.as_ptr() })
+        Some(quote! { #expressive_val.as_ptr() })
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetEnum {
-    fn sys_type_suffix(&self) -> Option<&'static str> {
-        Self::SYS_TYPE_SUFFIX
+    fn simple_type_suffix(&self) -> Option<&'static str> {
+        Self::SIMPLE_TYPE_SUFFIX
     }
-    fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let name = &self.name;
         let known = quote_spanned! { ident.span() => crate::low::enums::#name };
         quote! { crate::low_plugin::property_sets::LosslessEnumProperty<#known> }
     }
-    fn sys_type_to_low_type(
+    fn simple_type_to_expressive_type(
         &self,
-        sys_val: proc_macro2::TokenStream,
+        simple_val: proc_macro2::TokenStream,
     ) -> Option<proc_macro2::TokenStream> {
         let name = &self.name;
         let known = quote_spanned! { name.span() => crate::low::enums::#name };
         Some(
-            quote! { unsafe { crate::low_plugin::property_sets::LosslessEnumProperty::<#known>::from_ptr(#sys_val) } },
+            quote! { unsafe { crate::low_plugin::property_sets::LosslessEnumProperty::<#known>::from_ptr(#simple_val) } },
         )
     }
 }
