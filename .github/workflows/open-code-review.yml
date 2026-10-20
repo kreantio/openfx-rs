@@ -1,11 +1,8 @@
-# source: https://github.com/alibaba/open-code-review/blob/375f64cd6f67a48a135da83cfcf59c52669a09cb/examples/github_actions/ocr-review.yml
+# based on: https://github.com/alibaba/open-code-review/blob/375f64cd6f67a48a135da83cfcf59c52669a09cb/examples/github_actions/ocr-review.yml
 # See ATTRIBUTION.md for attribution details.
 
-# OpenCodeReview - GitHub Actions PR Auto-Review Demo
-#
-# Demonstrates invoking the reusable action for both automatic PR review
-# (pull_request_target: opened/synchronize/reopened) and on-demand re-review
-# via comments starting with '/open-code-review' or '@open-code-review'.
+# Invokes the action for on-demand re-review via comments starting with
+# '/open-code-review' or '@open-code-review'.
 #
 # Required secrets/vars (Settings -> Secrets and variables -> Actions):
 #   secret    OCR_LLM_URL            LLM API endpoint
@@ -35,8 +32,7 @@ concurrency:
   group: >-
     ${{
       (
-        github.event_name == 'pull_request_target'
-        || (
+        (
           github.event_name == 'issue_comment'
           && github.event.issue.pull_request
           && github.event.comment.user.type != 'Bot'
@@ -57,11 +53,6 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  # Use pull_request_target instead of pull_request so that secrets are
-  # available even for PRs from forks. This is safe because the reusable
-  # action only reads the diff and does not execute any code from the PR.
-  pull_request_target:
-    types: [opened, synchronize, reopened]
   issue_comment:
     types: [created]
 
@@ -79,8 +70,7 @@ jobs:
     # issue_comment triggers are further gated on author_association so only
     # MEMBER/OWNER/COLLABORATOR users can spend LLM quota via re-review.
     if: |
-      github.event_name == 'pull_request_target'
-      || (
+      (
         github.event_name == 'issue_comment'
         && github.event.issue.pull_request
         && github.event.comment.user.type != 'Bot'
