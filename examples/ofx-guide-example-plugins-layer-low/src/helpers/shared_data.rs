@@ -160,13 +160,19 @@ impl ClipImageManaged {
             Some(low::enums::ImageEffectPropComponents::Alpha) => 1,
             Some(low::enums::ImageEffectPropComponents::RGB) => 3,
             Some(low::enums::ImageEffectPropComponents::RGBA) => 4,
-            _ => 0,
+            x => {
+                tracing::error!("Unsupported image effect components: {:?}", x);
+                return Err(Status::ErrUnsupported);
+            }
         };
         let pixel_depth = match unsafe { props.get_image_effect_pixel_depth_known(s_prop)? } {
             Some(low::enums::ImageEffectPropPixelDepth::Byte) => BitDepth::Byte,
             Some(low::enums::ImageEffectPropPixelDepth::Short) => BitDepth::Short,
             Some(low::enums::ImageEffectPropPixelDepth::Float) => BitDepth::Float,
-            _ => return Err(Status::ErrUnsupported),
+            x => {
+                tracing::error!("Unsupported image effect pixel depth: {:?}", x);
+                return Err(Status::ErrUnsupported);
+            }
         };
         let row_bytes = unsafe { props.get_image_row_bytes(s_prop)? };
         let bounds = unsafe { props.get_image_bounds(s_prop)? };
