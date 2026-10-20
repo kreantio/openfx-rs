@@ -108,7 +108,7 @@ impl<T: KnownEnumProperty> LosslessEnumProperty<T> {
             Self::Known(value) => LosslessEnumPropertyOwned::Known(*value),
             Self::UnknownDontUseThisDirectly(ptr) => {
                 LosslessEnumPropertyOwned::UnknownDontUseThisDirectly(
-                    ptr.map(|p| unsafe { CString::from_raw(p.as_ptr()) }),
+                    ptr.map(|p| unsafe { CStr::from_ptr(p.as_ptr()).to_owned() }),
                 )
             }
         }
