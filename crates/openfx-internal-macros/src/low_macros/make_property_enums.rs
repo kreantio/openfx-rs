@@ -64,9 +64,8 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
                 impl crate::low_plugin::property_sets::KnownEnumProperty for #name {
                     /// ## Safety
                     ///
-                    /// `ptr` must either:
-                    /// - be `None`, or
-                    /// - be valid and point to a null-terminated C string.
+                    /// `ptr` must be valid and point to a null-terminated C
+                    /// string.
                     ///
                     /// See the Safety section of [`Self`] for more information.
                     unsafe fn try_from_ptr(ptr: std::ptr::NonNull<std::os::raw::c_char>) -> Option<Self> {

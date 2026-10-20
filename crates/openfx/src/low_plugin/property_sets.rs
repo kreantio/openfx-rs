@@ -11,9 +11,7 @@ include!(concat!(
 pub trait KnownEnumProperty: Sized + Clone + Copy + PartialEq + Eq {
     /// ## Safety
     ///
-    /// `ptr` must either:
-    /// - be `None`, or
-    /// - be valid and point to a null-terminated C string.
+    /// `ptr` must be valid and point to a null-terminated C string.
     unsafe fn try_from_ptr(ptr: NonNull<c_char>) -> Option<Self>;
     fn as_cstr(&self) -> &CStr;
 }

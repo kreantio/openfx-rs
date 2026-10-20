@@ -165,13 +165,24 @@ fn make_property_setter(
             _ => quote! { value },
         };
 
-        output.extend(
-            quote! {
+        let mut doc = quote! {
                 /// ## Safety
                 ///
                 /// - `self.0` must be a valid handle of
                 ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
                 /// - `suite` must be valid.
+        };
+
+        if let Some(additional_safety_doc) = preset.additional_safety_doc() {
+            doc.extend(quote! {
+                ///
+            });
+            doc.extend(additional_safety_doc);
+        }
+
+        output.extend(
+            quote! {
+                #doc
                 pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1, value: #expressive_container_ty) -> crate::low::Result<()> {
                     let value_simple = #expressive_value_to_simple_quote;
                     suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, value_simple)
@@ -229,7 +240,7 @@ fn make_property_getter(
             _ => quote! { value_simple },
         };
 
-        let docs = quote! {
+        let mut doc = quote! {
             /// ## Safety
             ///
             /// - `self.0` must be a valid handle of
@@ -237,13 +248,18 @@ fn make_property_getter(
             /// - `suite` must be valid.
         };
 
+        if let Some(additional_safety_doc) = preset.additional_safety_doc() {
+            doc.extend(quote! {
+                ///
+            });
+            doc.extend(additional_safety_doc);
+        }
+
         match &prop.ty {
             InputContainerType::Scalar(_) => output.extend(
                 quote! {
-                    #docs
-                    pub unsafe fn #fn_name<'a, 'b>(&'a self, suite: &'b crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<#expressive_ty>
-                        where 'b: 'a
-                    {
+                    #doc
+                    pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<#expressive_ty> {
                         let value_simple = suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname)?;
                         let value = #simple_value_to_expressive_quote;
                         Ok(value)
@@ -252,10 +268,8 @@ fn make_property_getter(
             ),
             InputContainerType::Array(_, size) if is_conversion_unnecessary => output.extend(
                 quote! {
-                    #docs
-                    pub unsafe fn #fn_name<'a, 'b>(&'a self, suite: &'b crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#expressive_ty; #size]>
-                        where 'b: 'a
-                    {
+                    #doc
+                    pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#expressive_ty; #size]> {
                         let value = suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)?;
                         Ok(value)
                     }
@@ -263,7 +277,7 @@ fn make_property_getter(
             ),
             InputContainerType::Array(_, size) => output.extend(
                 quote! {
-                    #docs
+                    #doc
                     pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#expressive_ty; #size]> {
                         let value_simple = suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)?;
                         let value = #simple_value_to_expressive_quote;
@@ -273,7 +287,7 @@ fn make_property_getter(
             ),
             InputContainerType::Slice(_) => output.extend(
                 quote! {
-                    #docs
+                    #doc
                     pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<::std::vec::Vec<#expressive_ty>> {
                         let dimensions = suite.prop_get_dimension(self.sys_handle(), crate::sys_umbrella::#cname)? as usize;
                         let mut value_simple = ::std::vec::Vec::with_capacity(dimensions);
@@ -399,6 +413,9 @@ trait ImplSetterPreset {
     fn fn_name_suffix(&self) -> Option<&'static str> {
         None
     }
+    fn additional_safety_doc(&self) -> Option<proc_macro2::TokenStream> {
+        None
+    }
     /// The expressive type used in the `low` layer, i.e., the type of the value
     /// passed to the setter function that this preset adds.
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream;
@@ -422,6 +439,9 @@ trait ImplGetterPreset {
     }
     /// See [`ImplSetterPreset::fn_name_suffix`].
     fn fn_name_suffix(&self) -> Option<&'static str> {
+        None
+    }
+    fn additional_safety_doc(&self) -> Option<proc_macro2::TokenStream> {
         None
     }
     /// The expressive type used in the `low` layer, i.e., the type of the value
@@ -519,6 +539,12 @@ impl ImplSetterPreset for ImplAccessorsPresetPointer {
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetPointer {
+    fn additional_safety_doc(&self) -> Option<proc_macro2::TokenStream> {
+        Some(quote! {
+            /// The lifetime of the retrieved pointer(s) is controlled by the
+            /// host.
+        })
+    }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         self.expressive_type(ident)
     }
@@ -548,6 +574,12 @@ impl ImplSetterPreset for ImplAccessorsPresetString {
 impl ImplGetterPreset for ImplAccessorsPresetString {
     fn simple_type_suffix(&self) -> Option<&'static str> {
         Self::SIMPLE_TYPE_SUFFIX
+    }
+    fn additional_safety_doc(&self) -> Option<proc_macro2::TokenStream> {
+        Some(quote! {
+            /// The lifetime of the retrieved string(s) is controlled by the
+            /// host.
+        })
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let c_char = quote_spanned! { ident.span() => c_char };
