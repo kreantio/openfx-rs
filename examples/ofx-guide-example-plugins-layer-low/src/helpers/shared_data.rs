@@ -6,7 +6,10 @@ use std::{
 };
 
 use openfx::{
-    low::{self, Status},
+    low::{
+        self, Status,
+        enums::{ImageEffectPropComponents, ImageEffectPropPixelDepth},
+    },
     low_plugin::{
         Host, LifetimePlugin,
         objects::{ImageClipInstance, ImageEffectDescriptor, ImageEffectInstance},
@@ -157,24 +160,18 @@ impl ClipImageManaged {
         };
 
         let n_comps = match unsafe { props.get_image_effect_components_owned(s_prop)? } {
-            LosslessEnumPropertyOwned::Known(low::enums::ImageEffectPropComponents::Alpha) => 1,
-            LosslessEnumPropertyOwned::Known(low::enums::ImageEffectPropComponents::RGB) => 3,
-            LosslessEnumPropertyOwned::Known(low::enums::ImageEffectPropComponents::RGBA) => 4,
+            LosslessEnumPropertyOwned::Known(ImageEffectPropComponents::Alpha) => 1,
+            LosslessEnumPropertyOwned::Known(ImageEffectPropComponents::RGB) => 3,
+            LosslessEnumPropertyOwned::Known(ImageEffectPropComponents::RGBA) => 4,
             x => {
                 tracing::error!("Unsupported image effect components: {:?}", x.as_c_str());
                 return Err(Status::ErrUnsupported);
             }
         };
         let pixel_depth = match unsafe { props.get_image_effect_pixel_depth_owned(s_prop)? } {
-            LosslessEnumPropertyOwned::Known(low::enums::ImageEffectPropPixelDepth::Byte) => {
-                BitDepth::Byte
-            }
-            LosslessEnumPropertyOwned::Known(low::enums::ImageEffectPropPixelDepth::Short) => {
-                BitDepth::Short
-            }
-            LosslessEnumPropertyOwned::Known(low::enums::ImageEffectPropPixelDepth::Float) => {
-                BitDepth::Float
-            }
+            LosslessEnumPropertyOwned::Known(ImageEffectPropPixelDepth::Byte) => BitDepth::Byte,
+            LosslessEnumPropertyOwned::Known(ImageEffectPropPixelDepth::Short) => BitDepth::Short,
+            LosslessEnumPropertyOwned::Known(ImageEffectPropPixelDepth::Float) => BitDepth::Float,
             x => {
                 tracing::error!("Unsupported image effect pixel depth: {:?}", x.as_c_str());
                 return Err(Status::ErrUnsupported);
@@ -332,7 +329,7 @@ impl ParameterSuiteHelper {
         &self,
         param_handle: OfxParamHandle,
         time: OfxTime,
-    ) -> openfx::low::Result<T> {
+    ) -> low::Result<T> {
         let mut value: T = unsafe { std::mem::zeroed() };
         param_get_value_at_time!(self, param_handle, time, &mut value);
         Ok(value)
@@ -345,7 +342,7 @@ impl ParameterSuiteHelper {
         &self,
         param_handle: OfxParamHandle,
         time: OfxTime,
-    ) -> openfx::low::Result<f64> {
+    ) -> low::Result<f64> {
         unsafe { self.param_get_value_at_time(param_handle, time) }
     }
 
@@ -356,7 +353,7 @@ impl ParameterSuiteHelper {
         &self,
         param_handle: OfxParamHandle,
         time: OfxTime,
-    ) -> openfx::low::Result<c_int> {
+    ) -> low::Result<c_int> {
         unsafe { self.param_get_value_at_time(param_handle, time) }
     }
 }
@@ -376,12 +373,12 @@ macro_rules! param_get_value_at_time{
                     .inner()
                     .sys_ref()
                     .paramGetValueAtTime
-                    .ok_or(openfx::low::Status::ErrMissingHostFeature)?
+                    .ok_or(Status::ErrMissingHostFeature)?
             };
             let time = $time;
             #[allow(clippy::macro_metavars_in_unsafe)]
             if let stat = unsafe { param_get_value_at_time($param_handle, time, $(&mut $value),+) } && stat != ::openfx::sys::generic::core::kOfxStatOK {
-                return Err(openfx::low::Status::from(stat));
+                return Err(Status::from(stat));
             }
         }
     }
