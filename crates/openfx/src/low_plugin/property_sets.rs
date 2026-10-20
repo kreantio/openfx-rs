@@ -13,7 +13,7 @@ pub trait KnownEnumProperty: Sized + Clone + Copy + PartialEq + Eq {
     ///
     /// `ptr` must be valid and point to a null-terminated C string.
     unsafe fn try_from_ptr(ptr: NonNull<c_char>) -> Option<Self>;
-    fn as_cstr(&self) -> &CStr;
+    fn as_c_str(&self) -> &CStr;
 }
 
 #[derive(Clone, Copy)]
@@ -123,7 +123,7 @@ impl<T: KnownEnumProperty> LosslessEnumProperty<T> {
     /// See the Safety section of [`LosslessEnumProperty`] for more information.
     pub unsafe fn matches(&self, val: &std::ffi::CStr) -> bool {
         match self {
-            Self::Known(value) => value.as_cstr() == val,
+            Self::Known(value) => value.as_c_str() == val,
             Self::UnknownDontUseThisDirectly(ptr) => {
                 ptr.is_some_and(|p| unsafe { std::ffi::CStr::from_ptr(p.as_ptr()) } == val)
             }
@@ -144,7 +144,7 @@ impl<T: KnownEnumProperty> From<&LosslessEnumProperty<T>> for EnumPropertyPtr<T>
     fn from(value: &LosslessEnumProperty<T>) -> Self {
         match value {
             LosslessEnumProperty::Known(v) => {
-                Self::new(NonNull::new(v.as_cstr().as_ptr() as *mut c_char))
+                Self::new(NonNull::new(v.as_c_str().as_ptr() as *mut c_char))
             }
             LosslessEnumProperty::UnknownDontUseThisDirectly(ptr) => Self::new(*ptr),
         }
@@ -182,14 +182,14 @@ impl<T: KnownEnumProperty> LosslessEnumPropertyOwned<T> {
 
     pub fn as_c_str(&self) -> Option<&CStr> {
         match self {
-            Self::Known(value) => Some(value.as_cstr()),
+            Self::Known(value) => Some(value.as_c_str()),
             Self::UnknownDontUseThisDirectly(cstr) => cstr.as_ref().map(|cstr| cstr.as_c_str()),
         }
     }
 
     pub fn matches(&self, val: &std::ffi::CStr) -> bool {
         match self {
-            Self::Known(value) => value.as_cstr() == val,
+            Self::Known(value) => value.as_c_str() == val,
             Self::UnknownDontUseThisDirectly(cstr) => cstr.as_ref().is_some_and(|cstr| cstr == val),
         }
     }
@@ -208,7 +208,7 @@ impl<T: KnownEnumProperty> From<&LosslessEnumPropertyOwned<T>> for EnumPropertyP
     fn from(value: &LosslessEnumPropertyOwned<T>) -> Self {
         match value {
             LosslessEnumPropertyOwned::Known(v) => {
-                Self::new(NonNull::new(v.as_cstr().as_ptr() as *mut c_char))
+                Self::new(NonNull::new(v.as_c_str().as_ptr() as *mut c_char))
             }
             LosslessEnumPropertyOwned::UnknownDontUseThisDirectly(cstr) => Self::new(
                 cstr.as_ref()

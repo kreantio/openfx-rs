@@ -76,7 +76,7 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
                         }
                     }
 
-                    fn as_cstr(&self) -> &std::ffi::CStr {
+                    fn as_c_str(&self) -> &std::ffi::CStr {
                         match self {
                             #( Self::#vars => #vals, )*
                         }
@@ -85,7 +85,7 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
 
                 impl From<#name> for crate::low_plugin::property_sets::EnumPropertyPtr<#name> {
                     fn from(value: #name) -> Self {
-                        let ptr = crate::low_plugin::property_sets::KnownEnumProperty::as_cstr(&value).as_ptr();
+                        let ptr = crate::low_plugin::property_sets::KnownEnumProperty::as_c_str(&value).as_ptr();
                         Self::new(std::ptr::NonNull::new(ptr as *mut std::os::raw::c_char))
                     }
                 }
