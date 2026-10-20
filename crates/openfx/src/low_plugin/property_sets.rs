@@ -141,9 +141,6 @@ impl<T: KnownEnumProperty> PartialEq<T> for LosslessEnumProperty<T> {
 }
 
 impl<T: KnownEnumProperty> From<&LosslessEnumProperty<T>> for EnumPropertyPtr<T> {
-    /// ## Safety
-    ///
-    /// See the Safety section of [`LosslessEnumProperty`] for more information.
     fn from(value: &LosslessEnumProperty<T>) -> Self {
         match value {
             LosslessEnumProperty::Known(v) => {
