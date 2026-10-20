@@ -176,9 +176,9 @@ impl<T: KnownEnumProperty> LosslessEnumPropertyOwned<T> {
         }
     }
 
-    pub fn known(&self) -> Option<Self> {
+    pub fn known(&self) -> Option<T> {
         match self {
-            Self::Known(value) => Some(Self::Known(*value)),
+            Self::Known(value) => Some(*value),
             _ => None,
         }
     }
