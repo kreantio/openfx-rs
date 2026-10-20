@@ -352,11 +352,27 @@ impl OpenFXTypeLow {
 }
 
 trait ImplSetterPreset {
+    /// Determines which setter functions on
+    /// [`openfx::low_plugin::suites::PropertySuiteV1`] to use, by adding a
+    /// suffix to the sys type's name if the returned value is `Some`.
+    ///
+    /// For example, if the sys type is
+    /// [`crate::common::type_sys::OpenFXTypeSys::Int`], the setter functions
+    /// would normally be `prop_set_string{,_at,_array,_n}`, but if this
+    /// function returns `Some("ptr")`, the setter functions become
+    /// `prop_set_string_ptr{,_at,_array,_n}`.
     fn sys_type_suffix(&self) -> Option<&'static str> {
         None
     }
+    /// The type used in the `low` layer, i.e., the type of the value passed to
+    /// the setter function that this preset adds.
     fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream;
     /// `None` means that the low type and the sys type are identical.
+    /// A quote of the expression that converts the type used in the `low`
+    /// layer into the type used in the `sys` layer.
+    ///
+    /// Returning `None` means that the two types are identical, therefore no
+    /// conversion is needed.
     fn low_type_to_sys_type(
         &self,
         _low_val: proc_macro2::TokenStream,
@@ -366,11 +382,18 @@ trait ImplSetterPreset {
 }
 
 trait ImplGetterPreset {
+    /// See [`ImplSetterPreset::sys_type_suffix`].
     fn sys_type_suffix(&self) -> Option<&'static str> {
         None
     }
+    /// See [`ImplSetterPreset::fn_name_suffix`].
     fn low_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream;
     /// `None` means that the low type and the sys type are identical.
+    /// A quote of the expression that converts the type used in the `sys`
+    /// layer into the type used in the `low` layer.
+    ///
+    /// Returning `None` means that the two types are identical, therefore no
+    /// conversion is needed.
     fn sys_type_to_low_type(
         &self,
         _sys_val: proc_macro2::TokenStream,
