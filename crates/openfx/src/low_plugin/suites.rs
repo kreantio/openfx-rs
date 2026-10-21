@@ -11,6 +11,10 @@
 //! [`OfxPropertySetHandle`]s rather than the objects mentioned above, those
 //! functions remain `pub`.
 //!
+//! Since the first parameters of some of the functions on [`ParameterSuiteV1`]
+//! are [`OfxParamHandle`]s rather than the objects mentioned above, those
+//! functions remain `pub`.
+//!
 //! Since the first parameters of functions on [`MessageSuiteV1`] and
 //! [`MessageSuiteV2`] are either [`MessageHandle`] or
 //! [`PersistentMessageHandle`], both defined in this module, they also don't
