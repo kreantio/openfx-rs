@@ -400,7 +400,7 @@ trait ImplSetterPreset {
     /// suffix to the simple type's name if the returned value is `Some`.
     ///
     /// For example, if the simple type is
-    /// [`crate::common::OpenFXTypeSimple::Int`], the setter functions would
+    /// [`crate::common::OpenFXTypeSimple::String`], the setter functions would
     /// normally be `prop_set_string{,_at,_array,_n}`, but if this function
     /// returns `Some("ptr")`, the setter functions become
     /// `prop_set_string_ptr{,_at,_array,_n}`.
