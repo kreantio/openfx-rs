@@ -375,10 +375,15 @@ impl Mutex {
 }
 
 impl ParamSetDescriptor {
+    /// It is recommended to use the typed versions of this function where
+    /// applicable.
+    ///
+    /// TODO: Implement the typed versions of this function.
+    ///
     /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
-    pub(crate) unsafe fn param_define(
+    pub unsafe fn param_define(
         &self,
         parameter_suite: &ParameterSuiteV1,
         param_type: &CStr,
@@ -387,11 +392,15 @@ impl ParamSetDescriptor {
         unsafe { parameter_suite.param_define(self, param_type, name) }
     }
 
+    /// It is recommended to use the typed versions of this function where
+    /// applicable.
+    ///
+    /// TODO: Implement the typed versions of this function.
+    ///
     /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
-    #[expect(unused)]
-    pub(crate) unsafe fn param_define_no_output(
+    pub unsafe fn param_define_no_output(
         &self,
         parameter_suite: &ParameterSuiteV1,
         param_type: &CStr,
@@ -433,10 +442,15 @@ impl ParamSetInstance {
         unsafe { parameter_suite.param_edit_end(self) }
     }
 
+    /// It is recommended to use the typed versions of this function where
+    /// applicable.
+    ///
+    /// TODO: Implement the typed versions of this function.
+    ///
     /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
-    pub(crate) unsafe fn param_get_handle(
+    pub unsafe fn param_get_handle(
         &self,
         parameter_suite: &ParameterSuiteV1,
         name: &CStr,
@@ -444,11 +458,15 @@ impl ParamSetInstance {
         unsafe { parameter_suite.param_get_handle(self, name) }
     }
 
-    #[expect(unused)]
+    /// It is recommended to use the typed versions of this function where
+    /// applicable.
+    ///
+    /// TODO: Implement the typed versions of this function.
+    ///
     /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
-    pub(crate) unsafe fn param_get_param_handle(
+    pub unsafe fn param_get_param_handle(
         &self,
         parameter_suite: &ParameterSuiteV1,
         name: &CStr,

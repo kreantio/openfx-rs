@@ -13,12 +13,12 @@ suites:
     ImageEffectOpenGLRenderSuiteV1:
       key_name: kOfxOpenGLRenderSuite
     MessageSuiteV1:
-      # C variadic arguments:
       functions:
+        # C variadic arguments:
         message: { prefer_checking_sys_name_in_suite: true }
     MessageSuiteV2:
-      # C variadic arguments:
       functions:
+        # C variadic arguments:
         message: { prefer_checking_sys_name_in_suite: true }
         setPersistentMessage: { prefer_checking_sys_name_in_suite: true }
     MultiThreadSuiteV1:
@@ -34,12 +34,12 @@ suites:
     ParameterSuiteV1:
       functions:
         # C variadic arguments:
-        paramGetValue: { omit: true }
-        paramGetValueAtTime: { omit: true }
-        paramGetDerivative: { omit: true }
-        paramGetIntegral: { omit: true }
-        paramSetValue: { omit: true }
-        paramSetValueAtTime: { omit: true }
+        paramGetValue: { prefer_checking_sys_name_in_suite: true }
+        paramGetValueAtTime: { prefer_checking_sys_name_in_suite: true }
+        paramGetDerivative: { prefer_checking_sys_name_in_suite: true }
+        paramGetIntegral: { prefer_checking_sys_name_in_suite: true }
+        paramSetValue: { prefer_checking_sys_name_in_suite: true }
+        paramSetValueAtTime: { prefer_checking_sys_name_in_suite: true }
     PropertySuiteV1:
       # Instead, special forms are used: `prop_get_string_{ptr,owned}[_n]`.
       functions:

@@ -42,7 +42,6 @@ use crate::{
     definitions::{PLUGIN_5_CIRCLE_IDENTIFIER, PLUGIN_5_CIRCLE_LABEL, PLUGINS_GROUPING},
     helpers::shared_data::{
         BitDepth, ClipImageManaged, GuaranteeSend, GuaranteeSendClipInInstance, SharedData,
-        param_get_value_at_time,
     },
 };
 
@@ -211,6 +210,7 @@ fn action_describe_in_context(
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
+    let s_param = &data.parameter_suite.0;
 
     let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
     if context != ImageEffectPropContext::Filter {
@@ -232,10 +232,11 @@ fn action_describe_in_context(
         })?;
     }
 
-    let param_set = unsafe { data.make_param_set_helper_for_image_effect_descriptor(&descriptor) }?;
+    let param_set = unsafe { descriptor.get_param_set(s_ifx) }?;
 
     {
-        let param_props = param_set.param_define(kOfxParamTypeDouble, RADIUS_PARAM_NAME)?;
+        let param_props =
+            unsafe { param_set.param_define(s_param, kOfxParamTypeDouble, RADIUS_PARAM_NAME) }?;
         let param_props_d = ParamsDouble1DPropertySet::from(param_props);
         let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
 
@@ -260,7 +261,8 @@ fn action_describe_in_context(
     }
 
     {
-        let param_props = param_set.param_define(kOfxParamTypeDouble2D, CENTRE_PARAM_NAME)?;
+        let param_props =
+            unsafe { param_set.param_define(s_param, kOfxParamTypeDouble2D, CENTRE_PARAM_NAME) }?;
         let param_props_d = ParamsDouble2D3DPropertySet::from(param_props);
         let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
 
@@ -279,7 +281,8 @@ fn action_describe_in_context(
     }
 
     {
-        let param_props = param_set.param_define(kOfxParamTypeRGBA, COLOUR_PARAM_NAME)?;
+        let param_props =
+            unsafe { param_set.param_define(s_param, kOfxParamTypeRGBA, COLOUR_PARAM_NAME) }?;
         let param_props_d = ParamsDouble2D3DPropertySet::from(param_props);
 
         unsafe {
@@ -290,7 +293,8 @@ fn action_describe_in_context(
     }
 
     if additional.host_supports_multi_res {
-        let param_props = param_set.param_define(kOfxParamTypeBoolean, GROW_ROD_PARAM_NAME)?;
+        let param_props =
+            unsafe { param_set.param_define(s_param, kOfxParamTypeBoolean, GROW_ROD_PARAM_NAME) }?;
         let param_props = ParamsBytePropertySet::from(param_props);
 
         unsafe {
@@ -311,18 +315,19 @@ fn action_create_instance(instance: ImageEffectInstance) -> openfx::low::Result<
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
+    let s_param = &data.parameter_suite.0;
 
     let instance_props = unsafe { instance.get_property_set(s_ifx) }?;
 
     let source_clip = unsafe { instance.clip_get_clip_handle(s_ifx, c"Source") }?;
     let output_clip = unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }?;
 
-    let param_set = unsafe { data.make_param_set_helper_for_image_effect_instance(&instance) }?;
-    let radius_param = param_set.param_get_handle(RADIUS_PARAM_NAME)?;
-    let centre_param = param_set.param_get_handle(CENTRE_PARAM_NAME)?;
-    let colour_param = param_set.param_get_handle(COLOUR_PARAM_NAME)?;
+    let param_set = unsafe { instance.get_param_set(s_ifx) }?;
+    let radius_param = unsafe { param_set.param_get_param_handle(s_param, RADIUS_PARAM_NAME) }?;
+    let centre_param = unsafe { param_set.param_get_param_handle(s_param, CENTRE_PARAM_NAME) }?;
+    let colour_param = unsafe { param_set.param_get_param_handle(s_param, COLOUR_PARAM_NAME) }?;
     let grow_rod_param = if additional.host_supports_multi_res {
-        Some(param_set.param_get_handle(GROW_ROD_PARAM_NAME)?)
+        Some(unsafe { param_set.param_get_param_handle(s_param, GROW_ROD_PARAM_NAME) }?)
     } else {
         None
     };
@@ -386,7 +391,7 @@ fn action_get_region_of_definition(
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
-    let s_param = data.parameter_suite_helper();
+    let s_param = &data.parameter_suite.0;
 
     let instance_props = unsafe { effect.get_property_set(s_ifx) }?;
 
@@ -397,26 +402,33 @@ fn action_get_region_of_definition(
     };
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
-    let growing_rod = if let Some(grow_rod_param) = my_data.grow_rod_param {
-        (unsafe { s_param.param_get_value_at_time_int(grow_rod_param, time) })? != 0
-    } else {
-        false
+    let mut growing_rod = false;
+    if let Some(grow_rod_param) = my_data.grow_rod_param {
+        let mut growing_rod_: c_int = Default::default();
+        Status::result_from(unsafe {
+            s_param.sys_param_get_value_at_time(grow_rod_param, time, &mut growing_rod_)
+        })?;
+        growing_rod = growing_rod_ != 0;
     };
 
     if !growing_rod {
         return Err(Status::ReplyDefault);
     }
 
-    let radius = unsafe { s_param.param_get_value_at_time_double(my_data.radius_param, time) }?;
+    let mut radius: f64 = Default::default();
+    Status::result_from(unsafe {
+        s_param.sys_param_get_value_at_time(my_data.radius_param, time, &mut radius)
+    })?;
     let mut centre_x = 0.0;
     let mut centre_y = 0.0;
-    param_get_value_at_time!(
-        s_param,
-        my_data.centre_param,
-        time,
-        &mut centre_x,
-        &mut centre_y,
-    );
+    Status::result_from(unsafe {
+        s_param.sys_param_get_value_at_time(
+            my_data.centre_param,
+            time,
+            &mut centre_x,
+            &mut centre_y,
+        )
+    })?;
 
     let mut rod = unsafe {
         my_data
@@ -444,7 +456,7 @@ fn action_is_identity(
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
-    let s_param = data.parameter_suite_helper();
+    let s_param = &data.parameter_suite.0;
 
     let instance_props = unsafe { effect.get_property_set(s_ifx) }?;
 
@@ -455,15 +467,21 @@ fn action_is_identity(
     };
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
-    let radius = unsafe { s_param.param_get_value_at_time_double(my_data.radius_param, time) }?;
+    let mut radius: f64 = Default::default();
+    Status::result_from(unsafe {
+        s_param.sys_param_get_value_at_time(my_data.radius_param, time, &mut radius)
+    })?;
 
     let is_identity = if radius < 0.0001 {
         true
     } else {
-        let growing_rod = if let Some(grow_rod_param) = my_data.grow_rod_param {
-            (unsafe { s_param.param_get_value_at_time_int(grow_rod_param, time) })? != 0
-        } else {
-            false
+        let mut growing_rod = false;
+        if let Some(grow_rod_param) = my_data.grow_rod_param {
+            let mut growing_rod_: c_int = Default::default();
+            Status::result_from(unsafe {
+                s_param.sys_param_get_value_at_time(grow_rod_param, time, &mut growing_rod_)
+            })?;
+            growing_rod = growing_rod_ != 0;
         };
 
         if growing_rod {
@@ -478,13 +496,14 @@ fn action_is_identity(
 
             let mut centre_x = 0.0;
             let mut centre_y = 0.0;
-            param_get_value_at_time!(
-                s_param,
-                my_data.centre_param,
-                time,
-                &mut centre_x,
-                &mut centre_y,
-            );
+            Status::result_from(unsafe {
+                s_param.sys_param_get_value_at_time(
+                    my_data.centre_param,
+                    time,
+                    &mut centre_x,
+                    &mut centre_y,
+                )
+            })?;
 
             centre_x + radius < bounds.x1
                 || centre_x - radius > bounds.x2
@@ -509,7 +528,7 @@ fn action_render(
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
-    let s_param = data.parameter_suite_helper();
+    let s_param = &data.parameter_suite.0;
 
     let instance_props = unsafe { instance.get_property_set(s_ifx) }?;
 
@@ -523,17 +542,21 @@ fn action_render(
     };
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
-    let radius = unsafe { s_param.param_get_value_at_time_double(my_data.radius_param, time) }?;
+    let mut radius: f64 = Default::default();
+    Status::result_from(unsafe {
+        s_param.sys_param_get_value_at_time(my_data.radius_param, time, &mut radius)
+    })?;
     let centre = {
         let mut centre_x = 0.0;
         let mut centre_y = 0.0;
-        param_get_value_at_time!(
-            s_param,
-            my_data.centre_param,
-            time,
-            &mut centre_x,
-            &mut centre_y,
-        );
+        Status::result_from(unsafe {
+            s_param.sys_param_get_value_at_time(
+                my_data.centre_param,
+                time,
+                &mut centre_x,
+                &mut centre_y,
+            )
+        })?;
         [centre_x, centre_y]
     };
     let colour = {
@@ -541,15 +564,16 @@ fn action_render(
         let mut colour_g = 0.0;
         let mut colour_b = 0.0;
         let mut colour_a = 0.0;
-        param_get_value_at_time!(
-            s_param,
-            my_data.colour_param,
-            time,
-            &mut colour_r,
-            &mut colour_g,
-            &mut colour_b,
-            &mut colour_a,
-        );
+        Status::result_from(unsafe {
+            s_param.sys_param_get_value_at_time(
+                my_data.colour_param,
+                time,
+                &mut colour_r,
+                &mut colour_g,
+                &mut colour_b,
+                &mut colour_a,
+            )
+        })?;
         [colour_r, colour_g, colour_b, colour_a]
     };
 

@@ -6,7 +6,9 @@ use crate::{
         property_sets::ParamSetPropertySet,
         suites::ParameterSuiteV1,
     },
-    sys_umbrella::{OfxParamHandle, OfxParamSetHandle, OfxPropertySetHandle, OfxRangeD, OfxTime},
+    sys_umbrella::{
+        OfxParamHandle, OfxParamSetHandle, OfxPropertySetHandle, OfxRangeD, OfxStatus, OfxTime,
+    },
 };
 
 /// Implementations of methods directly operating on parameter suites.
@@ -119,7 +121,6 @@ impl ParameterSuiteV1 {
     /// ## Safety
     ///
     /// `self` and `param_set` must be valid.
-    #[expect(unused)]
     pub(crate) unsafe fn param_get_param_handle(
         &self,
         param_set: &ParamSetInstance,
@@ -326,5 +327,88 @@ impl ParameterSuiteV1 {
         crate::low::Status::result_from(unsafe { sys_fn(sys_param, prop_handle.as_mut_ptr()) })?;
 
         Ok(unsafe { prop_handle.assume_init() })
+    }
+
+    /// ## Safety
+    ///
+    /// `self` and `sys_param_handle` must be valid.
+    pub unsafe extern "C" fn sys_param_get_derivative(
+        &self,
+        sys_param_handle: OfxParamHandle,
+        time: OfxTime,
+        args: ...
+    ) -> OfxStatus {
+        let sys_fn = unsafe { sys_fn!("paramGetDerivative") };
+
+        unsafe { sys_fn(sys_param_handle, time, args) }
+    }
+
+    /// ## Safety
+    ///
+    /// `self` and `sys_param_handle` must be valid.
+    pub unsafe extern "C" fn sys_param_get_integral(
+        &self,
+        sys_param_handle: OfxParamHandle,
+        time1: OfxTime,
+        time2: OfxTime,
+        args: ...
+    ) -> OfxStatus {
+        let sys_fn = unsafe { sys_fn!("paramGetIntegral") };
+
+        unsafe { sys_fn(sys_param_handle, time1, time2, args) }
+    }
+
+    /// ## Safety
+    ///
+    /// `self` and `sys_param_handle` must be valid.
+    pub unsafe extern "C" fn sys_param_get_value(
+        &self,
+        sys_param_handle: OfxParamHandle,
+        args: ...
+    ) -> OfxStatus {
+        let sys_fn = unsafe { sys_fn!("paramGetValue") };
+
+        unsafe { sys_fn(sys_param_handle, args) }
+    }
+
+    /// ## Safety
+    ///
+    /// `self` and `sys_param_handle` must be valid.
+    pub unsafe extern "C" fn sys_param_get_value_at_time(
+        &self,
+        sys_param_handle: OfxParamHandle,
+        time: OfxTime,
+        args: ...
+    ) -> OfxStatus {
+        let sys_fn = unsafe { sys_fn!("paramGetValueAtTime") };
+
+        unsafe { sys_fn(sys_param_handle, time, args) }
+    }
+
+    /// ## Safety
+    ///
+    /// `self` and `sys_param_handle` must be valid.
+    pub unsafe extern "C" fn sys_param_set_value(
+        &self,
+        sys_param_handle: OfxParamHandle,
+        args: ...
+    ) -> OfxStatus {
+        let sys_fn = unsafe { sys_fn!("paramSetValue") };
+
+        unsafe { sys_fn(sys_param_handle, args) }
+    }
+
+    /// ## Safety
+    ///
+    /// `self` and `sys_param_handle` must be valid.
+    pub unsafe extern "C" fn sys_param_set_value_at_time(
+        &self,
+        sys_param_handle: OfxParamHandle,
+        time: OfxTime,
+        args: ...
+    ) -> OfxStatus {
+        let sys_fn = unsafe { sys_fn!("paramSetValueAtTime") };
+
+        unsafe { sys_fn(sys_param_handle, time, args) }
     }
 }

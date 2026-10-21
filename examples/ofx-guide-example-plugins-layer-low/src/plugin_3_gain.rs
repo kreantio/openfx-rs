@@ -1,7 +1,7 @@
 mod processing;
 
 use std::{
-    ffi::{CStr, c_void},
+    ffi::{CStr, c_int, c_void},
     sync::Mutex,
 };
 
@@ -163,6 +163,7 @@ fn action_describe_in_context(
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
+    let s_param = &data.parameter_suite.0;
 
     let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
     if context != ImageEffectPropContext::Filter {
@@ -184,10 +185,11 @@ fn action_describe_in_context(
         })?;
     }
 
-    let param_set = unsafe { data.make_param_set_helper_for_image_effect_descriptor(&descriptor) }?;
+    let param_set = unsafe { descriptor.get_param_set(s_ifx) }?;
 
     {
-        let param_props = param_set.param_define(kOfxParamTypeDouble, GAIN_PARAM_NAME)?;
+        let param_props =
+            unsafe { param_set.param_define(s_param, kOfxParamTypeDouble, GAIN_PARAM_NAME) }?;
         let param_props = ParamsDouble1DPropertySet::from(param_props);
 
         unsafe {
@@ -202,8 +204,9 @@ fn action_describe_in_context(
     }
 
     {
-        let param_props =
-            param_set.param_define(kOfxParamTypeBoolean, APPLY_TO_ALPHA_PARAM_NAME)?;
+        let param_props = unsafe {
+            param_set.param_define(s_param, kOfxParamTypeBoolean, APPLY_TO_ALPHA_PARAM_NAME)
+        }?;
         let param_props = ParamsBytePropertySet::from(param_props);
 
         unsafe {
@@ -224,15 +227,17 @@ fn action_create_instance(instance: ImageEffectInstance) -> openfx::low::Result<
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
+    let s_param = &data.parameter_suite.0;
 
     let instance_props = unsafe { instance.get_property_set(s_ifx) }?;
 
     let source_clip = unsafe { instance.clip_get_clip_handle(s_ifx, c"Source") }?;
     let output_clip = unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }?;
 
-    let param_set = unsafe { data.make_param_set_helper_for_image_effect_instance(&instance) }?;
-    let gain_param = param_set.param_get_handle(GAIN_PARAM_NAME)?;
-    let apply_to_alpha_param = param_set.param_get_handle(APPLY_TO_ALPHA_PARAM_NAME)?;
+    let param_set = unsafe { instance.get_param_set(s_ifx) }?;
+    let gain_param = unsafe { param_set.param_get_param_handle(s_param, GAIN_PARAM_NAME) }?;
+    let apply_to_alpha_param =
+        unsafe { param_set.param_get_param_handle(s_param, APPLY_TO_ALPHA_PARAM_NAME) }?;
 
     let my_data = MyInstanceData {
         source_clip: GuaranteeSendClipInInstance(source_clip),
@@ -286,8 +291,8 @@ fn action_is_identity(
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
-    let s_param = data.parameter_suite_helper();
     let s_ifx = &data.image_effect_suite.0;
+    let s_param = &data.parameter_suite.0;
 
     let instance_props = unsafe { effect.get_property_set(s_ifx) }?;
 
@@ -297,7 +302,10 @@ fn action_is_identity(
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
     let time = unsafe { in_args.get_time(s_prop) }?;
-    let gain = unsafe { s_param.param_get_value_at_time_double(my_data.gain_param, time) }?;
+    let mut gain: f64 = Default::default();
+    Status::result_from(unsafe {
+        s_param.sys_param_get_value_at_time(my_data.gain_param, time, &mut gain)
+    })?;
 
     if (gain - 1.0).abs() < 0.000000001 {
         (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })?;
@@ -314,8 +322,8 @@ fn action_render(
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
-    let s_param = data.parameter_suite_helper();
     let s_ifx = &data.image_effect_suite.0;
+    let s_param = &data.parameter_suite.0;
 
     let instance_props = unsafe { instance.get_property_set(s_ifx) }?;
 
@@ -328,9 +336,15 @@ fn action_render(
     };
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
-    let gain = unsafe { s_param.param_get_value_at_time_double(my_data.gain_param, time) }?;
-    let apply_to_alpha =
-        unsafe { s_param.param_get_value_at_time_int(my_data.apply_to_alpha_param, time) }? != 0;
+    let mut gain: f64 = Default::default();
+    Status::result_from(unsafe {
+        s_param.sys_param_get_value_at_time(my_data.gain_param, time, &mut gain)
+    })?;
+    let mut apply_to_alpha: c_int = Default::default();
+    Status::result_from(unsafe {
+        s_param.sys_param_get_value_at_time(my_data.apply_to_alpha_param, time, &mut apply_to_alpha)
+    })?;
+    let apply_to_alpha = apply_to_alpha != 0;
 
     let output_img = unsafe { my_data.output_clip.0.clip_get_image(s_ifx, time, None) }?;
     let source_img = unsafe { my_data.source_clip.0.clip_get_image(s_ifx, time, None) }?;
