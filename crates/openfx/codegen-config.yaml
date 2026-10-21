@@ -40,6 +40,11 @@ suites:
         paramGetIntegral: { omit: true }
         paramSetValue: { omit: true }
         paramSetValueAtTime: { omit: true }
+    PropertySuiteV1:
+      # Instead, special forms are used: `prop_get_string_{ptr,owned}[_n]`.
+      functions:
+        propGetString: { omit: true }
+        propGetStringN: { omit: true }
 
 objects:
   unused_property_sets_in_metadata: # NOTE: This configuration is currently unused.

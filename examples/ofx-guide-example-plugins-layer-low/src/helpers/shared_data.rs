@@ -6,11 +6,14 @@ use std::{
 };
 
 use openfx::{
-    low::{self, Status},
+    low::{
+        self, Status,
+        enums::{ImageEffectPropComponents, ImageEffectPropPixelDepth},
+    },
     low_plugin::{
         Host, LifetimePlugin,
         objects::{ImageClipInstance, ImageEffectDescriptor, ImageEffectInstance},
-        property_sets::ImageInstancePropertySet,
+        property_sets::{ImageInstancePropertySet, LosslessEnumPropertyOwned},
         suites::{ImageEffectSuiteV1, ParameterSuiteV1, PropertySuiteV1},
     },
     sys::{
@@ -156,17 +159,23 @@ impl ClipImageManaged {
             return Err(Status::Failed);
         };
 
-        let n_comps = match unsafe { props.get_image_effect_components(s_prop)? } {
-            low::enums::ImageEffectPropComponents::Alpha => 1,
-            low::enums::ImageEffectPropComponents::RGB => 3,
-            low::enums::ImageEffectPropComponents::RGBA => 4,
-            _ => 0,
+        let n_comps = match unsafe { props.get_image_effect_components_owned(s_prop)? } {
+            LosslessEnumPropertyOwned::Known(ImageEffectPropComponents::Alpha) => 1,
+            LosslessEnumPropertyOwned::Known(ImageEffectPropComponents::RGB) => 3,
+            LosslessEnumPropertyOwned::Known(ImageEffectPropComponents::RGBA) => 4,
+            x => {
+                tracing::error!("Unsupported image effect components: {:?}", x.as_c_str());
+                return Err(Status::ErrUnsupported);
+            }
         };
-        let pixel_depth = match unsafe { props.get_image_effect_pixel_depth(s_prop)? } {
-            low::enums::ImageEffectPropPixelDepth::Byte => BitDepth::Byte,
-            low::enums::ImageEffectPropPixelDepth::Short => BitDepth::Short,
-            low::enums::ImageEffectPropPixelDepth::Float => BitDepth::Float,
-            _ => return Err(Status::ErrUnsupported),
+        let pixel_depth = match unsafe { props.get_image_effect_pixel_depth_owned(s_prop)? } {
+            LosslessEnumPropertyOwned::Known(ImageEffectPropPixelDepth::Byte) => BitDepth::Byte,
+            LosslessEnumPropertyOwned::Known(ImageEffectPropPixelDepth::Short) => BitDepth::Short,
+            LosslessEnumPropertyOwned::Known(ImageEffectPropPixelDepth::Float) => BitDepth::Float,
+            x => {
+                tracing::error!("Unsupported image effect pixel depth: {:?}", x.as_c_str());
+                return Err(Status::ErrUnsupported);
+            }
         };
         let row_bytes = unsafe { props.get_image_row_bytes(s_prop)? };
         let bounds = unsafe { props.get_image_bounds(s_prop)? };
@@ -320,7 +329,7 @@ impl ParameterSuiteHelper {
         &self,
         param_handle: OfxParamHandle,
         time: OfxTime,
-    ) -> openfx::low::Result<T> {
+    ) -> low::Result<T> {
         let mut value: T = unsafe { std::mem::zeroed() };
         param_get_value_at_time!(self, param_handle, time, &mut value);
         Ok(value)
@@ -333,7 +342,7 @@ impl ParameterSuiteHelper {
         &self,
         param_handle: OfxParamHandle,
         time: OfxTime,
-    ) -> openfx::low::Result<f64> {
+    ) -> low::Result<f64> {
         unsafe { self.param_get_value_at_time(param_handle, time) }
     }
 
@@ -344,7 +353,7 @@ impl ParameterSuiteHelper {
         &self,
         param_handle: OfxParamHandle,
         time: OfxTime,
-    ) -> openfx::low::Result<c_int> {
+    ) -> low::Result<c_int> {
         unsafe { self.param_get_value_at_time(param_handle, time) }
     }
 }
@@ -364,12 +373,12 @@ macro_rules! param_get_value_at_time{
                     .inner()
                     .sys_ref()
                     .paramGetValueAtTime
-                    .ok_or(openfx::low::Status::ErrMissingHostFeature)?
+                    .ok_or(Status::ErrMissingHostFeature)?
             };
             let time = $time;
             #[allow(clippy::macro_metavars_in_unsafe)]
             if let stat = unsafe { param_get_value_at_time($param_handle, time, $(&mut $value),+) } && stat != ::openfx::sys::generic::core::kOfxStatOK {
-                return Err(openfx::low::Status::from(stat));
+                return Err(Status::from(stat));
             }
         }
     }

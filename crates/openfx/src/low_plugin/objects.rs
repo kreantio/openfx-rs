@@ -28,7 +28,7 @@ include!(concat!(
 ));
 
 impl DrawContext {
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `draw_suite` must be valid.
     pub unsafe fn draw(
@@ -40,7 +40,7 @@ impl DrawContext {
         unsafe { draw_suite.draw(self, primitive, points) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `draw_suite` must be valid.
     pub unsafe fn draw_text(
@@ -53,7 +53,7 @@ impl DrawContext {
         unsafe { draw_suite.draw_text(self, text, pos, alignment) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `draw_suite` must be valid.
     pub unsafe fn get_colour(
@@ -64,7 +64,7 @@ impl DrawContext {
         unsafe { draw_suite.get_colour(self, std_colour) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `draw_suite` must be valid.
     pub unsafe fn set_colour(
@@ -75,7 +75,7 @@ impl DrawContext {
         unsafe { draw_suite.set_colour(self, colour) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `draw_suite` must be valid.
     pub unsafe fn set_line_stipple(
@@ -86,7 +86,7 @@ impl DrawContext {
         unsafe { draw_suite.set_line_stipple(self, pattern) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `draw_suite` must be valid.
     pub unsafe fn set_line_width(
@@ -99,7 +99,7 @@ impl DrawContext {
 }
 
 impl ImageClipDescriptor {
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
     pub unsafe fn clip_get_property_set(
@@ -111,7 +111,7 @@ impl ImageClipDescriptor {
 }
 
 impl ImageClipInstance {
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
     pub unsafe fn clip_get_image(
@@ -123,7 +123,7 @@ impl ImageClipInstance {
         unsafe { image_effect_suite.clip_get_image(self, time, region) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
     pub unsafe fn clip_get_property_set(
@@ -133,7 +133,7 @@ impl ImageClipInstance {
         unsafe { image_effect_suite.clip_get_instance_property_set(self) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
     pub unsafe fn clip_get_region_of_definition(
@@ -144,7 +144,7 @@ impl ImageClipInstance {
         unsafe { image_effect_suite.clip_get_region_of_definition(self, time) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `image_effect_open_gl_render_suite` must be valid.
     /// ## TODO
@@ -162,7 +162,7 @@ impl ImageClipInstance {
 }
 
 impl ImageEffectDescriptor {
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
     pub unsafe fn clip_define(
@@ -173,7 +173,7 @@ impl ImageEffectDescriptor {
         unsafe { image_effect_suite.clip_define(self, name) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
     pub unsafe fn get_param_set(
@@ -183,7 +183,7 @@ impl ImageEffectDescriptor {
         unsafe { image_effect_suite.get_param_set_descriptor(self) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
     pub unsafe fn get_property_set(
@@ -195,14 +195,14 @@ impl ImageEffectDescriptor {
 }
 
 impl ImageEffectInstance {
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
     pub unsafe fn abort(&self, image_effect_suite: &ImageEffectSuiteV1) -> bool {
         unsafe { image_effect_suite.abort(self) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
     pub unsafe fn clip_get_handle(
@@ -213,7 +213,7 @@ impl ImageEffectInstance {
         unsafe { image_effect_suite.clip_get_handle(self, name) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
     pub unsafe fn clip_get_clip_handle(
@@ -224,7 +224,7 @@ impl ImageEffectInstance {
         unsafe { image_effect_suite.clip_get_clip_handle(self, name) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
     pub unsafe fn get_param_set(
@@ -234,7 +234,7 @@ impl ImageEffectInstance {
         unsafe { image_effect_suite.get_param_set_instance(self) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
     pub unsafe fn get_property_set(
@@ -244,7 +244,7 @@ impl ImageEffectInstance {
         unsafe { image_effect_suite.get_instance_property_set(self) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
     pub unsafe fn image_memory_alloc(
@@ -257,7 +257,7 @@ impl ImageEffectInstance {
 }
 
 impl ImageMemory {
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
     pub unsafe fn image_memory_free(
@@ -267,7 +267,7 @@ impl ImageMemory {
         unsafe { image_effect_suite.image_memory_free(self) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
     pub unsafe fn image_memory_lock(
@@ -277,7 +277,7 @@ impl ImageMemory {
         unsafe { image_effect_suite.image_memory_lock(self) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
     pub unsafe fn image_memory_unlock(
@@ -289,7 +289,7 @@ impl ImageMemory {
 }
 
 impl InteractDescriptor {
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `interact_suite` must be valid.
     pub unsafe fn interact_get_property_set(
@@ -301,7 +301,7 @@ impl InteractDescriptor {
 }
 
 impl InteractInstance {
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `interact_suite` must be valid.
     pub unsafe fn interact_get_property_set(
@@ -311,7 +311,7 @@ impl InteractInstance {
         unsafe { interact_suite.interacte_get_instance_property_set(self) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `interact_suite` must be valid.
     pub unsafe fn interact_redraw(
@@ -321,7 +321,7 @@ impl InteractInstance {
         unsafe { interact_suite.interact_redraw(self) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `interact_suite` must be valid.
     pub unsafe fn interact_swap_buffers(
@@ -333,7 +333,7 @@ impl InteractInstance {
 }
 
 impl Mutex {
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `multi_thread_suite` must be valid.
     pub unsafe fn mutex_destroy(
@@ -343,7 +343,7 @@ impl Mutex {
         unsafe { multi_thread_suite.mutex_destroy(self) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `multi_thread_suite` must be valid.
     pub unsafe fn mutex_lock(
@@ -353,7 +353,7 @@ impl Mutex {
         unsafe { multi_thread_suite.mutex_lock(self) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `multi_thread_suite` must be valid.
     pub unsafe fn mutex_try_lock(
@@ -363,7 +363,7 @@ impl Mutex {
         unsafe { multi_thread_suite.mutex_try_lock(self) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `multi_thread_suite` must be valid.
     pub unsafe fn mutex_un_lock(
@@ -375,7 +375,7 @@ impl Mutex {
 }
 
 impl ParamSetDescriptor {
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
     pub(crate) unsafe fn param_define(
@@ -387,7 +387,7 @@ impl ParamSetDescriptor {
         unsafe { parameter_suite.param_define(self, param_type, name) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
     #[expect(unused)]
@@ -400,7 +400,7 @@ impl ParamSetDescriptor {
         unsafe { parameter_suite.param_define_no_output(self, param_type, name) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
     pub unsafe fn param_set_get_property_set(
@@ -412,7 +412,7 @@ impl ParamSetDescriptor {
 }
 
 impl ParamSetInstance {
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
     pub unsafe fn param_edit_begin(
@@ -423,7 +423,7 @@ impl ParamSetInstance {
         unsafe { parameter_suite.param_edit_begin(self, name) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
     pub unsafe fn param_edit_end(
@@ -433,7 +433,7 @@ impl ParamSetInstance {
         unsafe { parameter_suite.param_edit_end(self) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
     pub(crate) unsafe fn param_get_handle(
@@ -445,7 +445,7 @@ impl ParamSetInstance {
     }
 
     #[expect(unused)]
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
     pub(crate) unsafe fn param_get_param_handle(
@@ -456,7 +456,7 @@ impl ParamSetInstance {
         unsafe { parameter_suite.param_get_param_handle(self, name) }
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
     pub unsafe fn param_set_get_property_set(

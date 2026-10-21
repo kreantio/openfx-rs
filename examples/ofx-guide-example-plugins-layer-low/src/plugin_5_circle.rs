@@ -183,19 +183,19 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> openfx::low::Result<()>
         props.set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?;
         props.set_image_effect_supported_contexts(
             s_prop,
-            &[ImageEffectPropSupportedContexts::Filter],
+            &[ImageEffectPropSupportedContexts::Filter.into()],
         )?;
         props.set_image_effect_supported_pixel_depths(
             s_prop,
             &[
-                ImageEffectPropSupportedPixelDepths::Float,
-                ImageEffectPropSupportedPixelDepths::Short,
-                ImageEffectPropSupportedPixelDepths::Byte,
+                ImageEffectPropSupportedPixelDepths::Float.into(),
+                ImageEffectPropSupportedPixelDepths::Short.into(),
+                ImageEffectPropSupportedPixelDepths::Byte.into(),
             ],
         )?;
         props.set_image_effect_plugin_render_thread_safety(
             s_prop,
-            ImageEffectPluginRenderThreadSafety::FullySafe,
+            ImageEffectPluginRenderThreadSafety::FullySafe.into(),
         )?;
         props.set_image_effect_plugin_host_frame_threading(s_prop, true)?;
     }
@@ -224,9 +224,9 @@ fn action_describe_in_context(
             props.set_image_effect_supported_components(
                 s_prop,
                 &[
-                    ImageEffectPropSupportedComponents::RGBA,
-                    ImageEffectPropSupportedComponents::Alpha,
-                    ImageEffectPropSupportedComponents::RGB,
+                    ImageEffectPropSupportedComponents::RGBA.into(),
+                    ImageEffectPropSupportedComponents::Alpha.into(),
+                    ImageEffectPropSupportedComponents::RGB.into(),
                 ],
             )
         })?;
@@ -240,14 +240,14 @@ fn action_describe_in_context(
         let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
 
         unsafe {
-            param_props_d.set_param_double_type(s_prop, ParamPropDoubleType::X)?;
+            param_props_d.set_param_double_type(s_prop, ParamPropDoubleType::X.into())?;
             // Not supported by DaVinci Resolve. To make the plugin work there,
             // we ignore the return value here. TODO: Calculate the default value
             // in canonical coordinate if this fails.
             param_props_ns
                 .set_param_default_coordinate_system(
                     s_prop,
-                    ParamPropDefaultCoordinateSystem::Normalised,
+                    ParamPropDefaultCoordinateSystem::Normalised.into(),
                 )
                 .ok();
             param_props_d.set_param_default_double(s_prop, &[0.25])?;
@@ -265,11 +265,11 @@ fn action_describe_in_context(
         let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
 
         unsafe {
-            param_props_d.set_param_double_type(s_prop, ParamPropDoubleType::XYAbsolute)?;
+            param_props_d.set_param_double_type(s_prop, ParamPropDoubleType::XYAbsolute.into())?;
             param_props_ns
                 .set_param_default_coordinate_system(
                     s_prop,
-                    ParamPropDefaultCoordinateSystem::Normalised,
+                    ParamPropDefaultCoordinateSystem::Normalised.into(),
                 )
                 .ok();
             param_props_d.set_param_default_double(s_prop, &[0.5, 0.5])?;

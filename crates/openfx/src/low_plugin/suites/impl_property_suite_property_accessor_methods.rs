@@ -1,6 +1,9 @@
 #![allow(unused_parens, reason = "false positive")]
 
-use std::ffi::{CStr, c_char, c_int, c_void};
+use std::{
+    ffi::{CStr, CString, c_char, c_int, c_void},
+    ptr::NonNull,
+};
 
 use crate::{low_plugin::suites::PropertySuiteV1, sys_umbrella::OfxPropertySetHandle};
 
@@ -17,7 +20,7 @@ use crate::{low_plugin::suites::PropertySuiteV1, sys_umbrella::OfxPropertySetHan
 ///   freely rather than going through [`crate::low_plugin::property_sets`].
 #[openfx_internal_macros::low_impl_suite]
 impl PropertySuiteV1 {
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `properties` must be valid.
     pub unsafe fn prop_get_dimension(
@@ -36,7 +39,7 @@ impl PropertySuiteV1 {
         Ok(unsafe { count.assume_init() })
     }
 
-    /// ## SAFETY
+    /// ## Safety
     ///
     /// `self` and `properties` must be valid.
     pub unsafe fn prop_reset(
@@ -52,7 +55,7 @@ impl PropertySuiteV1 {
 
 macro_rules! impl_accessor_methods {
     (@doc) => {
-        r#"## SAFETY
+        r#"## Safety
 
  - `self.0` must be a valid pointer to
    [`crate::sys_umbrella::OfxPropertySuiteV1`].
@@ -107,6 +110,40 @@ macro_rules! impl_accessor_methods {
         sys_fn_names = {
             get = $get_sys_fn:literal, get_n = $get_n_sys_fn:literal,
             set = $set_sys_fn:literal, set_n = $set_n_sys_fn:literal,
+        },
+        conversions = $conversions:tt,
+    ) => {
+        impl_accessor_methods!(
+            @get
+            type = { sys_get = $ty_get, low = $ty_low },
+            names = {
+                get = $name_get, get_at = $name_get_at, get_array = $name_get_array, get_all = $name_get_all,
+            },
+            sys_fn_names = {
+                get = $get_sys_fn, get_n = $get_n_sys_fn,
+            },
+            conversions = $conversions,
+        );
+        impl_accessor_methods!(
+            @set
+            type = { sys_set = $ty_set, low = $ty_low },
+            names = {
+                set = $name_set, set_at = $name_set_at, set_array = $name_set_array, set_all = $name_set_all,
+            },
+            sys_fn_names = {
+                set = $set_sys_fn, set_n = $set_n_sys_fn,
+            },
+            conversions = $conversions,
+        );
+    };
+    (
+        @get
+        type = { sys_get = $ty_get:ty, low = $ty_low:ty },
+        names = {
+            get = $name_get:ident, get_at = $name_get_at:ident, get_array = $name_get_array:ident, get_all = $name_get_all:ident,
+        },
+        sys_fn_names = {
+            get = $get_sys_fn:literal, get_n = $get_n_sys_fn:literal,
         },
         conversions = $conversions:tt,
     ) => {
@@ -192,7 +229,21 @@ macro_rules! impl_accessor_methods {
 
                 Ok(())
             }
-
+        }
+    };
+    (
+        @set
+        type = { sys_set = $ty_set:ty, low = $ty_low:ty },
+        names = {
+            set = $name_set:ident, set_at = $name_set_at:ident, set_array = $name_set_array:ident, set_all = $name_set_all:ident,
+        },
+        sys_fn_names = {
+            set = $set_sys_fn:literal, set_n = $set_n_sys_fn:literal,
+        },
+        conversions = $conversions:tt,
+    ) => {
+        #[openfx_internal_macros::low_impl_suite]
+        impl PropertySuiteV1 {
             #[doc = impl_accessor_methods!(@doc)]
             #[no_sys_fn]
             pub unsafe fn $name_set(
@@ -288,18 +339,62 @@ impl_accessor_methods!(
 );
 
 impl_accessor_methods!(
-    type = { sys_get = *mut c_char, sys_set = *const c_char, low = Option<&CStr> },
+    @get
+    type = { sys_get = *mut c_char, low = Option<NonNull<c_char>> },
     names = {
-        get = prop_get_string, get_at = prop_get_string_at, get_array = prop_get_string_array, get_all = prop_get_string_n,
-        set = prop_set_string, set_at = prop_set_string_at, set_array = prop_set_string_array, set_all = prop_set_string_n,
+        get = prop_get_string_ptr, get_at = prop_get_string_ptr_at, get_array = prop_get_string_ptr_array, get_all = prop_get_string_ptr_n,
     },
     sys_fn_names = {
         get = "propGetString", get_n = "propGetStringN",
+    },
+    conversions = {
+        sys_get_to_low = { (|x: *mut c_char| NonNull::new(x) ) },
+        low_to_sys_set = { () },
+    },
+);
+
+impl_accessor_methods!(
+    @get
+    type = { sys_get = *mut c_char, low = Option<CString> },
+    names = {
+        get = prop_get_string_owned, get_at = prop_get_string_owned_at, get_array = prop_get_string_owned_array, get_all = prop_get_string_owned_n,
+    },
+    sys_fn_names = {
+        get = "propGetString", get_n = "propGetStringN",
+    },
+    conversions = {
+        sys_get_to_low = { (|x: *mut c_char| if x.is_null() { None } else { Some((unsafe { CStr::from_ptr(x) }).to_owned()) }) },
+        low_to_sys_set = { () },
+    },
+);
+
+impl_accessor_methods!(
+    @set
+    type = { sys_set = *const c_char, low = Option<&CStr> },
+    names = {
+        set = prop_set_string, set_at = prop_set_string_at, set_array = prop_set_string_array, set_all = prop_set_string_n,
+    },
+    sys_fn_names = {
         set = "propSetString", set_n = "propSetStringN",
     },
     conversions = {
-        sys_get_to_low = { (|x: *mut c_char| if x.is_null() { None } else { Some(unsafe { CStr::from_ptr(x) }) }) },
-        low_to_sys_set = { (|x: Option<&CStr>| x.map_or(std::ptr::null(), |s| s.as_ptr())) },
+        sys_get_to_low = { () },
+        low_to_sys_set = { (|s: Option<&CStr>| s.map_or(std::ptr::null(), |s| s.as_ptr())) },
+    },
+);
+
+impl_accessor_methods!(
+    @set
+    type = { sys_set = *const c_char, low = Option<NonNull<c_char>> },
+    names = {
+        set = prop_set_string_ptr, set_at = prop_set_string_ptr_at, set_array = prop_set_string_ptr_array, set_all = prop_set_string_ptr_n,
+    },
+    sys_fn_names = {
+        set = "propSetString", set_n = "propSetStringN",
+    },
+    conversions = {
+        sys_get_to_low = { () },
+        low_to_sys_set = { (|s: Option<NonNull<c_char>>| s.map_or(std::ptr::null(), |s| s.as_ptr())) },
     },
 );
 
