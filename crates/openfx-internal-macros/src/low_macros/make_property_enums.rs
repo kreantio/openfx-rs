@@ -17,27 +17,26 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
 
         // enum
         {
-            let mut inner = proc_macro2::TokenStream::new();
+            let mut variant_items: Vec<proc_macro2::TokenStream> = vec![];
             for variant in &enum_item.variants {
-                if let InputEnumVariantAttribute::Sys(sys) = &variant.value {
-                    let path_str = format!("crate::sys_umbrella::{}", sys);
-                    let docstr = format!("See: [`{}`].", path_str);
-                    inner.extend(quote! { #[doc = #docstr] });
-                }
                 let var_name = &variant.name;
-                inner.extend(quote! { #var_name, });
+                let var_doc = if let InputEnumVariantAttribute::Sys(sys) = &variant.value {
+                    let docstr = format!("See: [`crate::sys_umbrella::{sys}`]");
+                    Some(quote! { #[doc = #docstr] })
+                } else {
+                    None
+                };
+                variant_items.push(quote! {
+                    #var_doc
+                    #var_name,
+                });
             }
-            inner.extend(quote! {
-                /// Use [`Self::matches`] instead. Even if matching this variant
-                /// for unrecognized values works now, it will break when this
-                /// crate adds dedicated variants for those values in a future
-                /// release.
-                UnknownDontUseThisDirectly(*const std::os::raw::c_char),
-            });
             output.extend(quote! {
-                #[derive(Debug, Clone, PartialEq, Eq)]
+                #[derive(Debug, Clone, Copy, PartialEq, Eq)]
                 #[non_exhaustive]
-                pub enum #name { #inner }
+                pub enum #name {
+                    #(#variant_items)*
+                }
             });
         }
 
@@ -62,78 +61,44 @@ pub fn make_property_enums(attr: TokenStream, item: TokenStream) -> TokenStream 
                 .collect::<Vec<_>>();
 
             output.extend(quote! {
-                impl #name {
-                    /// ## SAFETY
+                impl crate::low_plugin::property_sets::KnownEnumProperty for #name {
+                    /// ## Safety
                     ///
-                    /// - The pointer must be valid and point to a null-
-                    ///   terminated C string.
-                    /// - The pointer must live at least as long as the returned
-                    ///   [`Self`] value.
-                    pub unsafe fn from_ptr(ptr: *const std::os::raw::c_char) -> Self {
-                        let cstr = unsafe { std::ffi::CStr::from_ptr(ptr) };
+                    /// `ptr` must be valid and point to a null-terminated C
+                    /// string.
+                    ///
+                    /// See the Safety section of [`Self`] for more information.
+                    unsafe fn try_from_ptr(ptr: std::ptr::NonNull<std::os::raw::c_char>) -> Option<Self> {
+                        let cstr = unsafe { std::ffi::CStr::from_ptr(ptr.as_ptr()) };
                         match true {
-                            #( _ if cstr == #vals => Self::#vars, )*
-                            _ => Self::UnknownDontUseThisDirectly(cstr.as_ptr()),
+                            #( _ if cstr == #vals => Some(Self::#vars), )*
+                            _ => None,
                         }
                     }
 
-                    /// ## SAFETY
-                    ///
-                    /// - The pointer must be either null or valid and point to
-                    ///   a null-terminated C string.
-                    /// - The pointer must live at least as long as the returned
-                    ///   [`Self`] value.
-                    pub unsafe fn from_ptr_null_checked(ptr: *const std::os::raw::c_char) -> Self {
-                        if ptr.is_null() {
-                            Self::UnknownDontUseThisDirectly(std::ptr::null())
-                        } else {
-                            Self::from_ptr(ptr)
-                        }
-                    }
-
-                    /// ## SAFETY
-                    ///
-                    /// The returned pointer is valid as long as the
-                    /// [`std::ffi::CString`] inside
-                    /// [`Self::UnknownDontUseThisDirectly`] is not dropped.
-                    pub fn as_ptr(&self) -> *const std::os::raw::c_char {
+                    fn as_c_str(&self) -> &std::ffi::CStr {
                         match self {
-                            #( Self::#vars => #vals.as_ptr(), )*
-                            Self::UnknownDontUseThisDirectly(ptr) => *ptr,
+                            #( Self::#vars => #vals, )*
                         }
                     }
+                }
 
-                    /// ## SAFETY
-                    ///
-                    /// The returned pointer is valid as long as the
-                    /// [`std::ffi::CString`] inside
-                    /// [`Self::UnknownDontUseThisDirectly`] is not dropped.
-                    pub fn as_cstr(&self) -> Option<&std::ffi::CStr> {
-                        match self {
-                            #( Self::#vars => Some(#vals), )*
-                            Self::UnknownDontUseThisDirectly(ptr) => {
-                                if ptr.is_null() {
-                                    None
-                                } else {
-                                    Some(unsafe { &*::std::ffi::CStr::from_ptr(*ptr) })
-                                }
-                            }
-                        }
+                impl From<#name> for crate::low_plugin::property_sets::EnumPropertyPtr<#name> {
+                    fn from(value: #name) -> Self {
+                        let ptr = crate::low_plugin::property_sets::KnownEnumProperty::as_c_str(&value).as_ptr();
+                        Self::new(std::ptr::NonNull::new(ptr as *mut std::os::raw::c_char))
                     }
+                }
 
-                    /// ## SAFETY
-                    ///
-                    /// For enum variants unknown to this crate, this enum
-                    /// stores a pointer to a C string owned by the host. The
-                    /// caller must ensure that this pointer remains valid for
-                    /// the duration of this call.
-                    pub unsafe fn matches(&self, val: &::std::ffi::CStr) -> bool {
-                        let ptr = self.as_ptr();
-                        if ptr.is_null() {
-                            false
-                        } else {
-                            ::std::ffi::CStr::from_ptr(ptr) == val
-                        }
+                impl PartialEq<crate::low_plugin::property_sets::LosslessEnumProperty<#name>> for #name {
+                    fn eq(&self, other: &crate::low_plugin::property_sets::LosslessEnumProperty<#name>) -> bool {
+                        other == self
+                    }
+                }
+
+                impl PartialEq<crate::low_plugin::property_sets::LosslessEnumPropertyOwned<#name>> for #name {
+                    fn eq(&self, other: &crate::low_plugin::property_sets::LosslessEnumPropertyOwned<#name>) -> bool {
+                        other == self
                     }
                 }
             });

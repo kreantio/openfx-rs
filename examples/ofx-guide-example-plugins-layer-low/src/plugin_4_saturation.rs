@@ -138,21 +138,21 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> openfx::low::Result<()>
         props.set_image_effect_supported_contexts(
             s_prop,
             &[
-                ImageEffectPropSupportedContexts::Filter,
-                ImageEffectPropSupportedContexts::General,
+                ImageEffectPropSupportedContexts::Filter.into(),
+                ImageEffectPropSupportedContexts::General.into(),
             ],
         )?;
         props.set_image_effect_supported_pixel_depths(
             s_prop,
             &[
-                ImageEffectPropSupportedPixelDepths::Byte,
-                ImageEffectPropSupportedPixelDepths::Short,
-                ImageEffectPropSupportedPixelDepths::Float,
+                ImageEffectPropSupportedPixelDepths::Byte.into(),
+                ImageEffectPropSupportedPixelDepths::Short.into(),
+                ImageEffectPropSupportedPixelDepths::Float.into(),
             ],
         )?;
         props.set_image_effect_plugin_render_thread_safety(
             s_prop,
-            ImageEffectPluginRenderThreadSafety::FullySafe,
+            ImageEffectPluginRenderThreadSafety::FullySafe.into(),
         )?;
         props.set_image_effect_plugin_host_frame_threading(s_prop, true)?;
     }
@@ -181,8 +181,8 @@ fn action_describe_in_context(
             props.set_image_effect_supported_components(
                 s_prop,
                 &[
-                    ImageEffectPropSupportedComponents::RGBA,
-                    ImageEffectPropSupportedComponents::RGB,
+                    ImageEffectPropSupportedComponents::RGBA.into(),
+                    ImageEffectPropSupportedComponents::RGB.into(),
                 ],
             )
         })?;
@@ -193,7 +193,7 @@ fn action_describe_in_context(
         unsafe {
             props.set_image_effect_supported_components(
                 s_prop,
-                &[ImageEffectPropSupportedComponents::Alpha],
+                &[ImageEffectPropSupportedComponents::Alpha.into()],
             )?;
             props.set_image_clip_optional(s_prop, true)?;
             props.set_image_clip_is_mask(s_prop, true)?;
@@ -207,7 +207,7 @@ fn action_describe_in_context(
         let param_props = ParamsDouble1DPropertySet::from(param_props);
 
         unsafe {
-            param_props.set_param_double_type(s_prop, ParamPropDoubleType::Scale)?;
+            param_props.set_param_double_type(s_prop, ParamPropDoubleType::Scale.into())?;
             param_props.set_param_default_double(s_prop, &[1.0])?;
             param_props.set_param_display_min_double(s_prop, &[-2.0])?;
             param_props.set_param_display_max_double(s_prop, &[2.0])?;

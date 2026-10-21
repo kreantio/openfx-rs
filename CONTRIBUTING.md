@@ -45,18 +45,21 @@ extensively.
 This project refers to properties in three ways:
 
 - **Cname** are macro names defined in the OpenFX C headers, such as
-  `kOfxPropAPIVersion`. They always begin with `k`. This is a term that appears
-  in the official repository[^1].
+  `kOfxPropAPIVersion`.
+  - They always begin with `k`.
+  - This is a term that appears in the official repository[^1].
 - **Canonical names** are cnames with the leading `k` removed, such as
-  `OfxPropAPIVersion`. This is not an official term.
+  `OfxPropAPIVersion`.
+  - This is not an official term.
 - **Stringname** are the values of key-value macros, such as
-  `OfxPropAPIVersion`. Most match their canonical names, but some are irregular.
-  For example, the property with canonical name `OfxPropKeyString` has the key
-  constant `kOfxPropKeyString` rather than `OfxPropKeyString`: the `k` was
-  included in the key constant. This is a term that appears in the official
-  repository[^2].
-- **Simple names** are cnames with the leading `kOfx` removed. This is not an
-  official term.
+  `OfxPropAPIVersion`.
+  - Most match their canonical names, but some are irregular. For example, the
+    property with canonical name `OfxPropKeyString` has the key constant
+    `kOfxPropKeyString` rather than `OfxPropKeyString`: the `k` was included in
+    the key constant.
+  - This is a term that appears in the official repository[^2].
+- **Simple names** are cnames with the leading `kOfx` removed.
+  - This is not an official term.
 
 In this project, the `sys` layer exposes properties by their cnames, while other
 layers, such as the `low` layer, use their canonical names (or simplified forms
@@ -125,3 +128,20 @@ Action names follow the same terminology as property names.
 [^1]: https://github.com/AcademySoftwareFoundation/openfx/blob/e40728885390ec16276d11e00025de9b4282060c/scripts/gen-props.py#L215
 
 [^2]: https://github.com/AcademySoftwareFoundation/openfx/blob/e40728885390ec16276d11e00025de9b4282060c/scripts/gen-props.py#L236
+
+### Terms for Types
+
+- **Simple types** are the types exchanged directly between OpenFX hosts and
+  OpenFX plugins through the OpenFX API. They are `Int`, `Double`, `String`, and
+  `Pointer`.
+  - They have representations in both the `sys` layer and the `low` layer.
+  - This is not an official term.
+- **Expressive types** are `Int`, `Double`, `String`, `Pointer`, `Bool`, and
+  `Enum`.
+  - `Bool` is built on top of the `Int` simple type, `Enum` is built on top of
+    the `String` simple type, and the other expressive types are built directly
+    on top of their respective simple types.
+  - They only have representations in the `low` layer.
+
+Values of simple types and expressive types can be converted into each other in
+either direction.

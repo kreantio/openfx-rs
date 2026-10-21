@@ -12,14 +12,8 @@ pub mod actions {
 }
 
 pub mod objects;
+pub mod property_sets;
 pub mod suites;
-
-pub mod property_sets {
-    include!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/generated/code_from_metadata/low_plugin_property_sets.rs",
-    ));
-}
 
 pub trait Plugin {
     const PLUGIN_IDENTIFIER: &'static CStr;
