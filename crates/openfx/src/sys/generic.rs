@@ -15,7 +15,7 @@ macro_rules! include_mod_c_bindings {
         pub mod $name {
             include!(concat!(
                 env!("CARGO_MANIFEST_DIR"),
-                "/generated/c_bindings/",
+                "/src/generated/sys/bindings/",
                 stringify!($name),
                 ".rs"
             ));

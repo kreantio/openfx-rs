@@ -7,7 +7,7 @@ use crate::{
 pub mod actions {
     include!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/generated/code_from_metadata/low_plugin_actions.rs",
+        "/src/generated/low_plugin/meta_actions.rs",
     ));
 }
 
@@ -130,5 +130,5 @@ impl Host {
 
 include!(concat!(
     env!("CARGO_MANIFEST_DIR"),
-    "/generated/code_from_c/low_plugin_impl_host_for_fetch_suites.rs",
+    "/src/generated/low_plugin/c_suites/impl_host_for_fetch_suites.rs",
 ));

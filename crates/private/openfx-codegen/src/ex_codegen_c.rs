@@ -136,7 +136,7 @@ pub fn gen_low_enums_from_c(
 
 pub fn gen_low_plugin_suites(
     config: &CodegenConfig,
-    output_folder_c: &Path,
+    output_folder: &Path,
     suites: HashMap<String, HashSet<String>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut suite_names: Vec<String> = suites.keys().cloned().collect();
@@ -186,7 +186,7 @@ pub fn gen_low_plugin_suites(
         }
 
         std::fs::write(
-            output_folder_c.join("low_plugin_suites.rs"),
+            output_folder.join("suites.rs"),
             prettyplease::unparse(&syn::parse2(output)?),
         )?;
     }
@@ -212,7 +212,7 @@ pub fn gen_low_plugin_suites(
         }
 
         std::fs::write(
-            output_folder_c.join("low_plugin_impl_host_for_fetch_suites.rs"),
+            output_folder.join("impl_host_for_fetch_suites.rs"),
             prettyplease::unparse(&syn::parse2(output)?),
         )?;
     }

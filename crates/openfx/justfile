@@ -1,9 +1,9 @@
 set fallback := true
 
 data-path := "../../vendor/openfx-data/data"
-generated-c-bindings-path := "generated/c_bindings"
-generated-code-from-c-path := "generated/code_from_c"
-generated-code-from-metadata-path := "generated/code_from_metadata"
+generated-c-bindings-path := "src/generated/sys/bindings"
+generated-code-low-path := "src/generated/low"
+generated-code-low-plugin-path := "src/generated/low_plugin"
 codegen-config-path := "codegen-config.yaml"
 
 generate-all: generate-bindings generate-code
@@ -16,11 +16,11 @@ generate-bindings:
       --output "{{ generated-c-bindings-path }}"
 
 generate-code:
-    rm -rf "{{ generated-code-from-c-path }}" "{{ generated-code-from-metadata-path }}"
-    mkdir -p "{{ generated-code-from-c-path }}" "{{ generated-code-from-metadata-path }}"
+    rm -rf "{{ generated-code-low-path }}" "{{ generated-code-low-plugin-path }}"
+    mkdir -p "{{ generated-code-low-path }}" "{{ generated-code-low-plugin-path }}"
     cargo run --release --package openfx-codegen --bin cli -- \
       --codegen-config="{{ codegen-config-path }}" \
       --input-bindings-data "{{ data-path }}/generated/bindings" \
       --input-metadata "{{ data-path }}/generated/metadata" \
-      --output-code-from-c "{{ generated-code-from-c-path }}" \
-      --output-code-from-metadata "{{ generated-code-from-metadata-path }}"
+      --output-code-low "{{ generated-code-low-path }}" \
+      --output-code-low-plugin "{{ generated-code-low-plugin-path }}"

@@ -14,10 +14,10 @@ struct Args {
     input_metadata: PathBuf,
 
     #[arg(long)]
-    output_code_from_c: PathBuf,
+    output_code_low: PathBuf,
 
     #[arg(long)]
-    output_code_from_metadata: PathBuf,
+    output_code_low_plugin: PathBuf,
 }
 
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -34,46 +34,54 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let input_metadata = openfx_codegen::input_metadata::load_input_metadata(args.input_metadata)?;
 
-    let output_folder_c = &args.output_code_from_c;
-    std::fs::create_dir_all(output_folder_c)?;
+    std::fs::create_dir_all(&args.output_code_low)?;
+    std::fs::create_dir_all(&args.output_code_low_plugin)?;
 
-    let output_folder_metadata = &args.output_code_from_metadata;
-    std::fs::create_dir_all(output_folder_metadata)?;
+    {
+        let p = args.output_code_low.join("c_statuses.rs");
+        openfx_codegen::ex_codegen_c::gen_low_statuses(&codegen_config, &p, info.statuses)?;
+    }
+    {
+        let p = args.output_code_low.join("c_enums.rs");
+        openfx_codegen::ex_codegen_c::gen_low_enums_from_c(&p, info.c_enums)?;
+    }
 
-    openfx_codegen::ex_codegen_c::gen_low_statuses(
-        &codegen_config,
-        &output_folder_c.join("low_statuses.rs"),
-        info.statuses,
-    )?;
-    openfx_codegen::ex_codegen_c::gen_low_enums_from_c(
-        &output_folder_c.join("low_enums_from_c.rs"),
-        info.c_enums,
-    )?;
-    openfx_codegen::ex_codegen_c::gen_low_plugin_suites(
-        &codegen_config,
-        output_folder_c,
-        info.suites,
-    )?;
-    openfx_codegen::ex_codegen_c::gen_low_plugin_objects(
-        &codegen_config,
-        &output_folder_c.join("low_plugin_objects.rs"),
-        info.direct_handle_usages_in_suite_functions,
-    )?;
+    {
+        let p = args.output_code_low_plugin.join("c_suites");
+        std::fs::create_dir_all(&p)?;
+        openfx_codegen::ex_codegen_c::gen_low_plugin_suites(&codegen_config, &p, info.suites)?;
+    }
+    {
+        let p = args.output_code_low_plugin.join("c_objects.rs");
+        openfx_codegen::ex_codegen_c::gen_low_plugin_objects(
+            &codegen_config,
+            &p,
+            info.direct_handle_usages_in_suite_functions,
+        )?;
+    }
 
-    openfx_codegen::ex_codegen_metadata::gen_low_enums_from_metadata(
-        &output_folder_metadata.join("low_enums.rs"),
-        &input_metadata,
-    )?;
-    openfx_codegen::ex_codegen_metadata::gen_low_plugin_actions(
-        &codegen_config,
-        &output_folder_metadata.join("low_plugin_actions.rs"),
-        &input_metadata,
-    )?;
-    openfx_codegen::ex_codegen_metadata::gen_low_plugin_property_sets(
-        &codegen_config,
-        &output_folder_metadata.join("low_plugin_property_sets.rs"),
-        &input_metadata,
-    )?;
+    {
+        let p = args.output_code_low.join("meta_enums.rs");
+        openfx_codegen::ex_codegen_metadata::gen_low_enums_from_metadata(&p, &input_metadata)?;
+    }
+
+    {
+        let p = args.output_code_low_plugin.join("meta_actions.rs");
+        openfx_codegen::ex_codegen_metadata::gen_low_plugin_actions(
+            &codegen_config,
+            &p,
+            &input_metadata,
+        )?;
+    }
+
+    {
+        let p = args.output_code_low_plugin.join("meta_property_sets.rs");
+        openfx_codegen::ex_codegen_metadata::gen_low_plugin_property_sets(
+            &codegen_config,
+            &p,
+            &input_metadata,
+        )?;
+    }
 
     Ok(())
 }

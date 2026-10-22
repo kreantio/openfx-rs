@@ -2,7 +2,7 @@ use crate::sys_umbrella::{OfxStatus, kOfxStatOK};
 
 include!(concat!(
     env!("CARGO_MANIFEST_DIR"),
-    "/generated/code_from_c/low_statuses.rs",
+    "/src/generated/low/c_statuses.rs",
 ));
 
 pub type Result<T> = std::result::Result<T, Status>;
@@ -22,11 +22,11 @@ pub mod enums {
 
     include!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/generated/code_from_metadata/low_enums.rs",
+        "/src/generated/low/meta_enums.rs",
     ));
 
     include!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/generated/code_from_c/low_enums_from_c.rs",
+        "/src/generated/low/c_enums.rs",
     ));
 }
