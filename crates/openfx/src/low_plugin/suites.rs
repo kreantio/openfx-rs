@@ -789,15 +789,29 @@ impl MessageSuiteV2 {
     /// ## Safety
     ///
     /// `self` and `sys_handle` must be valid.
+    unsafe fn sys_clear_persistent_message(
+        &self,
+        sys_handle: *mut c_void,
+    ) -> crate::low::Result<()> {
+        let sys_fn = unsafe { sys_fn!("clearPersistentMessage") };
+
+        crate::low::Status::result_from(unsafe { sys_fn(sys_handle) })
+    }
+
+    /// ## Safety
+    ///
+    /// `self` and `handle` must be valid.
     ///
     /// ## Note
     ///
     /// For `clear_persistent_message_with_*`, don't use
     /// `impl Into<OfxImageEffectHandle>`, because that would allow NULL.
-    pub unsafe fn clear_persistent_message(&self, handle: MessageHandle) -> crate::low::Result<()> {
-        let sys_fn = unsafe { sys_fn!() };
-
-        crate::low::Status::result_from(unsafe { sys_fn(handle.0) })
+    #[no_sys_fn]
+    pub unsafe fn clear_persistent_message(
+        &self,
+        handle: impl Into<PersistentMessageHandle>,
+    ) -> crate::low::Result<()> {
+        unsafe { self.sys_clear_persistent_message(handle.into().0) }
     }
 
     /// ## Safety
