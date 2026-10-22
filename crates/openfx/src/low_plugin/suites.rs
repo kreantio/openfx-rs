@@ -801,11 +801,6 @@ impl MessageSuiteV2 {
     /// ## Safety
     ///
     /// `self` and `handle` must be valid.
-    ///
-    /// ## Note
-    ///
-    /// For `clear_persistent_message_with_*`, don't use
-    /// `impl Into<OfxImageEffectHandle>`, because that would allow NULL.
     #[no_sys_fn]
     pub unsafe fn clear_persistent_message(
         &self,
