@@ -775,12 +775,12 @@ impl MessageSuiteV1 {
     #[no_sys_fn]
     pub unsafe fn message(
         &self,
-        handle: MessageHandle,
+        handle: impl Into<MessageHandle>,
         message_type: &CStr,
         message_id: Option<&CStr>,
         message: &CStr,
     ) -> crate::low::Result<()> {
-        unsafe { self.sys_message(handle.0, message_type, message_id, message) }
+        unsafe { self.sys_message(handle.into().0, message_type, message_id, message) }
     }
 }
 
@@ -837,12 +837,12 @@ impl MessageSuiteV2 {
     #[no_sys_fn]
     pub unsafe fn message(
         &self,
-        handle: MessageHandle,
+        handle: impl Into<MessageHandle>,
         message_type: &CStr,
         message_id: Option<&CStr>,
         message: &CStr,
     ) -> crate::low::Result<()> {
-        unsafe { self.sys_message(handle.0, message_type, message_id, message) }
+        unsafe { self.sys_message(handle.into().0, message_type, message_id, message) }
     }
 
     /// ## SAFETY
@@ -882,12 +882,14 @@ impl MessageSuiteV2 {
     #[no_sys_fn]
     pub unsafe fn set_persistent_message(
         &self,
-        handle: PersistentMessageHandle,
+        handle: impl Into<PersistentMessageHandle>,
         message_type: &CStr,
         message_id: Option<&CStr>,
         message: &CStr,
     ) -> crate::low::Result<()> {
-        unsafe { self.sys_set_persistent_message(handle.0, message_type, message_id, message) }
+        unsafe {
+            self.sys_set_persistent_message(handle.into().0, message_type, message_id, message)
+        }
     }
 }
 
