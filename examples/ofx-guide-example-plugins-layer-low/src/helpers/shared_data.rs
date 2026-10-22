@@ -1,5 +1,5 @@
 use std::{
-    ffi::{CStr, c_int, c_void},
+    ffi::{c_int, c_void},
     ops::Deref,
     ptr::NonNull,
     sync::Arc,
@@ -12,16 +12,11 @@ use openfx::{
     },
     low_plugin::{
         Host, LifetimePlugin,
-        objects::{ImageClipInstance, ImageEffectDescriptor, ImageEffectInstance},
+        objects::ImageClipInstance,
         property_sets::{ImageInstancePropertySet, LosslessEnumPropertyOwned},
         suites::{ImageEffectSuiteV1, ParameterSuiteV1, PropertySuiteV1},
     },
-    sys::{
-        generic::core::{
-            OfxPropertySetHandle, OfxRectI, OfxTime, kOfxStatErrMissingHostFeature, kOfxStatOK,
-        },
-        image_effect_v1::param::{OfxParamHandle, OfxParamSetHandle},
-    },
+    sys::generic::core::OfxRectI,
 };
 
 use super::internal_utils::rect_i_from_array;
@@ -82,46 +77,6 @@ impl Deref for SharedData {
 
     fn deref(&self) -> &Self::Target {
         &self.0
-    }
-}
-
-impl SharedData {
-    pub fn parameter_suite_helper(&self) -> ParameterSuiteHelper {
-        ParameterSuiteHelper {
-            parameter_suite: self.parameter_suite,
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `effect` is valid, and will remain
-    /// valid for the lifetime of the returned value.
-    pub unsafe fn make_param_set_helper_for_image_effect_descriptor(
-        &self,
-        handle: &ImageEffectDescriptor,
-    ) -> low::Result<ParamSetHelper> {
-        let param_set = unsafe { handle.get_param_set(&self.image_effect_suite.0) }?;
-
-        Ok(unsafe {
-            self.parameter_suite_helper()
-                .make_param_set_helper(param_set.sys_handle())
-        })
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `effect` is valid, and will remain
-    /// valid for the lifetime of the returned value.
-    pub unsafe fn make_param_set_helper_for_image_effect_instance(
-        &self,
-        handle: &ImageEffectInstance,
-    ) -> low::Result<ParamSetHelper> {
-        let param_set = unsafe { handle.get_param_set(&self.image_effect_suite.0) }?;
-
-        Ok(unsafe {
-            self.parameter_suite_helper()
-                .make_param_set_helper(param_set.sys_handle())
-        })
     }
 }
 
@@ -248,129 +203,18 @@ impl Drop for ClipImageManaged {
     }
 }
 
-pub struct ParameterSuiteHelper {
-    parameter_suite: GuaranteeSend<ParameterSuiteV1>,
-}
-
-impl ParameterSuiteHelper {
-    pub fn inner(&self) -> &GuaranteeSend<ParameterSuiteV1> {
-        &self.parameter_suite
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `handle` is valid.
-    pub unsafe fn make_param_set_helper(&self, handle: OfxParamSetHandle) -> ParamSetHelper {
-        ParamSetHelper {
-            parameter_suite_helper: ParameterSuiteHelper {
-                parameter_suite: self.parameter_suite,
-            },
-            param_set: handle,
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `param_set` is valid.
-    pub unsafe fn param_define(
-        &self,
-        param_set: OfxParamSetHandle,
-        param_type: &CStr,
-        name: &CStr,
-    ) -> low::Result<OfxPropertySetHandle> {
-        let param_define = unsafe {
-            self.parameter_suite
-                .sys_ref()
-                .paramDefine
-                .ok_or(kOfxStatErrMissingHostFeature)?
-        };
-
-        let mut props: OfxPropertySetHandle = std::ptr::null_mut();
-        if let stat =
-            (unsafe { param_define(param_set, param_type.as_ptr(), name.as_ptr(), &mut props) })
-            && stat != kOfxStatOK
-        {
-            Err(Status::from(stat))
-        } else {
-            Ok(props)
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `param_set` is valid.
-    pub unsafe fn param_get_handle(
-        &self,
-        param_set: OfxParamSetHandle,
-        name: &CStr,
-    ) -> low::Result<OfxParamHandle> {
-        let param_get_handle = unsafe {
-            self.parameter_suite
-                .sys_ref()
-                .paramGetHandle
-                .ok_or(kOfxStatErrMissingHostFeature)?
-        };
-
-        let mut props: OfxParamHandle = std::ptr::null_mut();
-        if let stat = (unsafe {
-            param_get_handle(param_set, name.as_ptr(), &mut props, std::ptr::null_mut())
-        }) && stat != kOfxStatOK
-        {
-            Err(Status::from(stat))
-        } else {
-            Ok(props)
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `param_handle` is valid.
-    unsafe fn param_get_value_at_time<T>(
-        &self,
-        param_handle: OfxParamHandle,
-        time: OfxTime,
-    ) -> low::Result<T> {
-        let mut value: T = unsafe { std::mem::zeroed() };
-        param_get_value_at_time!(self, param_handle, time, &mut value);
-        Ok(value)
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `param_handle` is valid.
-    pub unsafe fn param_get_value_at_time_double(
-        &self,
-        param_handle: OfxParamHandle,
-        time: OfxTime,
-    ) -> low::Result<f64> {
-        unsafe { self.param_get_value_at_time(param_handle, time) }
-    }
-
-    /// ## Safety
-    ///
-    /// The caller must ensure that the input `param_handle` is valid.
-    pub unsafe fn param_get_value_at_time_int(
-        &self,
-        param_handle: OfxParamHandle,
-        time: OfxTime,
-    ) -> low::Result<c_int> {
-        unsafe { self.param_get_value_at_time(param_handle, time) }
-    }
-}
-
 /// FIXME: should give back `OfxResult` instead of using `?` internally. This
 /// might require a proc macro for defining a variadic inner function.
 macro_rules! param_get_value_at_time{
     (
-        $parameter_suite_helper:expr,
+        $parameter_suite:expr,
         $param_handle:expr,
         $time:expr,
         $(&mut $value:ident),+ $(,)?
     ) => {
         {
             let param_get_value_at_time = unsafe {
-                $parameter_suite_helper
-                    .inner()
+                $parameter_suite
                     .sys_ref()
                     .paramGetValueAtTime
                     .ok_or(Status::ErrMissingHostFeature)?
@@ -384,33 +228,3 @@ macro_rules! param_get_value_at_time{
     }
 }
 pub(crate) use param_get_value_at_time;
-
-pub struct ParamSetHelper {
-    parameter_suite_helper: ParameterSuiteHelper,
-    param_set: OfxParamSetHandle,
-}
-
-impl ParamSetHelper {
-    #[expect(unused)]
-    pub fn param_set(&self) -> OfxParamSetHandle {
-        self.param_set
-    }
-
-    pub fn param_define(
-        &self,
-        param_type: &CStr,
-        name: &CStr,
-    ) -> low::Result<OfxPropertySetHandle> {
-        unsafe {
-            self.parameter_suite_helper
-                .param_define(self.param_set, param_type, name)
-        }
-    }
-
-    pub fn param_get_handle(&self, name: &CStr) -> low::Result<OfxParamHandle> {
-        unsafe {
-            self.parameter_suite_helper
-                .param_get_handle(self.param_set, name)
-        }
-    }
-}

@@ -30,8 +30,17 @@ pub struct CodegenConfigSuites {
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigSuiteSpecialCase {
     pub key_name: Option<String>,
-    pub omit_functions: Option<HashSet<String>>,
-    pub function_rust_names: Option<HashMap<String, String>>,
+    pub functions: Option<HashMap<String, CodegenConfigSuiteSpecialCaseFunction>>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct CodegenConfigSuiteSpecialCaseFunction {
+    #[serde(default)]
+    pub omit: bool,
+    #[serde(default)]
+    pub rust_name: Option<String>,
+    #[serde(default)]
+    pub prefer_checking_sys_name_in_suite: bool,
 }
 
 #[derive(serde::Deserialize)]

@@ -9,15 +9,18 @@ use crate::{low_plugin::suites::PropertySuiteV1, sys_umbrella::OfxPropertySetHan
 
 /// ## Note
 ///
-/// Unlike other suites in [`crate::low_plugin::suites`], methods in this suite:
+/// Unlike most of the suites in [`crate::low_plugin::suites`], methods in this
+/// suite:
 ///
-/// - Operate directly on `OfxPropertySetHandle`s from [`crate::sys`] rather than
-///   wrapped objects from [`crate::low_plugin::objects`], since the wrappers for
-///   property sets live in [`crate::low_plugin::property_sets`], and it doesn't
-///   make sense to create these methods for each property set wrapper
-///   individually.
+/// - Operate directly on [`OfxPropertySetHandle`]s from [`crate::sys`] rather
+///   than wrapped objects from [`crate::low_plugin::objects`], since the
+///   wrappers for property sets live in [`crate::low_plugin::property_sets`],
+///   and it doesn't make sense to create these methods for each property set
+///   wrapper individually.
 /// - Are `pub` instead of `pub(crate)`, allowing library users to call them
-///   freely rather than going through [`crate::low_plugin::property_sets`].
+///   freely when the property set (or the property on a property set) that they
+///   want to interact with is not available in
+///   [`crate::low_plugin::property_sets`].
 #[openfx_internal_macros::low_impl_suite]
 impl PropertySuiteV1 {
     /// ## Safety
