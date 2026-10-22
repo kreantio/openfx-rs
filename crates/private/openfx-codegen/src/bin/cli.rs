@@ -14,7 +14,10 @@ struct Args {
     input_metadata: PathBuf,
 
     #[arg(long)]
-    output: PathBuf,
+    output_code_from_c: PathBuf,
+
+    #[arg(long)]
+    output_code_from_metadata: PathBuf,
 }
 
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -31,11 +34,11 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let input_metadata = openfx_codegen::input_metadata::load_input_metadata(args.input_metadata)?;
 
-    let output_folder_c = args.output.join("code_from_c");
-    std::fs::create_dir_all(&output_folder_c)?;
+    let output_folder_c = &args.output_code_from_c;
+    std::fs::create_dir_all(output_folder_c)?;
 
-    let output_folder_metadata = args.output.join("code_from_metadata");
-    std::fs::create_dir_all(&output_folder_metadata)?;
+    let output_folder_metadata = &args.output_code_from_metadata;
+    std::fs::create_dir_all(output_folder_metadata)?;
 
     openfx_codegen::ex_codegen_c::gen_low_statuses(
         &codegen_config,
@@ -48,7 +51,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     )?;
     openfx_codegen::ex_codegen_c::gen_low_plugin_suites(
         &codegen_config,
-        &output_folder_c,
+        output_folder_c,
         info.suites,
     )?;
     openfx_codegen::ex_codegen_c::gen_low_plugin_objects(
