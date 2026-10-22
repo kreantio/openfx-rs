@@ -35,6 +35,7 @@ use crate::{
     definitions::{PLUGIN_4_SATURATION_IDENTIFIER, PLUGIN_4_SATURATION_LABEL, PLUGINS_GROUPING},
     helpers::shared_data::{
         BitDepth, ClipImageManaged, GuaranteeSend, GuaranteeSendClipInInstance, SharedData,
+        param_get_value_at_time,
     },
 };
 
@@ -168,6 +169,7 @@ fn action_describe_in_context(
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
+    let s_param = &data.parameter_suite.0;
 
     let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
     if context != ImageEffectPropContext::Filter && context != ImageEffectPropContext::General {
@@ -200,10 +202,11 @@ fn action_describe_in_context(
         }
     }
 
-    let param_set = unsafe { data.make_param_set_helper_for_image_effect_descriptor(&descriptor) }?;
+    let param_set = unsafe { descriptor.get_param_set(s_ifx) }?;
 
     {
-        let param_props = param_set.param_define(kOfxParamTypeDouble, SATURATION_PARAM_NAME)?;
+        let param_props =
+            unsafe { param_set.param_define(s_param, kOfxParamTypeDouble, SATURATION_PARAM_NAME) }?;
         let param_props = ParamsDouble1DPropertySet::from(param_props);
 
         unsafe {
@@ -224,6 +227,7 @@ fn action_create_instance(instance: ImageEffectInstance) -> openfx::low::Result<
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
+    let s_param = &data.parameter_suite.0;
 
     let instance_props = unsafe { instance.get_property_set(s_ifx) }?;
 
@@ -238,8 +242,9 @@ fn action_create_instance(instance: ImageEffectInstance) -> openfx::low::Result<
         None
     };
 
-    let param_set = unsafe { data.make_param_set_helper_for_image_effect_instance(&instance) }?;
-    let saturation_param = param_set.param_get_handle(SATURATION_PARAM_NAME)?;
+    let param_set = unsafe { instance.get_param_set(s_ifx) }?;
+    let saturation_param =
+        unsafe { param_set.param_get_param_handle(s_param, SATURATION_PARAM_NAME) }?;
 
     let my_data = MyInstanceData {
         is_general_context,
@@ -294,8 +299,8 @@ fn action_is_identity(
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
-    let s_param = data.parameter_suite_helper();
     let s_ifx = &data.image_effect_suite.0;
+    let s_param = &data.parameter_suite.0;
 
     let instance_props = unsafe { effect.get_property_set(s_ifx) }?;
 
@@ -305,8 +310,8 @@ fn action_is_identity(
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
     let time = unsafe { in_args.get_time(s_prop) }?;
-    let saturation =
-        unsafe { s_param.param_get_value_at_time_double(my_data.saturation_param, time) }?;
+    let mut saturation: f64 = Default::default();
+    param_get_value_at_time!(s_param, my_data.saturation_param, time, &mut saturation);
 
     if (saturation - 1.0).abs() < 0.000000001 {
         (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })?;
@@ -323,8 +328,8 @@ fn action_render(
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
-    let s_param = data.parameter_suite_helper();
     let s_ifx = &data.image_effect_suite.0;
+    let s_param = &data.parameter_suite.0;
 
     let instance_props = unsafe { instance.get_property_set(s_ifx) }?;
 
@@ -337,8 +342,8 @@ fn action_render(
     };
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
-    let saturation =
-        unsafe { s_param.param_get_value_at_time_double(my_data.saturation_param, time) }?;
+    let mut saturation: f64 = Default::default();
+    param_get_value_at_time!(s_param, my_data.saturation_param, time, &mut saturation);
 
     let output_img = unsafe { my_data.output_clip.0.clip_get_image(s_ifx, time, None) }?;
     let source_img = unsafe { my_data.source_clip.0.clip_get_image(s_ifx, time, None) }?;
