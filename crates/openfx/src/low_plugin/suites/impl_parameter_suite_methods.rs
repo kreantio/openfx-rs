@@ -119,7 +119,6 @@ impl ParameterSuiteV1 {
     /// ## Safety
     ///
     /// `self` and `param_set` must be valid.
-    #[expect(unused)]
     pub(crate) unsafe fn param_get_param_handle(
         &self,
         param_set: &ParamSetInstance,

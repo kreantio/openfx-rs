@@ -13,12 +13,12 @@ suites:
     ImageEffectOpenGLRenderSuiteV1:
       key_name: kOfxOpenGLRenderSuite
     MessageSuiteV1:
-      # C variadic arguments:
       functions:
+        # C variadic arguments:
         message: #{ omit: true }
     MessageSuiteV2:
-      # C variadic arguments:
       functions:
+        # C variadic arguments:
         message: #{ omit: true }
         setPersistentMessage: #{ omit: true }
     MultiThreadSuiteV1:
