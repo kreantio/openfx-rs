@@ -14,7 +14,7 @@ use crate::{
         },
         suites::{
             DrawSuiteV1, ImageEffectOpenGLRenderSuiteV1, ImageEffectSuiteV1, InteractSuiteV1,
-            MessageSuiteV1Compatible, MessageSuiteV2, MultiThreadSuiteV1, ParameterSuiteV1,
+            MultiThreadSuiteV1, ParameterSuiteV1,
         },
     },
     sys_umbrella::{
@@ -192,56 +192,6 @@ impl ImageEffectDescriptor {
     ) -> crate::low::Result<ImageEffectDescriptorPropertySet> {
         unsafe { image_effect_suite.get_descriptor_property_set(self) }
     }
-
-    /// ## Safety
-    ///
-    /// `self` and `message_suite_v1` must be valid.
-    pub unsafe fn message(
-        &self,
-        message_suite_v1: impl MessageSuiteV1Compatible,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe {
-            message_suite_v1.message_with_image_effect_descriptor(
-                self,
-                message_type,
-                message_id,
-                message,
-            )
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// `self` and `message_suite_v2` must be valid.
-    pub unsafe fn clear_persistent_message(
-        &self,
-        message_suite_v2: MessageSuiteV2,
-    ) -> crate::low::Result<()> {
-        unsafe { message_suite_v2.clear_persistent_message_with_image_effect_descriptor(self) }
-    }
-
-    /// ## Safety
-    ///
-    /// `self` and `message_suite_v2` must be valid.
-    pub unsafe fn set_persistent_message(
-        &self,
-        message_suite_v2: MessageSuiteV2,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe {
-            message_suite_v2.set_persistent_message_with_image_effect_descriptor(
-                self,
-                message_type,
-                message_id,
-                message,
-            )
-        }
-    }
 }
 
 impl ImageEffectInstance {
@@ -303,56 +253,6 @@ impl ImageEffectInstance {
         n_bytes: usize,
     ) -> crate::low::Result<ImageMemory> {
         unsafe { image_effect_suite.image_memory_alloc(self, n_bytes) }
-    }
-
-    /// ## Safety
-    ///
-    /// `self` and `message_suite_v1` must be valid.
-    pub unsafe fn message(
-        &self,
-        message_suite_v1: impl MessageSuiteV1Compatible,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe {
-            message_suite_v1.message_with_image_effect_instance(
-                self,
-                message_type,
-                message_id,
-                message,
-            )
-        }
-    }
-
-    /// ## Safety
-    ///
-    /// `self` and `message_suite_v2` must be valid.
-    pub unsafe fn clear_persistent_message(
-        &self,
-        message_suite_v2: MessageSuiteV2,
-    ) -> crate::low::Result<()> {
-        unsafe { message_suite_v2.clear_persistent_message_with_image_effect_instance(self) }
-    }
-
-    /// ## Safety
-    ///
-    /// `self` and `message_suite_v2` must be valid.
-    pub unsafe fn set_persistent_message(
-        &self,
-        message_suite_v2: MessageSuiteV2,
-        message_type: &CStr,
-        message_id: Option<&CStr>,
-        message: &CStr,
-    ) -> crate::low::Result<()> {
-        unsafe {
-            message_suite_v2.set_persistent_message_with_image_effect_instance(
-                self,
-                message_type,
-                message_id,
-                message,
-            )
-        }
     }
 }
 
@@ -475,10 +375,15 @@ impl Mutex {
 }
 
 impl ParamSetDescriptor {
+    /// It is recommended to use the typed versions of this function where
+    /// applicable.
+    ///
+    /// TODO: Implement the typed versions of this function.
+    ///
     /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
-    pub(crate) unsafe fn param_define(
+    pub unsafe fn param_define(
         &self,
         parameter_suite: &ParameterSuiteV1,
         param_type: &CStr,
@@ -487,11 +392,15 @@ impl ParamSetDescriptor {
         unsafe { parameter_suite.param_define(self, param_type, name) }
     }
 
+    /// It is recommended to use the typed versions of this function where
+    /// applicable.
+    ///
+    /// TODO: Implement the typed versions of this function.
+    ///
     /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
-    #[expect(unused)]
-    pub(crate) unsafe fn param_define_no_output(
+    pub unsafe fn param_define_no_output(
         &self,
         parameter_suite: &ParameterSuiteV1,
         param_type: &CStr,
@@ -533,10 +442,15 @@ impl ParamSetInstance {
         unsafe { parameter_suite.param_edit_end(self) }
     }
 
+    /// It is recommended to use the typed versions of this function where
+    /// applicable.
+    ///
+    /// TODO: Implement the typed versions of this function.
+    ///
     /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
-    pub(crate) unsafe fn param_get_handle(
+    pub unsafe fn param_get_handle(
         &self,
         parameter_suite: &ParameterSuiteV1,
         name: &CStr,
@@ -544,11 +458,15 @@ impl ParamSetInstance {
         unsafe { parameter_suite.param_get_handle(self, name) }
     }
 
-    #[expect(unused)]
+    /// It is recommended to use the typed versions of this function where
+    /// applicable.
+    ///
+    /// TODO: Implement the typed versions of this function.
+    ///
     /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
-    pub(crate) unsafe fn param_get_param_handle(
+    pub unsafe fn param_get_param_handle(
         &self,
         parameter_suite: &ParameterSuiteV1,
         name: &CStr,

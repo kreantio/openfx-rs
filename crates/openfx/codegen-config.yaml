@@ -1,3 +1,8 @@
+# Configuration for generating code for the low layer (i.e., the code in
+# `openfx::{low, low_plugin}`).
+#
+# This file is for internal use only. Do not rely on it outside the project.
+
 make_mod_rs:
   ignore:
     - c_objects # TODO!!: remove this.
@@ -16,32 +21,40 @@ suites:
   special_cases:
     ImageEffectOpenGLRenderSuiteV1:
       key_name: kOfxOpenGLRenderSuite
-    # MessageSuiteV1:
-    #   # C variadic arguments:
-    #   omit_functions: [message]
-    # MessageSuiteV2:
-    #   # C variadic arguments:
-    #   omit_functions: [message, setPersistentMessage]
+    MessageSuiteV1:
+      functions:
+        # C variadic arguments:
+        message: { prefer_checking_sys_name_in_suite: true }
+    MessageSuiteV2:
+      functions:
+        clearPersistentMessage: { prefer_checking_sys_name_in_suite: true }
+        # C variadic arguments:
+        message: { prefer_checking_sys_name_in_suite: true }
+        setPersistentMessage: { prefer_checking_sys_name_in_suite: true }
     MultiThreadSuiteV1:
-      function_rust_names:
-        multiThreadNumCPUs: multi_thread_num_cpus
-        mutexUnLock: mutex_unlock
+      functions:
+        multiThread: { prefer_checking_sys_name_in_suite: true }
+        multiThreadNumCPUs: { rust_name: multi_thread_num_cpus }
+        mutexUnLock: { rust_name: mutex_unlock }
     # The documentation is unclear, and I have absolutely zero knowledge about
     # OpenCL:
     OpenCLProgramSuiteV1:
-      omit_functions: [compileProgram]
+      functions:
+        compileProgram: { omit: true }
     ParameterSuiteV1:
-      omit_functions:
+      functions:
         # C variadic arguments:
-        - paramGetValue
-        - paramGetValueAtTime
-        - paramGetDerivative
-        - paramGetIntegral
-        - paramSetValue
-        - paramSetValueAtTime
+        paramGetValue: { omit: true }
+        paramGetValueAtTime: { omit: true }
+        paramGetDerivative: { omit: true }
+        paramGetIntegral: { omit: true }
+        paramSetValue: { omit: true }
+        paramSetValueAtTime: { omit: true }
     PropertySuiteV1:
       # Instead, special forms are used: `prop_get_string_{ptr,owned}[_n]`.
-      omit_functions: [propGetString, propGetStringN]
+      functions:
+        propGetString: { omit: true }
+        propGetStringN: { omit: true }
 
 objects:
   unused_property_sets_in_metadata: # NOTE: This configuration is currently unused.
