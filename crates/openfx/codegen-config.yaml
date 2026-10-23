@@ -3,6 +3,13 @@
 #
 # This file is for internal use only. Do not rely on it outside the project.
 
+make_mod_rs:
+  ignore:
+    - checks
+    # for the default colorspace header, which is included manually when the
+    # feature `default-colorspace` is enabled:
+    - { regex: "^ofx-.+$" }
+
 statuses:
   identical_ones:
     - [kOfxStatGPUOutOfMemory, kOfxStatGLOutOfMemory]

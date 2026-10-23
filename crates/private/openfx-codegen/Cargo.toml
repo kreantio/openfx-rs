@@ -11,18 +11,17 @@ openfx-datagen.workspace = true
 
 clap = { workspace = true, features = ["derive"] }
 convert_case.workspace = true
-prettyplease.workspace = true
 proc-macro2.workspace = true
 quote.workspace = true
 rayon.workspace = true
 regex.workspace = true
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
+serde-saphyr.workspace = true
 snafu.workspace = true
 syn = { workspace = true, features = ["full", "visit", "visit-mut"] }
 tracing.workspace = true
 tracing-subscriber.workspace = true
-serde-saphyr.workspace = true
 
 [[bin]]
 name = "cli"

@@ -13,12 +13,7 @@ macro_rules! include_mod_c_bindings {
     };
     ($name:ident, {$($additional_items:tt)*}) => {
         pub mod $name {
-            include!(concat!(
-                env!("CARGO_MANIFEST_DIR"),
-                "/generated/c_bindings/",
-                stringify!($name),
-                ".rs"
-            ));
+            pub use crate::generated::sys::bindings::$name::*;
 
             $($additional_items)*
         }

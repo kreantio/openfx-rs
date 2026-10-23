@@ -49,7 +49,8 @@ pub const kOfxParamPropParametricUIColour: &::std::ffi::CStr = c"OfxParamPropPar
 ///     type: pointer
 ///     dimension: 1
 /// ```
-pub const kOfxParamPropParametricInteractBackground: &::std::ffi::CStr = c"OfxParamPropParametricInteractBackground";
+pub const kOfxParamPropParametricInteractBackground: &::std::ffi::CStr =
+    c"OfxParamPropParametricInteractBackground";
 /// ```doxygen
 /// @brief Property on the host to indicate support for parametric parameter animation.
 ///
@@ -60,7 +61,8 @@ pub const kOfxParamPropParametricInteractBackground: &::std::ffi::CStr = c"OfxPa
 ///     type: bool
 ///     dimension: 1
 /// ```
-pub const kOfxParamHostPropSupportsParametricAnimation: &::std::ffi::CStr = c"OfxParamHostPropSupportsParametricAnimation";
+pub const kOfxParamHostPropSupportsParametricAnimation: &::std::ffi::CStr =
+    c"OfxParamHostPropSupportsParametricAnimation";
 /// ```doxygen
 /// @brief Property to indicate the min and max range of the parametric input value.
 ///
@@ -259,9 +261,6 @@ pub struct OfxParametricParameterSuiteV1 {
     ///       \arg \c curveIndex            which dimension to clear
     /// ```
     pub parametricParamDeleteAllControlPoints: ::std::option::Option<
-        unsafe extern "C" fn(
-            param: OfxParamHandle,
-            curveIndex: ::std::os::raw::c_int,
-        ) -> OfxStatus,
+        unsafe extern "C" fn(param: OfxParamHandle, curveIndex: ::std::os::raw::c_int) -> OfxStatus,
     >,
 }

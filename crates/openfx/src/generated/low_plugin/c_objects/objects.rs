@@ -1,0 +1,12 @@
+use openfx_internal_macros::low_make_object_struct;
+low_make_object_struct!(DrawContext, OfxDrawContextHandle);
+low_make_object_struct!(ImageClipDescriptor, OfxImageClipHandle);
+low_make_object_struct!(ImageClipInstance, OfxImageClipHandle);
+low_make_object_struct!(ImageEffectDescriptor, OfxImageEffectHandle);
+low_make_object_struct!(ImageEffectInstance, OfxImageEffectHandle);
+low_make_object_struct!(ImageMemory, OfxImageMemoryHandle);
+low_make_object_struct!(InteractDescriptor, OfxInteractHandle);
+low_make_object_struct!(InteractInstance, OfxInteractHandle);
+low_make_object_struct!(Mutex, OfxMutexHandle);
+low_make_object_struct!(ParamSetDescriptor, OfxParamSetHandle);
+low_make_object_struct!(ParamSetInstance, OfxParamSetHandle);

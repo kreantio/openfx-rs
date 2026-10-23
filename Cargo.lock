@@ -389,7 +389,6 @@ dependencies = [
  "clap",
  "convert_case",
  "openfx-datagen",
- "prettyplease",
  "proc-macro2",
  "quote",
  "rayon",
@@ -942,6 +941,12 @@ name = "xtask"
 version = "0.6.0"
 dependencies = [
  "clap",
+ "regex",
+ "serde",
+ "serde-saphyr",
+ "syn 3.0.3",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]

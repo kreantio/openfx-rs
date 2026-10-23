@@ -89,12 +89,13 @@ pub fn gen_low_enums_from_metadata(
 
     std::fs::write(
         output_file,
-        prettyplease::unparse(&syn::parse2(quote! {
+        quote! {
             #[openfx_internal_macros::low_make_property_enums]
             mod __ {
                 #output_inner
             }
-        })?),
+        }
+        .to_string(),
     )?;
 
     Ok(())
@@ -280,7 +281,7 @@ pub fn gen_low_plugin_actions(
         });
     }
 
-    std::fs::write(output_file, prettyplease::unparse(&syn::parse2(output)?))?;
+    std::fs::write(output_file, output.to_string())?;
 
     Ok(())
 }
@@ -479,12 +480,13 @@ pub fn gen_low_plugin_property_sets(
 
     std::fs::write(
         output_file,
-        prettyplease::unparse(&syn::parse2(quote! {
+        quote! {
             #[openfx_internal_macros::low_make_property_set_structs]
             mod __ {
                 #output_inner
             }
-        })?),
+        }
+        .to_string(),
     )?;
 
     Ok(())

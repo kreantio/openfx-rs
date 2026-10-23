@@ -73,10 +73,10 @@ pub const kOfxDrawTextAlignmentRight: OfxDrawTextAlignment = 2;
 pub const kOfxDrawTextAlignmentTop: OfxDrawTextAlignment = 4;
 pub const kOfxDrawTextAlignmentBottom: OfxDrawTextAlignment = 8;
 pub const kOfxDrawTextAlignmentBaseline: OfxDrawTextAlignment = 16;
-pub const kOfxDrawTextAlignmentCenterH: OfxDrawTextAlignment = (kOfxDrawTextAlignmentLeft
-    | kOfxDrawTextAlignmentRight);
-pub const kOfxDrawTextAlignmentCenterV: OfxDrawTextAlignment = (kOfxDrawTextAlignmentTop
-    | kOfxDrawTextAlignmentBaseline);
+pub const kOfxDrawTextAlignmentCenterH: OfxDrawTextAlignment =
+    (kOfxDrawTextAlignmentLeft | kOfxDrawTextAlignmentRight);
+pub const kOfxDrawTextAlignmentCenterV: OfxDrawTextAlignment =
+    (kOfxDrawTextAlignmentTop | kOfxDrawTextAlignmentBaseline);
 /// ```doxygen
 /// @brief Defines text alignment values for OfxDrawSuiteV1::drawText
 /// ```
@@ -114,7 +114,7 @@ pub struct OfxDrawSuiteV1 {
     /// 	 \arg \c colour      RGBA colour
     ///
     /// 	 The host should use "over" compositing when using a non-opaque colour.
-    /// 	
+    ///
     /// 	 @returns
     /// 	 - ::kOfxStatOK - the colour was changed
     /// 	 - ::kOfxStatFailed - failure, e.g. if function is called outside kOfxInteractActionDraw

@@ -30,10 +30,7 @@ pub struct OfxTimeLineSuiteV1 {
     ///       - ::kOfxStatErrBadHandle - the effect handle was invalid
     /// ```
     pub getTime: ::std::option::Option<
-        unsafe extern "C" fn(
-            instance: *mut ::std::os::raw::c_void,
-            time: *mut f64,
-        ) -> OfxStatus,
+        unsafe extern "C" fn(instance: *mut ::std::os::raw::c_void, time: *mut f64) -> OfxStatus,
     >,
     /// ```doxygen
     /// @brief Move the timeline control to the indicated time.
@@ -52,10 +49,7 @@ pub struct OfxTimeLineSuiteV1 {
     ///       - ::kOfxStatErrValue - the time was an illegal value
     /// ```
     pub gotoTime: ::std::option::Option<
-        unsafe extern "C" fn(
-            instance: *mut ::std::os::raw::c_void,
-            time: f64,
-        ) -> OfxStatus,
+        unsafe extern "C" fn(instance: *mut ::std::os::raw::c_void, time: f64) -> OfxStatus,
     >,
     /// ```doxygen
     /// @brief Get the current bounds on a timeline

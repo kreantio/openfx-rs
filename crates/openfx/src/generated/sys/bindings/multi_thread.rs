@@ -101,9 +101,8 @@ pub struct OfxMultiThreadSuiteV1 {
     ///   - 0 if the thread is not one spawned by multiThread
     ///   - 1 if the thread was spawned by multiThread
     /// ```
-    pub multiThreadIsSpawnedThread: ::std::option::Option<
-        unsafe extern "C" fn() -> ::std::os::raw::c_int,
-    >,
+    pub multiThreadIsSpawnedThread:
+        ::std::option::Option<unsafe extern "C" fn() -> ::std::os::raw::c_int>,
     /// ```doxygen
     /// @brief Create a mutex
     ///
@@ -130,9 +129,8 @@ pub struct OfxMultiThreadSuiteV1 {
     ///   - kOfxStatOK - if it destroyed the mutex
     ///   - kOfxStatErrBadHandle - if the handle was bad
     /// ```
-    pub mutexDestroy: ::std::option::Option<
-        unsafe extern "C" fn(mutex: OfxMutexHandle) -> OfxStatus,
-    >,
+    pub mutexDestroy:
+        ::std::option::Option<unsafe extern "C" fn(mutex: OfxMutexHandle) -> OfxStatus>,
     /// ```doxygen
     /// @brief Blocking lock on the mutex
     ///
@@ -144,9 +142,7 @@ pub struct OfxMultiThreadSuiteV1 {
     ///   - kOfxStatOK - if it got the lock
     ///   - kOfxStatErrBadHandle - if the handle was bad
     /// ```
-    pub mutexLock: ::std::option::Option<
-        unsafe extern "C" fn(mutex: OfxMutexHandle) -> OfxStatus,
-    >,
+    pub mutexLock: ::std::option::Option<unsafe extern "C" fn(mutex: OfxMutexHandle) -> OfxStatus>,
     /// ```doxygen
     /// @brief Unlock the mutex
     ///
@@ -156,9 +152,8 @@ pub struct OfxMultiThreadSuiteV1 {
     ///   - kOfxStatOK if it released the lock
     ///   - kOfxStatErrBadHandle if the handle was bad
     /// ```
-    pub mutexUnLock: ::std::option::Option<
-        unsafe extern "C" fn(mutex: OfxMutexHandle) -> OfxStatus,
-    >,
+    pub mutexUnLock:
+        ::std::option::Option<unsafe extern "C" fn(mutex: OfxMutexHandle) -> OfxStatus>,
     /// ```doxygen
     /// @brief Non blocking attempt to lock the mutex
     ///
@@ -171,7 +166,6 @@ pub struct OfxMultiThreadSuiteV1 {
     ///   - kOfxStatFailed - if it did not get the lock
     ///   - kOfxStatErrBadHandle - if the handle was bad
     /// ```
-    pub mutexTryLock: ::std::option::Option<
-        unsafe extern "C" fn(mutex: OfxMutexHandle) -> OfxStatus,
-    >,
+    pub mutexTryLock:
+        ::std::option::Option<unsafe extern "C" fn(mutex: OfxMutexHandle) -> OfxStatus>,
 }

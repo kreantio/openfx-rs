@@ -22,9 +22,11 @@ use crate::{
     },
 };
 
+pub use crate::generated::low_plugin::c_objects::objects::*;
+
 include!(concat!(
     env!("CARGO_MANIFEST_DIR"),
-    "/generated/code_from_c/low_plugin_objects.rs",
+    "/src/generated/low_plugin/c_objects/checks/objects.rs",
 ));
 
 impl DrawContext {

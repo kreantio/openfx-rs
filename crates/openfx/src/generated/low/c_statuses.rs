@@ -21,12 +21,10 @@ pub enum Status {
     Unknown(crate::sys_umbrella::OfxStatus),
 }
 const _: () = assert!(
-    crate ::sys_umbrella::kOfxStatGPUOutOfMemory == crate
-    ::sys_umbrella::kOfxStatGLOutOfMemory
+    crate::sys_umbrella::kOfxStatGPUOutOfMemory == crate::sys_umbrella::kOfxStatGLOutOfMemory
 );
 const _: () = assert!(
-    crate ::sys_umbrella::kOfxStatGPURenderFailed == crate
-    ::sys_umbrella::kOfxStatGLRenderFailed
+    crate::sys_umbrella::kOfxStatGPURenderFailed == crate::sys_umbrella::kOfxStatGLRenderFailed
 );
 impl From<crate::sys_umbrella::OfxStatus> for Status {
     fn from(status: crate::sys_umbrella::OfxStatus) -> Self {
@@ -38,9 +36,7 @@ impl From<crate::sys_umbrella::OfxStatus> for Status {
             crate::sys_umbrella::kOfxStatErrFormat => Self::ErrFormat,
             crate::sys_umbrella::kOfxStatErrImageFormat => Self::ErrImageFormat,
             crate::sys_umbrella::kOfxStatErrMemory => Self::ErrMemory,
-            crate::sys_umbrella::kOfxStatErrMissingHostFeature => {
-                Self::ErrMissingHostFeature
-            }
+            crate::sys_umbrella::kOfxStatErrMissingHostFeature => Self::ErrMissingHostFeature,
             crate::sys_umbrella::kOfxStatErrUnknown => Self::ErrUnknown,
             crate::sys_umbrella::kOfxStatErrUnsupported => Self::ErrUnsupported,
             crate::sys_umbrella::kOfxStatErrValue => Self::ErrValue,
@@ -66,9 +62,7 @@ impl From<Status> for crate::sys_umbrella::OfxStatus {
             Status::ErrFormat => crate::sys_umbrella::kOfxStatErrFormat,
             Status::ErrImageFormat => crate::sys_umbrella::kOfxStatErrImageFormat,
             Status::ErrMemory => crate::sys_umbrella::kOfxStatErrMemory,
-            Status::ErrMissingHostFeature => {
-                crate::sys_umbrella::kOfxStatErrMissingHostFeature
-            }
+            Status::ErrMissingHostFeature => crate::sys_umbrella::kOfxStatErrMissingHostFeature,
             Status::ErrUnknown => crate::sys_umbrella::kOfxStatErrUnknown,
             Status::ErrUnsupported => crate::sys_umbrella::kOfxStatErrUnsupported,
             Status::ErrValue => crate::sys_umbrella::kOfxStatErrValue,

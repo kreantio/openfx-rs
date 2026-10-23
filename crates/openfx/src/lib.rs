@@ -1,3 +1,8 @@
+#[allow(nonstandard_style)]
+#[allow(unused_parens)]
+#[allow(clippy::tabs_in_doc_comments)]
+pub(crate) mod generated;
+
 pub mod low;
 pub mod low_plugin;
 pub mod sys;

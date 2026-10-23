@@ -31,7 +31,8 @@ pub const kOfxOpenGLRenderSuite: &::std::ffi::CStr = c"OfxImageEffectOpenGLRende
 ///       - "true"
 ///       - needed
 /// ```
-pub const kOfxImageEffectPropOpenGLRenderSupported: &::std::ffi::CStr = c"OfxImageEffectPropOpenGLRenderSupported";
+pub const kOfxImageEffectPropOpenGLRenderSupported: &::std::ffi::CStr =
+    c"OfxImageEffectPropOpenGLRenderSupported";
 /// ```doxygen
 /// @brief Indicates the bit depths supported by a plug-in during OpenGL renders.
 ///
@@ -109,7 +110,8 @@ pub const kOfxImageEffectPropOpenGLEnabled: &::std::ffi::CStr = c"OfxImageEffect
 ///     type: int
 ///     dimension: 1
 /// ```
-pub const kOfxImageEffectPropOpenGLTextureIndex: &::std::ffi::CStr = c"OfxImageEffectPropOpenGLTextureIndex";
+pub const kOfxImageEffectPropOpenGLTextureIndex: &::std::ffi::CStr =
+    c"OfxImageEffectPropOpenGLTextureIndex";
 /// ```doxygen
 /// @brief Indicates the texture target enumerator of an image turned into
 ///     an OpenGL texture by the host
@@ -130,7 +132,8 @@ pub const kOfxImageEffectPropOpenGLTextureIndex: &::std::ffi::CStr = c"OfxImageE
 ///     type: int
 ///     dimension: 1
 /// ```
-pub const kOfxImageEffectPropOpenGLTextureTarget: &::std::ffi::CStr = c"OfxImageEffectPropOpenGLTextureTarget";
+pub const kOfxImageEffectPropOpenGLTextureTarget: &::std::ffi::CStr =
+    c"OfxImageEffectPropOpenGLTextureTarget";
 /// ```doxygen
 /// @brief Indicates whether a host or plug-in can (or more importantly cannot)
 ///     support CPU rendering.
@@ -150,7 +153,8 @@ pub const kOfxImageEffectPropOpenGLTextureTarget: &::std::ffi::CStr = c"OfxImage
 ///       - "true"
 ///     introduced: "1.5.1"
 /// ```
-pub const kOfxImageEffectPropCPURenderSupported: &::std::ffi::CStr = c"OfxImageEffectPropCPURenderSupported";
+pub const kOfxImageEffectPropCPURenderSupported: &::std::ffi::CStr =
+    c"OfxImageEffectPropCPURenderSupported";
 /// ```doxygen
 /// @brief Action called when an effect has just been attached to an OpenGL
 /// context.
@@ -236,7 +240,8 @@ pub const kOfxActionOpenGLContextDetached: &::std::ffi::CStr = c"kOfxActionOpenG
 ///       - "true"
 ///       - needed
 /// ```
-pub const kOfxImageEffectPropCudaRenderSupported: &::std::ffi::CStr = c"OfxImageEffectPropCudaRenderSupported";
+pub const kOfxImageEffectPropCudaRenderSupported: &::std::ffi::CStr =
+    c"OfxImageEffectPropCudaRenderSupported";
 /// ```doxygen
 /// @brief Indicates that a plug-in SHOULD use CUDA render in
 /// the current action
@@ -274,7 +279,8 @@ pub const kOfxImageEffectPropCudaEnabled: &::std::ffi::CStr = c"OfxImageEffectPr
 ///       - "true"
 ///       - needed
 /// ```
-pub const kOfxImageEffectPropCudaStreamSupported: &::std::ffi::CStr = c"OfxImageEffectPropCudaStreamSupported";
+pub const kOfxImageEffectPropCudaStreamSupported: &::std::ffi::CStr =
+    c"OfxImageEffectPropCudaStreamSupported";
 /// ```doxygen
 /// @brief The CUDA stream to be used for rendering
 ///
@@ -320,7 +326,8 @@ pub const kOfxImageEffectPropCudaStream: &::std::ffi::CStr = c"OfxImageEffectPro
 ///       - needed
 ///     introduced: "1.5"
 /// ```
-pub const kOfxImageEffectPropMetalRenderSupported: &::std::ffi::CStr = c"OfxImageEffectPropMetalRenderSupported";
+pub const kOfxImageEffectPropMetalRenderSupported: &::std::ffi::CStr =
+    c"OfxImageEffectPropMetalRenderSupported";
 /// ```doxygen
 /// @brief Indicates that a plug-in SHOULD use Metal render in
 /// the current action
@@ -360,7 +367,8 @@ pub const kOfxImageEffectPropMetalEnabled: &::std::ffi::CStr = c"OfxImageEffectP
 ///     dimension: 1
 ///     introduced: "1.5"
 /// ```
-pub const kOfxImageEffectPropMetalCommandQueue: &::std::ffi::CStr = c"OfxImageEffectPropMetalCommandQueue";
+pub const kOfxImageEffectPropMetalCommandQueue: &::std::ffi::CStr =
+    c"OfxImageEffectPropMetalCommandQueue";
 /// ```doxygen
 /// @brief Indicates whether a host or plug-in can support OpenCL Buffers render
 ///
@@ -379,7 +387,8 @@ pub const kOfxImageEffectPropMetalCommandQueue: &::std::ffi::CStr = c"OfxImageEf
 ///       - needed
 ///     introduced: "1.5"
 /// ```
-pub const kOfxImageEffectPropOpenCLRenderSupported: &::std::ffi::CStr = c"OfxImageEffectPropOpenCLRenderSupported";
+pub const kOfxImageEffectPropOpenCLRenderSupported: &::std::ffi::CStr =
+    c"OfxImageEffectPropOpenCLRenderSupported";
 /// ```doxygen
 /// @brief Indicates whether a host or plug-in can support OpenCL Images render
 ///
@@ -395,7 +404,8 @@ pub const kOfxImageEffectPropOpenCLRenderSupported: &::std::ffi::CStr = c"OfxIma
 ///       - "true"
 ///     introduced: "1.5"
 /// ```
-pub const kOfxImageEffectPropOpenCLSupported: &::std::ffi::CStr = c"OfxImageEffectPropOpenCLSupported";
+pub const kOfxImageEffectPropOpenCLSupported: &::std::ffi::CStr =
+    c"OfxImageEffectPropOpenCLSupported";
 /// ```doxygen
 /// @brief Indicates that a plug-in SHOULD use OpenCL render in
 /// the current action
@@ -441,7 +451,8 @@ pub const kOfxImageEffectPropOpenCLEnabled: &::std::ffi::CStr = c"OfxImageEffect
 ///     dimension: 1
 ///     introduced: "1.5"
 /// ```
-pub const kOfxImageEffectPropOpenCLCommandQueue: &::std::ffi::CStr = c"OfxImageEffectPropOpenCLCommandQueue";
+pub const kOfxImageEffectPropOpenCLCommandQueue: &::std::ffi::CStr =
+    c"OfxImageEffectPropOpenCLCommandQueue";
 /// ```doxygen
 /// @brief Indicates the image handle of an image supplied as an OpenCL Image by the host
 ///

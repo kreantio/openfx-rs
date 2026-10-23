@@ -1,0 +1,17 @@
+use openfx_internal_macros::low_plugin_impl_host_for_fetch_suite;
+low_plugin_impl_host_for_fetch_suite!(DialogSuiteV1);
+low_plugin_impl_host_for_fetch_suite!(DrawSuiteV1);
+low_plugin_impl_host_for_fetch_suite ! (ImageEffectOpenGLRenderSuiteV1 @ kOfxOpenGLRenderSuite);
+low_plugin_impl_host_for_fetch_suite!(ImageEffectSuiteV1);
+low_plugin_impl_host_for_fetch_suite!(InteractSuiteV1);
+low_plugin_impl_host_for_fetch_suite!(MemorySuiteV1);
+low_plugin_impl_host_for_fetch_suite!(MessageSuiteV1);
+low_plugin_impl_host_for_fetch_suite!(MessageSuiteV2);
+low_plugin_impl_host_for_fetch_suite!(MultiThreadSuiteV1);
+low_plugin_impl_host_for_fetch_suite!(OpenCLProgramSuiteV1);
+low_plugin_impl_host_for_fetch_suite!(ParameterSuiteV1);
+low_plugin_impl_host_for_fetch_suite!(ParametricParameterSuiteV1);
+low_plugin_impl_host_for_fetch_suite!(ProgressSuiteV1);
+low_plugin_impl_host_for_fetch_suite!(ProgressSuiteV2);
+low_plugin_impl_host_for_fetch_suite!(PropertySuiteV1);
+low_plugin_impl_host_for_fetch_suite!(TimeLineSuiteV1);

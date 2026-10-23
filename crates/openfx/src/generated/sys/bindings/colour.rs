@@ -43,12 +43,18 @@
 ///      - OfxImageEffectColourManagementOCIO
 ///    introduced: "1.5"
 /// ```
-pub const kOfxImageEffectPropColourManagementStyle: &::std::ffi::CStr = c"OfxImageEffectPropColourManagementStyle";
-pub const kOfxImageEffectColourManagementNone: &::std::ffi::CStr = c"OfxImageEffectColourManagementNone";
-pub const kOfxImageEffectColourManagementBasic: &::std::ffi::CStr = c"OfxImageEffectColourManagementBasic";
-pub const kOfxImageEffectColourManagementCore: &::std::ffi::CStr = c"OfxImageEffectColourManagementCore";
-pub const kOfxImageEffectColourManagementFull: &::std::ffi::CStr = c"OfxImageEffectColourManagementFull";
-pub const kOfxImageEffectColourManagementOCIO: &::std::ffi::CStr = c"OfxImageEffectColourManagementOCIO";
+pub const kOfxImageEffectPropColourManagementStyle: &::std::ffi::CStr =
+    c"OfxImageEffectPropColourManagementStyle";
+pub const kOfxImageEffectColourManagementNone: &::std::ffi::CStr =
+    c"OfxImageEffectColourManagementNone";
+pub const kOfxImageEffectColourManagementBasic: &::std::ffi::CStr =
+    c"OfxImageEffectColourManagementBasic";
+pub const kOfxImageEffectColourManagementCore: &::std::ffi::CStr =
+    c"OfxImageEffectColourManagementCore";
+pub const kOfxImageEffectColourManagementFull: &::std::ffi::CStr =
+    c"OfxImageEffectColourManagementFull";
+pub const kOfxImageEffectColourManagementOCIO: &::std::ffi::CStr =
+    c"OfxImageEffectColourManagementOCIO";
 /// ```doxygen
 /// @brief What native mode configs are supported?
 ///
@@ -64,7 +70,8 @@ pub const kOfxImageEffectColourManagementOCIO: &::std::ffi::CStr = c"OfxImageEff
 ///    dimension: N
 ///    introduced: "1.5"
 /// ```
-pub const kOfxImageEffectPropColourManagementAvailableConfigs: &::std::ffi::CStr = c"OfxImageEffectPropColourManagementAvailableConfigs";
+pub const kOfxImageEffectPropColourManagementAvailableConfigs: &::std::ffi::CStr =
+    c"OfxImageEffectPropColourManagementAvailableConfigs";
 /// ```doxygen
 /// @brief The native colour management config to be used for this instance
 ///
@@ -79,7 +86,8 @@ pub const kOfxImageEffectPropColourManagementAvailableConfigs: &::std::ffi::CStr
 ///    dimension: 1
 ///    introduced: "1.5"
 /// ```
-pub const kOfxImageEffectPropColourManagementConfig: &::std::ffi::CStr = c"OfxImageEffectPropColourManagementConfig";
+pub const kOfxImageEffectPropColourManagementConfig: &::std::ffi::CStr =
+    c"OfxImageEffectPropColourManagementConfig";
 /// ```doxygen
 /// @brief The path to the OCIO config used for this instance
 ///
@@ -188,7 +196,8 @@ pub const kOfxImageClipPropColourspace: &::std::ffi::CStr = c"OfxImageClipPropCo
 ///    dimension: N
 ///    introduced: "1.5"
 /// ```
-pub const kOfxImageClipPropPreferredColourspaces: &::std::ffi::CStr = c"OfxImageClipPropPreferredColourspaces";
+pub const kOfxImageClipPropPreferredColourspaces: &::std::ffi::CStr =
+    c"OfxImageClipPropPreferredColourspaces";
 /// ```doxygen
 /// @brief The display colourspace used in the plug-in's viewport
 ///
@@ -207,7 +216,8 @@ pub const kOfxImageClipPropPreferredColourspaces: &::std::ffi::CStr = c"OfxImage
 ///    dimension: 1
 ///    introduced: "1.5"
 /// ```
-pub const kOfxImageEffectPropDisplayColourspace: &::std::ffi::CStr = c"OfxImageEffectPropDisplayColourspace";
+pub const kOfxImageEffectPropDisplayColourspace: &::std::ffi::CStr =
+    c"OfxImageEffectPropDisplayColourspace";
 /// ```doxygen
 /// @brief The OCIO display to be used in the plug-in's viewport
 ///
@@ -281,4 +291,5 @@ pub const kOfxImageEffectPropOCIOView: &::std::ffi::CStr = c"OfxImageEffectPropO
 ///     outArgs:
 ///       - OfxImageClipPropColourspace
 /// ```
-pub const kOfxImageEffectActionGetOutputColourspace: &::std::ffi::CStr = c"OfxImageEffectActionGetOutputColourspace";
+pub const kOfxImageEffectActionGetOutputColourspace: &::std::ffi::CStr =
+    c"OfxImageEffectActionGetOutputColourspace";

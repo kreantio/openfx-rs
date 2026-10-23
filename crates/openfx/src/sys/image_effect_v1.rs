@@ -31,7 +31,7 @@ include_mod_c_bindings!(time_line);
 pub mod default_colorspace {
     include!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/generated/c_bindings/",
+        "/src/generated/sys/bindings/",
         "ofx-native-v1.5_aces-v1.3_ocio-v2.3",
         ".rs"
     ));
