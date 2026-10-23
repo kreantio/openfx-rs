@@ -944,6 +944,7 @@ dependencies = [
  "regex",
  "serde",
  "serde-saphyr",
+ "syn 3.0.3",
  "tracing",
  "tracing-subscriber",
 ]

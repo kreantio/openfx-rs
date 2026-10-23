@@ -98,11 +98,12 @@ fn make_mod_rs(
         let entry = entry?;
         if entry.file_type()?.is_dir() {
             let path = entry.path();
-            let mod_name = path
-                .file_name()
-                .expect("Failed to get folder name.")
-                .to_string_lossy()
-                .to_string();
+
+            let Some(mod_name) = path.file_name() else {
+                return Err(format!("Failed to get folder name: {:?}", path).into());
+            };
+            let mod_name = mod_name.to_string_lossy().to_string();
+
             if is_ignored_mod_name(&mod_name, &cfg.make_mod_rs.ignore) {
                 continue;
             }
@@ -116,12 +117,11 @@ fn make_mod_rs(
         } else if entry.file_type()?.is_file()
             && entry.path().extension().is_some_and(|ext| ext == "rs")
         {
-            let mod_name = entry
-                .path()
-                .file_stem()
-                .expect("Failed to get file stem.")
-                .to_string_lossy()
-                .to_string();
+            let path = entry.path();
+            let Some(mod_name) = path.file_stem() else {
+                return Err(format!("Failed to get file stem: {:?}", path).into());
+            };
+            let mod_name = mod_name.to_string_lossy().to_string();
             mods.insert(mod_name);
         }
     }
@@ -165,11 +165,5 @@ fn is_ignored_mod_name(name: &str, ignore: &[CodegenConfigStringMatcher]) -> boo
 }
 
 fn is_good_mod_name(name: &str) -> bool {
-    let Some(first) = name.chars().next() else {
-        return false;
-    };
-    if !first.is_ascii_alphabetic() && first != '_' {
-        return false;
-    }
-    name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
+    syn::parse_str::<syn::Ident>(name).is_ok()
 }
