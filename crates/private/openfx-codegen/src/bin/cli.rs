@@ -2,6 +2,8 @@ use std::path::PathBuf;
 
 use clap::Parser;
 
+use openfx_codegen_config::CodegenConfig;
+
 #[derive(Parser, Debug)]
 struct Args {
     #[arg(long)]
@@ -26,7 +28,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
     let codegen_config_str = std::fs::read_to_string(&args.codegen_config)?;
-    let codegen_config = openfx_codegen::config::CodegenConfig::from_yaml_str(&codegen_config_str)?;
+    let codegen_config = CodegenConfig::from_yaml_str(&codegen_config_str)?;
 
     let input_bindings =
         openfx_codegen::input_bindings_data::load_input_bindings_data(args.input_bindings_data)?;

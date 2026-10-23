@@ -4,6 +4,7 @@ use std::{
 };
 
 use clap::Parser;
+use openfx_codegen_config::{CodegenConfig, CodegenConfigStringMatcher};
 
 #[derive(clap::Parser)]
 struct Cli {
@@ -23,17 +24,6 @@ enum Commands {
     },
 }
 
-#[derive(serde::Deserialize)]
-struct CodegenConfig {
-    make_mod_rs: CodegenConfigMakeModRs,
-}
-
-impl CodegenConfig {
-    fn from_yaml_str(yaml_str: &str) -> Result<Self, serde_saphyr::Error> {
-        serde_saphyr::from_str(yaml_str)
-    }
-}
-
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
 
@@ -49,37 +39,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     Ok(())
-}
-
-#[derive(serde::Deserialize)]
-struct CodegenConfigMakeModRs {
-    ignore: Vec<CodegenConfigStringMatcher>,
-}
-
-enum CodegenConfigStringMatcher {
-    Exact(String),
-    Regex(regex::Regex),
-}
-
-impl<'de> serde::Deserialize<'de> for CodegenConfigStringMatcher {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        #[derive(serde::Deserialize)]
-        #[serde(untagged)]
-        enum OneOf {
-            Exact(String),
-            Regex { regex: String },
-        }
-        let one_of = OneOf::deserialize(deserializer)?;
-        Ok(match one_of {
-            OneOf::Exact(s) => CodegenConfigStringMatcher::Exact(s),
-            OneOf::Regex { regex } => CodegenConfigStringMatcher::Regex(
-                regex::Regex::new(&regex).map_err(serde::de::Error::custom)?,
-            ),
-        })
-    }
 }
 
 fn make_mod_rs(
@@ -158,10 +117,7 @@ fn remove_ignored_mod_names(mods: &mut BTreeSet<String>, ignore: &[CodegenConfig
 }
 
 fn is_ignored_mod_name(name: &str, ignore: &[CodegenConfigStringMatcher]) -> bool {
-    ignore.iter().any(|pattern| match pattern {
-        CodegenConfigStringMatcher::Exact(s) => s == name,
-        CodegenConfigStringMatcher::Regex(re) => re.is_match(name),
-    })
+    ignore.iter().any(|pattern| pattern.matches(name))
 }
 
 fn is_good_mod_name(name: &str) -> bool {

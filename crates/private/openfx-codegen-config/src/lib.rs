@@ -2,8 +2,17 @@ use std::collections::{HashMap, HashSet};
 
 use serde::Deserialize as _;
 
+use crate::config_make_mod_rs::CodegenConfigMakeModRs;
+
+mod common;
+mod config_make_mod_rs;
+
+pub use common::CodegenConfigStringMatcher;
+
 #[derive(serde::Deserialize)]
 pub struct CodegenConfig {
+    pub make_mod_rs: CodegenConfigMakeModRs,
+
     pub statuses: CodegenConfigStatuses,
     pub suites: CodegenConfigSuites,
     pub objects: CodegenConfigObjects,

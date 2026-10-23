@@ -8,6 +8,7 @@ repository.workspace = true
 
 [dependencies]
 openfx-datagen.workspace = true
+openfx-codegen-config.workspace = true
 
 clap = { workspace = true, features = ["derive"] }
 convert_case.workspace = true

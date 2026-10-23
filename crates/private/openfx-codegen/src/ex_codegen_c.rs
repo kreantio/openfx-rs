@@ -7,7 +7,9 @@ use convert_case::Casing as _;
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::{config::CodegenConfig, utils::strip_common_prefix};
+use openfx_codegen_config::CodegenConfig;
+
+use crate::utils::strip_common_prefix;
 
 pub fn gen_low_statuses(
     config: &CodegenConfig,
