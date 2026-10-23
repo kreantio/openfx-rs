@@ -74,7 +74,7 @@ pub fn gen_low_statuses(
             }
         }
     };
-    std::fs::write(output_file, prettyplease::unparse(&syn::parse2(code)?))?;
+    std::fs::write(output_file, code.to_string())?;
 
     Ok(())
 }
@@ -123,12 +123,13 @@ pub fn gen_low_enums_from_c(
 
     std::fs::write(
         output_file,
-        prettyplease::unparse(&syn::parse2(quote! {
+        quote! {
             #[openfx_internal_macros::low_make_property_enums_from_c]
             mod __ {
                 #output_inner
             }
-        })?),
+        }
+        .to_string(),
     )?;
 
     Ok(())
@@ -168,10 +169,7 @@ pub fn gen_low_plugin_suites(
             });
         }
 
-        std::fs::write(
-            output_folder.join("suites.rs"),
-            prettyplease::unparse(&syn::parse2(output)?),
-        )?;
+        std::fs::write(output_folder.join("suites.rs"), output.to_string())?;
     }
 
     // checks/suites.rs
@@ -223,7 +221,7 @@ pub fn gen_low_plugin_suites(
             });
         }
 
-        std::fs::write(out_path, prettyplease::unparse(&syn::parse2(output)?))?;
+        std::fs::write(out_path, output.to_string())?;
     }
 
     // impl_host_for_fetch_suites.rs
@@ -250,7 +248,7 @@ pub fn gen_low_plugin_suites(
 
         std::fs::write(
             output_folder.join("impl_host_for_fetch_suites.rs"),
-            prettyplease::unparse(&syn::parse2(output)?),
+            output.to_string(),
         )?;
     }
 
@@ -282,10 +280,7 @@ pub fn gen_low_plugin_objects(
             });
         }
 
-        std::fs::write(
-            output_folder.join("objects.rs"),
-            prettyplease::unparse(&syn::parse2(output)?),
-        )?;
+        std::fs::write(output_folder.join("objects.rs"), output.to_string())?;
     }
 
     // checks/objects.rs
@@ -351,7 +346,7 @@ pub fn gen_low_plugin_objects(
             });
         }
 
-        std::fs::write(out_path, prettyplease::unparse(&syn::parse2(output)?))?;
+        std::fs::write(out_path, output.to_string())?;
     }
 
     Ok(())

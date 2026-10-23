@@ -1,589 +1,543 @@
 #[openfx_internal_macros::low_make_property_set_structs]
 mod __ {
-    #[propset(write = plugin)]
+    # [propset (write = plugin)]
     struct ImageClipDescriptorPropertySet {
-        #[prop(@OfxImageClipPropFieldExtraction)]
+        # [prop (@ OfxImageClipPropFieldExtraction)]
         image_clip_field_extraction: ty_enum!(ImageClipPropFieldExtraction),
-        #[prop(@OfxImageClipPropIsMask)]
+        # [prop (@ OfxImageClipPropIsMask)]
         image_clip_is_mask: Bool,
-        #[prop(@OfxImageClipPropOptional)]
+        # [prop (@ OfxImageClipPropOptional)]
         image_clip_optional: Bool,
-        #[prop(@OfxImageEffectPropSupportedComponents)]
-        image_effect_supported_components: [ty_enum!(
-            ImageEffectPropSupportedComponents
-        )],
-        #[prop(@OfxImageEffectPropSupportsTiles)]
+        # [prop (@ OfxImageEffectPropSupportedComponents)]
+        image_effect_supported_components: [ty_enum!(ImageEffectPropSupportedComponents)],
+        # [prop (@ OfxImageEffectPropSupportsTiles)]
         image_effect_supports_tiles: Bool,
-        #[prop(@OfxImageEffectPropTemporalClipAccess)]
+        # [prop (@ OfxImageEffectPropTemporalClipAccess)]
         image_effect_temporal_clip_access: Bool,
-        #[prop(@OfxPropLabel)]
+        # [prop (@ OfxPropLabel)]
         label: String,
-        #[prop(@OfxPropLongLabel)]
+        # [prop (@ OfxPropLongLabel)]
         long_label: String,
-        #[prop(@OfxPropName)]
+        # [prop (@ OfxPropName)]
         name: String,
-        #[prop(@OfxPropShortLabel)]
+        # [prop (@ OfxPropShortLabel)]
         short_label: String,
-        #[prop(@OfxPropType)]
+        # [prop (@ OfxPropType)]
         r#type: String,
     }
-    #[propset(write = host)]
+    # [propset (write = host)]
     struct ImageClipInstancePropertySet {
-        #[prop(@OfxImageClipPropColourspace)]
+        # [prop (@ OfxImageClipPropColourspace)]
         image_clip_colourspace: String,
-        #[prop(@OfxImageClipPropConnected)]
+        # [prop (@ OfxImageClipPropConnected)]
         image_clip_connected: Bool,
-        #[prop(@OfxImageClipPropContinuousSamples)]
+        # [prop (@ OfxImageClipPropContinuousSamples)]
         image_clip_continuous_samples: Bool,
-        #[prop(@OfxImageClipPropFieldExtraction)]
+        # [prop (@ OfxImageClipPropFieldExtraction)]
         image_clip_field_extraction: ty_enum!(ImageClipPropFieldExtraction),
-        #[prop(@OfxImageClipPropFieldOrder)]
+        # [prop (@ OfxImageClipPropFieldOrder)]
         image_clip_field_order: ty_enum!(ImageClipPropFieldOrder),
-        #[prop(@OfxImageClipPropIsMask)]
+        # [prop (@ OfxImageClipPropIsMask)]
         image_clip_is_mask: Bool,
-        #[prop(@OfxImageClipPropOptional)]
+        # [prop (@ OfxImageClipPropOptional)]
         image_clip_optional: Bool,
-        #[prop(@OfxImageClipPropPreferredColourspaces)]
+        # [prop (@ OfxImageClipPropPreferredColourspaces)]
         image_clip_preferred_colourspaces: [String],
-        #[prop(@OfxImageClipPropUnmappedComponents)]
+        # [prop (@ OfxImageClipPropUnmappedComponents)]
         image_clip_unmapped_components: ty_enum!(ImageClipPropUnmappedComponents),
-        #[prop(@OfxImageClipPropUnmappedPixelDepth)]
+        # [prop (@ OfxImageClipPropUnmappedPixelDepth)]
         image_clip_unmapped_pixel_depth: ty_enum!(ImageClipPropUnmappedPixelDepth),
-        #[prop(@OfxImageEffectPropComponents)]
+        # [prop (@ OfxImageEffectPropComponents)]
         image_effect_components: ty_enum!(ImageEffectPropComponents),
-        #[prop(@OfxImageEffectPropFrameRange)]
+        # [prop (@ OfxImageEffectPropFrameRange)]
         image_effect_frame_range: [Double; 2],
-        #[prop(@OfxImageEffectPropFrameRate)]
+        # [prop (@ OfxImageEffectPropFrameRate)]
         image_effect_frame_rate: Double,
-        #[prop(@OfxImageEffectPropPixelDepth)]
+        # [prop (@ OfxImageEffectPropPixelDepth)]
         image_effect_pixel_depth: ty_enum!(ImageEffectPropPixelDepth),
-        #[prop(@OfxImageEffectPropPreMultiplication)]
+        # [prop (@ OfxImageEffectPropPreMultiplication)]
         image_effect_pre_multiplication: ty_enum!(ImageEffectPropPreMultiplication),
-        #[prop(@OfxImageEffectPropSupportedComponents)]
-        image_effect_supported_components: [ty_enum!(
-            ImageEffectPropSupportedComponents
-        )],
-        #[prop(@OfxImageEffectPropSupportsTiles)]
+        # [prop (@ OfxImageEffectPropSupportedComponents)]
+        image_effect_supported_components: [ty_enum!(ImageEffectPropSupportedComponents)],
+        # [prop (@ OfxImageEffectPropSupportsTiles)]
         image_effect_supports_tiles: Bool,
-        #[prop(@OfxImageEffectPropTemporalClipAccess)]
+        # [prop (@ OfxImageEffectPropTemporalClipAccess)]
         image_effect_temporal_clip_access: Bool,
-        #[prop(@OfxImageEffectPropUnmappedFrameRange)]
+        # [prop (@ OfxImageEffectPropUnmappedFrameRange)]
         image_effect_unmapped_frame_range: [Double; 2],
-        #[prop(@OfxImageEffectPropUnmappedFrameRate)]
+        # [prop (@ OfxImageEffectPropUnmappedFrameRate)]
         image_effect_unmapped_frame_rate: Double,
-        #[prop(@OfxImagePropPixelAspectRatio)]
+        # [prop (@ OfxImagePropPixelAspectRatio)]
         image_pixel_aspect_ratio: Double,
-        #[prop(@OfxPropLabel)]
+        # [prop (@ OfxPropLabel)]
         label: String,
-        #[prop(@OfxPropLongLabel)]
+        # [prop (@ OfxPropLongLabel)]
         long_label: String,
-        #[prop(@OfxPropName)]
+        # [prop (@ OfxPropName)]
         name: String,
-        #[prop(@OfxPropShortLabel)]
+        # [prop (@ OfxPropShortLabel)]
         short_label: String,
-        #[prop(@OfxPropType)]
+        # [prop (@ OfxPropType)]
         r#type: String,
     }
-    #[propset(write = plugin)]
+    # [propset (write = plugin)]
     struct ImageEffectDescriptorPropertySet {
-        #[prop(@OfxImageEffectPluginPropFieldRenderTwiceAlways)]
+        # [prop (@ OfxImageEffectPluginPropFieldRenderTwiceAlways)]
         image_effect_plugin_field_render_twice_always: Bool,
-        #[prop(@OfxImageEffectPluginPropGrouping)]
+        # [prop (@ OfxImageEffectPluginPropGrouping)]
         image_effect_plugin_grouping: String,
-        #[prop(@OfxImageEffectPluginPropHostFrameThreading)]
+        # [prop (@ OfxImageEffectPluginPropHostFrameThreading)]
         image_effect_plugin_host_frame_threading: Bool,
-        #[prop(@OfxImageEffectPluginPropObsolete)]
+        # [prop (@ OfxImageEffectPluginPropObsolete)]
         image_effect_plugin_obsolete: Bool,
-        #[prop(@OfxImageEffectPluginPropOverlayInteractV1)]
+        # [prop (@ OfxImageEffectPluginPropOverlayInteractV1)]
         image_effect_plugin_overlay_interact_v_1: Pointer,
-        #[prop(@OfxImageEffectPluginPropOverlayInteractV2)]
+        # [prop (@ OfxImageEffectPluginPropOverlayInteractV2)]
         image_effect_plugin_overlay_interact_v_2: Pointer,
-        #[prop(@OfxImageEffectPluginPropSingleInstance)]
+        # [prop (@ OfxImageEffectPluginPropSingleInstance)]
         image_effect_plugin_single_instance: Bool,
-        #[prop(@OfxImageEffectPluginRenderThreadSafety)]
-        image_effect_plugin_render_thread_safety: ty_enum!(
-            ImageEffectPluginRenderThreadSafety
-        ),
-        #[prop(@OfxImageEffectPropCPURenderSupported)]
+        # [prop (@ OfxImageEffectPluginRenderThreadSafety)]
+        image_effect_plugin_render_thread_safety: ty_enum!(ImageEffectPluginRenderThreadSafety),
+        # [prop (@ OfxImageEffectPropCPURenderSupported)]
         image_effect_cpu_render_supported: ty_enum!(ImageEffectPropCPURenderSupported),
-        #[prop(@OfxImageEffectPropClipPreferencesSlaveParam)]
+        # [prop (@ OfxImageEffectPropClipPreferencesSlaveParam)]
         image_effect_clip_preferences_slave_param: [String],
-        #[prop(@OfxImageEffectPropColourManagementAvailableConfigs)]
+        # [prop (@ OfxImageEffectPropColourManagementAvailableConfigs)]
         image_effect_colour_management_available_configs: [String],
-        #[prop(@OfxImageEffectPropColourManagementStyle)]
-        image_effect_colour_management_style: ty_enum!(
-            ImageEffectPropColourManagementStyle
-        ),
-        #[prop(@OfxImageEffectPropNoSpatialAwareness)]
+        # [prop (@ OfxImageEffectPropColourManagementStyle)]
+        image_effect_colour_management_style: ty_enum!(ImageEffectPropColourManagementStyle),
+        # [prop (@ OfxImageEffectPropNoSpatialAwareness)]
         image_effect_no_spatial_awareness: ty_enum!(ImageEffectPropNoSpatialAwareness),
-        #[prop(@OfxImageEffectPropOpenCLSupported)]
+        # [prop (@ OfxImageEffectPropOpenCLSupported)]
         image_effect_open_cl_supported: ty_enum!(ImageEffectPropOpenCLSupported),
-        #[prop(@OfxImageEffectPropOpenGLRenderSupported)]
-        image_effect_open_gl_render_supported: ty_enum!(
-            ImageEffectPropOpenGLRenderSupported
-        ),
-        #[prop(@OfxImageEffectPropSupportedContexts)]
+        # [prop (@ OfxImageEffectPropOpenGLRenderSupported)]
+        image_effect_open_gl_render_supported: ty_enum!(ImageEffectPropOpenGLRenderSupported),
+        # [prop (@ OfxImageEffectPropSupportedContexts)]
         image_effect_supported_contexts: [ty_enum!(ImageEffectPropSupportedContexts)],
-        #[prop(@OfxImageEffectPropSupportedPixelDepths)]
-        image_effect_supported_pixel_depths: [ty_enum!(
-            ImageEffectPropSupportedPixelDepths
-        )],
-        #[prop(@OfxImageEffectPropSupportsMultiResolution)]
+        # [prop (@ OfxImageEffectPropSupportedPixelDepths)]
+        image_effect_supported_pixel_depths: [ty_enum!(ImageEffectPropSupportedPixelDepths)],
+        # [prop (@ OfxImageEffectPropSupportsMultiResolution)]
         image_effect_supports_multi_resolution: Bool,
-        #[prop(@OfxImageEffectPropSupportsMultipleClipDepths)]
+        # [prop (@ OfxImageEffectPropSupportsMultipleClipDepths)]
         image_effect_supports_multiple_clip_depths: Bool,
-        #[prop(@OfxImageEffectPropSupportsMultipleClipPARs)]
+        # [prop (@ OfxImageEffectPropSupportsMultipleClipPARs)]
         image_effect_supports_multiple_clip_pa_rs: Bool,
-        #[prop(@OfxImageEffectPropSupportsTiles)]
+        # [prop (@ OfxImageEffectPropSupportsTiles)]
         image_effect_supports_tiles: Bool,
-        #[prop(@OfxImageEffectPropTemporalClipAccess)]
+        # [prop (@ OfxImageEffectPropTemporalClipAccess)]
         image_effect_temporal_clip_access: Bool,
-        #[prop(@OfxOpenGLPropPixelDepth)]
+        # [prop (@ OfxOpenGLPropPixelDepth)]
         open_gl_pixel_depth: [ty_enum!(OpenGLPropPixelDepth)],
-        #[prop(write = host, @OfxPluginPropFilePath)]
+        # [prop (write = host , @ OfxPluginPropFilePath)]
         plugin_file_path: String,
-        #[prop(@OfxPropLabel)]
+        # [prop (@ OfxPropLabel)]
         label: String,
-        #[prop(@OfxPropLongLabel)]
+        # [prop (@ OfxPropLongLabel)]
         long_label: String,
-        #[prop(@OfxPropPluginDescription)]
+        # [prop (@ OfxPropPluginDescription)]
         plugin_description: String,
-        #[prop(@OfxPropShortLabel)]
+        # [prop (@ OfxPropShortLabel)]
         short_label: String,
-        #[prop(@OfxPropType)]
+        # [prop (@ OfxPropType)]
         r#type: String,
-        #[prop(@OfxPropVersion)]
+        # [prop (@ OfxPropVersion)]
         version: [Int],
-        #[prop(@OfxPropVersionLabel)]
+        # [prop (@ OfxPropVersionLabel)]
         version_label: String,
     }
-    #[propset(write = host)]
+    # [propset (write = host)]
     struct ImageEffectInstancePropertySet {
-        #[prop(@OfxImageEffectInstancePropEffectDuration)]
+        # [prop (@ OfxImageEffectInstancePropEffectDuration)]
         image_effect_instance_effect_duration: Double,
-        #[prop(@OfxImageEffectInstancePropSequentialRender)]
+        # [prop (@ OfxImageEffectInstancePropSequentialRender)]
         image_effect_instance_sequential_render: Bool,
-        #[prop(@OfxImageEffectPropCPURenderSupported)]
+        # [prop (@ OfxImageEffectPropCPURenderSupported)]
         image_effect_cpu_render_supported: ty_enum!(ImageEffectPropCPURenderSupported),
-        #[prop(@OfxImageEffectPropColourManagementConfig)]
+        # [prop (@ OfxImageEffectPropColourManagementConfig)]
         image_effect_colour_management_config: String,
-        #[prop(@OfxImageEffectPropColourManagementStyle)]
-        image_effect_colour_management_style: ty_enum!(
-            ImageEffectPropColourManagementStyle
-        ),
-        #[prop(@OfxImageEffectPropContext)]
+        # [prop (@ OfxImageEffectPropColourManagementStyle)]
+        image_effect_colour_management_style: ty_enum!(ImageEffectPropColourManagementStyle),
+        # [prop (@ OfxImageEffectPropContext)]
         image_effect_context: ty_enum!(ImageEffectPropContext),
-        #[prop(@OfxImageEffectPropDisplayColourspace)]
+        # [prop (@ OfxImageEffectPropDisplayColourspace)]
         image_effect_display_colourspace: String,
-        #[prop(@OfxImageEffectPropFrameRate)]
+        # [prop (@ OfxImageEffectPropFrameRate)]
         image_effect_frame_rate: Double,
-        #[prop(@OfxImageEffectPropOCIOConfig)]
+        # [prop (@ OfxImageEffectPropOCIOConfig)]
         image_effect_ocio_config: String,
-        #[prop(@OfxImageEffectPropOCIODisplay)]
+        # [prop (@ OfxImageEffectPropOCIODisplay)]
         image_effect_ocio_display: String,
-        #[prop(@OfxImageEffectPropOCIOView)]
+        # [prop (@ OfxImageEffectPropOCIOView)]
         image_effect_ocio_view: String,
-        #[prop(@OfxImageEffectPropOpenGLRenderSupported)]
-        image_effect_open_gl_render_supported: ty_enum!(
-            ImageEffectPropOpenGLRenderSupported
-        ),
-        #[prop(@OfxImageEffectPropPluginHandle)]
+        # [prop (@ OfxImageEffectPropOpenGLRenderSupported)]
+        image_effect_open_gl_render_supported: ty_enum!(ImageEffectPropOpenGLRenderSupported),
+        # [prop (@ OfxImageEffectPropPluginHandle)]
         image_effect_plugin_handle: Pointer,
-        #[prop(@OfxImageEffectPropProjectExtent)]
+        # [prop (@ OfxImageEffectPropProjectExtent)]
         image_effect_project_extent: [Double; 2],
-        #[prop(@OfxImageEffectPropProjectOffset)]
+        # [prop (@ OfxImageEffectPropProjectOffset)]
         image_effect_project_offset: [Double; 2],
-        #[prop(@OfxImageEffectPropProjectPixelAspectRatio)]
+        # [prop (@ OfxImageEffectPropProjectPixelAspectRatio)]
         image_effect_project_pixel_aspect_ratio: Double,
-        #[prop(@OfxImageEffectPropProjectSize)]
+        # [prop (@ OfxImageEffectPropProjectSize)]
         image_effect_project_size: [Double; 2],
-        #[prop(@OfxImageEffectPropSupportsTiles)]
+        # [prop (@ OfxImageEffectPropSupportsTiles)]
         image_effect_supports_tiles: Bool,
-        #[prop(@OfxPropInstanceData)]
+        # [prop (@ OfxPropInstanceData)]
         instance_data: Pointer,
-        #[prop(@OfxPropIsInteractive)]
+        # [prop (@ OfxPropIsInteractive)]
         is_interactive: Bool,
-        #[prop(@OfxPropType)]
+        # [prop (@ OfxPropType)]
         r#type: String,
     }
-    #[propset(write = host)]
+    # [propset (write = host)]
     struct ImageInstancePropertySet {
-        #[prop(@OfxImageEffectPropComponents)]
+        # [prop (@ OfxImageEffectPropComponents)]
         image_effect_components: ty_enum!(ImageEffectPropComponents),
-        #[prop(@OfxImageEffectPropPixelDepth)]
+        # [prop (@ OfxImageEffectPropPixelDepth)]
         image_effect_pixel_depth: ty_enum!(ImageEffectPropPixelDepth),
-        #[prop(@OfxImageEffectPropPreMultiplication)]
+        # [prop (@ OfxImageEffectPropPreMultiplication)]
         image_effect_pre_multiplication: ty_enum!(ImageEffectPropPreMultiplication),
-        #[prop(@OfxImageEffectPropRenderScale)]
+        # [prop (@ OfxImageEffectPropRenderScale)]
         image_effect_render_scale: [Double; 2],
-        #[prop(@OfxImagePropBounds)]
+        # [prop (@ OfxImagePropBounds)]
         image_bounds: [Int; 4],
-        #[prop(@OfxImagePropData)]
+        # [prop (@ OfxImagePropData)]
         image_data: Pointer,
-        #[prop(@OfxImagePropField)]
+        # [prop (@ OfxImagePropField)]
         image_field: ty_enum!(ImagePropField),
-        #[prop(@OfxImagePropPixelAspectRatio)]
+        # [prop (@ OfxImagePropPixelAspectRatio)]
         image_pixel_aspect_ratio: Double,
-        #[prop(@OfxImagePropRegionOfDefinition)]
+        # [prop (@ OfxImagePropRegionOfDefinition)]
         image_region_of_definition: [Int; 4],
-        #[prop(@OfxImagePropRowBytes)]
+        # [prop (@ OfxImagePropRowBytes)]
         image_row_bytes: Int,
-        #[prop(@OfxImagePropUniqueIdentifier)]
+        # [prop (@ OfxImagePropUniqueIdentifier)]
         image_unique_identifier: String,
-        #[prop(@OfxPropType)]
+        # [prop (@ OfxPropType)]
         r#type: String,
     }
-    #[propset(write = host)]
+    # [propset (write = host)]
     struct ImageEffectHostDescriptorPropertySet {
-        #[prop(@OfxImageEffectHostPropIsBackground)]
+        # [prop (@ OfxImageEffectHostPropIsBackground)]
         image_effect_host_is_background: Bool,
-        #[prop(@OfxImageEffectHostPropNativeOrigin)]
+        # [prop (@ OfxImageEffectHostPropNativeOrigin)]
         image_effect_host_native_origin: ty_enum!(ImageEffectHostPropNativeOrigin),
-        #[prop(@OfxImageEffectInstancePropSequentialRender)]
+        # [prop (@ OfxImageEffectInstancePropSequentialRender)]
         image_effect_instance_sequential_render: Bool,
-        #[prop(@OfxImageEffectPropCPURenderSupported)]
+        # [prop (@ OfxImageEffectPropCPURenderSupported)]
         image_effect_cpu_render_supported: ty_enum!(ImageEffectPropCPURenderSupported),
-        #[prop(@OfxImageEffectPropColourManagementAvailableConfigs)]
+        # [prop (@ OfxImageEffectPropColourManagementAvailableConfigs)]
         image_effect_colour_management_available_configs: [String],
-        #[prop(@OfxImageEffectPropColourManagementStyle)]
-        image_effect_colour_management_style: ty_enum!(
-            ImageEffectPropColourManagementStyle
-        ),
-        #[prop(@OfxImageEffectPropOpenCLSupported)]
+        # [prop (@ OfxImageEffectPropColourManagementStyle)]
+        image_effect_colour_management_style: ty_enum!(ImageEffectPropColourManagementStyle),
+        # [prop (@ OfxImageEffectPropOpenCLSupported)]
         image_effect_open_cl_supported: ty_enum!(ImageEffectPropOpenCLSupported),
-        #[prop(@OfxImageEffectPropOpenGLRenderSupported)]
-        image_effect_open_gl_render_supported: ty_enum!(
-            ImageEffectPropOpenGLRenderSupported
-        ),
-        #[prop(@OfxImageEffectPropRenderQualityDraft)]
+        # [prop (@ OfxImageEffectPropOpenGLRenderSupported)]
+        image_effect_open_gl_render_supported: ty_enum!(ImageEffectPropOpenGLRenderSupported),
+        # [prop (@ OfxImageEffectPropRenderQualityDraft)]
         image_effect_render_quality_draft: Bool,
-        #[prop(@OfxImageEffectPropSetableFielding)]
+        # [prop (@ OfxImageEffectPropSetableFielding)]
         image_effect_setable_fielding: Bool,
-        #[prop(@OfxImageEffectPropSetableFrameRate)]
+        # [prop (@ OfxImageEffectPropSetableFrameRate)]
         image_effect_setable_frame_rate: Bool,
-        #[prop(@OfxImageEffectPropSupportedComponents)]
-        image_effect_supported_components: [ty_enum!(
-            ImageEffectPropSupportedComponents
-        )],
-        #[prop(@OfxImageEffectPropSupportedContexts)]
+        # [prop (@ OfxImageEffectPropSupportedComponents)]
+        image_effect_supported_components: [ty_enum!(ImageEffectPropSupportedComponents)],
+        # [prop (@ OfxImageEffectPropSupportedContexts)]
         image_effect_supported_contexts: [ty_enum!(ImageEffectPropSupportedContexts)],
-        #[prop(@OfxImageEffectPropSupportsMultiResolution)]
+        # [prop (@ OfxImageEffectPropSupportsMultiResolution)]
         image_effect_supports_multi_resolution: Bool,
-        #[prop(@OfxImageEffectPropSupportsMultipleClipDepths)]
+        # [prop (@ OfxImageEffectPropSupportsMultipleClipDepths)]
         image_effect_supports_multiple_clip_depths: Bool,
-        #[prop(@OfxImageEffectPropSupportsMultipleClipPARs)]
+        # [prop (@ OfxImageEffectPropSupportsMultipleClipPARs)]
         image_effect_supports_multiple_clip_pa_rs: Bool,
-        #[prop(@OfxImageEffectPropSupportsOverlays)]
+        # [prop (@ OfxImageEffectPropSupportsOverlays)]
         image_effect_supports_overlays: Bool,
-        #[prop(@OfxImageEffectPropSupportsTiles)]
+        # [prop (@ OfxImageEffectPropSupportsTiles)]
         image_effect_supports_tiles: Bool,
-        #[prop(@OfxImageEffectPropTemporalClipAccess)]
+        # [prop (@ OfxImageEffectPropTemporalClipAccess)]
         image_effect_temporal_clip_access: Bool,
-        #[prop(@OfxParamHostPropMaxPages)]
+        # [prop (@ OfxParamHostPropMaxPages)]
         param_host_max_pages: Int,
-        #[prop(@OfxParamHostPropMaxParameters)]
+        # [prop (@ OfxParamHostPropMaxParameters)]
         param_host_max_parameters: Int,
-        #[prop(@OfxParamHostPropPageRowColumnCount)]
+        # [prop (@ OfxParamHostPropPageRowColumnCount)]
         param_host_page_row_column_count: [Int; 2],
-        #[prop(@OfxParamHostPropSupportsBooleanAnimation)]
+        # [prop (@ OfxParamHostPropSupportsBooleanAnimation)]
         param_host_supports_boolean_animation: Bool,
-        #[prop(@OfxParamHostPropSupportsChoiceAnimation)]
+        # [prop (@ OfxParamHostPropSupportsChoiceAnimation)]
         param_host_supports_choice_animation: Bool,
-        #[prop(@OfxParamHostPropSupportsCustomAnimation)]
+        # [prop (@ OfxParamHostPropSupportsCustomAnimation)]
         param_host_supports_custom_animation: Bool,
-        #[prop(@OfxParamHostPropSupportsCustomInteract)]
+        # [prop (@ OfxParamHostPropSupportsCustomInteract)]
         param_host_supports_custom_interact: Bool,
-        #[prop(@OfxParamHostPropSupportsParametricAnimation)]
+        # [prop (@ OfxParamHostPropSupportsParametricAnimation)]
         param_host_supports_parametric_animation: Bool,
-        #[prop(@OfxParamHostPropSupportsStrChoice)]
+        # [prop (@ OfxParamHostPropSupportsStrChoice)]
         param_host_supports_str_choice: Bool,
-        #[prop(@OfxParamHostPropSupportsStrChoiceAnimation)]
+        # [prop (@ OfxParamHostPropSupportsStrChoiceAnimation)]
         param_host_supports_str_choice_animation: Bool,
-        #[prop(@OfxParamHostPropSupportsStringAnimation)]
+        # [prop (@ OfxParamHostPropSupportsStringAnimation)]
         param_host_supports_string_animation: Bool,
-        #[prop(@OfxPropAPIVersion)]
+        # [prop (@ OfxPropAPIVersion)]
         api_version: [Int],
-        #[prop(@OfxPropHostOSHandle)]
+        # [prop (@ OfxPropHostOSHandle)]
         host_os_handle: Pointer,
-        #[prop(@OfxPropLabel)]
+        # [prop (@ OfxPropLabel)]
         label: String,
-        #[prop(@OfxPropName)]
+        # [prop (@ OfxPropName)]
         name: String,
-        #[prop(@OfxPropType)]
+        # [prop (@ OfxPropType)]
         r#type: String,
-        #[prop(@OfxPropVersion)]
+        # [prop (@ OfxPropVersion)]
         version: [Int],
-        #[prop(@OfxPropVersionLabel)]
+        # [prop (@ OfxPropVersionLabel)]
         version_label: String,
     }
-    #[propset(write = host)]
+    # [propset (write = host)]
     struct InteractDescriptorPropertySet {
-        #[prop(@OfxInteractPropBitDepth)]
+        # [prop (@ OfxInteractPropBitDepth)]
         interact_bit_depth: Int,
-        #[prop(@OfxInteractPropHasAlpha)]
+        # [prop (@ OfxInteractPropHasAlpha)]
         interact_has_alpha: Bool,
     }
-    #[propset(write = host)]
+    # [propset (write = host)]
     struct InteractInstancePropertySet {
-        #[prop(@OfxInteractPropBackgroundColour)]
+        # [prop (@ OfxInteractPropBackgroundColour)]
         interact_background_colour: [Double; 3],
-        #[prop(@OfxInteractPropBitDepth)]
+        # [prop (@ OfxInteractPropBitDepth)]
         interact_bit_depth: Int,
-        #[prop(@OfxInteractPropHasAlpha)]
+        # [prop (@ OfxInteractPropHasAlpha)]
         interact_has_alpha: Bool,
-        #[prop(@OfxInteractPropPixelScale)]
+        # [prop (@ OfxInteractPropPixelScale)]
         interact_pixel_scale: [Double; 2],
-        #[prop(@OfxInteractPropSlaveToParam)]
+        # [prop (@ OfxInteractPropSlaveToParam)]
         interact_slave_to_param: [String],
-        #[prop(@OfxInteractPropSuggestedColour)]
+        # [prop (@ OfxInteractPropSuggestedColour)]
         interact_suggested_colour: [Double; 3],
-        #[prop(@OfxPropEffectInstance)]
+        # [prop (@ OfxPropEffectInstance)]
         effect_instance: Pointer,
-        #[prop(@OfxPropInstanceData)]
+        # [prop (@ OfxPropInstanceData)]
         instance_data: Pointer,
     }
-    #[propset(write = host)]
+    # [propset (write = host)]
     struct OpenGLTexturePropertySet {
-        #[prop(@OfxImageEffectPropComponents)]
+        # [prop (@ OfxImageEffectPropComponents)]
         image_effect_components: ty_enum!(ImageEffectPropComponents),
-        #[prop(@OfxImageEffectPropOpenGLTextureIndex)]
+        # [prop (@ OfxImageEffectPropOpenGLTextureIndex)]
         image_effect_open_gl_texture_index: Int,
-        #[prop(@OfxImageEffectPropOpenGLTextureTarget)]
+        # [prop (@ OfxImageEffectPropOpenGLTextureTarget)]
         image_effect_open_gl_texture_target: Int,
-        #[prop(@OfxImageEffectPropPixelDepth)]
+        # [prop (@ OfxImageEffectPropPixelDepth)]
         image_effect_pixel_depth: ty_enum!(ImageEffectPropPixelDepth),
-        #[prop(@OfxImageEffectPropPreMultiplication)]
+        # [prop (@ OfxImageEffectPropPreMultiplication)]
         image_effect_pre_multiplication: ty_enum!(ImageEffectPropPreMultiplication),
-        #[prop(@OfxImageEffectPropRenderScale)]
+        # [prop (@ OfxImageEffectPropRenderScale)]
         image_effect_render_scale: [Double; 2],
-        #[prop(@OfxImagePropBounds)]
+        # [prop (@ OfxImagePropBounds)]
         image_bounds: [Int; 4],
-        #[prop(@OfxImagePropField)]
+        # [prop (@ OfxImagePropField)]
         image_field: ty_enum!(ImagePropField),
-        #[prop(@OfxImagePropPixelAspectRatio)]
+        # [prop (@ OfxImagePropPixelAspectRatio)]
         image_pixel_aspect_ratio: Double,
-        #[prop(@OfxImagePropRegionOfDefinition)]
+        # [prop (@ OfxImagePropRegionOfDefinition)]
         image_region_of_definition: [Int; 4],
-        #[prop(@OfxImagePropRowBytes)]
+        # [prop (@ OfxImagePropRowBytes)]
         image_row_bytes: Int,
-        #[prop(@OfxImagePropUniqueIdentifier)]
+        # [prop (@ OfxImagePropUniqueIdentifier)]
         image_unique_identifier: String,
-        #[prop(@OfxPropType)]
+        # [prop (@ OfxPropType)]
         r#type: String,
     }
-    #[propset(write = plugin)]
+    # [propset (write = plugin)]
     struct ParamSetPropertySet {
-        #[prop(@OfxPluginPropParamPageOrder)]
+        # [prop (@ OfxPluginPropParamPageOrder)]
         plugin_param_page_order: [String],
-        #[prop(@OfxPropParamSetNeedsSyncing)]
+        # [prop (@ OfxPropParamSetNeedsSyncing)]
         param_set_needs_syncing: Bool,
     }
-    #[propset(
-        write = plugin,
-        refs = ParamsAllButGroupPage+ParamsCommon+ParamsNumeric+ParamsValue
-    )]
+    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
     struct ParamsBytePropertySet {}
-    #[propset(write = plugin, refs = ParamsAllButGroupPage+ParamsCommon+ParamsValue)]
+    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
     struct ParamsChoicePropertySet {
-        #[prop(@OfxParamPropChoiceOption)]
+        # [prop (@ OfxParamPropChoiceOption)]
         param_choice_option: [String],
-        #[prop(@OfxParamPropChoiceOrder)]
+        # [prop (@ OfxParamPropChoiceOrder)]
         param_choice_order: [Int],
     }
-    #[propset(write = plugin, refs = ParamsAllButGroupPage+ParamsCommon+ParamsValue)]
+    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
     struct ParamsCustomPropertySet {
-        #[prop(@OfxParamPropCustomInterpCallbackV1)]
+        # [prop (@ OfxParamPropCustomInterpCallbackV1)]
         param_custom_interp_callback_v_1: Pointer,
     }
-    #[propset(
-        write = plugin,
-        refs = ParamsAllButGroupPage+ParamsCommon+ParamsDouble+ParamsNumeric+ParamsValue
-    )]
+    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsDouble + ParamsNumeric + ParamsValue)]
     struct ParamsDouble1DPropertySet {
-        #[prop(@OfxParamPropDoubleType)]
+        # [prop (@ OfxParamPropDoubleType)]
         param_double_type: ty_enum!(ParamPropDoubleType),
-        #[prop(@OfxParamPropShowTimeMarker)]
+        # [prop (@ OfxParamPropShowTimeMarker)]
         param_show_time_marker: Bool,
     }
-    #[propset(
-        write = plugin,
-        refs = ParamsAllButGroupPage+ParamsCommon+ParamsDouble+ParamsNumeric+ParamsValue
-    )]
+    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsDouble + ParamsNumeric + ParamsValue)]
     struct ParamsDouble2D3DPropertySet {
-        #[prop(@OfxParamPropDoubleType)]
+        # [prop (@ OfxParamPropDoubleType)]
         param_double_type: ty_enum!(ParamPropDoubleType),
     }
-    #[propset(write = plugin, refs = ParamsCommon)]
+    # [propset (write = plugin , refs = ParamsCommon)]
     struct ParamsGroupPropertySet {
-        #[prop(@OfxParamPropGroupOpen)]
+        # [prop (@ OfxParamPropGroupOpen)]
         param_group_open: Bool,
     }
-    #[propset(
-        write = plugin,
-        refs = ParamsAllButGroupPage+ParamsCommon+ParamsNumeric+ParamsValue
-    )]
+    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
     struct ParamsInt2D3DPropertySet {
-        #[prop(@OfxParamPropDimensionLabel)]
+        # [prop (@ OfxParamPropDimensionLabel)]
         param_dimension_label: [String],
     }
-    #[propset(
-        write = plugin,
-        refs = ParamsAllButGroupPage+ParamsCommon+ParamsDouble+ParamsNumeric+ParamsValue
-    )]
+    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsDouble + ParamsNumeric + ParamsValue)]
     struct ParamsNormalizedSpatialPropertySet {
-        #[prop(@OfxParamPropDefaultCoordinateSystem)]
+        # [prop (@ OfxParamPropDefaultCoordinateSystem)]
         param_default_coordinate_system: ty_enum!(ParamPropDefaultCoordinateSystem),
     }
-    #[propset(write = plugin, refs = ParamsCommon)]
+    # [propset (write = plugin , refs = ParamsCommon)]
     struct ParamsPagePropertySet {
-        #[prop(@OfxParamPropPageChild)]
+        # [prop (@ OfxParamPropPageChild)]
         param_page_child: [String],
     }
-    #[propset(write = plugin, refs = ParamsAllButGroupPage+ParamsCommon+ParamsValue)]
+    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
     struct ParamsParametricPropertySet {
-        #[prop(@OfxParamPropAnimates)]
+        # [prop (@ OfxParamPropAnimates)]
         param_animates: Bool,
-        #[prop(@OfxParamPropCacheInvalidation)]
+        # [prop (@ OfxParamPropCacheInvalidation)]
         param_cache_invalidation: ty_enum!(ParamPropCacheInvalidation),
-        #[prop(@OfxParamPropCanUndo)]
+        # [prop (@ OfxParamPropCanUndo)]
         param_can_undo: Bool,
-        #[prop(@OfxParamPropEvaluateOnChange)]
+        # [prop (@ OfxParamPropEvaluateOnChange)]
         param_evaluate_on_change: Bool,
-        #[prop(@OfxParamPropIsAnimating)]
+        # [prop (@ OfxParamPropIsAnimating)]
         param_is_animating: Bool,
-        #[prop(@OfxParamPropIsAutoKeying)]
+        # [prop (@ OfxParamPropIsAutoKeying)]
         param_is_auto_keying: Bool,
-        #[prop(@OfxParamPropParametricDimension)]
+        # [prop (@ OfxParamPropParametricDimension)]
         param_parametric_dimension: Int,
-        #[prop(@OfxParamPropParametricInteractBackground)]
+        # [prop (@ OfxParamPropParametricInteractBackground)]
         param_parametric_interact_background: Pointer,
-        #[prop(@OfxParamPropParametricRange)]
+        # [prop (@ OfxParamPropParametricRange)]
         param_parametric_range: [Double; 2],
-        #[prop(@OfxParamPropParametricUIColour)]
+        # [prop (@ OfxParamPropParametricUIColour)]
         param_parametric_ui_colour: [Double],
-        #[prop(@OfxParamPropPersistant)]
+        # [prop (@ OfxParamPropPersistant)]
         param_persistant: Bool,
-        #[prop(@OfxParamPropPluginMayWrite)]
+        # [prop (@ OfxParamPropPluginMayWrite)]
         param_plugin_may_write: Bool,
     }
-    #[propset(
-        write = plugin,
-        refs = ParamsAllButGroupPage+ParamsCommon+ParamsNumeric+ParamsValue
-    )]
+    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
     struct ParamsRGBPropertySet {
-        #[prop(@OfxParamPropColourManagement)]
+        # [prop (@ OfxParamPropColourManagement)]
         param_colour_management: ty_enum!(ParamPropColourManagement),
     }
-    #[propset(
-        write = plugin,
-        refs = ParamsAllButGroupPage+ParamsCommon+ParamsNumeric+ParamsValue
-    )]
+    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
     struct ParamsRGBAPropertySet {
-        #[prop(@OfxParamPropColourManagement)]
+        # [prop (@ OfxParamPropColourManagement)]
         param_colour_management: ty_enum!(ParamPropColourManagement),
     }
-    #[propset(write = plugin, refs = ParamsAllButGroupPage+ParamsCommon+ParamsValue)]
+    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
     struct ParamsStrChoicePropertySet {
-        #[prop(@OfxParamPropChoiceEnum)]
+        # [prop (@ OfxParamPropChoiceEnum)]
         param_choice_enum: [String],
-        #[prop(@OfxParamPropChoiceOption)]
+        # [prop (@ OfxParamPropChoiceOption)]
         param_choice_option: [String],
     }
-    #[propset(
-        write = plugin,
-        refs = ParamsAllButGroupPage+ParamsCommon+ParamsNumeric+ParamsValue
-    )]
+    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
     struct ParamsStringPropertySet {
-        #[prop(@OfxParamPropStringFilePathExists)]
+        # [prop (@ OfxParamPropStringFilePathExists)]
         param_string_file_path_exists: Bool,
-        #[prop(@OfxParamPropStringMode)]
+        # [prop (@ OfxParamPropStringMode)]
         param_string_mode: ty_enum!(ParamPropStringMode),
     }
     #[propsetdefs]
     mod __ {
         #[propsetdef]
         struct ParamsAllButGroupPage {
-            #[prop(@OfxParamPropHasHostOverlayHandle)]
+            # [prop (@ OfxParamPropHasHostOverlayHandle)]
             param_has_host_overlay_handle: Bool,
-            #[prop(@OfxParamPropInteractMinimumSize)]
+            # [prop (@ OfxParamPropInteractMinimumSize)]
             param_interact_minimum_size: [Double; 2],
-            #[prop(@OfxParamPropInteractPreferedSize)]
+            # [prop (@ OfxParamPropInteractPreferedSize)]
             param_interact_prefered_size: [Int; 2],
-            #[prop(@OfxParamPropInteractSize)]
+            # [prop (@ OfxParamPropInteractSize)]
             param_interact_size: [Double; 2],
-            #[prop(@OfxParamPropInteractSizeAspect)]
+            # [prop (@ OfxParamPropInteractSizeAspect)]
             param_interact_size_aspect: Double,
-            #[prop(@OfxParamPropInteractV1)]
+            # [prop (@ OfxParamPropInteractV1)]
             param_interact_v_1: Pointer,
-            #[prop(@OfxParamPropUseHostOverlayHandle)]
+            # [prop (@ OfxParamPropUseHostOverlayHandle)]
             param_use_host_overlay_handle: Bool,
         }
         #[propsetdef]
         struct ParamsCommon {
-            #[prop(@OfxParamPropDataPtr)]
+            # [prop (@ OfxParamPropDataPtr)]
             param_data_ptr: Pointer,
-            #[prop(@OfxParamPropEnabled)]
+            # [prop (@ OfxParamPropEnabled)]
             param_enabled: Bool,
-            #[prop(@OfxParamPropHint)]
+            # [prop (@ OfxParamPropHint)]
             param_hint: String,
-            #[prop(@OfxParamPropParent)]
+            # [prop (@ OfxParamPropParent)]
             param_parent: String,
-            #[prop(@OfxParamPropScriptName)]
+            # [prop (@ OfxParamPropScriptName)]
             param_script_name: String,
-            #[prop(@OfxParamPropSecret)]
+            # [prop (@ OfxParamPropSecret)]
             param_secret: Bool,
-            #[prop(@OfxParamPropType)]
+            # [prop (@ OfxParamPropType)]
             param_type: String,
-            #[prop(@OfxPropIcon)]
+            # [prop (@ OfxPropIcon)]
             icon: [String; 2],
-            #[prop(@OfxPropLabel)]
+            # [prop (@ OfxPropLabel)]
             label: String,
-            #[prop(@OfxPropLongLabel)]
+            # [prop (@ OfxPropLongLabel)]
             long_label: String,
-            #[prop(@OfxPropName)]
+            # [prop (@ OfxPropName)]
             name: String,
-            #[prop(@OfxPropShortLabel)]
+            # [prop (@ OfxPropShortLabel)]
             short_label: String,
-            #[prop(@OfxPropType)]
+            # [prop (@ OfxPropType)]
             r#type: String,
         }
         #[propsetdef]
         struct ParamsDouble {
-            #[prop(@OfxParamPropDigits)]
+            # [prop (@ OfxParamPropDigits)]
             param_digits: Int,
-            #[prop(@OfxParamPropIncrement)]
+            # [prop (@ OfxParamPropIncrement)]
             param_increment: Double,
         }
         #[propsetdef]
         struct ParamsNumeric {
-            #[prop(@OfxParamPropDisplayMax)]
+            # [prop (@ OfxParamPropDisplayMax)]
             param_display_max: [ty_one_of!(Int | Double)],
-            #[prop(@OfxParamPropDisplayMin)]
+            # [prop (@ OfxParamPropDisplayMin)]
             param_display_min: [ty_one_of!(Int | Double)],
-            #[prop(@OfxParamPropMax)]
+            # [prop (@ OfxParamPropMax)]
             param_max: [ty_one_of!(Int | Double)],
-            #[prop(@OfxParamPropMin)]
+            # [prop (@ OfxParamPropMin)]
             param_min: [ty_one_of!(Int | Double)],
         }
         #[propsetdef]
         struct ParamsValue {
-            #[prop(@OfxParamPropAnimates)]
+            # [prop (@ OfxParamPropAnimates)]
             param_animates: Bool,
-            #[prop(@OfxParamPropCacheInvalidation)]
+            # [prop (@ OfxParamPropCacheInvalidation)]
             param_cache_invalidation: ty_enum!(ParamPropCacheInvalidation),
-            #[prop(@OfxParamPropCanUndo)]
+            # [prop (@ OfxParamPropCanUndo)]
             param_can_undo: Bool,
-            #[prop(@OfxParamPropDefault)]
+            # [prop (@ OfxParamPropDefault)]
             param_default: [ty_one_of!(Int | Double | String | Pointer)],
-            #[prop(@OfxParamPropEvaluateOnChange)]
+            # [prop (@ OfxParamPropEvaluateOnChange)]
             param_evaluate_on_change: Bool,
-            #[prop(write = host, @OfxParamPropIsAnimating)]
+            # [prop (write = host , @ OfxParamPropIsAnimating)]
             param_is_animating: Bool,
-            #[prop(write = host, @OfxParamPropIsAutoKeying)]
+            # [prop (write = host , @ OfxParamPropIsAutoKeying)]
             param_is_auto_keying: Bool,
-            #[prop(@OfxParamPropPersistant)]
+            # [prop (@ OfxParamPropPersistant)]
             param_persistant: Bool,
-            #[prop(@OfxParamPropPluginMayWrite)]
+            # [prop (@ OfxParamPropPluginMayWrite)]
             param_plugin_may_write: Bool,
         }
     }

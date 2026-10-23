@@ -71,14 +71,16 @@ pub const kOfxColourspaceDisplayp3DisplayIsBasic: bool = false;
 pub const kOfxColourspaceDisplayp3DisplayIsCore: bool = true;
 pub const kOfxColourspaceDisplayp3DisplayIsDisplay: bool = true;
 pub const kOfxColourspaceRec1886Rec709Display: &::std::ffi::CStr = c"rec1886_rec709_display";
-pub const kOfxColourspaceRec1886Rec709DisplayLabel: &::std::ffi::CStr = c"Rec.1886 Rec.709 - Display";
+pub const kOfxColourspaceRec1886Rec709DisplayLabel: &::std::ffi::CStr =
+    c"Rec.1886 Rec.709 - Display";
 pub const kOfxColourspaceRec1886Rec709DisplayEncoding: &::std::ffi::CStr = c"sdr-video";
 pub const kOfxColourspaceRec1886Rec709DisplayIsData: bool = false;
 pub const kOfxColourspaceRec1886Rec709DisplayIsBasic: bool = false;
 pub const kOfxColourspaceRec1886Rec709DisplayIsCore: bool = true;
 pub const kOfxColourspaceRec1886Rec709DisplayIsDisplay: bool = true;
 pub const kOfxColourspaceRec1886Rec2020Display: &::std::ffi::CStr = c"rec1886_rec2020_display";
-pub const kOfxColourspaceRec1886Rec2020DisplayLabel: &::std::ffi::CStr = c"Rec.1886 Rec.2020 - Display";
+pub const kOfxColourspaceRec1886Rec2020DisplayLabel: &::std::ffi::CStr =
+    c"Rec.1886 Rec.2020 - Display";
 pub const kOfxColourspaceRec1886Rec2020DisplayEncoding: &::std::ffi::CStr = c"sdr-video";
 pub const kOfxColourspaceRec1886Rec2020DisplayIsData: bool = false;
 pub const kOfxColourspaceRec1886Rec2020DisplayIsBasic: bool = false;
@@ -197,7 +199,8 @@ pub const kOfxColourspaceSrgbEncodedAp1TxIsBasic: bool = false;
 pub const kOfxColourspaceSrgbEncodedAp1TxIsCore: bool = true;
 pub const kOfxColourspaceSrgbEncodedAp1TxIsDisplay: bool = false;
 pub const kOfxColourspaceSrgbEncodedP3d65Tx: &::std::ffi::CStr = c"srgb_encoded_p3d65_tx";
-pub const kOfxColourspaceSrgbEncodedP3d65TxLabel: &::std::ffi::CStr = c"sRGB Encoded P3-D65 - Texture";
+pub const kOfxColourspaceSrgbEncodedP3d65TxLabel: &::std::ffi::CStr =
+    c"sRGB Encoded P3-D65 - Texture";
 pub const kOfxColourspaceSrgbEncodedP3d65TxEncoding: &::std::ffi::CStr = c"sdr-video";
 pub const kOfxColourspaceSrgbEncodedP3d65TxIsData: bool = false;
 pub const kOfxColourspaceSrgbEncodedP3d65TxIsBasic: bool = false;
@@ -287,8 +290,10 @@ pub const kOfxColourspaceBmdfilmWidegamutGen5IsData: bool = false;
 pub const kOfxColourspaceBmdfilmWidegamutGen5IsBasic: bool = false;
 pub const kOfxColourspaceBmdfilmWidegamutGen5IsCore: bool = false;
 pub const kOfxColourspaceBmdfilmWidegamutGen5IsDisplay: bool = false;
-pub const kOfxColourspaceDavinciIntermediateWidegamut: &::std::ffi::CStr = c"davinci_intermediate_widegamut";
-pub const kOfxColourspaceDavinciIntermediateWidegamutLabel: &::std::ffi::CStr = c"DaVinci Intermediate WideGamut";
+pub const kOfxColourspaceDavinciIntermediateWidegamut: &::std::ffi::CStr =
+    c"davinci_intermediate_widegamut";
+pub const kOfxColourspaceDavinciIntermediateWidegamutLabel: &::std::ffi::CStr =
+    c"DaVinci Intermediate WideGamut";
 pub const kOfxColourspaceDavinciIntermediateWidegamutEncoding: &::std::ffi::CStr = c"log";
 pub const kOfxColourspaceDavinciIntermediateWidegamutIsData: bool = false;
 pub const kOfxColourspaceDavinciIntermediateWidegamutIsBasic: bool = false;
@@ -309,14 +314,16 @@ pub const kOfxColourspaceLinDavinciWidegamutIsBasic: bool = false;
 pub const kOfxColourspaceLinDavinciWidegamutIsCore: bool = false;
 pub const kOfxColourspaceLinDavinciWidegamutIsDisplay: bool = false;
 pub const kOfxColourspaceCanonlog2CinemagamutD55: &::std::ffi::CStr = c"canonlog2_cinemagamut_d55";
-pub const kOfxColourspaceCanonlog2CinemagamutD55Label: &::std::ffi::CStr = c"CanonLog2 CinemaGamut D55";
+pub const kOfxColourspaceCanonlog2CinemagamutD55Label: &::std::ffi::CStr =
+    c"CanonLog2 CinemaGamut D55";
 pub const kOfxColourspaceCanonlog2CinemagamutD55Encoding: &::std::ffi::CStr = c"log";
 pub const kOfxColourspaceCanonlog2CinemagamutD55IsData: bool = false;
 pub const kOfxColourspaceCanonlog2CinemagamutD55IsBasic: bool = false;
 pub const kOfxColourspaceCanonlog2CinemagamutD55IsCore: bool = false;
 pub const kOfxColourspaceCanonlog2CinemagamutD55IsDisplay: bool = false;
 pub const kOfxColourspaceCanonlog3CinemagamutD55: &::std::ffi::CStr = c"canonlog3_cinemagamut_d55";
-pub const kOfxColourspaceCanonlog3CinemagamutD55Label: &::std::ffi::CStr = c"CanonLog3 CinemaGamut D55";
+pub const kOfxColourspaceCanonlog3CinemagamutD55Label: &::std::ffi::CStr =
+    c"CanonLog3 CinemaGamut D55";
 pub const kOfxColourspaceCanonlog3CinemagamutD55Encoding: &::std::ffi::CStr = c"log";
 pub const kOfxColourspaceCanonlog3CinemagamutD55IsData: bool = false;
 pub const kOfxColourspaceCanonlog3CinemagamutD55IsBasic: bool = false;
@@ -351,7 +358,8 @@ pub const kOfxColourspaceLinRedwidegamutrgbIsBasic: bool = false;
 pub const kOfxColourspaceLinRedwidegamutrgbIsCore: bool = false;
 pub const kOfxColourspaceLinRedwidegamutrgbIsDisplay: bool = false;
 pub const kOfxColourspaceLog3g10Redwidegamutrgb: &::std::ffi::CStr = c"log3g10_redwidegamutrgb";
-pub const kOfxColourspaceLog3g10RedwidegamutrgbLabel: &::std::ffi::CStr = c"Log3G10 REDWideGamutRGB";
+pub const kOfxColourspaceLog3g10RedwidegamutrgbLabel: &::std::ffi::CStr =
+    c"Log3G10 REDWideGamutRGB";
 pub const kOfxColourspaceLog3g10RedwidegamutrgbEncoding: &::std::ffi::CStr = c"log";
 pub const kOfxColourspaceLog3g10RedwidegamutrgbIsData: bool = false;
 pub const kOfxColourspaceLog3g10RedwidegamutrgbIsBasic: bool = false;
@@ -379,7 +387,8 @@ pub const kOfxColourspaceLinVeniceSgamut3IsBasic: bool = false;
 pub const kOfxColourspaceLinVeniceSgamut3IsCore: bool = false;
 pub const kOfxColourspaceLinVeniceSgamut3IsDisplay: bool = false;
 pub const kOfxColourspaceLinVeniceSgamut3cine: &::std::ffi::CStr = c"lin_venice_sgamut3cine";
-pub const kOfxColourspaceLinVeniceSgamut3cineLabel: &::std::ffi::CStr = c"Linear Venice S-Gamut3.Cine";
+pub const kOfxColourspaceLinVeniceSgamut3cineLabel: &::std::ffi::CStr =
+    c"Linear Venice S-Gamut3.Cine";
 pub const kOfxColourspaceLinVeniceSgamut3cineEncoding: &::std::ffi::CStr = c"scene-linear";
 pub const kOfxColourspaceLinVeniceSgamut3cineIsData: bool = false;
 pub const kOfxColourspaceLinVeniceSgamut3cineIsBasic: bool = false;
@@ -407,7 +416,8 @@ pub const kOfxColourspaceSlog3VeniceSgamut3IsBasic: bool = false;
 pub const kOfxColourspaceSlog3VeniceSgamut3IsCore: bool = false;
 pub const kOfxColourspaceSlog3VeniceSgamut3IsDisplay: bool = false;
 pub const kOfxColourspaceSlog3VeniceSgamut3cine: &::std::ffi::CStr = c"slog3_venice_sgamut3cine";
-pub const kOfxColourspaceSlog3VeniceSgamut3cineLabel: &::std::ffi::CStr = c"S-Log3 Venice S-Gamut3.Cine";
+pub const kOfxColourspaceSlog3VeniceSgamut3cineLabel: &::std::ffi::CStr =
+    c"S-Log3 Venice S-Gamut3.Cine";
 pub const kOfxColourspaceSlog3VeniceSgamut3cineEncoding: &::std::ffi::CStr = c"log";
 pub const kOfxColourspaceSlog3VeniceSgamut3cineIsData: bool = false;
 pub const kOfxColourspaceSlog3VeniceSgamut3cineIsBasic: bool = false;

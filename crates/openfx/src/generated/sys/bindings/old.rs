@@ -50,14 +50,16 @@ pub const kOfxParamDoubleTypeNormalisedY: &::std::ffi::CStr = c"OfxParamDoubleTy
 /// @deprecated - V1.3: Deprecated in favour of ::OfxParamDoubleTypeXAbsolute
 /// V1.4: Removed
 /// ```
-pub const kOfxParamDoubleTypeNormalisedXAbsolute: &::std::ffi::CStr = c"OfxParamDoubleTypeNormalisedXAbsolute";
+pub const kOfxParamDoubleTypeNormalisedXAbsolute: &::std::ffi::CStr =
+    c"OfxParamDoubleTypeNormalisedXAbsolute";
 /// ```doxygen
 /// @brief value for the ::kOfxParamPropDoubleType property, indicating an absolute position  normalised to the Y dimension. See \ref ::kOfxParamPropDoubleType.
 /// -- ofxParam.h
 /// @deprecated - V1.3: Deprecated in favour of ::OfxParamDoubleTypeYAbsolute
 /// V1.4: Removed
 /// ```
-pub const kOfxParamDoubleTypeNormalisedYAbsolute: &::std::ffi::CStr = c"OfxParamDoubleTypeNormalisedYAbsolute";
+pub const kOfxParamDoubleTypeNormalisedYAbsolute: &::std::ffi::CStr =
+    c"OfxParamDoubleTypeNormalisedYAbsolute";
 /// ```doxygen
 /// @brief value for the ::kOfxParamPropDoubleType property, indicating normalisation to the X and Y dimension for 2D params. See \ref ::kOfxParamPropDoubleType.
 /// -- ofxParam.h
@@ -71,7 +73,8 @@ pub const kOfxParamDoubleTypeNormalisedXY: &::std::ffi::CStr = c"OfxParamDoubleT
 /// @deprecated - V1.3: Deprecated in favour of ::kOfxParamDoubleTypeXYAbsolute
 /// V1.4: Removed
 /// ```
-pub const kOfxParamDoubleTypeNormalisedXYAbsolute: &::std::ffi::CStr = c"OfxParamDoubleTypeNormalisedXYAbsolute";
+pub const kOfxParamDoubleTypeNormalisedXYAbsolute: &::std::ffi::CStr =
+    c"OfxParamDoubleTypeNormalisedXYAbsolute";
 /// ```doxygen
 /// @brief Defines an 8 bit per component YUVA pixel
 /// -- ofxPixels.h

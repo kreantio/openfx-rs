@@ -2,7 +2,8 @@ use openfx_internal_macros::low_make_suite_struct;
 low_make_suite_struct!(DialogSuiteV1, OfxDialogSuiteV1);
 low_make_suite_struct!(DrawSuiteV1, OfxDrawSuiteV1);
 low_make_suite_struct!(
-    ImageEffectOpenGLRenderSuiteV1, OfxImageEffectOpenGLRenderSuiteV1
+    ImageEffectOpenGLRenderSuiteV1,
+    OfxImageEffectOpenGLRenderSuiteV1
 );
 low_make_suite_struct!(ImageEffectSuiteV1, OfxImageEffectSuiteV1);
 low_make_suite_struct!(InteractSuiteV1, OfxInteractSuiteV1);

@@ -389,7 +389,6 @@ dependencies = [
  "clap",
  "convert_case",
  "openfx-datagen",
- "prettyplease",
  "proc-macro2",
  "quote",
  "rayon",

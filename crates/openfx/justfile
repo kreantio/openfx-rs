@@ -10,6 +10,7 @@ generate-all: generate-bindings generate-code
     rm -f src/generated/mod.rs
     cargo xtask --codegen-config "{{ codegen-config-path }}" \
       make-mod-rs src/generated --recursive
+    find ./src/generated -name "*.rs" | xargs rustfmt --edition=2024
 
 generate-bindings:
     rm -rf "{{ generated-c-bindings-path }}"

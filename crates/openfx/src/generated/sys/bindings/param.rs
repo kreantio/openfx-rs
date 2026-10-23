@@ -88,28 +88,32 @@ pub const kOfxParamTypePushButton: &::std::ffi::CStr = c"OfxParamTypePushButton"
 ///     type: bool
 ///     dimension: 1
 /// ```
-pub const kOfxParamHostPropSupportsCustomAnimation: &::std::ffi::CStr = c"OfxParamHostPropSupportsCustomAnimation";
+pub const kOfxParamHostPropSupportsCustomAnimation: &::std::ffi::CStr =
+    c"OfxParamHostPropSupportsCustomAnimation";
 /// ```doxygen
 /// @brief Indicates if the host supports animation of string params
 ///     @propdef
 ///     type: bool
 ///     dimension: 1
 /// ```
-pub const kOfxParamHostPropSupportsStringAnimation: &::std::ffi::CStr = c"OfxParamHostPropSupportsStringAnimation";
+pub const kOfxParamHostPropSupportsStringAnimation: &::std::ffi::CStr =
+    c"OfxParamHostPropSupportsStringAnimation";
 /// ```doxygen
 /// @brief Indicates if the host supports animation of boolean params
 ///     @propdef
 ///     type: bool
 ///     dimension: 1
 /// ```
-pub const kOfxParamHostPropSupportsBooleanAnimation: &::std::ffi::CStr = c"OfxParamHostPropSupportsBooleanAnimation";
+pub const kOfxParamHostPropSupportsBooleanAnimation: &::std::ffi::CStr =
+    c"OfxParamHostPropSupportsBooleanAnimation";
 /// ```doxygen
 /// @brief Indicates if the host supports animation of choice params
 ///     @propdef
 ///     type: bool
 ///     dimension: 1
 /// ```
-pub const kOfxParamHostPropSupportsChoiceAnimation: &::std::ffi::CStr = c"OfxParamHostPropSupportsChoiceAnimation";
+pub const kOfxParamHostPropSupportsChoiceAnimation: &::std::ffi::CStr =
+    c"OfxParamHostPropSupportsChoiceAnimation";
 /// ```doxygen
 /// @brief Indicates if the host supports custom interacts for parameters
 ///
@@ -119,7 +123,8 @@ pub const kOfxParamHostPropSupportsChoiceAnimation: &::std::ffi::CStr = c"OfxPar
 ///     type: bool
 ///     dimension: 1
 /// ```
-pub const kOfxParamHostPropSupportsCustomInteract: &::std::ffi::CStr = c"OfxParamHostPropSupportsCustomInteract";
+pub const kOfxParamHostPropSupportsCustomInteract: &::std::ffi::CStr =
+    c"OfxParamHostPropSupportsCustomInteract";
 /// ```doxygen
 /// @brief Indicates the maximum numbers of parameters available on the host.
 ///
@@ -151,7 +156,8 @@ pub const kOfxParamHostPropMaxPages: &::std::ffi::CStr = c"OfxParamHostPropMaxPa
 ///     type: int
 ///     dimension: 2
 /// ```
-pub const kOfxParamHostPropPageRowColumnCount: &::std::ffi::CStr = c"OfxParamHostPropPageRowColumnCount";
+pub const kOfxParamHostPropPageRowColumnCount: &::std::ffi::CStr =
+    c"OfxParamHostPropPageRowColumnCount";
 /// ```doxygen
 /// @brief Pseudo parameter name used to skip a row in a page layout.
 ///
@@ -224,7 +230,8 @@ pub const kOfxParamPropInteractMinimumSize: &::std::ffi::CStr = c"OfxParamPropIn
 ///     type: int
 ///     dimension: 2
 /// ```
-pub const kOfxParamPropInteractPreferedSize: &::std::ffi::CStr = c"OfxParamPropInteractPreferedSize";
+pub const kOfxParamPropInteractPreferedSize: &::std::ffi::CStr =
+    c"OfxParamPropInteractPreferedSize";
 /// ```doxygen
 /// @brief The type of a parameter.
 ///
@@ -369,7 +376,8 @@ pub const kOfxParamInvalidateValueChange: &::std::ffi::CStr = c"OfxParamInvalida
 /// ```doxygen
 /// @brief Used as a value for the ::kOfxParamPropCacheInvalidation property
 /// ```
-pub const kOfxParamInvalidateValueChangeToEnd: &::std::ffi::CStr = c"OfxParamInvalidateValueChangeToEnd";
+pub const kOfxParamInvalidateValueChangeToEnd: &::std::ffi::CStr =
+    c"OfxParamInvalidateValueChangeToEnd";
 /// ```doxygen
 /// @brief Used as a value for the ::kOfxParamPropCacheInvalidation property
 /// ```
@@ -598,7 +606,8 @@ pub const kOfxParamDoubleTypeXYAbsolute: &::std::ffi::CStr = c"OfxParamDoubleTyp
 ///      - OfxParamCoordinatesCanonical
 ///      - OfxParamCoordinatesNormalised
 /// ```
-pub const kOfxParamPropDefaultCoordinateSystem: &::std::ffi::CStr = c"OfxParamPropDefaultCoordinateSystem";
+pub const kOfxParamPropDefaultCoordinateSystem: &::std::ffi::CStr =
+    c"OfxParamPropDefaultCoordinateSystem";
 /// ```doxygen
 /// @brief Define the canonical coordinate system
 /// ```
@@ -615,7 +624,8 @@ pub const kOfxParamCoordinatesNormalised: &::std::ffi::CStr = c"OfxParamCoordina
 ///     type: bool
 ///     dimension: 1
 /// ```
-pub const kOfxParamPropHasHostOverlayHandle: &::std::ffi::CStr = c"OfxParamPropHasHostOverlayHandle";
+pub const kOfxParamPropHasHostOverlayHandle: &::std::ffi::CStr =
+    c"OfxParamPropHasHostOverlayHandle";
 /// ```doxygen
 /// @brief A flag to indicate that the host should use a native UI overlay handle for the given parameter.
 ///
@@ -625,7 +635,8 @@ pub const kOfxParamPropHasHostOverlayHandle: &::std::ffi::CStr = c"OfxParamPropH
 ///     dimension: 1
 ///     cname: kOfxParamPropUseHostOverlayHandle
 /// ```
-pub const kOfxParamPropUseHostOverlayHandle: &::std::ffi::CStr = c"kOfxParamPropUseHostOverlayHandle";
+pub const kOfxParamPropUseHostOverlayHandle: &::std::ffi::CStr =
+    c"kOfxParamPropUseHostOverlayHandle";
 /// ```doxygen
 /// @brief value for the ::kOfxParamInterpType property, indicating a constant/hold/step interpolation type. See \ref ::kOfxParamInterpType.
 /// ```
@@ -804,7 +815,8 @@ pub const kOfxParamPropChoiceEnum: &::std::ffi::CStr = c"OfxParamPropChoiceEnum"
 ///     dimension: 1
 ///     introduced: "1.5"
 /// ```
-pub const kOfxParamHostPropSupportsStrChoiceAnimation: &::std::ffi::CStr = c"OfxParamHostPropSupportsStrChoiceAnimation";
+pub const kOfxParamHostPropSupportsStrChoiceAnimation: &::std::ffi::CStr =
+    c"OfxParamHostPropSupportsStrChoiceAnimation";
 /// ```doxygen
 /// @brief Indicates if the host supports the StrChoice param type.
 ///
@@ -814,7 +826,8 @@ pub const kOfxParamHostPropSupportsStrChoiceAnimation: &::std::ffi::CStr = c"Ofx
 ///     dimension: 1
 ///     introduced: "1.5"
 /// ```
-pub const kOfxParamHostPropSupportsStrChoice: &::std::ffi::CStr = c"OfxParamHostPropSupportsStrChoice";
+pub const kOfxParamHostPropSupportsStrChoice: &::std::ffi::CStr =
+    c"OfxParamHostPropSupportsStrChoice";
 /// ```doxygen
 /// @brief The minimum value for a numeric parameter.
 ///
@@ -939,7 +952,8 @@ pub const kOfxParamPropStringMode: &::std::ffi::CStr = c"OfxParamPropStringMode"
 ///     type: bool
 ///     dimension: 1
 /// ```
-pub const kOfxParamPropStringFilePathExists: &::std::ffi::CStr = c"OfxParamPropStringFilePathExists";
+pub const kOfxParamPropStringFilePathExists: &::std::ffi::CStr =
+    c"OfxParamPropStringFilePathExists";
 /// ```doxygen
 /// @brief Used to set a string parameter to be single line,
 ///     value to be passed to a ::kOfxParamPropStringMode property
@@ -1195,9 +1209,8 @@ pub struct OfxParameterSuiteV1 {
     ///   - ::kOfxStatOK       - all was OK
     ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
     /// ```
-    pub paramGetValue: ::std::option::Option<
-        unsafe extern "C" fn(paramHandle: OfxParamHandle, ...) -> OfxStatus,
-    >,
+    pub paramGetValue:
+        ::std::option::Option<unsafe extern "C" fn(paramHandle: OfxParamHandle, ...) -> OfxStatus>,
     /// ```doxygen
     /// @brief Gets the value of a parameter at a specific time.
     ///
@@ -1214,11 +1227,7 @@ pub struct OfxParameterSuiteV1 {
     ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
     /// ```
     pub paramGetValueAtTime: ::std::option::Option<
-        unsafe extern "C" fn(
-            paramHandle: OfxParamHandle,
-            time: OfxTime,
-            ...
-        ) -> OfxStatus,
+        unsafe extern "C" fn(paramHandle: OfxParamHandle, time: OfxTime, ...) -> OfxStatus,
     >,
     /// ```doxygen
     /// @brief Gets the derivative of a parameter at a specific time.
@@ -1240,11 +1249,7 @@ pub struct OfxParameterSuiteV1 {
     ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
     /// ```
     pub paramGetDerivative: ::std::option::Option<
-        unsafe extern "C" fn(
-            paramHandle: OfxParamHandle,
-            time: OfxTime,
-            ...
-        ) -> OfxStatus,
+        unsafe extern "C" fn(paramHandle: OfxParamHandle, time: OfxTime, ...) -> OfxStatus,
     >,
     /// ```doxygen
     /// @brief Gets the integral of a parameter over a specific time range,
@@ -1294,9 +1299,8 @@ pub struct OfxParameterSuiteV1 {
     ///   - ::kOfxStatOK       - all was OK
     ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
     /// ```
-    pub paramSetValue: ::std::option::Option<
-        unsafe extern "C" fn(paramHandle: OfxParamHandle, ...) -> OfxStatus,
-    >,
+    pub paramSetValue:
+        ::std::option::Option<unsafe extern "C" fn(paramHandle: OfxParamHandle, ...) -> OfxStatus>,
     /// ```doxygen
     /// @brief Keyframes the value of a parameter at a specific time.
     ///
@@ -1322,11 +1326,7 @@ pub struct OfxParameterSuiteV1 {
     /// time in frames
     /// ```
     pub paramSetValueAtTime: ::std::option::Option<
-        unsafe extern "C" fn(
-            paramHandle: OfxParamHandle,
-            time: OfxTime,
-            ...
-        ) -> OfxStatus,
+        unsafe extern "C" fn(paramHandle: OfxParamHandle, time: OfxTime, ...) -> OfxStatus,
     >,
     /// ```doxygen
     /// @brief Returns the number of keyframes in the parameter
@@ -1419,9 +1419,8 @@ pub struct OfxParameterSuiteV1 {
     ///   - ::kOfxStatOK       - all was OK
     ///   - ::kOfxStatErrBadHandle  - if the parameter handle was invalid
     /// ```
-    pub paramDeleteAllKeys: ::std::option::Option<
-        unsafe extern "C" fn(paramHandle: OfxParamHandle) -> OfxStatus,
-    >,
+    pub paramDeleteAllKeys:
+        ::std::option::Option<unsafe extern "C" fn(paramHandle: OfxParamHandle) -> OfxStatus>,
     /// ```doxygen
     /// @brief Copies one parameter to another, including any animation etc...
     ///
@@ -1493,7 +1492,6 @@ pub struct OfxParameterSuiteV1 {
     ///   - ::kOfxStatOK       - all was OK
     ///   - ::kOfxStatErrBadHandle  - if the instance handle was invalid
     /// ```
-    pub paramEditEnd: ::std::option::Option<
-        unsafe extern "C" fn(paramSet: OfxParamSetHandle) -> OfxStatus,
-    >,
+    pub paramEditEnd:
+        ::std::option::Option<unsafe extern "C" fn(paramSet: OfxParamSetHandle) -> OfxStatus>,
 }

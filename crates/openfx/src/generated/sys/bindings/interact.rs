@@ -73,7 +73,8 @@ pub const kOfxInteractPropPenPosition: &::std::ffi::CStr = c"OfxInteractPropPenP
 ///    type: int
 ///    dimension: 2
 /// ```
-pub const kOfxInteractPropPenViewportPosition: &::std::ffi::CStr = c"OfxInteractPropPenViewportPosition";
+pub const kOfxInteractPropPenViewportPosition: &::std::ffi::CStr =
+    c"OfxInteractPropPenViewportPosition";
 /// ```doxygen
 /// @brief The pressure of the pen in an interact.
 ///

@@ -131,7 +131,8 @@ pub const kOfxTypeImage: &::std::ffi::CStr = c"OfxTypeImage";
 ///     outArgs:
 ///       - OfxImageEffectPropRegionOfDefinition
 /// ```
-pub const kOfxImageEffectActionGetRegionOfDefinition: &::std::ffi::CStr = c"OfxImageEffectActionGetRegionOfDefinition";
+pub const kOfxImageEffectActionGetRegionOfDefinition: &::std::ffi::CStr =
+    c"OfxImageEffectActionGetRegionOfDefinition";
 /// ```doxygen
 /// @brief
 ///
@@ -178,7 +179,8 @@ pub const kOfxImageEffectActionGetRegionOfDefinition: &::std::ffi::CStr = c"OfxI
 ///     outArgs:
 ///     # - OfxImageClipPropRoI_ # with clip name
 /// ```
-pub const kOfxImageEffectActionGetRegionsOfInterest: &::std::ffi::CStr = c"OfxImageEffectActionGetRegionsOfInterest";
+pub const kOfxImageEffectActionGetRegionsOfInterest: &::std::ffi::CStr =
+    c"OfxImageEffectActionGetRegionsOfInterest";
 /// ```doxygen
 /// @brief
 ///  This action allows a host to ask an effect what range of frames it can
@@ -217,7 +219,8 @@ pub const kOfxImageEffectActionGetRegionsOfInterest: &::std::ffi::CStr = c"OfxIm
 ///     outArgs:
 ///       - OfxImageEffectPropFrameRange
 /// ```
-pub const kOfxImageEffectActionGetTimeDomain: &::std::ffi::CStr = c"OfxImageEffectActionGetTimeDomain";
+pub const kOfxImageEffectActionGetTimeDomain: &::std::ffi::CStr =
+    c"OfxImageEffectActionGetTimeDomain";
 /// ```doxygen
 /// @brief
 ///
@@ -287,7 +290,8 @@ pub const kOfxImageEffectActionGetTimeDomain: &::std::ffi::CStr = c"OfxImageEffe
 ///     outArgs:
 ///     # - OfxImageEffectPropFrameRange_ # with clip name
 /// ```
-pub const kOfxImageEffectActionGetFramesNeeded: &::std::ffi::CStr = c"OfxImageEffectActionGetFramesNeeded";
+pub const kOfxImageEffectActionGetFramesNeeded: &::std::ffi::CStr =
+    c"OfxImageEffectActionGetFramesNeeded";
 /// ```doxygen
 /// @brief
 ///
@@ -361,7 +365,8 @@ pub const kOfxImageEffectActionGetFramesNeeded: &::std::ffi::CStr = c"OfxImageEf
 ///     # - OfxImageClipPropPreferredColourspaces_
 ///     # - OfxImageClipPropPAR_
 /// ```
-pub const kOfxImageEffectActionGetClipPreferences: &::std::ffi::CStr = c"OfxImageEffectActionGetClipPreferences";
+pub const kOfxImageEffectActionGetClipPreferences: &::std::ffi::CStr =
+    c"OfxImageEffectActionGetClipPreferences";
 /// ```doxygen
 /// @brief
 ///
@@ -564,7 +569,8 @@ pub const kOfxImageEffectActionRender: &::std::ffi::CStr = c"OfxImageEffectActio
 ///       - OfxImageEffectPropBehaviourWhenUnlicensed
 ///     outArgs:
 /// ```
-pub const kOfxImageEffectActionBeginSequenceRender: &::std::ffi::CStr = c"OfxImageEffectActionBeginSequenceRender";
+pub const kOfxImageEffectActionBeginSequenceRender: &::std::ffi::CStr =
+    c"OfxImageEffectActionBeginSequenceRender";
 /// ```doxygen
 /// @brief
 ///
@@ -627,7 +633,8 @@ pub const kOfxImageEffectActionBeginSequenceRender: &::std::ffi::CStr = c"OfxIma
 ///       - OfxImageEffectPropOpenGLTextureTarget
 ///     outArgs:
 /// ```
-pub const kOfxImageEffectActionEndSequenceRender: &::std::ffi::CStr = c"OfxImageEffectActionEndSequenceRender";
+pub const kOfxImageEffectActionEndSequenceRender: &::std::ffi::CStr =
+    c"OfxImageEffectActionEndSequenceRender";
 /// ```doxygen
 /// @brief
 ///
@@ -672,7 +679,8 @@ pub const kOfxImageEffectActionEndSequenceRender: &::std::ffi::CStr = c"OfxImage
 ///       - OfxImageEffectPropContext
 ///     outArgs:
 /// ```
-pub const kOfxImageEffectActionDescribeInContext: &::std::ffi::CStr = c"OfxImageEffectActionDescribeInContext";
+pub const kOfxImageEffectActionDescribeInContext: &::std::ffi::CStr =
+    c"OfxImageEffectActionDescribeInContext";
 /// ```doxygen
 /// @brief Indicates to the host the contexts a plugin can be used in.
 ///
@@ -694,7 +702,8 @@ pub const kOfxImageEffectActionDescribeInContext: &::std::ffi::CStr = c"OfxImage
 ///      - OfxImageEffectContextGeneral
 ///      - OfxImageEffectContextRetimer
 /// ```
-pub const kOfxImageEffectPropSupportedContexts: &::std::ffi::CStr = c"OfxImageEffectPropSupportedContexts";
+pub const kOfxImageEffectPropSupportedContexts: &::std::ffi::CStr =
+    c"OfxImageEffectPropSupportedContexts";
 /// ```doxygen
 /// @brief The plugin handle passed to the initial 'describe' action.
 ///
@@ -715,7 +724,8 @@ pub const kOfxImageEffectPropPluginHandle: &::std::ffi::CStr = c"OfxImageEffectP
 ///    type: bool
 ///    dimension: 1
 /// ```
-pub const kOfxImageEffectHostPropIsBackground: &::std::ffi::CStr = c"OfxImageEffectHostPropIsBackground";
+pub const kOfxImageEffectHostPropIsBackground: &::std::ffi::CStr =
+    c"OfxImageEffectHostPropIsBackground";
 /// ```doxygen
 /// @brief Indicates whether only one instance of a plugin can exist at the same time
 ///
@@ -728,7 +738,8 @@ pub const kOfxImageEffectHostPropIsBackground: &::std::ffi::CStr = c"OfxImageEff
 ///    type: bool
 ///    dimension: 1
 /// ```
-pub const kOfxImageEffectPluginPropSingleInstance: &::std::ffi::CStr = c"OfxImageEffectPluginPropSingleInstance";
+pub const kOfxImageEffectPluginPropSingleInstance: &::std::ffi::CStr =
+    c"OfxImageEffectPluginPropSingleInstance";
 /// ```doxygen
 /// @brief Indicates how many simultaneous renders the plugin can deal with.
 ///
@@ -744,7 +755,8 @@ pub const kOfxImageEffectPluginPropSingleInstance: &::std::ffi::CStr = c"OfxImag
 ///      - OfxImageEffectRenderInstanceSafe
 ///      - OfxImageEffectRenderFullySafe
 /// ```
-pub const kOfxImageEffectPluginRenderThreadSafety: &::std::ffi::CStr = c"OfxImageEffectPluginRenderThreadSafety";
+pub const kOfxImageEffectPluginRenderThreadSafety: &::std::ffi::CStr =
+    c"OfxImageEffectPluginRenderThreadSafety";
 /// ```doxygen
 /// @brief String used to label render threads as un thread safe, see, \ref ::kOfxImageEffectPluginRenderThreadSafety
 /// ```
@@ -752,7 +764,8 @@ pub const kOfxImageEffectRenderUnsafe: &::std::ffi::CStr = c"OfxImageEffectRende
 /// ```doxygen
 /// @brief String used to label render threads as instance thread safe, \ref ::kOfxImageEffectPluginRenderThreadSafety
 /// ```
-pub const kOfxImageEffectRenderInstanceSafe: &::std::ffi::CStr = c"OfxImageEffectRenderInstanceSafe";
+pub const kOfxImageEffectRenderInstanceSafe: &::std::ffi::CStr =
+    c"OfxImageEffectRenderInstanceSafe";
 /// ```doxygen
 /// @brief String used to label render threads as fully thread safe, \ref ::kOfxImageEffectPluginRenderThreadSafety
 /// ```
@@ -767,7 +780,8 @@ pub const kOfxImageEffectRenderFullySafe: &::std::ffi::CStr = c"OfxImageEffectRe
 ///    type: bool
 ///    dimension: 1
 /// ```
-pub const kOfxImageEffectPluginPropHostFrameThreading: &::std::ffi::CStr = c"OfxImageEffectPluginPropHostFrameThreading";
+pub const kOfxImageEffectPluginPropHostFrameThreading: &::std::ffi::CStr =
+    c"OfxImageEffectPluginPropHostFrameThreading";
 /// ```doxygen
 /// @brief Indicates whether a host or plugin can support clips of differing component depths going into/out of an effect
 ///
@@ -782,7 +796,8 @@ pub const kOfxImageEffectPluginPropHostFrameThreading: &::std::ffi::CStr = c"Ofx
 ///    dimension: 1
 ///    cname: kOfxImageEffectPropSupportsMultipleClipDepths
 /// ```
-pub const kOfxImageEffectPropSupportsMultipleClipDepths: &::std::ffi::CStr = c"OfxImageEffectPropMultipleClipDepths";
+pub const kOfxImageEffectPropSupportsMultipleClipDepths: &::std::ffi::CStr =
+    c"OfxImageEffectPropMultipleClipDepths";
 /// ```doxygen
 /// @brief Indicates whether a host or plugin can support clips of differing pixel aspect ratios going into/out of an effect
 ///
@@ -796,7 +811,8 @@ pub const kOfxImageEffectPropSupportsMultipleClipDepths: &::std::ffi::CStr = c"O
 ///    type: bool
 ///    dimension: 1
 /// ```
-pub const kOfxImageEffectPropSupportsMultipleClipPARs: &::std::ffi::CStr = c"OfxImageEffectPropSupportsMultipleClipPARs";
+pub const kOfxImageEffectPropSupportsMultipleClipPARs: &::std::ffi::CStr =
+    c"OfxImageEffectPropSupportsMultipleClipPARs";
 /// ```doxygen
 /// @brief Indicates the set of parameters on which a value change will trigger a change to clip preferences
 ///
@@ -809,7 +825,8 @@ pub const kOfxImageEffectPropSupportsMultipleClipPARs: &::std::ffi::CStr = c"Ofx
 ///    type: string
 ///    dimension: N
 /// ```
-pub const kOfxImageEffectPropClipPreferencesSlaveParam: &::std::ffi::CStr = c"OfxImageEffectPropClipPreferencesSlaveParam";
+pub const kOfxImageEffectPropClipPreferencesSlaveParam: &::std::ffi::CStr =
+    c"OfxImageEffectPropClipPreferencesSlaveParam";
 /// ```doxygen
 /// @brief Indicates whether the host will let a plugin set the frame rate of the output clip.
 ///
@@ -824,7 +841,8 @@ pub const kOfxImageEffectPropClipPreferencesSlaveParam: &::std::ffi::CStr = c"Of
 ///    type: bool
 ///    dimension: 1
 /// ```
-pub const kOfxImageEffectPropSetableFrameRate: &::std::ffi::CStr = c"OfxImageEffectPropSetableFrameRate";
+pub const kOfxImageEffectPropSetableFrameRate: &::std::ffi::CStr =
+    c"OfxImageEffectPropSetableFrameRate";
 /// ```doxygen
 /// @brief Indicates whether the host will let a plugin set the fielding of the output clip.
 ///
@@ -837,7 +855,8 @@ pub const kOfxImageEffectPropSetableFrameRate: &::std::ffi::CStr = c"OfxImageEff
 ///    type: bool
 ///    dimension: 1
 /// ```
-pub const kOfxImageEffectPropSetableFielding: &::std::ffi::CStr = c"OfxImageEffectPropSetableFielding";
+pub const kOfxImageEffectPropSetableFielding: &::std::ffi::CStr =
+    c"OfxImageEffectPropSetableFielding";
 /// ```doxygen
 /// @brief Indicates whether a plugin needs sequential rendering, and a host support it
 ///
@@ -857,7 +876,8 @@ pub const kOfxImageEffectPropSetableFielding: &::std::ffi::CStr = c"OfxImageEffe
 ///    type: bool
 ///    dimension: 1
 /// ```
-pub const kOfxImageEffectInstancePropSequentialRender: &::std::ffi::CStr = c"OfxImageEffectInstancePropSequentialRender";
+pub const kOfxImageEffectInstancePropSequentialRender: &::std::ffi::CStr =
+    c"OfxImageEffectInstancePropSequentialRender";
 /// ```doxygen
 /// @brief Property on all the render action that indicate the current sequential render status of a host
 ///
@@ -870,10 +890,14 @@ pub const kOfxImageEffectInstancePropSequentialRender: &::std::ffi::CStr = c"Ofx
 ///    type: bool
 ///    dimension: 1
 /// ```
-pub const kOfxImageEffectPropSequentialRenderStatus: &::std::ffi::CStr = c"OfxImageEffectPropSequentialRenderStatus";
-pub const kOfxHostNativeOriginBottomLeft: &::std::ffi::CStr = c"kOfxImageEffectHostPropNativeOriginBottomLeft";
-pub const kOfxHostNativeOriginTopLeft: &::std::ffi::CStr = c"kOfxImageEffectHostPropNativeOriginTopLeft";
-pub const kOfxHostNativeOriginCenter: &::std::ffi::CStr = c"kOfxImageEffectHostPropNativeOriginCenter";
+pub const kOfxImageEffectPropSequentialRenderStatus: &::std::ffi::CStr =
+    c"OfxImageEffectPropSequentialRenderStatus";
+pub const kOfxHostNativeOriginBottomLeft: &::std::ffi::CStr =
+    c"kOfxImageEffectHostPropNativeOriginBottomLeft";
+pub const kOfxHostNativeOriginTopLeft: &::std::ffi::CStr =
+    c"kOfxImageEffectHostPropNativeOriginTopLeft";
+pub const kOfxHostNativeOriginCenter: &::std::ffi::CStr =
+    c"kOfxImageEffectHostPropNativeOriginCenter";
 /// ```doxygen
 /// @brief Property that indicates the host native UI space - this is only a UI hint, has no impact on pixel processing
 ///
@@ -891,7 +915,8 @@ pub const kOfxHostNativeOriginCenter: &::std::ffi::CStr = c"kOfxImageEffectHostP
 ///      - kOfxImageEffectHostPropNativeOriginTopLeft
 ///      - kOfxImageEffectHostPropNativeOriginCenter
 /// ```
-pub const kOfxImageEffectHostPropNativeOrigin: &::std::ffi::CStr = c"OfxImageEffectHostPropNativeOrigin";
+pub const kOfxImageEffectHostPropNativeOrigin: &::std::ffi::CStr =
+    c"OfxImageEffectHostPropNativeOrigin";
 /// ```doxygen
 /// @brief Property that indicates if a plugin is being rendered in response to user interaction.
 ///
@@ -904,7 +929,8 @@ pub const kOfxImageEffectHostPropNativeOrigin: &::std::ffi::CStr = c"OfxImageEff
 ///    type: bool
 ///    dimension: 1
 /// ```
-pub const kOfxImageEffectPropInteractiveRenderStatus: &::std::ffi::CStr = c"OfxImageEffectPropInteractiveRenderStatus";
+pub const kOfxImageEffectPropInteractiveRenderStatus: &::std::ffi::CStr =
+    c"OfxImageEffectPropInteractiveRenderStatus";
 /// ```doxygen
 /// @brief Indicates the effect group for this plugin.
 ///
@@ -914,7 +940,8 @@ pub const kOfxImageEffectPropInteractiveRenderStatus: &::std::ffi::CStr = c"OfxI
 ///    type: string
 ///    dimension: 1
 /// ```
-pub const kOfxImageEffectPluginPropGrouping: &::std::ffi::CStr = c"OfxImageEffectPluginPropGrouping";
+pub const kOfxImageEffectPluginPropGrouping: &::std::ffi::CStr =
+    c"OfxImageEffectPluginPropGrouping";
 /// ```doxygen
 /// @brief Indicates whether the plugin should be hidden in the host's OFX browser UI.
 ///
@@ -927,7 +954,8 @@ pub const kOfxImageEffectPluginPropGrouping: &::std::ffi::CStr = c"OfxImageEffec
 ///     type: bool
 ///     dimension: 1
 /// ```
-pub const kOfxImageEffectPluginPropObsolete: &::std::ffi::CStr = c"OfxImageEffectPluginPropObsolete";
+pub const kOfxImageEffectPluginPropObsolete: &::std::ffi::CStr =
+    c"OfxImageEffectPluginPropObsolete";
 /// ```doxygen
 /// @brief Indicates whether a host support image effect \ref ImageEffectOverlays.
 ///
@@ -938,7 +966,8 @@ pub const kOfxImageEffectPluginPropObsolete: &::std::ffi::CStr = c"OfxImageEffec
 ///    type: bool
 ///    dimension: 1
 /// ```
-pub const kOfxImageEffectPropSupportsOverlays: &::std::ffi::CStr = c"OfxImageEffectPropSupportsOverlays";
+pub const kOfxImageEffectPropSupportsOverlays: &::std::ffi::CStr =
+    c"OfxImageEffectPropSupportsOverlays";
 /// ```doxygen
 /// @brief Sets the entry for an effect's overlay interaction
 ///
@@ -949,7 +978,8 @@ pub const kOfxImageEffectPropSupportsOverlays: &::std::ffi::CStr = c"OfxImageEff
 ///    type: pointer
 ///    dimension: 1
 /// ```
-pub const kOfxImageEffectPluginPropOverlayInteractV1: &::std::ffi::CStr = c"OfxImageEffectPluginPropOverlayInteractV1";
+pub const kOfxImageEffectPluginPropOverlayInteractV1: &::std::ffi::CStr =
+    c"OfxImageEffectPluginPropOverlayInteractV1";
 /// ```doxygen
 /// @brief Sets the entry for an effect's overlay interaction. Unlike
 ///  kOfxImageEffectPluginPropOverlayInteractV1, the overlay interact in the plug-in is expected
@@ -962,7 +992,8 @@ pub const kOfxImageEffectPluginPropOverlayInteractV1: &::std::ffi::CStr = c"OfxI
 ///  type: pointer
 ///  dimension: 1
 /// ```
-pub const kOfxImageEffectPluginPropOverlayInteractV2: &::std::ffi::CStr = c"OfxImageEffectPluginPropOverlayInteractV2";
+pub const kOfxImageEffectPluginPropOverlayInteractV2: &::std::ffi::CStr =
+    c"OfxImageEffectPluginPropOverlayInteractV2";
 /// ```doxygen
 /// @brief Indicates whether a plugin or host support multiple resolution images.
 ///
@@ -977,7 +1008,8 @@ pub const kOfxImageEffectPluginPropOverlayInteractV2: &::std::ffi::CStr = c"OfxI
 ///    type: bool
 ///    dimension: 1
 /// ```
-pub const kOfxImageEffectPropSupportsMultiResolution: &::std::ffi::CStr = c"OfxImageEffectPropSupportsMultiResolution";
+pub const kOfxImageEffectPropSupportsMultiResolution: &::std::ffi::CStr =
+    c"OfxImageEffectPropSupportsMultiResolution";
 /// ```doxygen
 /// @brief Indicates whether a clip, plugin or host supports tiled images
 ///
@@ -1006,7 +1038,8 @@ pub const kOfxImageEffectPropSupportsTiles: &::std::ffi::CStr = c"OfxImageEffect
 ///    type: bool
 ///    dimension: 1
 /// ```
-pub const kOfxImageEffectPropTemporalClipAccess: &::std::ffi::CStr = c"OfxImageEffectPropTemporalClipAccess";
+pub const kOfxImageEffectPropTemporalClipAccess: &::std::ffi::CStr =
+    c"OfxImageEffectPropTemporalClipAccess";
 /// ```doxygen
 /// @brief Indicates the context a plugin instance has been created for.
 ///
@@ -1097,7 +1130,8 @@ pub const kOfxImagePropUniqueIdentifier: &::std::ffi::CStr = c"OfxImagePropUniqu
 ///    type: bool
 ///    dimension: 1
 /// ```
-pub const kOfxImageClipPropContinuousSamples: &::std::ffi::CStr = c"OfxImageClipPropContinuousSamples";
+pub const kOfxImageClipPropContinuousSamples: &::std::ffi::CStr =
+    c"OfxImageClipPropContinuousSamples";
 /// ```doxygen
 /// @brief  Indicates the type of each component in a clip before any mapping by clip preferences
 ///
@@ -1119,7 +1153,8 @@ pub const kOfxImageClipPropContinuousSamples: &::std::ffi::CStr = c"OfxImageClip
 ///      - OfxBitDepthHalf
 ///      - OfxBitDepthFloat
 /// ```
-pub const kOfxImageClipPropUnmappedPixelDepth: &::std::ffi::CStr = c"OfxImageClipPropUnmappedPixelDepth";
+pub const kOfxImageClipPropUnmappedPixelDepth: &::std::ffi::CStr =
+    c"OfxImageClipPropUnmappedPixelDepth";
 /// ```doxygen
 /// @brief Indicates the current 'raw' component type on a clip before any mapping by clip preferences
 ///
@@ -1137,7 +1172,8 @@ pub const kOfxImageClipPropUnmappedPixelDepth: &::std::ffi::CStr = c"OfxImageCli
 ///      - OfxImageComponentRGB
 ///      - OfxImageComponentAlpha
 /// ```
-pub const kOfxImageClipPropUnmappedComponents: &::std::ffi::CStr = c"OfxImageClipPropUnmappedComponents";
+pub const kOfxImageClipPropUnmappedComponents: &::std::ffi::CStr =
+    c"OfxImageClipPropUnmappedComponents";
 /// ```doxygen
 /// @brief Indicates the premultiplication state of a clip or image
 ///
@@ -1155,7 +1191,8 @@ pub const kOfxImageClipPropUnmappedComponents: &::std::ffi::CStr = c"OfxImageCli
 ///      - OfxImageAlphaPremultiplied
 ///      - OfxImageAlphaUnPremultiplied
 /// ```
-pub const kOfxImageEffectPropPreMultiplication: &::std::ffi::CStr = c"OfxImageEffectPropPreMultiplication";
+pub const kOfxImageEffectPropPreMultiplication: &::std::ffi::CStr =
+    c"OfxImageEffectPropPreMultiplication";
 /// ```doxygen
 /// Used to flag the alpha of an image as opaque
 /// ```
@@ -1189,7 +1226,8 @@ pub const kOfxImageUnPreMultiplied: &::std::ffi::CStr = c"OfxImageAlphaUnPremult
 ///      - OfxBitDepthHalf
 ///      - OfxBitDepthFloat
 /// ```
-pub const kOfxImageEffectPropSupportedPixelDepths: &::std::ffi::CStr = c"OfxImageEffectPropSupportedPixelDepths";
+pub const kOfxImageEffectPropSupportedPixelDepths: &::std::ffi::CStr =
+    c"OfxImageEffectPropSupportedPixelDepths";
 /// ```doxygen
 /// @brief Indicates the components supported by a clip or host,
 ///
@@ -1211,7 +1249,8 @@ pub const kOfxImageEffectPropSupportedPixelDepths: &::std::ffi::CStr = c"OfxImag
 ///      - OfxImageComponentRGB
 ///      - OfxImageComponentAlpha
 /// ```
-pub const kOfxImageEffectPropSupportedComponents: &::std::ffi::CStr = c"OfxImageEffectPropSupportedComponents";
+pub const kOfxImageEffectPropSupportedComponents: &::std::ffi::CStr =
+    c"OfxImageEffectPropSupportedComponents";
 /// ```doxygen
 /// @brief Indicates if a clip is optional.
 ///
@@ -1265,7 +1304,8 @@ pub const kOfxImageEffectPropFrameRate: &::std::ffi::CStr = c"OfxImageEffectProp
 ///    type: double
 ///    dimension: 1
 /// ```
-pub const kOfxImageEffectPropUnmappedFrameRate: &::std::ffi::CStr = c"OfxImageEffectPropUnmappedFrameRate";
+pub const kOfxImageEffectPropUnmappedFrameRate: &::std::ffi::CStr =
+    c"OfxImageEffectPropUnmappedFrameRate";
 /// ```doxygen
 /// @brief The frame step used for a sequence of renders
 ///
@@ -1303,7 +1343,8 @@ pub const kOfxImageEffectPropFrameRange: &::std::ffi::CStr = c"OfxImageEffectPro
 ///    type: double
 ///    dimension: 2
 /// ```
-pub const kOfxImageEffectPropUnmappedFrameRange: &::std::ffi::CStr = c"OfxImageEffectPropUnmappedFrameRange";
+pub const kOfxImageEffectPropUnmappedFrameRange: &::std::ffi::CStr =
+    c"OfxImageEffectPropUnmappedFrameRange";
 /// ```doxygen
 /// @brief Says whether the clip is actually connected at the moment.
 ///
@@ -1349,7 +1390,8 @@ pub const kOfxImageEffectPropRenderScale: &::std::ffi::CStr = c"OfxImageEffectPr
 ///    type: bool
 ///    dimension: 1
 /// ```
-pub const kOfxImageEffectPropRenderQualityDraft: &::std::ffi::CStr = c"OfxImageEffectPropRenderQualityDraft";
+pub const kOfxImageEffectPropRenderQualityDraft: &::std::ffi::CStr =
+    c"OfxImageEffectPropRenderQualityDraft";
 /// ```doxygen
 /// @brief Indicates that the plugin can render without spatial awareness, either inherently or by
 /// disabling certain parameters at render time.
@@ -1368,7 +1410,8 @@ pub const kOfxImageEffectPropRenderQualityDraft: &::std::ffi::CStr = c"OfxImageE
 ///       - "false"
 ///       - "true"
 /// ```
-pub const kOfxImageEffectPropNoSpatialAwareness: &::std::ffi::CStr = c"OfxImageEffectPropNoSpatialAwareness";
+pub const kOfxImageEffectPropNoSpatialAwareness: &::std::ffi::CStr =
+    c"OfxImageEffectPropNoSpatialAwareness";
 /// ```doxygen
 /// @brief Indicates whether the render is what the host considers a "thumbnail" render
 ///
@@ -1391,7 +1434,8 @@ pub const kOfxImageEffectPropNoSpatialAwareness: &::std::ffi::CStr = c"OfxImageE
 ///       - "true"
 ///     introduced: "1.5.1"
 /// ```
-pub const kOfxImageEffectPropThumbnailRender: &::std::ffi::CStr = c"OfxImageEffectPropThumbnailRender";
+pub const kOfxImageEffectPropThumbnailRender: &::std::ffi::CStr =
+    c"OfxImageEffectPropThumbnailRender";
 /// ```doxygen
 /// @brief The extent of the current project in canonical coordinates.
 ///
@@ -1444,7 +1488,8 @@ pub const kOfxImageEffectPropProjectOffset: &::std::ffi::CStr = c"OfxImageEffect
 ///     dimension: 1
 ///     cname: kOfxImageEffectPropProjectPixelAspectRatio
 /// ```
-pub const kOfxImageEffectPropProjectPixelAspectRatio: &::std::ffi::CStr = c"OfxImageEffectPropPixelAspectRatio";
+pub const kOfxImageEffectPropProjectPixelAspectRatio: &::std::ffi::CStr =
+    c"OfxImageEffectPropPixelAspectRatio";
 /// ```doxygen
 /// @brief The duration of the effect
 ///
@@ -1454,7 +1499,8 @@ pub const kOfxImageEffectPropProjectPixelAspectRatio: &::std::ffi::CStr = c"OfxI
 ///     type: double
 ///     dimension: 1
 /// ```
-pub const kOfxImageEffectInstancePropEffectDuration: &::std::ffi::CStr = c"OfxImageEffectInstancePropEffectDuration";
+pub const kOfxImageEffectInstancePropEffectDuration: &::std::ffi::CStr =
+    c"OfxImageEffectInstancePropEffectDuration";
 /// ```doxygen
 /// @brief Which spatial field occurs temporally first in a frame.
 ///
@@ -1565,7 +1611,8 @@ pub const kOfxImagePropField: &::std::ffi::CStr = c"OfxImagePropField";
 ///     type: bool
 ///     dimension: 1
 /// ```
-pub const kOfxImageEffectPluginPropFieldRenderTwiceAlways: &::std::ffi::CStr = c"OfxImageEffectPluginPropFieldRenderTwiceAlways";
+pub const kOfxImageEffectPluginPropFieldRenderTwiceAlways: &::std::ffi::CStr =
+    c"OfxImageEffectPluginPropFieldRenderTwiceAlways";
 /// ```doxygen
 /// @brief Controls how a plugin fetched fielded imagery from a clip.
 ///
@@ -1618,7 +1665,8 @@ pub const kOfxImageEffectPropFieldToRender: &::std::ffi::CStr = c"OfxImageEffect
 ///     type: double
 ///     dimension: 4
 /// ```
-pub const kOfxImageEffectPropRegionOfDefinition: &::std::ffi::CStr = c"OfxImageEffectPropRegionOfDefinition";
+pub const kOfxImageEffectPropRegionOfDefinition: &::std::ffi::CStr =
+    c"OfxImageEffectPropRegionOfDefinition";
 /// ```doxygen
 /// @brief The value of a region of interest.
 ///
@@ -1632,7 +1680,8 @@ pub const kOfxImageEffectPropRegionOfDefinition: &::std::ffi::CStr = c"OfxImageE
 ///     type: double
 ///     dimension: 4
 /// ```
-pub const kOfxImageEffectPropRegionOfInterest: &::std::ffi::CStr = c"OfxImageEffectPropRegionOfInterest";
+pub const kOfxImageEffectPropRegionOfInterest: &::std::ffi::CStr =
+    c"OfxImageEffectPropRegionOfInterest";
 /// ```doxygen
 /// @brief The region to be rendered.
 ///
@@ -1704,7 +1753,8 @@ pub const kOfxImageFieldDoubled: &::std::ffi::CStr = c"OfxFieldDoubled";
 ///       - OfxUnlicensedContinue
 ///       - OfxUnlicensedFail
 /// ```
-pub const kOfxImageEffectPropBehaviourWhenUnlicensed: &::std::ffi::CStr = c"OfxImageEffectPropBehaviourWhenUnlicensed";
+pub const kOfxImageEffectPropBehaviourWhenUnlicensed: &::std::ffi::CStr =
+    c"OfxImageEffectPropBehaviourWhenUnlicensed";
 /// ```doxygen
 /// Strings used by \ref kOfxImageEffectPropBehaviourWhenUnlicensed
 /// ```
@@ -1935,9 +1985,8 @@ pub struct OfxImageEffectSuiteV1 {
     /// - ::kOfxStatOK - the image was successfully fetched and returned in the handle,
     /// - ::kOfxStatErrBadHandle - the image handle was invalid,
     /// ```
-    pub clipReleaseImage: ::std::option::Option<
-        unsafe extern "C" fn(imageHandle: OfxPropertySetHandle) -> OfxStatus,
-    >,
+    pub clipReleaseImage:
+        ::std::option::Option<unsafe extern "C" fn(imageHandle: OfxPropertySetHandle) -> OfxStatus>,
     /// ```doxygen
     /// @brief Returns the spatial region of definition of the clip at the given time
     ///
