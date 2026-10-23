@@ -1,4 +1,7 @@
-use std::path::{Path, PathBuf};
+use std::{
+    collections::BTreeSet,
+    path::{Path, PathBuf},
+};
 
 use clap::Parser;
 
@@ -89,7 +92,7 @@ fn make_mod_rs(
         tracing::info!("{input:?}: existing mod.rs is removed.");
     }
 
-    let mut mods: Vec<String> = Vec::new();
+    let mut mods: BTreeSet<String> = BTreeSet::new();
 
     for entry in std::fs::read_dir(input)? {
         let entry = entry?;
@@ -99,7 +102,7 @@ fn make_mod_rs(
                 make_mod_rs(cfg, &path, recursive)?;
             }
             if path.join("mod.rs").exists() {
-                mods.push(
+                mods.insert(
                     path.file_name()
                         .expect("Failed to get folder name.")
                         .to_string_lossy()
@@ -115,7 +118,7 @@ fn make_mod_rs(
                 .expect("Failed to get file stem.")
                 .to_string_lossy()
                 .to_string();
-            mods.push(name);
+            mods.insert(name);
         }
     }
 
@@ -146,7 +149,7 @@ fn make_mod_rs(
     Ok(())
 }
 
-fn remove_ignored_mod_names(mods: &mut Vec<String>, ignore: &[CodegenConfigStringMatcher]) {
+fn remove_ignored_mod_names(mods: &mut BTreeSet<String>, ignore: &[CodegenConfigStringMatcher]) {
     mods.retain(|m| {
         !ignore.iter().any(|pattern| match pattern {
             CodegenConfigStringMatcher::Exact(s) => s == m,
