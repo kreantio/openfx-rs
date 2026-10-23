@@ -157,12 +157,14 @@ pub fn gen_low_plugin_suites(
 
     // suites.rs
     {
-        let mut output = proc_macro2::TokenStream::new();
+        let mut output = quote! {
+            use openfx_internal_macros::low_make_suite_struct;
+        };
 
         for (name, simple_ident) in suite_names.iter().zip(simple_idents.iter()) {
             let full_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
             output.extend(quote! {
-                openfx_internal_macros::low_make_suite_struct!(#simple_ident:#full_ident);
+                low_make_suite_struct!(#simple_ident,#full_ident);
             });
         }
 
@@ -226,7 +228,9 @@ pub fn gen_low_plugin_suites(
 
     // impl_host_for_fetch_suites.rs
     {
-        let mut output = proc_macro2::TokenStream::new();
+        let mut output = quote! {
+            use openfx_internal_macros::low_plugin_impl_host_for_fetch_suite;
+        };
 
         for simple_ident in &simple_idents {
             let special_case = &config.suites.special_cases.get(&simple_ident.to_string());
@@ -235,11 +239,11 @@ pub fn gen_low_plugin_suites(
                 let corrected_cname_ident =
                     syn::Ident::new(corrected_cname, proc_macro2::Span::call_site());
                 output.extend(quote! {
-                    openfx_internal_macros::low_plugin_impl_host_for_fetch_suite!(#simple_ident @ #corrected_cname_ident);
+                    low_plugin_impl_host_for_fetch_suite!(#simple_ident @ #corrected_cname_ident);
                 });
             } else {
                 output.extend(quote! {
-                    openfx_internal_macros::low_plugin_impl_host_for_fetch_suite!(#simple_ident);
+                    low_plugin_impl_host_for_fetch_suite!(#simple_ident);
                 });
             }
         }
@@ -263,7 +267,9 @@ pub fn gen_low_plugin_objects(
 
     // objects.rs
     {
-        let mut output = proc_macro2::TokenStream::new();
+        let mut output = quote! {
+            use openfx_internal_macros::low_make_object_struct;
+        };
 
         for (name, entry) in &mapping {
             if entry.omit {
@@ -272,7 +278,7 @@ pub fn gen_low_plugin_objects(
             let object_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
             let handle_ident = syn::Ident::new(&entry.is, proc_macro2::Span::call_site());
             output.extend(quote! {
-                openfx_internal_macros::low_make_object_struct!(#object_ident:#handle_ident);
+                low_make_object_struct!(#object_ident,#handle_ident);
             });
         }
 

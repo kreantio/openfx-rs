@@ -55,7 +55,7 @@ struct Input {
 impl syn::parse::Parse for Input {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let simple_ident: syn::Ident = input.parse()?;
-        let _: syn::Token![:] = input.parse()?;
+        let _: syn::Token![,] = input.parse()?;
         let full_ident: syn::Ident = input.parse()?;
         Ok(Input {
             simple_ident,
