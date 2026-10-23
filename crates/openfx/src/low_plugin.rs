@@ -124,8 +124,3 @@ impl Host {
         }
     }
 }
-
-include!(concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/src/generated/low_plugin/c_suites/impl_host_for_fetch_suites.rs",
-));

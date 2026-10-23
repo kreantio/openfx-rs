@@ -98,27 +98,31 @@ fn make_mod_rs(
         let entry = entry?;
         if entry.file_type()?.is_dir() {
             let path = entry.path();
+            let mod_name = path
+                .file_name()
+                .expect("Failed to get folder name.")
+                .to_string_lossy()
+                .to_string();
+            if is_ignored_mod_name(&mod_name, &cfg.make_mod_rs.ignore) {
+                continue;
+            }
+
             if recursive {
                 make_mod_rs(cfg, &path, recursive)?;
             }
             if path.join("mod.rs").exists() {
-                mods.insert(
-                    path.file_name()
-                        .expect("Failed to get folder name.")
-                        .to_string_lossy()
-                        .to_string(),
-                );
+                mods.insert(mod_name);
             }
         } else if entry.file_type()?.is_file()
             && entry.path().extension().is_some_and(|ext| ext == "rs")
         {
-            let name = entry
+            let mod_name = entry
                 .path()
                 .file_stem()
                 .expect("Failed to get file stem.")
                 .to_string_lossy()
                 .to_string();
-            mods.insert(name);
+            mods.insert(mod_name);
         }
     }
 
@@ -150,12 +154,14 @@ fn make_mod_rs(
 }
 
 fn remove_ignored_mod_names(mods: &mut BTreeSet<String>, ignore: &[CodegenConfigStringMatcher]) {
-    mods.retain(|m| {
-        !ignore.iter().any(|pattern| match pattern {
-            CodegenConfigStringMatcher::Exact(s) => s == m,
-            CodegenConfigStringMatcher::Regex(re) => re.is_match(m),
-        })
-    });
+    mods.retain(|m| !is_ignored_mod_name(m, ignore));
+}
+
+fn is_ignored_mod_name(name: &str, ignore: &[CodegenConfigStringMatcher]) -> bool {
+    ignore.iter().any(|pattern| match pattern {
+        CodegenConfigStringMatcher::Exact(s) => s == name,
+        CodegenConfigStringMatcher::Regex(re) => re.is_match(name),
+    })
 }
 
 fn is_good_mod_name(name: &str) -> bool {

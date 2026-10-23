@@ -5,9 +5,7 @@
 
 make_mod_rs:
   ignore:
-    - c_objects # TODO!!: remove this.
-    - c_suites # TODO!!: remove this.
-    - checks # TODO!!: make this used.
+    - checks
     # for the default colorspace header, which is included manually when the
     # feature `default-colorspace` is enabled:
     - { regex: "^ofx-.+$" }

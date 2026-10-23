@@ -49,9 +49,11 @@ use crate::{
 mod impl_parameter_suite_methods;
 mod impl_property_suite_property_accessor_methods;
 
+pub use crate::generated::low_plugin::c_suites::suites::*;
+
 include!(concat!(
     env!("CARGO_MANIFEST_DIR"),
-    "/src/generated/low_plugin/c_suites/suites.rs",
+    "/src/generated/low_plugin/c_suites/checks/suites.rs",
 ));
 
 #[openfx_internal_macros::low_impl_suite]

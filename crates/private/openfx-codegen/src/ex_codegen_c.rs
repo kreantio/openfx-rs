@@ -155,14 +155,33 @@ pub fn gen_low_plugin_suites(
         .map(|name| syn::Ident::new(name, proc_macro2::Span::call_site()))
         .collect();
 
-    // low_suites_plugin
+    // suites.rs
     {
         let mut output = proc_macro2::TokenStream::new();
 
         for (name, simple_ident) in suite_names.iter().zip(simple_idents.iter()) {
-            let special_case = &config.suites.special_cases.get(&simple_ident.to_string());
-
             let full_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
+            output.extend(quote! {
+                openfx_internal_macros::low_make_suite_struct!(#simple_ident:#full_ident);
+            });
+        }
+
+        std::fs::write(
+            output_folder.join("suites.rs"),
+            prettyplease::unparse(&syn::parse2(output)?),
+        )?;
+    }
+
+    // checks/suites.rs
+    {
+        let out_folder = output_folder.join("checks");
+        std::fs::create_dir_all(&out_folder)?;
+        let out_path = out_folder.join("suites.rs");
+
+        let mut output = proc_macro2::TokenStream::new();
+
+        for (name, simple_ident) in suite_names.iter().zip(simple_idents.iter()) {
+            let special_case = &config.suites.special_cases.get(&simple_ident.to_string());
 
             let mut fns: Vec<syn::Ident> = vec![];
             for fn_raw_name in &suites[name] {
@@ -188,18 +207,24 @@ pub fn gen_low_plugin_suites(
             }
             fns.sort();
 
+            if fns.is_empty() {
+                continue;
+            }
+
             output.extend(quote! {
-                openfx_internal_macros::low_make_suite_struct!(#simple_ident:#full_ident: #(#fns,)*);
+                const _: () = {
+                    use crate::low_plugin::suites::#simple_ident;
+                    #(
+                        let _ = #simple_ident::#fns;
+                    )*
+                };
             });
         }
 
-        std::fs::write(
-            output_folder.join("suites.rs"),
-            prettyplease::unparse(&syn::parse2(output)?),
-        )?;
+        std::fs::write(out_path, prettyplease::unparse(&syn::parse2(output)?))?;
     }
 
-    // low_plugin_impl_host_for_fetch_suites
+    // impl_host_for_fetch_suites.rs
     {
         let mut output = proc_macro2::TokenStream::new();
 
@@ -230,62 +255,98 @@ pub fn gen_low_plugin_suites(
 
 pub fn gen_low_plugin_objects(
     config: &CodegenConfig,
-    output_file: &Path,
+    output_folder: &Path,
     direct_handle_usages_in_suite_functions: HashMap<String, HashSet<(String, String)>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut output = proc_macro2::TokenStream::new();
-
     let mut mapping = config.objects.mapping.iter().collect::<Vec<_>>();
     mapping.sort_by(|a, b| a.0.cmp(b.0));
 
-    for (name, entry) in mapping {
-        if entry.omit {
-            continue;
-        }
-        let fn_set = direct_handle_usages_in_suite_functions
-            .get(&entry.is)
-            .cloned()
-            .unwrap_or_default();
-        let mut fns: HashSet<String> = HashSet::new();
-        for (_suite_name, fn_name) in &fn_set {
-            if fns.contains(fn_name) {
-                let suite_names = fn_set
-                    .iter()
-                    .filter(|(_, fn_name_in_set)| fn_name_in_set == fn_name)
-                    .map(|(suite_name, _)| suite_name)
-                    .collect::<Vec<_>>();
-                return Err(format!(
-                    "Duplicate function usage found for function `{}` in suites: {:?}",
-                    fn_name, suite_names
-                )
-                .into());
+    // objects.rs
+    {
+        let mut output = proc_macro2::TokenStream::new();
+
+        for (name, entry) in &mapping {
+            if entry.omit {
+                continue;
             }
-            fns.insert(fn_name.clone());
+            let object_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
+            let handle_ident = syn::Ident::new(&entry.is, proc_macro2::Span::call_site());
+            output.extend(quote! {
+                openfx_internal_macros::low_make_object_struct!(#object_ident:#handle_ident);
+            });
         }
-        if let Some(omit_fns) = &entry.omit_functions {
-            fns.retain(|fn_name| !omit_fns.contains(fn_name));
-        }
 
-        let object_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
-
-        let handle_ident = syn::Ident::new(&entry.is, proc_macro2::Span::call_site());
-        let mut fns = fns
-            .iter()
-            .map(|v| {
-                syn::Ident::new(
-                    &v.to_case(convert_case::Case::Snake),
-                    proc_macro2::Span::call_site(),
-                )
-            })
-            .collect::<Vec<_>>();
-        fns.sort();
-
-        output.extend(quote! {
-            openfx_internal_macros::low_make_object_struct!(#object_ident:#handle_ident: #(#fns,)*);
-        });
+        std::fs::write(
+            output_folder.join("objects.rs"),
+            prettyplease::unparse(&syn::parse2(output)?),
+        )?;
     }
 
-    std::fs::write(output_file, prettyplease::unparse(&syn::parse2(output)?))?;
+    // checks/objects.rs
+    {
+        let out_folder = output_folder.join("checks");
+        std::fs::create_dir_all(&out_folder)?;
+        let out_path = out_folder.join("objects.rs");
+
+        let mut output = proc_macro2::TokenStream::new();
+
+        for (name, entry) in &mapping {
+            if entry.omit {
+                continue;
+            }
+            let fn_set = direct_handle_usages_in_suite_functions
+                .get(&entry.is)
+                .cloned()
+                .unwrap_or_default();
+            let mut fns: HashSet<String> = HashSet::new();
+            for (_suite_name, fn_name) in &fn_set {
+                if fns.contains(fn_name) {
+                    let suite_names = fn_set
+                        .iter()
+                        .filter(|(_, fn_name_in_set)| fn_name_in_set == fn_name)
+                        .map(|(suite_name, _)| suite_name)
+                        .collect::<Vec<_>>();
+                    return Err(format!(
+                        "Duplicate function usage found for function `{}` in suites: {:?}",
+                        fn_name, suite_names
+                    )
+                    .into());
+                }
+                fns.insert(fn_name.clone());
+            }
+            if let Some(omit_fns) = &entry.omit_functions {
+                fns.retain(|fn_name| !omit_fns.contains(fn_name));
+            }
+
+            let object_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
+
+            let mut fns = fns
+                .iter()
+                .map(|v| {
+                    syn::Ident::new(
+                        &v.to_case(convert_case::Case::Snake),
+                        proc_macro2::Span::call_site(),
+                    )
+                })
+                .collect::<Vec<_>>();
+            fns.sort();
+
+            if fns.is_empty() {
+                continue;
+            }
+
+            output.extend(quote! {
+                const _: () = {
+                    use crate::low_plugin::objects::#object_ident;
+                    #(
+                        let _ = #object_ident::#fns;
+                    )*
+                };
+            });
+        }
+
+        std::fs::write(out_path, prettyplease::unparse(&syn::parse2(output)?))?;
+    }
 
     Ok(())
 }

@@ -41,7 +41,7 @@ pub fn plugin_impl_host_for_fetch_suite(tokens: TokenStream) -> TokenStream {
     };
 
     quote! {
-        impl Host {
+        impl crate::low_plugin::Host {
             pub unsafe fn #fn_ident(&self) -> Option<crate::low_plugin::suites::#simple_ident> {
                 let sys_suite = self.sys_fetch_suite(crate::sys_umbrella::#k_ident, #version_number);
                 crate::low_plugin::suites::#simple_ident::try_from(sys_suite)

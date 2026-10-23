@@ -13,10 +13,7 @@ pub fn make_suite_struct(tokens: TokenStream) -> TokenStream {
     let Input {
         simple_ident,
         full_ident,
-        fns,
     } = syn::parse_macro_input!(tokens as Input);
-
-    let fns: Vec<_> = fns.into_iter().collect();
 
     quote! {
         /// ## Safety
@@ -46,12 +43,6 @@ pub fn make_suite_struct(tokens: TokenStream) -> TokenStream {
                 value.sys_ptr()
             }
         }
-
-        const _: () = {
-            #(
-                let _ = #simple_ident::#fns;
-            )*
-        };
     }
     .into()
 }
@@ -59,7 +50,6 @@ pub fn make_suite_struct(tokens: TokenStream) -> TokenStream {
 struct Input {
     simple_ident: syn::Ident,
     full_ident: syn::Ident,
-    fns: syn::punctuated::Punctuated<syn::Ident, syn::Token![,]>,
 }
 
 impl syn::parse::Parse for Input {
@@ -67,13 +57,9 @@ impl syn::parse::Parse for Input {
         let simple_ident: syn::Ident = input.parse()?;
         let _: syn::Token![:] = input.parse()?;
         let full_ident: syn::Ident = input.parse()?;
-        let _: syn::Token![:] = input.parse()?;
-        let fns: syn::punctuated::Punctuated<syn::Ident, syn::Token![,]> =
-            input.parse_terminated(syn::Ident::parse, syn::Token![,])?;
         Ok(Input {
             simple_ident,
             full_ident,
-            fns,
         })
     }
 }

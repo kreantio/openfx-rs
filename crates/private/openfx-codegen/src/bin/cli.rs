@@ -52,7 +52,8 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
         openfx_codegen::ex_codegen_c::gen_low_plugin_suites(&codegen_config, &p, info.suites)?;
     }
     {
-        let p = args.output_code_low_plugin.join("c_objects.rs");
+        let p = args.output_code_low_plugin.join("c_objects");
+        std::fs::create_dir_all(&p)?;
         openfx_codegen::ex_codegen_c::gen_low_plugin_objects(
             &codegen_config,
             &p,
