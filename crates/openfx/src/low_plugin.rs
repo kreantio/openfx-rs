@@ -5,10 +5,7 @@ use crate::{
 };
 
 pub mod actions {
-    include!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/src/generated/low_plugin/meta_actions.rs",
-    ));
+    pub use crate::generated::low_plugin::meta_actions::*;
 }
 
 pub mod objects;

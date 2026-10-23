@@ -942,6 +942,11 @@ name = "xtask"
 version = "0.6.0"
 dependencies = [
  "clap",
+ "regex",
+ "serde",
+ "serde-saphyr",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]

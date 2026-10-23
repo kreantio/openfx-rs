@@ -1,9 +1,6 @@
 use crate::sys_umbrella::{OfxStatus, kOfxStatOK};
 
-include!(concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/src/generated/low/c_statuses.rs",
-));
+pub use crate::generated::low::c_statuses::*;
 
 pub type Result<T> = std::result::Result<T, Status>;
 
@@ -18,15 +15,7 @@ impl Status {
 }
 
 pub mod enums {
-    #![allow(non_camel_case_types)]
 
-    include!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/src/generated/low/meta_enums.rs",
-    ));
-
-    include!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/src/generated/low/c_enums.rs",
-    ));
+    pub use crate::generated::low::c_enums::*;
+    pub use crate::generated::low::meta_enums::*;
 }

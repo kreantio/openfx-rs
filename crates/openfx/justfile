@@ -7,6 +7,9 @@ generated-code-low-plugin-path := "src/generated/low_plugin"
 codegen-config-path := "codegen-config.yaml"
 
 generate-all: generate-bindings generate-code
+    rm -f src/generated/mod.rs
+    cargo xtask --codegen-config "{{ codegen-config-path }}" \
+      make-mod-rs src/generated --recursive
 
 generate-bindings:
     rm -rf "{{ generated-c-bindings-path }}"

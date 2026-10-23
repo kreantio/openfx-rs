@@ -3,10 +3,7 @@ use std::{
     ptr::NonNull,
 };
 
-include!(concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/src/generated/low_plugin/meta_property_sets.rs",
-));
+pub use crate::generated::low_plugin::meta_property_sets::*;
 
 pub trait KnownEnumProperty: Sized + Clone + Copy + PartialEq + Eq {
     /// ## Safety
