@@ -5,7 +5,7 @@ use std::{
 
 use openfx::{
     low::{
-        Status,
+        Okish, OutboundResult, StatusError, StatusReply,
         enums::{
             ImageEffectPropContext, ImageEffectPropSupportedComponents,
             ImageEffectPropSupportedContexts,
@@ -45,7 +45,7 @@ impl Plugin for PluginExampleBasic {
         lock.replace(GuaranteeSend(host));
     }
 
-    fn main_entry(action: ImageEffectAction) -> openfx::low::Result<()> {
+    fn main_entry(action: ImageEffectAction) -> OutboundResult<()> {
         match action {
             ImageEffectAction::Load { .. } => action_load(),
             ImageEffectAction::Unload { .. } => action_unload(),
@@ -56,46 +56,47 @@ impl Plugin for PluginExampleBasic {
             ImageEffectAction::CreateInstance { handle, .. } => action_create_instance(handle),
             ImageEffectAction::DestroyInstance { handle, .. } => action_destroy_instance(handle),
             ImageEffectAction::IsIdentity { out_args, .. } => action_is_identity(out_args),
-            _ => Err(Status::ReplyDefault),
+            _ => Ok(StatusReply::ReplyDefault.into()),
         }
     }
 }
 
-fn action_load() -> openfx::low::Result<()> {
+fn action_load() -> OutboundResult<()> {
     let host = HOST_BEFORE_ACTION_LOAD
         .lock()
-        .map_err(|_| Status::Failed)?
+        .map_err(|_| StatusError::Failed)?
         .take()
-        .ok_or(Status::Failed)?;
+        .ok_or(StatusError::Failed)?;
 
-    let mut data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
+    let mut data = SHARED_DATA.lock().map_err(|_| StatusError::Failed)?;
     if data.is_some() {
-        Err(Status::Failed)
+        Err(StatusError::Failed.into())
     } else {
         *data = Some(SharedData::try_new(host)?);
-        Ok(())
+        Okish::result_ok(())
     }
 }
 
-fn action_unload() -> openfx::low::Result<()> {
-    let mut shared_data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
+fn action_unload() -> OutboundResult<()> {
+    let mut shared_data = SHARED_DATA.lock().map_err(|_| StatusError::Failed)?;
     if shared_data.take().is_none() {
-        Err(Status::Failed)
+        Err(StatusError::Failed.into())
     } else {
-        Ok(())
+        Okish::result_ok(())
     }
 }
 
-fn action_describe(descriptor: ImageEffectDescriptor) -> openfx::low::Result<()> {
+fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult<()> {
     let data = {
-        let data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
-        let data = data.as_ref().ok_or(Status::Failed)?;
+        let data = SHARED_DATA.lock().map_err(|_| StatusError::Failed)?;
+        let data = data.as_ref().ok_or(StatusError::Failed)?;
         data.clone()
     };
 
     let s_prop = &data.property_suite.0;
 
-    let props = unsafe { descriptor.get_property_set(&data.image_effect_suite.0) }?;
+    let props = unsafe { descriptor.get_property_set(&data.image_effect_suite.0) }?
+        .ok_or(StatusError::Failed)?;
 
     unsafe {
         props.set_label(s_prop, Some(PLUGIN_1_BASICS_LABEL))?;
@@ -106,28 +107,29 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> openfx::low::Result<()>
         )?;
     }
 
-    Ok(())
+    Okish::result_ok(())
 }
 
 fn action_describe_in_context(
     descriptor: ImageEffectDescriptor,
     in_args: ActionDescribeInContextIn,
-) -> openfx::low::Result<()> {
+) -> OutboundResult<()> {
     let data = {
-        let data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
-        let data = data.as_ref().ok_or(Status::Failed)?;
+        let data = SHARED_DATA.lock().map_err(|_| StatusError::Failed)?;
+        let data = data.as_ref().ok_or(StatusError::Failed)?;
         data.clone()
     };
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
 
-    let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
+    let context =
+        unsafe { in_args.get_image_effect_context(s_prop) }?.ok_or(StatusError::Failed)?;
     if context != ImageEffectPropContext::Filter {
-        return Err(Status::ErrUnsupported);
+        return Err(StatusError::ErrUnsupported.into());
     }
 
-    let props = unsafe { descriptor.clip_define(s_ifx, c"Output") }?;
+    let props = unsafe { descriptor.clip_define(s_ifx, c"Output") }?.ok_or(StatusError::Failed)?;
     (unsafe {
         props.set_image_effect_supported_components(
             s_prop,
@@ -138,7 +140,7 @@ fn action_describe_in_context(
         )
     })?;
 
-    let props = unsafe { descriptor.clip_define(s_ifx, c"Source") }?;
+    let props = unsafe { descriptor.clip_define(s_ifx, c"Source") }?.ok_or(StatusError::Failed)?;
     (unsafe {
         props.set_image_effect_supported_components(
             s_prop,
@@ -149,20 +151,20 @@ fn action_describe_in_context(
         )
     })?;
 
-    Ok(())
+    Okish::result_ok(())
 }
 
-fn action_create_instance(instance: ImageEffectInstance) -> openfx::low::Result<()> {
+fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult<()> {
     let data = {
-        let data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
-        let data = data.as_ref().ok_or(Status::Failed)?;
+        let data = SHARED_DATA.lock().map_err(|_| StatusError::Failed)?;
+        let data = data.as_ref().ok_or(StatusError::Failed)?;
         data.clone()
     };
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
 
-    let props = unsafe { instance.get_property_set(s_ifx) }?;
+    let props = unsafe { instance.get_property_set(s_ifx) }?.ok_or(StatusError::Failed)?;
 
     let my_string = Box::new(String::from(
         "This is random instance data that could be anything you want.",
@@ -175,40 +177,41 @@ fn action_create_instance(instance: ImageEffectInstance) -> openfx::low::Result<
             std::ptr::NonNull::new(my_string.cast::<c_void>()),
         )
     } {
-        Ok(()) => (),
+        Ok(_) => (),
         Err(e) => {
             drop(unsafe { Box::from_raw(my_string.cast::<String>()) });
-            return Err(e);
+            return Err(e.into());
         }
     };
 
-    Ok(())
+    Okish::result_ok(())
 }
 
-fn action_destroy_instance(instance: ImageEffectInstance) -> openfx::low::Result<()> {
+fn action_destroy_instance(instance: ImageEffectInstance) -> OutboundResult<()> {
     let data = {
-        let data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
-        let data = data.as_ref().ok_or(Status::Failed)?;
+        let data = SHARED_DATA.lock().map_err(|_| StatusError::Failed)?;
+        let data = data.as_ref().ok_or(StatusError::Failed)?;
         data.clone()
     };
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
 
-    let props = unsafe { instance.get_property_set(s_ifx) }?;
+    let props = unsafe { instance.get_property_set(s_ifx) }?.ok_or(StatusError::Failed)?;
 
-    let my_string =
-        unsafe { props.get_instance_data(s_prop) }?.expect("Instance data should not be null");
+    let my_string = unsafe { props.get_instance_data(s_prop) }?
+        .ok_or(StatusError::Failed)?
+        .expect("Instance data should not be null");
 
     drop(unsafe { Box::from_raw(my_string.as_ptr().cast::<String>()) });
 
-    Ok(())
+    Okish::result_ok(())
 }
 
-fn action_is_identity(out_args: ActionIsIdentityOut) -> openfx::low::Result<()> {
+fn action_is_identity(out_args: ActionIsIdentityOut) -> OutboundResult<()> {
     let data = {
-        let data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
-        let data = data.as_ref().ok_or(Status::Failed)?;
+        let data = SHARED_DATA.lock().map_err(|_| StatusError::Failed)?;
+        let data = data.as_ref().ok_or(StatusError::Failed)?;
         data.clone()
     };
 
@@ -216,5 +219,5 @@ fn action_is_identity(out_args: ActionIsIdentityOut) -> openfx::low::Result<()> 
 
     (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })?;
 
-    Ok(())
+    Okish::result_ok(())
 }

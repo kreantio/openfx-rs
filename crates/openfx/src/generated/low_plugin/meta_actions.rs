@@ -3,7 +3,7 @@ pub mod pseudo {
         *const std::ffi::c_void,
         in_args: CustomParamInterpFuncIn,
         out_args: CustomParamInterpFuncOut,
-    ) -> crate::low::Result<()>;
+    ) -> crate::low::OutboundResult<()>;
     #[openfx_internal_macros::low_make_property_set_structs]
     mod __ {
         # [propset (write = host)]

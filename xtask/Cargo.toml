@@ -6,6 +6,8 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+openfx-codegen-config.workspace = true
+
 clap = { workspace = true, features = ["derive"] }
 regex.workspace = true
 serde = { workspace = true, features = ["derive"] }

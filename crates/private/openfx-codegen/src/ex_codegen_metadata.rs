@@ -7,12 +7,13 @@ use std::{
 use convert_case::Casing;
 use quote::quote;
 
+use openfx_codegen_config::CodegenConfig;
 use openfx_datagen::metadata_extracting::{
     ActiondefMetadataEntry, PropdefDimension, PropdefType, PropdefTypeSimple, StringEnumVariant,
     WriteSide,
 };
 
-use crate::{config::CodegenConfig, input_metadata::InputMetadata, utils::strip_common_prefix};
+use crate::{input_metadata::InputMetadata, utils::strip_common_prefix};
 
 pub fn gen_low_enums_from_metadata(
     output_file: &Path,
@@ -144,7 +145,7 @@ pub fn gen_low_plugin_actions(
             }
 
             output_inner_pseudo.extend(quote! {
-                pub type #action_simple_name_ident = fn(#(#params),*) -> crate::low::Result<()>;
+                pub type #action_simple_name_ident = fn(#(#params),*) -> crate::low::OutboundResult<()>;
             });
             output_inner_pseudo.extend(property_set_structs);
         } else if let Some(action_simple_name) =

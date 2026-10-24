@@ -1,6 +1,8 @@
 use std::ffi::c_int;
 
-use openfx::{low::Status, low_plugin::objects::ImageEffectInstance, sys::generic::core::OfxRectI};
+use openfx::{
+    low::StatusError, low_plugin::objects::ImageEffectInstance, sys::generic::core::OfxRectI,
+};
 
 use crate::helpers::shared_data::{ClipImageManaged, SharedData};
 
@@ -16,7 +18,7 @@ pub fn pixel_processing<T>(
     source_img: ClipImageManaged,
     output_img: ClipImageManaged,
     render_window: OfxRectI,
-) -> openfx::low::Result<()>
+) -> Result<(), StatusError>
 where
     T: Copy + Default,
 {
@@ -52,7 +54,7 @@ where
             dst_row_bytes,
             n_comps,
         ) else {
-            return Err(Status::Failed);
+            return Err(StatusError::Failed);
         };
         let mut dst_pix = dst_pix;
 
