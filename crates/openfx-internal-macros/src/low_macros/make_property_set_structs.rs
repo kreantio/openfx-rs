@@ -183,7 +183,7 @@ fn make_property_setter(
         output.extend(
             quote! {
                 #doc
-                pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1, value: #expressive_container_ty) -> crate::low::Result<()> {
+                pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1, value: #expressive_container_ty) -> crate::low::InboundResult<()> {
                     let value_simple = #expressive_value_to_simple_quote;
                     suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, value_simple)
                 }
@@ -259,42 +259,45 @@ fn make_property_getter(
             InputContainerType::Scalar(_) => output.extend(
                 quote! {
                     #doc
-                    pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<#expressive_ty> {
-                        let value_simple = suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname)?;
-                        let value = #simple_value_to_expressive_quote;
-                        Ok(value)
+                    pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::InboundResult<#expressive_ty> {
+                        let value_simple_okish = suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname)?;
+                        Ok(value_simple_okish.map_ok(|value_simple| #simple_value_to_expressive_quote))
                     }
                 },
             ),
             InputContainerType::Array(_, size) if is_conversion_unnecessary => output.extend(
                 quote! {
                     #doc
-                    pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#expressive_ty; #size]> {
-                        let value = suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)?;
-                        Ok(value)
+                    pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::InboundResult<[#expressive_ty; #size]> {
+                        suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)
                     }
                 }
             ),
             InputContainerType::Array(_, size) => output.extend(
                 quote! {
                     #doc
-                    pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<[#expressive_ty; #size]> {
-                        let value_simple = suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)?;
-                        let value = #simple_value_to_expressive_quote;
-                        Ok(value)
+                    pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::InboundResult<[#expressive_ty; #size]> {
+                        let value_simple_okish = suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)?;
+                        Ok(value_simple_okish.map_ok(|value_simple| #simple_value_to_expressive_quote))
                     }
                 },
             ),
             InputContainerType::Slice(_) => output.extend(
                 quote! {
                     #doc
-                    pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<::std::vec::Vec<#expressive_ty>> {
-                        let dimensions = suite.prop_get_dimension(self.sys_handle(), crate::sys_umbrella::#cname)? as usize;
+                    pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::InboundResult<::std::vec::Vec<#expressive_ty>> {
+                        let dimensions_okish = suite.prop_get_dimension(self.sys_handle(), crate::sys_umbrella::#cname)?;
+                        let dimensions = match dimensions_okish.ok_into_result() {
+                            Ok(dimensions) => dimensions,
+                            Err(okish) => return Ok(okish.into_other()),
+                        };
+                        let dimensions = dimensions as usize;
+
                         let mut value_simple = ::std::vec::Vec::with_capacity(dimensions);
                         unsafe { value_simple.set_len(dimensions); }
                         suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, &mut value_simple)?;
                         let value = #simple_value_to_expressive_quote;
-                        Ok(value)
+                        Ok(crate::low::Okish::Ok(value))
                     }
                 },
             ),
@@ -322,7 +325,7 @@ fn make_property_resetter(
             /// - `self.0` must be a valid handle of
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
             /// - `suite` must be valid.
-            pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<()> {
+            pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::InboundResult<()> {
                 unsafe {
                     suite.prop_reset(self.sys_handle(), crate::sys_umbrella::#cname)
                 }
@@ -351,7 +354,7 @@ fn make_property_dimensions_getter(
             /// - `self.0` must be a valid handle of
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
             /// - `suite` must be valid.
-            pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::Result<::std::os::raw::c_int> {
+            pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::InboundResult<::std::os::raw::c_int> {
                 unsafe {
                     suite.prop_get_dimension(self.sys_handle(), crate::sys_umbrella::#cname)
                 }

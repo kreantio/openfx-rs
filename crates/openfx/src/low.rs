@@ -1,3 +1,5 @@
+use std::convert::Infallible;
+
 use crate::sys_umbrella::{OfxStatus, kOfxStatOK};
 
 pub use crate::generated::low::c_statuses::*;
@@ -113,6 +115,28 @@ impl<T> Okish<T> {
     {
         match self {
             Okish::Ok(value) => Okish::Ok(f(value)),
+            Okish::Reply(reply) => Okish::Reply(reply),
+            Okish::UnknownOrCustomDontMatchAgainstThisDirectly(sys_status) => {
+                Okish::UnknownOrCustomDontMatchAgainstThisDirectly(sys_status)
+            }
+        }
+    }
+
+    pub fn ok_into_result(self) -> Result<T, Okish<Infallible>> {
+        match self {
+            Okish::Ok(value) => Ok(value),
+            Okish::Reply(status_reply) => Err(Okish::Reply(status_reply)),
+            Okish::UnknownOrCustomDontMatchAgainstThisDirectly(sys_status) => Err(
+                Okish::UnknownOrCustomDontMatchAgainstThisDirectly(sys_status),
+            ),
+        }
+    }
+}
+
+impl Okish<Infallible> {
+    pub fn into_other<T>(self) -> Okish<T> {
+        match self {
+            Okish::Ok(value) => match value {},
             Okish::Reply(reply) => Okish::Reply(reply),
             Okish::UnknownOrCustomDontMatchAgainstThisDirectly(sys_status) => {
                 Okish::UnknownOrCustomDontMatchAgainstThisDirectly(sys_status)
