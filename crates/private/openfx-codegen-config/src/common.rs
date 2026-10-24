@@ -17,9 +17,11 @@ impl<'de> serde::Deserialize<'de> for CodegenConfigStringMatcher {
         let one_of = OneOf::deserialize(deserializer)?;
         Ok(match one_of {
             OneOf::Exact(s) => CodegenConfigStringMatcher::Exact(s),
-            OneOf::Regex { regex } => CodegenConfigStringMatcher::Regex(
-                regex::Regex::new(&regex).map_err(serde::de::Error::custom)?,
-            ),
+            OneOf::Regex { regex } => {
+                CodegenConfigStringMatcher::Regex(regex::Regex::new(&regex).map_err(|e| {
+                    serde::de::Error::custom(format!("Invalid regex `{regex}`: {e}"))
+                })?)
+            }
         })
     }
 }

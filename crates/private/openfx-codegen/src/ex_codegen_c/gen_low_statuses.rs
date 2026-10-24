@@ -17,7 +17,14 @@ pub fn gen_low_statuses(
             let main_ident = syn::Ident::new(main, proc_macro2::Span::call_site());
             non_main_ones.extend(
                 rest.iter()
-                    .map(|x| x.strip_prefix("kOfxStat").unwrap().to_owned()),
+                    .map(|x| {
+                        x.strip_prefix("kOfxStat")
+                            .map(ToString::to_string)
+                            .ok_or_else(|| {
+                                format!("Expected the status `{x}` to start with `kOfxStat`!")
+                            })
+                    })
+                    .collect::<Result<Vec<String>, _>>()?,
             );
             for non_main in rest {
                 let non_main_ident = syn::Ident::new(non_main, proc_macro2::Span::call_site());
@@ -36,7 +43,7 @@ pub fn gen_low_statuses(
 
     let statuses_ok: Vec<_> = statuses.extract_if(.., |status| status == "OK").collect();
     if statuses_ok.is_empty() {
-        return Err("Where has the status `kOfxStatOK` gone???".into());
+        return Err("Expected the status `kOfxStatOK` to be present.".into());
     }
 
     {

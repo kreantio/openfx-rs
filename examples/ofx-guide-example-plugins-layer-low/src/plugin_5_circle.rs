@@ -481,7 +481,7 @@ fn action_is_identity(
     let Some(my_data_ptr) =
         unsafe { instance_props.get_instance_data(s_prop) }?.ok_or(StatusError::Failed)?
     else {
-        return Ok(StatusReply::ReplyDefault.into());
+        return Err(StatusError::Failed.into());
     };
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
