@@ -134,28 +134,40 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult<()> {
     let props = unsafe { descriptor.get_property_set(s_ifx) }?.ok_or(StatusError::Failed)?;
 
     unsafe {
-        props.set_label(s_prop, Some(PLUGIN_4_SATURATION_LABEL))?;
-        props.set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?;
-        props.set_image_effect_supported_contexts(
-            s_prop,
-            &[
-                ImageEffectPropSupportedContexts::Filter.into(),
-                ImageEffectPropSupportedContexts::General.into(),
-            ],
-        )?;
-        props.set_image_effect_supported_pixel_depths(
-            s_prop,
-            &[
-                ImageEffectPropSupportedPixelDepths::Byte.into(),
-                ImageEffectPropSupportedPixelDepths::Short.into(),
-                ImageEffectPropSupportedPixelDepths::Float.into(),
-            ],
-        )?;
-        props.set_image_effect_plugin_render_thread_safety(
-            s_prop,
-            ImageEffectPluginRenderThreadSafety::FullySafe.into(),
-        )?;
-        props.set_image_effect_plugin_host_frame_threading(s_prop, true)?;
+        props
+            .set_label(s_prop, Some(PLUGIN_4_SATURATION_LABEL))?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_supported_contexts(
+                s_prop,
+                &[
+                    ImageEffectPropSupportedContexts::Filter.into(),
+                    ImageEffectPropSupportedContexts::General.into(),
+                ],
+            )?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_supported_pixel_depths(
+                s_prop,
+                &[
+                    ImageEffectPropSupportedPixelDepths::Byte.into(),
+                    ImageEffectPropSupportedPixelDepths::Short.into(),
+                    ImageEffectPropSupportedPixelDepths::Float.into(),
+                ],
+            )?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_plugin_render_thread_safety(
+                s_prop,
+                ImageEffectPluginRenderThreadSafety::FullySafe.into(),
+            )?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_plugin_host_frame_threading(s_prop, true)?
+            .ok_or(StatusError::Failed)?;
     }
 
     Okish::result_ok(())
@@ -188,19 +200,26 @@ fn action_describe_in_context(
                     ImageEffectPropSupportedComponents::RGB.into(),
                 ],
             )
-        })?;
+        })?
+        .ok_or(StatusError::Failed)?;
     }
     if context == ImageEffectPropContext::General {
         let props =
             unsafe { descriptor.clip_define(s_ifx, c"Mask") }?.ok_or(StatusError::Failed)?;
 
         unsafe {
-            props.set_image_effect_supported_components(
-                s_prop,
-                &[ImageEffectPropSupportedComponents::Alpha.into()],
-            )?;
-            props.set_image_clip_optional(s_prop, true)?;
-            props.set_image_clip_is_mask(s_prop, true)?;
+            props
+                .set_image_effect_supported_components(
+                    s_prop,
+                    &[ImageEffectPropSupportedComponents::Alpha.into()],
+                )?
+                .ok_or(StatusError::Failed)?;
+            props
+                .set_image_clip_optional(s_prop, true)?
+                .ok_or(StatusError::Failed)?;
+            props
+                .set_image_clip_is_mask(s_prop, true)?
+                .ok_or(StatusError::Failed)?;
         }
     }
 
@@ -213,12 +232,24 @@ fn action_describe_in_context(
         let param_props = ParamsDouble1DPropertySet::from(param_props);
 
         unsafe {
-            param_props.set_param_double_type(s_prop, ParamPropDoubleType::Scale.into())?;
-            param_props.set_param_default_double(s_prop, &[1.0])?;
-            param_props.set_param_display_min_double(s_prop, &[-2.0])?;
-            param_props.set_param_display_max_double(s_prop, &[2.0])?;
-            param_props.set_label(s_prop, Some(c"Saturation"))?;
-            param_props.set_param_hint(s_prop, Some(c"How saturated the image should be."))?;
+            param_props
+                .set_param_double_type(s_prop, ParamPropDoubleType::Scale.into())?
+                .ok_or(StatusError::Failed)?;
+            param_props
+                .set_param_default_double(s_prop, &[1.0])?
+                .ok_or(StatusError::Failed)?;
+            param_props
+                .set_param_display_min_double(s_prop, &[-2.0])?
+                .ok_or(StatusError::Failed)?;
+            param_props
+                .set_param_display_max_double(s_prop, &[2.0])?
+                .ok_or(StatusError::Failed)?;
+            param_props
+                .set_label(s_prop, Some(c"Saturation"))?
+                .ok_or(StatusError::Failed)?;
+            param_props
+                .set_param_hint(s_prop, Some(c"How saturated the image should be."))?
+                .ok_or(StatusError::Failed)?;
         }
     }
 
@@ -325,7 +356,8 @@ fn action_is_identity(
     param_get_value_at_time!(s_param, my_data.saturation_param, time, &mut saturation);
 
     if (saturation - 1.0).abs() < 0.000000001 {
-        (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })?;
+        (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })?
+            .ok_or(StatusError::Failed)?;
         Okish::result_ok(())
     } else {
         Ok(StatusReply::ReplyDefault.into())

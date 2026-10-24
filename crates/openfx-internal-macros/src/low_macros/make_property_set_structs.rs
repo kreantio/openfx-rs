@@ -295,9 +295,8 @@ fn make_property_getter(
 
                         let mut value_simple = ::std::vec::Vec::with_capacity(dimensions);
                         unsafe { value_simple.set_len(dimensions); }
-                        suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, &mut value_simple)?;
-                        let value = #simple_value_to_expressive_quote;
-                        Ok(crate::low::Okish::Ok(value))
+                        Ok(suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, &mut value_simple)?
+                        .map_ok(|()| #simple_value_to_expressive_quote))
                     }
                 },
             ),

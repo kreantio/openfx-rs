@@ -181,25 +181,37 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult<()> {
     let props = unsafe { descriptor.get_property_set(s_ifx) }?.ok_or(StatusError::Failed)?;
 
     unsafe {
-        props.set_label(s_prop, Some(PLUGIN_5_CIRCLE_LABEL))?;
-        props.set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?;
-        props.set_image_effect_supported_contexts(
-            s_prop,
-            &[ImageEffectPropSupportedContexts::Filter.into()],
-        )?;
-        props.set_image_effect_supported_pixel_depths(
-            s_prop,
-            &[
-                ImageEffectPropSupportedPixelDepths::Float.into(),
-                ImageEffectPropSupportedPixelDepths::Short.into(),
-                ImageEffectPropSupportedPixelDepths::Byte.into(),
-            ],
-        )?;
-        props.set_image_effect_plugin_render_thread_safety(
-            s_prop,
-            ImageEffectPluginRenderThreadSafety::FullySafe.into(),
-        )?;
-        props.set_image_effect_plugin_host_frame_threading(s_prop, true)?;
+        props
+            .set_label(s_prop, Some(PLUGIN_5_CIRCLE_LABEL))?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_supported_contexts(
+                s_prop,
+                &[ImageEffectPropSupportedContexts::Filter.into()],
+            )?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_supported_pixel_depths(
+                s_prop,
+                &[
+                    ImageEffectPropSupportedPixelDepths::Float.into(),
+                    ImageEffectPropSupportedPixelDepths::Short.into(),
+                    ImageEffectPropSupportedPixelDepths::Byte.into(),
+                ],
+            )?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_plugin_render_thread_safety(
+                s_prop,
+                ImageEffectPluginRenderThreadSafety::FullySafe.into(),
+            )?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_plugin_host_frame_threading(s_prop, true)?
+            .ok_or(StatusError::Failed)?;
     }
 
     Okish::result_ok(())
@@ -233,7 +245,8 @@ fn action_describe_in_context(
                     ImageEffectPropSupportedComponents::RGB.into(),
                 ],
             )
-        })?;
+        })?
+        .ok_or(StatusError::Failed)?;
     }
 
     let param_set = unsafe { descriptor.get_param_set(s_ifx) }?.ok_or(StatusError::Failed)?;
@@ -246,7 +259,9 @@ fn action_describe_in_context(
         let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
 
         unsafe {
-            param_props_d.set_param_double_type(s_prop, ParamPropDoubleType::X.into())?;
+            param_props_d
+                .set_param_double_type(s_prop, ParamPropDoubleType::X.into())?
+                .ok_or(StatusError::Failed)?;
             // Not supported by DaVinci Resolve. To make the plugin work there,
             // we ignore the return value here. TODO: Calculate the default value
             // in canonical coordinate if this fails.
@@ -256,12 +271,24 @@ fn action_describe_in_context(
                     ParamPropDefaultCoordinateSystem::Normalised.into(),
                 )
                 .ok();
-            param_props_d.set_param_default_double(s_prop, &[0.25])?;
-            param_props_d.set_param_min_double(s_prop, &[0.0])?;
-            param_props_d.set_param_display_min_double(s_prop, &[0.0])?;
-            param_props_d.set_param_display_max_double(s_prop, &[2.0])?;
-            param_props_d.set_label(s_prop, Some(c"Radius"))?;
-            param_props_d.set_param_hint(s_prop, Some(c"The radius of the circle."))?;
+            param_props_d
+                .set_param_default_double(s_prop, &[0.25])?
+                .ok_or(StatusError::Failed)?;
+            param_props_d
+                .set_param_min_double(s_prop, &[0.0])?
+                .ok_or(StatusError::Failed)?;
+            param_props_d
+                .set_param_display_min_double(s_prop, &[0.0])?
+                .ok_or(StatusError::Failed)?;
+            param_props_d
+                .set_param_display_max_double(s_prop, &[2.0])?
+                .ok_or(StatusError::Failed)?;
+            param_props_d
+                .set_label(s_prop, Some(c"Radius"))?
+                .ok_or(StatusError::Failed)?;
+            param_props_d
+                .set_param_hint(s_prop, Some(c"The radius of the circle."))?
+                .ok_or(StatusError::Failed)?;
         }
     }
 
@@ -273,16 +300,24 @@ fn action_describe_in_context(
         let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
 
         unsafe {
-            param_props_d.set_param_double_type(s_prop, ParamPropDoubleType::XYAbsolute.into())?;
+            param_props_d
+                .set_param_double_type(s_prop, ParamPropDoubleType::XYAbsolute.into())?
+                .ok_or(StatusError::Failed)?;
             param_props_ns
                 .set_param_default_coordinate_system(
                     s_prop,
                     ParamPropDefaultCoordinateSystem::Normalised.into(),
                 )
                 .ok();
-            param_props_d.set_param_default_double(s_prop, &[0.5, 0.5])?;
-            param_props_d.set_label(s_prop, Some(c"Centre"))?;
-            param_props_d.set_param_hint(s_prop, Some(c"The centre of the circle."))?;
+            param_props_d
+                .set_param_default_double(s_prop, &[0.5, 0.5])?
+                .ok_or(StatusError::Failed)?;
+            param_props_d
+                .set_label(s_prop, Some(c"Centre"))?
+                .ok_or(StatusError::Failed)?;
+            param_props_d
+                .set_param_hint(s_prop, Some(c"The centre of the circle."))?
+                .ok_or(StatusError::Failed)?;
         }
     }
 
@@ -293,9 +328,15 @@ fn action_describe_in_context(
         let param_props_d = ParamsDouble2D3DPropertySet::from(param_props);
 
         unsafe {
-            param_props_d.set_param_default_double(s_prop, &[1.0, 1.0, 1.0, 0.5])?;
-            param_props_d.set_label(s_prop, Some(c"Colour"))?;
-            param_props_d.set_param_hint(s_prop, Some(c"The colour of the circle."))?;
+            param_props_d
+                .set_param_default_double(s_prop, &[1.0, 1.0, 1.0, 0.5])?
+                .ok_or(StatusError::Failed)?;
+            param_props_d
+                .set_label(s_prop, Some(c"Colour"))?
+                .ok_or(StatusError::Failed)?;
+            param_props_d
+                .set_param_hint(s_prop, Some(c"The colour of the circle."))?
+                .ok_or(StatusError::Failed)?;
         }
     }
 
@@ -306,12 +347,20 @@ fn action_describe_in_context(
         let param_props = ParamsBytePropertySet::from(param_props);
 
         unsafe {
-            param_props.set_param_default_int(s_prop, &[0])?;
-            param_props.set_label(s_prop, Some(c"Grow RoD"))?;
-            param_props.set_param_hint(
-                s_prop,
-                Some(c"Whether to grow the output's Region of Definition to include the circle."),
-            )?;
+            param_props
+                .set_param_default_int(s_prop, &[0])?
+                .ok_or(StatusError::Failed)?;
+            param_props
+                .set_label(s_prop, Some(c"Grow RoD"))?
+                .ok_or(StatusError::Failed)?;
+            param_props
+                .set_param_hint(
+                    s_prop,
+                    Some(
+                        c"Whether to grow the output's Region of Definition to include the circle.",
+                    ),
+                )?
+                .ok_or(StatusError::Failed)?;
         }
     }
 
@@ -458,7 +507,8 @@ fn action_get_region_of_definition(
     rod.x2 = f64::max(rod.x2, centre_x + radius);
     rod.y2 = f64::max(rod.y2, centre_y + radius);
 
-    unsafe { out_args.set_image_effect_region_of_definition(s_prop, rect_d_to_array(&rod)) }?;
+    unsafe { out_args.set_image_effect_region_of_definition(s_prop, rect_d_to_array(&rod)) }?
+        .ok_or(StatusError::Failed)?;
 
     Okish::result_ok(())
 }
@@ -527,7 +577,8 @@ fn action_is_identity(
     };
 
     if is_identity {
-        (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })?;
+        (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })?
+            .ok_or(StatusError::Failed)?;
         Okish::result_ok(())
     } else {
         Ok(StatusReply::ReplyDefault.into())

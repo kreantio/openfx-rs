@@ -102,25 +102,37 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult<()> {
         .ok_or(StatusError::Failed)?;
 
     unsafe {
-        props.set_label(s_prop, Some(PLUGIN_2_INVERT_LABEL))?;
-        props.set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?;
-        props.set_image_effect_supported_contexts(
-            s_prop,
-            &[ImageEffectPropSupportedContexts::Filter.into()],
-        )?;
-        props.set_image_effect_supported_pixel_depths(
-            s_prop,
-            &[
-                ImageEffectPropSupportedPixelDepths::Float.into(),
-                ImageEffectPropSupportedPixelDepths::Short.into(),
-                ImageEffectPropSupportedPixelDepths::Byte.into(),
-            ],
-        )?;
-        props.set_image_effect_plugin_render_thread_safety(
-            s_prop,
-            ImageEffectPluginRenderThreadSafety::FullySafe.into(),
-        )?;
-        props.set_image_effect_plugin_host_frame_threading(s_prop, true)?;
+        props
+            .set_label(s_prop, Some(PLUGIN_2_INVERT_LABEL))?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_supported_contexts(
+                s_prop,
+                &[ImageEffectPropSupportedContexts::Filter.into()],
+            )?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_supported_pixel_depths(
+                s_prop,
+                &[
+                    ImageEffectPropSupportedPixelDepths::Float.into(),
+                    ImageEffectPropSupportedPixelDepths::Short.into(),
+                    ImageEffectPropSupportedPixelDepths::Byte.into(),
+                ],
+            )?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_plugin_render_thread_safety(
+                s_prop,
+                ImageEffectPluginRenderThreadSafety::FullySafe.into(),
+            )?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_plugin_host_frame_threading(s_prop, true)?
+            .ok_or(StatusError::Failed)?;
     }
 
     Okish::result_ok(())
@@ -153,7 +165,8 @@ fn action_describe_in_context(
                     ImageEffectPropSupportedComponents::RGB.into(),
                 ],
             )
-        })?;
+        })?
+        .ok_or(StatusError::Failed)?;
     }
 
     Okish::result_ok(())

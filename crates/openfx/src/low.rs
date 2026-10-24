@@ -23,6 +23,7 @@ pub type InboundResult<T> = Result<Okish<T>, StatusError>;
 pub type OutboundResult<T> = Result<Okish<T>, OutboundError>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[must_use]
 pub enum Okish<T> {
     Ok(T),
     Reply(StatusReply),

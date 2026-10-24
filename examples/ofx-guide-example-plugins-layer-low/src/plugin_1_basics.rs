@@ -99,12 +99,18 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult<()> {
         .ok_or(StatusError::Failed)?;
 
     unsafe {
-        props.set_label(s_prop, Some(PLUGIN_1_BASICS_LABEL))?;
-        props.set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?;
-        props.set_image_effect_supported_contexts(
-            s_prop,
-            &[ImageEffectPropSupportedContexts::Filter.into()],
-        )?;
+        props
+            .set_label(s_prop, Some(PLUGIN_1_BASICS_LABEL))?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_supported_contexts(
+                s_prop,
+                &[ImageEffectPropSupportedContexts::Filter.into()],
+            )?
+            .ok_or(StatusError::Failed)?;
     }
 
     Okish::result_ok(())
@@ -138,7 +144,8 @@ fn action_describe_in_context(
                 ImageEffectPropSupportedComponents::Alpha.into(),
             ],
         )
-    })?;
+    })?
+    .ok_or(StatusError::Failed)?;
 
     let props = unsafe { descriptor.clip_define(s_ifx, c"Source") }?.ok_or(StatusError::Failed)?;
     (unsafe {
@@ -149,7 +156,8 @@ fn action_describe_in_context(
                 ImageEffectPropSupportedComponents::Alpha.into(),
             ],
         )
-    })?;
+    })?
+    .ok_or(StatusError::Failed)?;
 
     Okish::result_ok(())
 }
@@ -217,7 +225,8 @@ fn action_is_identity(out_args: ActionIsIdentityOut) -> OutboundResult<()> {
 
     let s_prop = &data.property_suite.0;
 
-    (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })?;
+    (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })?
+        .ok_or(StatusError::Failed)?;
 
     Okish::result_ok(())
 }

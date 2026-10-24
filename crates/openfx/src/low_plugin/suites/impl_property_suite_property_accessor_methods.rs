@@ -39,11 +39,10 @@ impl PropertySuiteV1 {
 
         let mut count = std::mem::MaybeUninit::<c_int>::uninit();
 
-        Okish::inbound_result_from_sys(unsafe {
+        Ok(Okish::inbound_result_from_sys(unsafe {
             sys_fn(properties, property.as_ptr(), count.as_mut_ptr())
-        })?;
-
-        Okish::result_ok(unsafe { count.assume_init() })
+        })?
+        .map_ok(|()| unsafe { count.assume_init() }))
     }
 
     /// ## Safety
@@ -177,14 +176,13 @@ macro_rules! impl_accessor_methods {
 
                 let mut value = std::mem::MaybeUninit::<$ty_get>::uninit();
 
-                Okish::inbound_result_from_sys(unsafe {
+                Ok(Okish::inbound_result_from_sys(unsafe {
                     sys_fn(properties, property.as_ptr(), index, value.as_mut_ptr())
-                })?;
-
-                let value = unsafe { value.assume_init() };
-                let value = impl_accessor_methods!(@convert[sys_get_to_low,scalar] $conversions value);
-
-                Okish::result_ok(value)
+                })?
+                .map_ok(|()| {
+                    let value = unsafe { value.assume_init() };
+                    impl_accessor_methods!(@convert[sys_get_to_low,scalar] $conversions value)
+                }))
             }
 
             #[doc = impl_accessor_methods!(@doc)]
@@ -198,18 +196,17 @@ macro_rules! impl_accessor_methods {
                 let mut values: [$ty_get; N] =
                     unsafe { std::mem::MaybeUninit::uninit().assume_init() };
 
-                Okish::inbound_result_from_sys(unsafe {
+                Ok(Okish::inbound_result_from_sys(unsafe {
                     sys_fn(
                         properties,
                         property.as_ptr(),
                         N as c_int,
                         values.as_mut_ptr(),
                     )
-                })?;
-
-                let values = impl_accessor_methods!(@convert[sys_get_to_low,array] $conversions values);
-
-                Okish::result_ok(values)
+                })?
+                .map_ok(|()| {
+                    impl_accessor_methods!(@convert[sys_get_to_low,array] $conversions values)
+                }))
             }
 
             #[doc = impl_accessor_methods!(@doc)]
@@ -223,18 +220,17 @@ macro_rules! impl_accessor_methods {
 
                 impl_accessor_methods!(@convert:pre[sys_get_to_low,slice] $conversions values=values tmp_values=tmp_values ty_get=$ty_get);
 
-                Okish::inbound_result_from_sys(unsafe {
+                Ok(Okish::inbound_result_from_sys(unsafe {
                     sys_fn(
                         properties,
                         property.as_ptr(),
                         tmp_values.len() as c_int,
                         tmp_values.as_mut_ptr(),
                     )
-                })?;
-
-                impl_accessor_methods!(@convert:post[sys_get_to_low,slice] $conversions values=values tmp_values=tmp_values);
-
-                Okish::result_ok(())
+                })?
+                .map_ok(|()| {
+                    impl_accessor_methods!(@convert:post[sys_get_to_low,slice] $conversions values=values tmp_values=tmp_values);
+                }))
             }
         }
     };

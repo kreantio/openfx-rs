@@ -30,16 +30,15 @@ impl ParameterSuiteV1 {
 
         let mut property_set = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        Okish::inbound_result_from_sys(unsafe {
+        Ok(Okish::inbound_result_from_sys(unsafe {
             sys_fn(
                 param_set.sys_handle(),
                 param_type.as_ptr(),
                 name.as_ptr(),
                 property_set.as_mut_ptr(),
             )
-        })?;
-
-        Okish::result_ok(unsafe { property_set.assume_init() })
+        })?
+        .map_ok(|()| unsafe { property_set.assume_init() }))
     }
 
     /// ## Safety
@@ -102,16 +101,15 @@ impl ParameterSuiteV1 {
         let mut param = std::mem::MaybeUninit::<OfxParamHandle>::uninit();
         let mut property_set = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        Okish::inbound_result_from_sys(unsafe {
+        Ok(Okish::inbound_result_from_sys(unsafe {
             sys_fn(
                 param_set.sys_handle(),
                 name.as_ptr(),
                 param.as_mut_ptr(),
                 property_set.as_mut_ptr(),
             )
-        })?;
-
-        Okish::result_ok(unsafe { (param.assume_init(), property_set.assume_init()) })
+        })?
+        .map_ok(|()| unsafe { (param.assume_init(), property_set.assume_init()) }))
     }
 
     /// ## Safety
@@ -126,16 +124,15 @@ impl ParameterSuiteV1 {
 
         let mut param = std::mem::MaybeUninit::<OfxParamHandle>::uninit();
 
-        Okish::inbound_result_from_sys(unsafe {
+        Ok(Okish::inbound_result_from_sys(unsafe {
             sys_fn(
                 param_set.sys_handle(),
                 name.as_ptr(),
                 param.as_mut_ptr(),
                 std::ptr::null_mut(),
             )
-        })?;
-
-        Okish::result_ok(unsafe { param.assume_init() })
+        })?
+        .map_ok(|()| unsafe { param.assume_init() }))
     }
 
     /// ## Note
@@ -154,9 +151,10 @@ impl ParameterSuiteV1 {
 
         let mut prop_handle = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(sys_param_set, prop_handle.as_mut_ptr()) })?;
-
-        Okish::result_ok(unsafe { prop_handle.assume_init() })
+        Ok(Okish::inbound_result_from_sys(unsafe {
+            sys_fn(sys_param_set, prop_handle.as_mut_ptr())
+        })?
+        .map_ok(|()| unsafe { prop_handle.assume_init() }))
     }
 
     /// ## Safety
@@ -265,11 +263,10 @@ impl ParameterSuiteV1 {
 
         let mut index = std::mem::MaybeUninit::<c_int>::uninit();
 
-        Okish::inbound_result_from_sys(unsafe {
+        Ok(Okish::inbound_result_from_sys(unsafe {
             sys_fn(sys_param_handle, time, direction, index.as_mut_ptr())
-        })?;
-
-        Okish::result_ok(unsafe { index.assume_init() })
+        })?
+        .map_ok(|()| unsafe { index.assume_init() }))
     }
 
     /// ## Safety
@@ -284,11 +281,10 @@ impl ParameterSuiteV1 {
 
         let mut time = std::mem::MaybeUninit::<OfxTime>::uninit();
 
-        Okish::inbound_result_from_sys(unsafe {
+        Ok(Okish::inbound_result_from_sys(unsafe {
             sys_fn(sys_param_handle, nth_key, time.as_mut_ptr())
-        })?;
-
-        Okish::result_ok(unsafe { time.assume_init() })
+        })?
+        .map_ok(|()| unsafe { time.assume_init() }))
     }
 
     /// ## Safety
@@ -302,9 +298,10 @@ impl ParameterSuiteV1 {
 
         let mut num_keys = std::mem::MaybeUninit::<c_uint>::uninit();
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(sys_param_handle, num_keys.as_mut_ptr()) })?;
-
-        Okish::result_ok(unsafe { num_keys.assume_init() })
+        Ok(Okish::inbound_result_from_sys(unsafe {
+            sys_fn(sys_param_handle, num_keys.as_mut_ptr())
+        })?
+        .map_ok(|()| unsafe { num_keys.assume_init() }))
     }
 
     /// ## Safety
@@ -318,8 +315,9 @@ impl ParameterSuiteV1 {
 
         let mut prop_handle = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(sys_param, prop_handle.as_mut_ptr()) })?;
-
-        Okish::result_ok(unsafe { prop_handle.assume_init() })
+        Ok(
+            Okish::inbound_result_from_sys(unsafe { sys_fn(sys_param, prop_handle.as_mut_ptr()) })?
+                .map_ok(|()| unsafe { prop_handle.assume_init() }),
+        )
     }
 }
