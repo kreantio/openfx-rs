@@ -15,12 +15,12 @@ pub mod enums {
 /// Note that at the API boundary, `T` is always `()`, and the `Ok` value, if
 /// any, is typically retrieved by other means in functions that wrap the API
 /// invocations, e.g., through an output parameter pointer.
-pub type InboundResult<T> = std::result::Result<Okish<T>, StatusError>;
+pub type InboundResult<T> = Result<Okish<T>, StatusError>;
 /// A result going to the other side: if you are writing a plugin, it goes
 /// to the host; if you are writing a host, it goes to the plugin.
 ///
 /// Note that at the API boundary, `T` is always `()`.
-pub type OutboundResult<T> = std::result::Result<Okish<T>, OutboundError>;
+pub type OutboundResult<T> = Result<Okish<T>, OutboundError>;
 
 pub enum Okish<T> {
     Ok(T),
@@ -40,7 +40,7 @@ pub enum OutboundError {
     Custom(OfxStatus),
 }
 
-impl From<StatusReply> for Okish<()> {
+impl<T> From<StatusReply> for Okish<T> {
     fn from(reply: StatusReply) -> Self {
         Okish::Reply(reply)
     }
@@ -93,22 +93,12 @@ impl<T> Okish<T> {
             _ => None,
         }
     }
-
-    pub fn reply(self) -> Option<StatusReply> {
-        match self {
-            Okish::Reply(value) => Some(value),
-            _ => None,
-        }
+    pub fn is_ok(&self) -> bool {
+        matches!(self, Okish::Ok(_))
     }
-
     pub fn ok_or<E>(self, err: E) -> Result<T, E> {
         self.ok().ok_or(err)
     }
-
-    pub fn reply_or<E>(self, err: E) -> Result<StatusReply, E> {
-        self.reply().ok_or(err)
-    }
-
     pub fn map_ok<U, F>(self, f: F) -> Okish<U>
     where
         F: FnOnce(T) -> U,
@@ -121,7 +111,6 @@ impl<T> Okish<T> {
             }
         }
     }
-
     pub fn ok_into_result(self) -> Result<T, Okish<Infallible>> {
         match self {
             Okish::Ok(value) => Ok(value),
@@ -130,6 +119,19 @@ impl<T> Okish<T> {
                 Okish::UnknownOrCustomDontMatchAgainstThisDirectly(sys_status),
             ),
         }
+    }
+
+    pub fn reply(self) -> Option<StatusReply> {
+        match self {
+            Okish::Reply(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn is_reply(&self) -> bool {
+        matches!(self, Okish::Reply(_))
+    }
+    pub fn reply_or<E>(self, err: E) -> Result<StatusReply, E> {
+        self.reply().ok_or(err)
     }
 }
 

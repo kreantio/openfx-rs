@@ -7,7 +7,7 @@ use std::{
 
 use openfx::{
     low::{
-        self, Status,
+        StatusError,
         enums::{ImageEffectPropComponents, ImageEffectPropPixelDepth},
     },
     low_plugin::{
@@ -55,13 +55,13 @@ pub struct SharedDataInner {
 }
 
 impl SharedData {
-    pub fn try_new(host: GuaranteeSend<Host>) -> openfx::low::Result<Self> {
+    pub fn try_new(host: GuaranteeSend<Host>) -> Result<Self, StatusError> {
         let property_suite =
-            unsafe { host.fetch_property_suite_v1() }.ok_or(Status::ErrMissingHostFeature)?;
-        let image_effect_suite =
-            unsafe { host.fetch_image_effect_suite_v1() }.ok_or(Status::ErrMissingHostFeature)?;
+            unsafe { host.fetch_property_suite_v1() }.ok_or(StatusError::ErrMissingHostFeature)?;
+        let image_effect_suite = unsafe { host.fetch_image_effect_suite_v1() }
+            .ok_or(StatusError::ErrMissingHostFeature)?;
         let parameter_suite =
-            unsafe { host.fetch_parameter_suite_v1() }.ok_or(Status::ErrMissingHostFeature)?;
+            unsafe { host.fetch_parameter_suite_v1() }.ok_or(StatusError::ErrMissingHostFeature)?;
 
         Ok(SharedData(Arc::new(SharedDataInner {
             host,
@@ -107,35 +107,42 @@ impl ClipImageManaged {
     pub unsafe fn try_new(
         shared_data: &SharedData,
         props: ImageInstancePropertySet,
-    ) -> low::Result<Self> {
+    ) -> Result<Self, StatusError> {
         let s_prop = &shared_data.property_suite.0;
 
-        let Some(data_ptr) = (unsafe { props.get_image_data(s_prop)? }) else {
-            return Err(Status::Failed);
+        let Some(data_ptr) =
+            (unsafe { props.get_image_data(s_prop)? }).ok_or(StatusError::Failed)?
+        else {
+            return Err(StatusError::Failed);
         };
 
-        let n_comps = match unsafe { props.get_image_effect_components_owned(s_prop)? } {
+        let n_comps = match unsafe { props.get_image_effect_components_owned(s_prop) }?
+            .ok_or(StatusError::Failed)?
+        {
             LosslessEnumPropertyOwned::Known(ImageEffectPropComponents::Alpha) => 1,
             LosslessEnumPropertyOwned::Known(ImageEffectPropComponents::RGB) => 3,
             LosslessEnumPropertyOwned::Known(ImageEffectPropComponents::RGBA) => 4,
             x => {
                 tracing::error!("Unsupported image effect components: {:?}", x.as_c_str());
-                return Err(Status::ErrUnsupported);
+                return Err(StatusError::ErrUnsupported);
             }
         };
-        let pixel_depth = match unsafe { props.get_image_effect_pixel_depth_owned(s_prop)? } {
+        let pixel_depth = match unsafe { props.get_image_effect_pixel_depth_owned(s_prop) }?
+            .ok_or(StatusError::Failed)?
+        {
             LosslessEnumPropertyOwned::Known(ImageEffectPropPixelDepth::Byte) => BitDepth::Byte,
             LosslessEnumPropertyOwned::Known(ImageEffectPropPixelDepth::Short) => BitDepth::Short,
             LosslessEnumPropertyOwned::Known(ImageEffectPropPixelDepth::Float) => BitDepth::Float,
             x => {
                 tracing::error!("Unsupported image effect pixel depth: {:?}", x.as_c_str());
-                return Err(Status::ErrUnsupported);
+                return Err(StatusError::ErrUnsupported);
             }
         };
-        let row_bytes = unsafe { props.get_image_row_bytes(s_prop)? };
-        let bounds = unsafe { props.get_image_bounds(s_prop)? };
+        let row_bytes = unsafe { props.get_image_row_bytes(s_prop) }?.ok_or(StatusError::Failed)?;
+        let bounds = unsafe { props.get_image_bounds(s_prop) }?.ok_or(StatusError::Failed)?;
         let bounds = rect_i_from_array(&bounds);
-        let pixel_aspect_ratio = unsafe { props.get_image_pixel_aspect_ratio(s_prop)? };
+        let pixel_aspect_ratio =
+            unsafe { props.get_image_pixel_aspect_ratio(s_prop) }?.ok_or(StatusError::Failed)?;
 
         Ok(Self {
             image_effect_suite: shared_data.image_effect_suite,
@@ -217,12 +224,13 @@ macro_rules! param_get_value_at_time{
                 $parameter_suite
                     .sys_ref()
                     .paramGetValueAtTime
-                    .ok_or(Status::ErrMissingHostFeature)?
+                    .ok_or(openfx::low::StatusError::ErrMissingHostFeature)?
             };
             let time = $time;
             #[allow(clippy::macro_metavars_in_unsafe)]
-            if let stat = unsafe { param_get_value_at_time($param_handle, time, $(&mut $value),+) } && stat != ::openfx::sys::generic::core::kOfxStatOK {
-                return Err(Status::from(stat));
+            let stat = unsafe { param_get_value_at_time($param_handle, time, $(&mut $value),+) };
+            if !openfx::low::Okish::inbound_result_from_sys(stat)?.is_ok() {
+                return Err(openfx::low::StatusError::Failed.into());
             }
         }
     }

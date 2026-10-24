@@ -1,7 +1,7 @@
 use std::ffi::c_int;
 
 use openfx::{
-    low::Status,
+    low::StatusError,
     low_plugin::objects::ImageEffectInstance,
     sys::generic::core::{OfxRectD, OfxRectI},
 };
@@ -23,7 +23,7 @@ pub fn pixel_processing<T>(
     source_img: ClipImageManaged,
     output_img: ClipImageManaged,
     render_window: OfxRectI,
-) -> openfx::low::Result<()>
+) -> Result<(), StatusError>
 where
     T: Copy + Default + std::ops::Add<Output = T>,
 {
@@ -52,7 +52,7 @@ where
         let dy = y_canonical - centre[1];
 
         let Some(dst_pix) = output_img.raw_address(render_window.x1, y) else {
-            return Err(Status::Failed);
+            return Err(StatusError::Failed);
         };
         let mut dst_pix = dst_pix as *mut T;
 
