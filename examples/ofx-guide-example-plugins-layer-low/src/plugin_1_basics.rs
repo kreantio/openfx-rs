@@ -207,9 +207,11 @@ fn action_destroy_instance(instance: ImageEffectInstance) -> OutboundResult<()> 
 
     let props = unsafe { instance.get_property_set(s_ifx) }?.ok_or(StatusError::Failed)?;
 
-    let my_string = unsafe { props.get_instance_data(s_prop) }?
-        .ok_or(StatusError::Failed)?
-        .expect("Instance data should not be null");
+    let my_string = unsafe { props.get_instance_data(s_prop) }?.ok_or(StatusError::Failed)?;
+    let Some(my_string) = my_string else {
+        tracing::error!("Instance data should not be null");
+        return Err(StatusError::Failed.into());
+    };
 
     drop(unsafe { Box::from_raw(my_string.as_ptr().cast::<String>()) });
 

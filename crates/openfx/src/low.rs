@@ -37,6 +37,7 @@ pub enum Okish<T> {
     UnknownOrCustomDontMatchAgainstThisDirectly(OfxStatus),
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum OutboundError {
     Known(StatusError),
     Custom(OfxStatus),

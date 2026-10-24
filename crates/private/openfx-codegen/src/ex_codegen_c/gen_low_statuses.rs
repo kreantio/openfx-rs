@@ -58,7 +58,7 @@ pub fn gen_low_statuses(
             })
             .collect();
         let enum_name_ident = syn::Ident::new("StatusError", proc_macro2::Span::call_site());
-        gen_group(&mut output, &enum_name_ident, statuses_errors);
+        gen_group(&mut output, &enum_name_ident, statuses_errors)?;
     }
 
     {
@@ -73,7 +73,7 @@ pub fn gen_low_statuses(
             })
             .collect();
         let enum_name_ident = syn::Ident::new("StatusReply", proc_macro2::Span::call_site());
-        gen_group(&mut output, &enum_name_ident, statuses_replies);
+        gen_group(&mut output, &enum_name_ident, statuses_replies)?;
     }
 
     if !statuses.is_empty() {
@@ -89,11 +89,10 @@ fn gen_group(
     output: &mut proc_macro2::TokenStream,
     enum_name_ident: &syn::Ident,
     statuses: Vec<String>,
-) {
-    assert!(
-        !statuses.is_empty(),
-        "No statuses provided to generate `enum {enum_name_ident}`!",
-    );
+) -> Result<(), Box<dyn std::error::Error>> {
+    if statuses.is_empty() {
+        return Err(format!("No statuses provided to generate `enum {enum_name_ident}`!").into());
+    }
 
     let status_sys_ident = statuses
         .iter()
@@ -130,4 +129,6 @@ fn gen_group(
             }
         }
     });
+
+    Ok(())
 }
