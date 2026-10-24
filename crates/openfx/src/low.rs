@@ -22,6 +22,7 @@ pub type InboundResult<T> = Result<Okish<T>, StatusError>;
 /// Note that at the API boundary, `T` is always `()`.
 pub type OutboundResult<T> = Result<Okish<T>, OutboundError>;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Okish<T> {
     Ok(T),
     Reply(StatusReply),
@@ -163,8 +164,10 @@ impl From<OutboundError> for OfxStatus {
 }
 
 impl OutboundError {
-    /// Creates an [`OutboundError`] without verifying that the status really
-    /// is an error.
+    /// Creates an [`OutboundError`] in which known error statuses become
+    /// [`OutboundError::Known`], while all other statuses become
+    /// [`OutboundError::Custom`] without verifying that they really are
+    /// errors.
     pub fn force_from_sys(sys_status: OfxStatus) -> Self {
         if let Some(status) = StatusError::try_from_sys(sys_status) {
             return OutboundError::Known(status);

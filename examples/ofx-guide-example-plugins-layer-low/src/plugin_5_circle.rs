@@ -141,7 +141,7 @@ fn action_load() -> OutboundResult<()> {
 
             // we only support 1.2 and above
             if api_version[0] == 1 && api_version[1] < 2 {
-                return Err(StatusError::Failed.into());
+                return Err(StatusError::ErrMissingHostFeature.into());
             }
 
             let host_supports_multi_res = unsafe {

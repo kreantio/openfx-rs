@@ -952,9 +952,6 @@ version = "0.6.0"
 dependencies = [
  "clap",
  "openfx-codegen-config",
- "regex",
- "serde",
- "serde-saphyr",
  "syn 3.0.3",
  "tracing",
  "tracing-subscriber",

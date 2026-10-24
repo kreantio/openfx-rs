@@ -65,7 +65,6 @@ pub fn gen_low_statuses(
                     .matches(status)
             })
             .collect();
-
         let enum_name_ident = syn::Ident::new("StatusReply", proc_macro2::Span::call_site());
         gen_group(&mut output, &enum_name_ident, statuses_replies);
     }
@@ -84,6 +83,11 @@ fn gen_group(
     enum_name_ident: &syn::Ident,
     statuses: Vec<String>,
 ) {
+    assert!(
+        !statuses.is_empty(),
+        "No statuses provided to generate `enum {enum_name_ident}`!",
+    );
+
     let status_sys_ident = statuses
         .iter()
         .map(|status| {
