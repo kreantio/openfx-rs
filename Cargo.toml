@@ -6,6 +6,7 @@ members = [
   "crates/openfx-internal-macros",
   "crates/private/openfx-codegen",
   "examples/ofx-guide-example-plugins-layer-low",
+  "crates/private/openfx-codegen-config",
 ]
 # for some reason, globs (e.g. "vendor/*", "vendor/**/*") don't work.
 exclude = [
@@ -17,12 +18,14 @@ exclude = [
 version = "0.6.0"
 license = "BSD-3-Clause"
 repository = "https://github.com/kreantio/openfx-rs"
+rust-version = "1.99"
 
 [workspace.lints]
 
 [workspace.dependencies]
 openfx = { path = "crates/openfx", version = "0.6.0" }
 openfx-codegen = { path = "crates/private/openfx-codegen", version = "0.6.0" }
+openfx-codegen-config = { path = "crates/private/openfx-codegen-config", version = "0.6.0" }
 openfx-datagen = { path = "vendor/openfx-data/openfx-datagen/crates/openfx-datagen", version = "0.6.0" }
 openfx-internal-macros = { path = "crates/openfx-internal-macros", version = "0.6.0" }
 

@@ -1,6 +1,7 @@
 use std::ffi::{CStr, c_int, c_uint};
 
 use crate::{
+    low::{InboundResult, Okish},
     low_plugin::{
         objects::{ParamSetDescriptor, ParamSetInstance},
         property_sets::ParamSetPropertySet,
@@ -24,21 +25,20 @@ impl ParameterSuiteV1 {
         param_set: &ParamSetDescriptor,
         param_type: &CStr,
         name: &CStr,
-    ) -> crate::low::Result<OfxPropertySetHandle> {
+    ) -> InboundResult<OfxPropertySetHandle> {
         let sys_fn = unsafe { sys_fn!() };
 
         let mut property_set = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        crate::low::Status::result_from(unsafe {
+        Ok(Okish::inbound_result_from_sys(unsafe {
             sys_fn(
                 param_set.sys_handle(),
                 param_type.as_ptr(),
                 name.as_ptr(),
                 property_set.as_mut_ptr(),
             )
-        })?;
-
-        Ok(unsafe { property_set.assume_init() })
+        })?
+        .map_ok(|()| unsafe { property_set.assume_init() }))
     }
 
     /// ## Safety
@@ -53,10 +53,10 @@ impl ParameterSuiteV1 {
         param_set: &ParamSetDescriptor,
         param_type: &CStr,
         name: &CStr,
-    ) -> crate::low::Result<()> {
+    ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!("paramDefine") };
 
-        crate::low::Status::result_from(unsafe {
+        Okish::inbound_result_from_sys(unsafe {
             sys_fn(
                 param_set.sys_handle(),
                 param_type.as_ptr(),
@@ -73,22 +73,19 @@ impl ParameterSuiteV1 {
         &self,
         param_set: &ParamSetInstance,
         name: &CStr,
-    ) -> crate::low::Result<()> {
+    ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        crate::low::Status::result_from(unsafe { sys_fn(param_set.sys_handle(), name.as_ptr()) })
+        Okish::inbound_result_from_sys(unsafe { sys_fn(param_set.sys_handle(), name.as_ptr()) })
     }
 
     /// ## Safety
     ///
     /// `self` and `param_set` must be valid.
-    pub(crate) unsafe fn param_edit_end(
-        &self,
-        param_set: &ParamSetInstance,
-    ) -> crate::low::Result<()> {
+    pub(crate) unsafe fn param_edit_end(&self, param_set: &ParamSetInstance) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        crate::low::Status::result_from(unsafe { sys_fn(param_set.sys_handle()) })
+        Okish::inbound_result_from_sys(unsafe { sys_fn(param_set.sys_handle()) })
     }
 
     /// ## Safety
@@ -98,22 +95,21 @@ impl ParameterSuiteV1 {
         &self,
         param_set: &ParamSetInstance,
         name: &CStr,
-    ) -> crate::low::Result<(OfxParamHandle, OfxPropertySetHandle)> {
+    ) -> InboundResult<(OfxParamHandle, OfxPropertySetHandle)> {
         let sys_fn = unsafe { sys_fn!() };
 
         let mut param = std::mem::MaybeUninit::<OfxParamHandle>::uninit();
         let mut property_set = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        crate::low::Status::result_from(unsafe {
+        Ok(Okish::inbound_result_from_sys(unsafe {
             sys_fn(
                 param_set.sys_handle(),
                 name.as_ptr(),
                 param.as_mut_ptr(),
                 property_set.as_mut_ptr(),
             )
-        })?;
-
-        Ok(unsafe { (param.assume_init(), property_set.assume_init()) })
+        })?
+        .map_ok(|()| unsafe { (param.assume_init(), property_set.assume_init()) }))
     }
 
     /// ## Safety
@@ -123,21 +119,20 @@ impl ParameterSuiteV1 {
         &self,
         param_set: &ParamSetInstance,
         name: &CStr,
-    ) -> crate::low::Result<OfxParamHandle> {
+    ) -> InboundResult<OfxParamHandle> {
         let sys_fn = unsafe { sys_fn!("paramGetHandle") };
 
         let mut param = std::mem::MaybeUninit::<OfxParamHandle>::uninit();
 
-        crate::low::Status::result_from(unsafe {
+        Ok(Okish::inbound_result_from_sys(unsafe {
             sys_fn(
                 param_set.sys_handle(),
                 name.as_ptr(),
                 param.as_mut_ptr(),
                 std::ptr::null_mut(),
             )
-        })?;
-
-        Ok(unsafe { param.assume_init() })
+        })?
+        .map_ok(|()| unsafe { param.assume_init() }))
     }
 
     /// ## Note
@@ -151,16 +146,15 @@ impl ParameterSuiteV1 {
     pub(super) unsafe fn param_set_get_property_set(
         &self,
         sys_param_set: OfxParamSetHandle,
-    ) -> crate::low::Result<OfxPropertySetHandle> {
+    ) -> InboundResult<OfxPropertySetHandle> {
         let sys_fn = unsafe { sys_fn!() };
 
         let mut prop_handle = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        crate::low::Status::result_from(unsafe {
+        Ok(Okish::inbound_result_from_sys(unsafe {
             sys_fn(sys_param_set, prop_handle.as_mut_ptr())
-        })?;
-
-        Ok(unsafe { prop_handle.assume_init() })
+        })?
+        .map_ok(|()| unsafe { prop_handle.assume_init() }))
     }
 
     /// ## Safety
@@ -170,10 +164,11 @@ impl ParameterSuiteV1 {
     pub(crate) unsafe fn param_set_get_descriptor_property_set(
         &self,
         param_set: &ParamSetDescriptor,
-    ) -> crate::low::Result<ParamSetPropertySet> {
-        Ok(ParamSetPropertySet::from(unsafe {
+    ) -> InboundResult<ParamSetPropertySet> {
+        Ok(unsafe {
             self.param_set_get_property_set(param_set.sys_handle())?
-        }))
+                .map_ok(ParamSetPropertySet::from)
+        })
     }
 
     /// ## Safety
@@ -183,10 +178,11 @@ impl ParameterSuiteV1 {
     pub(crate) unsafe fn param_set_get_instance_property_set(
         &self,
         param_set: &ParamSetInstance,
-    ) -> crate::low::Result<ParamSetPropertySet> {
-        Ok(ParamSetPropertySet::from(unsafe {
+    ) -> InboundResult<ParamSetPropertySet> {
+        Ok(unsafe {
             self.param_set_get_property_set(param_set.sys_handle())?
-        }))
+                .map_ok(ParamSetPropertySet::from)
+        })
     }
 }
 
@@ -216,10 +212,10 @@ impl ParameterSuiteV1 {
         sys_param_from: OfxParamHandle,
         dst_offset: OfxTime,
         frame_range: Option<&OfxRangeD>,
-    ) -> crate::low::Result<()> {
+    ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        crate::low::Status::result_from(unsafe {
+        Okish::inbound_result_from_sys(unsafe {
             sys_fn(
                 sys_param_to,
                 sys_param_from,
@@ -235,10 +231,10 @@ impl ParameterSuiteV1 {
     pub unsafe fn param_delete_all_keys(
         &self,
         sys_param_handle: OfxParamHandle,
-    ) -> crate::low::Result<()> {
+    ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        crate::low::Status::result_from(unsafe { sys_fn(sys_param_handle) })
+        Okish::inbound_result_from_sys(unsafe { sys_fn(sys_param_handle) })
     }
 
     /// ## Safety
@@ -248,10 +244,10 @@ impl ParameterSuiteV1 {
         &self,
         sys_param_handle: OfxParamHandle,
         time: OfxTime,
-    ) -> crate::low::Result<()> {
+    ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        crate::low::Status::result_from(unsafe { sys_fn(sys_param_handle, time) })
+        Okish::inbound_result_from_sys(unsafe { sys_fn(sys_param_handle, time) })
     }
 
     /// ## Safety
@@ -262,16 +258,15 @@ impl ParameterSuiteV1 {
         sys_param_handle: OfxParamHandle,
         time: OfxTime,
         direction: c_int,
-    ) -> crate::low::Result<c_int> {
+    ) -> InboundResult<c_int> {
         let sys_fn = unsafe { sys_fn!() };
 
         let mut index = std::mem::MaybeUninit::<c_int>::uninit();
 
-        crate::low::Status::result_from(unsafe {
+        Ok(Okish::inbound_result_from_sys(unsafe {
             sys_fn(sys_param_handle, time, direction, index.as_mut_ptr())
-        })?;
-
-        Ok(unsafe { index.assume_init() })
+        })?
+        .map_ok(|()| unsafe { index.assume_init() }))
     }
 
     /// ## Safety
@@ -281,16 +276,15 @@ impl ParameterSuiteV1 {
         &self,
         sys_param_handle: OfxParamHandle,
         nth_key: c_uint,
-    ) -> crate::low::Result<OfxTime> {
+    ) -> InboundResult<OfxTime> {
         let sys_fn = unsafe { sys_fn!() };
 
         let mut time = std::mem::MaybeUninit::<OfxTime>::uninit();
 
-        crate::low::Status::result_from(unsafe {
+        Ok(Okish::inbound_result_from_sys(unsafe {
             sys_fn(sys_param_handle, nth_key, time.as_mut_ptr())
-        })?;
-
-        Ok(unsafe { time.assume_init() })
+        })?
+        .map_ok(|()| unsafe { time.assume_init() }))
     }
 
     /// ## Safety
@@ -299,16 +293,15 @@ impl ParameterSuiteV1 {
     pub unsafe fn param_get_num_keys(
         &self,
         sys_param_handle: OfxParamHandle,
-    ) -> crate::low::Result<c_uint> {
+    ) -> InboundResult<c_uint> {
         let sys_fn = unsafe { sys_fn!() };
 
         let mut num_keys = std::mem::MaybeUninit::<c_uint>::uninit();
 
-        crate::low::Status::result_from(unsafe {
+        Ok(Okish::inbound_result_from_sys(unsafe {
             sys_fn(sys_param_handle, num_keys.as_mut_ptr())
-        })?;
-
-        Ok(unsafe { num_keys.assume_init() })
+        })?
+        .map_ok(|()| unsafe { num_keys.assume_init() }))
     }
 
     /// ## Safety
@@ -317,13 +310,14 @@ impl ParameterSuiteV1 {
     pub unsafe fn param_get_property_set(
         &self,
         sys_param: OfxParamHandle,
-    ) -> crate::low::Result<OfxPropertySetHandle> {
+    ) -> InboundResult<OfxPropertySetHandle> {
         let sys_fn = unsafe { sys_fn!() };
 
         let mut prop_handle = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        crate::low::Status::result_from(unsafe { sys_fn(sys_param, prop_handle.as_mut_ptr()) })?;
-
-        Ok(unsafe { prop_handle.assume_init() })
+        Ok(
+            Okish::inbound_result_from_sys(unsafe { sys_fn(sys_param, prop_handle.as_mut_ptr()) })?
+                .map_ok(|()| unsafe { prop_handle.assume_init() }),
+        )
     }
 }

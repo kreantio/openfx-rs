@@ -5,7 +5,7 @@ use std::{
 
 use openfx::{
     low::{
-        Status,
+        Okish, OutboundResult, StatusError, StatusReply,
         enums::{
             ImageEffectPluginRenderThreadSafety, ImageEffectPropContext,
             ImageEffectPropSupportedComponents, ImageEffectPropSupportedContexts,
@@ -17,7 +17,7 @@ use openfx::{
         actions::image_effect::{ActionDescribeInContextIn, ActionRenderIn, ImageEffectAction},
         objects::{ImageEffectDescriptor, ImageEffectInstance},
     },
-    sys::generic::core::{OfxRectI, kOfxStatFailed},
+    sys::generic::core::OfxRectI,
 };
 
 use crate::{
@@ -28,9 +28,9 @@ use crate::{
 static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(None);
 static SHARED_DATA: Mutex<Option<SharedData>> = Mutex::new(None);
 
-fn shared_data_lockless() -> openfx::low::Result<SharedData> {
-    let data = SHARED_DATA.lock().map_err(|_| Status::Failed)?;
-    let data = data.as_ref().ok_or(Status::Failed)?;
+fn shared_data_lockless() -> Result<SharedData, StatusError> {
+    let data = SHARED_DATA.lock().map_err(|_| StatusError::Failed)?;
+    let data = data.as_ref().ok_or(StatusError::Failed)?;
     Ok(data.clone())
 }
 
@@ -50,7 +50,7 @@ impl Plugin for PluginExampleInvert {
         lock.replace(GuaranteeSend(host));
     }
 
-    fn main_entry(action: ImageEffectAction) -> openfx::low::Result<()> {
+    fn main_entry(action: ImageEffectAction) -> OutboundResult<()> {
         match action {
             ImageEffectAction::Load { .. } => action_load(),
             ImageEffectAction::Unload { .. } => action_unload(),
@@ -62,85 +62,99 @@ impl Plugin for PluginExampleInvert {
                 handle, in_args, ..
             } => action_render(handle, in_args),
             ImageEffectAction::CreateInstance { .. }
-            | ImageEffectAction::DestroyInstance { .. } => Ok(()),
-            _ => Err(Status::ReplyDefault),
+            | ImageEffectAction::DestroyInstance { .. } => Okish::result_ok(()),
+            _ => Ok(StatusReply::ReplyDefault.into()),
         }
     }
 }
 
-fn action_load() -> openfx::low::Result<()> {
+fn action_load() -> OutboundResult<()> {
     let host = HOST_BEFORE_ACTION_LOAD
         .lock()
-        .map_err(|_| kOfxStatFailed)?
+        .map_err(|_| StatusError::Failed)?
         .take()
-        .ok_or(kOfxStatFailed)?;
+        .ok_or(StatusError::Failed)?;
 
-    let mut data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
+    let mut data = SHARED_DATA.lock().map_err(|_| StatusError::Failed)?;
     if data.is_some() {
-        Err(Status::Failed)
+        Err(StatusError::Failed.into())
     } else {
         *data = Some(SharedData::try_new(host)?);
-        Ok(())
+        Okish::result_ok(())
     }
 }
 
-fn action_unload() -> openfx::low::Result<()> {
-    let mut data = SHARED_DATA.lock().map_err(|_| kOfxStatFailed)?;
+fn action_unload() -> OutboundResult<()> {
+    let mut data = SHARED_DATA.lock().map_err(|_| StatusError::Failed)?;
     if data.take().is_none() {
-        Err(Status::Failed)
+        Err(StatusError::Failed.into())
     } else {
-        Ok(())
+        Okish::result_ok(())
     }
 }
 
-fn action_describe(descriptor: ImageEffectDescriptor) -> openfx::low::Result<()> {
+fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult<()> {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
 
-    let props = unsafe { descriptor.get_property_set(&data.image_effect_suite.0) }?;
+    let props = unsafe { descriptor.get_property_set(&data.image_effect_suite.0) }?
+        .ok_or(StatusError::Failed)?;
 
     unsafe {
-        props.set_label(s_prop, Some(PLUGIN_2_INVERT_LABEL))?;
-        props.set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?;
-        props.set_image_effect_supported_contexts(
-            s_prop,
-            &[ImageEffectPropSupportedContexts::Filter.into()],
-        )?;
-        props.set_image_effect_supported_pixel_depths(
-            s_prop,
-            &[
-                ImageEffectPropSupportedPixelDepths::Float.into(),
-                ImageEffectPropSupportedPixelDepths::Short.into(),
-                ImageEffectPropSupportedPixelDepths::Byte.into(),
-            ],
-        )?;
-        props.set_image_effect_plugin_render_thread_safety(
-            s_prop,
-            ImageEffectPluginRenderThreadSafety::FullySafe.into(),
-        )?;
-        props.set_image_effect_plugin_host_frame_threading(s_prop, true)?;
+        props
+            .set_label(s_prop, Some(PLUGIN_2_INVERT_LABEL))?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_supported_contexts(
+                s_prop,
+                &[ImageEffectPropSupportedContexts::Filter.into()],
+            )?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_supported_pixel_depths(
+                s_prop,
+                &[
+                    ImageEffectPropSupportedPixelDepths::Float.into(),
+                    ImageEffectPropSupportedPixelDepths::Short.into(),
+                    ImageEffectPropSupportedPixelDepths::Byte.into(),
+                ],
+            )?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_plugin_render_thread_safety(
+                s_prop,
+                ImageEffectPluginRenderThreadSafety::FullySafe.into(),
+            )?
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_image_effect_plugin_host_frame_threading(s_prop, true)?
+            .ok_or(StatusError::Failed)?;
     }
 
-    Ok(())
+    Okish::result_ok(())
 }
 
 fn action_describe_in_context(
     descriptor: ImageEffectDescriptor,
     in_args: ActionDescribeInContextIn,
-) -> openfx::low::Result<()> {
+) -> OutboundResult<()> {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
 
-    let context = unsafe { in_args.get_image_effect_context(s_prop) }?;
+    let context =
+        unsafe { in_args.get_image_effect_context(s_prop) }?.ok_or(StatusError::Failed)?;
     if context != ImageEffectPropContext::Filter {
-        return Err(Status::ErrUnsupported);
+        return Err(StatusError::ErrUnsupported.into());
     }
 
     for name in [c"Output", c"Source"] {
-        let props = unsafe { descriptor.clip_define(s_ifx, name) }?;
+        let props = unsafe { descriptor.clip_define(s_ifx, name) }?.ok_or(StatusError::Failed)?;
 
         (unsafe {
             props.set_image_effect_supported_components(
@@ -151,10 +165,11 @@ fn action_describe_in_context(
                     ImageEffectPropSupportedComponents::RGB.into(),
                 ],
             )
-        })?;
+        })?
+        .ok_or(StatusError::Failed)?;
     }
 
-    Ok(())
+    Okish::result_ok(())
 }
 
 /// Look up a pixel in the image. Returns `None` if the pixel was not in the
@@ -187,7 +202,7 @@ fn pixel_processing<T>(
     source_img: ClipImageManaged,
     output_img: ClipImageManaged,
     render_window: OfxRectI,
-) -> openfx::low::Result<()>
+) -> Result<(), StatusError>
 where
     T: std::ops::Sub<Output = T> + Copy + Default,
 {
@@ -223,7 +238,7 @@ where
             dst_row_bytes,
             n_comps,
         ) else {
-            return Err(Status::Failed);
+            return Err(StatusError::Failed);
         };
         let mut dst_pix = dst_pix;
 
@@ -262,24 +277,26 @@ fn rect_i_from_array(arr: &[c_int; 4]) -> OfxRectI {
     }
 }
 
-fn action_render(
-    instance: ImageEffectInstance,
-    in_args: ActionRenderIn,
-) -> openfx::low::Result<()> {
+fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> OutboundResult<()> {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
 
-    let time = unsafe { in_args.get_time(s_prop) }?;
-    let render_window = unsafe { in_args.get_image_effect_render_window(s_prop) }?;
+    let time = unsafe { in_args.get_time(s_prop) }?.ok_or(StatusError::Failed)?;
+    let render_window =
+        unsafe { in_args.get_image_effect_render_window(s_prop) }?.ok_or(StatusError::Failed)?;
     let render_window = rect_i_from_array(&render_window);
 
-    let output_clip = unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }?;
-    let source_clip = unsafe { instance.clip_get_clip_handle(s_ifx, c"Source") }?;
+    let output_clip =
+        unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }?.ok_or(StatusError::Failed)?;
+    let source_clip =
+        unsafe { instance.clip_get_clip_handle(s_ifx, c"Source") }?.ok_or(StatusError::Failed)?;
 
-    let output_img = unsafe { output_clip.clip_get_image(s_ifx, time, None) }?;
-    let source_img = unsafe { source_clip.clip_get_image(s_ifx, time, None) }?;
+    let output_img =
+        unsafe { output_clip.clip_get_image(s_ifx, time, None) }?.ok_or(StatusError::Failed)?;
+    let source_img =
+        unsafe { source_clip.clip_get_image(s_ifx, time, None) }?.ok_or(StatusError::Failed)?;
 
     let output_img_m = unsafe { ClipImageManaged::try_new(&data, output_img) }?;
     let source_img_m = unsafe { ClipImageManaged::try_new(&data, source_img) }?;
@@ -292,7 +309,7 @@ fn action_render(
             source_img_m,
             output_img_m,
             render_window,
-        ),
+        )?,
         BitDepth::Short => pixel_processing(
             65535u16,
             &data,
@@ -300,7 +317,7 @@ fn action_render(
             source_img_m,
             output_img_m,
             render_window,
-        ),
+        )?,
         BitDepth::Float => pixel_processing(
             1.0f32,
             &data,
@@ -308,6 +325,8 @@ fn action_render(
             source_img_m,
             output_img_m,
             render_window,
-        ),
-    }
+        )?,
+    };
+
+    Okish::result_ok(())
 }

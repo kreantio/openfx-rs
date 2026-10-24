@@ -388,6 +388,7 @@ version = "0.6.0"
 dependencies = [
  "clap",
  "convert_case",
+ "openfx-codegen-config",
  "openfx-datagen",
  "proc-macro2",
  "quote",
@@ -400,6 +401,15 @@ dependencies = [
  "syn 3.0.3",
  "tracing",
  "tracing-subscriber",
+]
+
+[[package]]
+name = "openfx-codegen-config"
+version = "0.6.0"
+dependencies = [
+ "regex",
+ "serde",
+ "serde-saphyr",
 ]
 
 [[package]]
@@ -941,9 +951,7 @@ name = "xtask"
 version = "0.6.0"
 dependencies = [
  "clap",
- "regex",
- "serde",
- "serde-saphyr",
+ "openfx-codegen-config",
  "syn 3.0.3",
  "tracing",
  "tracing-subscriber",
