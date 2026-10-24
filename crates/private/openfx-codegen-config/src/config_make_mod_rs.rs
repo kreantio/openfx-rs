@@ -1,6 +1,6 @@
-use crate::common::CodegenConfigStringMatcher;
+use crate::common::CodegenConfigStringMatcherAnyOf;
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigMakeModRs {
-    pub ignore: Vec<CodegenConfigStringMatcher>,
+    pub ignore: CodegenConfigStringMatcherAnyOf,
 }

@@ -14,6 +14,17 @@ statuses:
   identical_ones:
     - [kOfxStatGPUOutOfMemory, kOfxStatGLOutOfMemory]
     - [kOfxStatGPURenderFailed, kOfxStatGLRenderFailed]
+  groups:
+    errors:
+      members_matcher:
+        - { regex: "^Err.+" }
+        - Failed
+        - GPUOutOfMemory
+        - GPURenderFailed
+        - Unlicensed
+    replies:
+      members_matcher:
+        - { regex: "^Reply.+" }
 
 suites:
   special_cases:

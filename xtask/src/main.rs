@@ -4,7 +4,7 @@ use std::{
 };
 
 use clap::Parser;
-use openfx_codegen_config::{CodegenConfig, CodegenConfigStringMatcher};
+use openfx_codegen_config::{CodegenConfig, CodegenConfigStringMatcherAnyOf};
 
 #[derive(clap::Parser)]
 struct Cli {
@@ -112,12 +112,12 @@ fn make_mod_rs(
     Ok(())
 }
 
-fn remove_ignored_mod_names(mods: &mut BTreeSet<String>, ignore: &[CodegenConfigStringMatcher]) {
+fn remove_ignored_mod_names(mods: &mut BTreeSet<String>, ignore: &CodegenConfigStringMatcherAnyOf) {
     mods.retain(|m| !is_ignored_mod_name(m, ignore));
 }
 
-fn is_ignored_mod_name(name: &str, ignore: &[CodegenConfigStringMatcher]) -> bool {
-    ignore.iter().any(|pattern| pattern.matches(name))
+fn is_ignored_mod_name(name: &str, ignore: &CodegenConfigStringMatcherAnyOf) -> bool {
+    ignore.matches(name)
 }
 
 fn is_good_mod_name(name: &str) -> bool {

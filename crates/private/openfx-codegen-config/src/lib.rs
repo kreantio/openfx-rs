@@ -7,7 +7,7 @@ use crate::config_make_mod_rs::CodegenConfigMakeModRs;
 mod common;
 mod config_make_mod_rs;
 
-pub use common::CodegenConfigStringMatcher;
+pub use common::{CodegenConfigStringMatcher, CodegenConfigStringMatcherAnyOf};
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfig {
@@ -29,6 +29,18 @@ impl CodegenConfig {
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigStatuses {
     pub identical_ones: Vec<Vec<String>>,
+    pub groups: CodegenConfigStatusesGroups,
+}
+
+#[derive(serde::Deserialize)]
+pub struct CodegenConfigStatusesGroups {
+    pub errors: CodegenConfigStatusesGroup,
+    pub replies: CodegenConfigStatusesGroup,
+}
+
+#[derive(serde::Deserialize)]
+pub struct CodegenConfigStatusesGroup {
+    pub members_matcher: CodegenConfigStringMatcherAnyOf,
 }
 
 #[derive(serde::Deserialize)]

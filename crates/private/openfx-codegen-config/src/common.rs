@@ -32,3 +32,12 @@ impl CodegenConfigStringMatcher {
         }
     }
 }
+
+#[derive(serde::Deserialize)]
+pub struct CodegenConfigStringMatcherAnyOf(pub Vec<CodegenConfigStringMatcher>);
+
+impl CodegenConfigStringMatcherAnyOf {
+    pub fn matches(&self, s: &str) -> bool {
+        self.0.iter().any(|matcher| matcher.matches(s))
+    }
+}
