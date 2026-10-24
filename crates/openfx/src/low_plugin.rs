@@ -45,7 +45,7 @@ impl<T: Plugin> crate::sys_plugin_helpers::ImageEffectPluginV1 for T {
         };
 
         match T::main_entry(action) {
-            Ok(_) => crate::sys_umbrella::kOfxStatOK,
+            Ok(okish) => okish.sys_status(),
             Err(status) => status.into(),
         }
     }
