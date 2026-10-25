@@ -1,8 +1,9 @@
 [package]
 name = "openfx-codegen"
 publish = false
+edition.workspace = true
+rust-version.workspace = true
 version.workspace = true
-edition = "2024"
 license.workspace = true
 repository.workspace = true
 

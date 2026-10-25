@@ -1,10 +1,11 @@
 [package]
 name = "openfx"
+edition.workspace = true
+rust-version.workspace = true
 version.workspace = true
-edition = "2024"
-description = "Rust bindings for the OpenFX API"
 license.workspace = true
 repository.workspace = true
+description = "Rust bindings for the OpenFX API"
 include = ["src/**", "generated/**", "README.md", "LICENSE"]
 
 [features]
