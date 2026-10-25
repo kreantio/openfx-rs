@@ -9,10 +9,14 @@ pub use crate::generated::low::c_statuses::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[must_use]
-pub struct Status(pub OfxStatus);
+pub struct Status(OfxStatus);
 
 impl Status {
     pub const OK: Status = Status(kOfxStatOK);
+
+    pub fn sys(&self) -> OfxStatus {
+        self.0
+    }
 }
 
 impl From<OfxStatus> for Status {
@@ -57,8 +61,8 @@ pub enum InboundResult<T> {
     KnownReply(StatusReply),
     /// Use [`Self::sys_matches`] for matching unknown statuses instead. Even if
     /// matching this variant for unrecognized statuses works now, it will break
-    /// when this crate adds dedicated variants for those statuses in a future
-    /// release.
+    /// when this crate adds dedicated variants to [`StatusError`] or
+    /// [`StatusReply`] in a future release.
     UnknownDontUseThisDirectly(OfxStatus),
 }
 
