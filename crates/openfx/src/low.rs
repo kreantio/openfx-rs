@@ -1,13 +1,14 @@
 use crate::sys_umbrella::{OfxStatus, kOfxStatOK};
 
-pub use crate::generated::low::c_statuses::*;
-
 pub mod enums {
     pub use crate::generated::low::c_enums::*;
     pub use crate::generated::low::meta_enums::*;
 }
 
+pub use crate::generated::low::c_statuses::*;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[must_use]
 pub struct Status(pub OfxStatus);
 
 impl Status {

@@ -5,6 +5,7 @@ const _: () = assert!(
     crate::sys_umbrella::kOfxStatGPURenderFailed == crate::sys_umbrella::kOfxStatGLRenderFailed
 );
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[must_use]
 pub enum StatusError {
     ErrBadHandle,
     ErrBadIndex,
@@ -68,6 +69,7 @@ impl From<StatusError> for crate::sys_umbrella::OfxStatus {
     }
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[must_use]
 pub enum StatusReply {
     ReplyDefault,
     ReplyNo,
