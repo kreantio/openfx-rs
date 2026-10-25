@@ -1,8 +1,6 @@
 use std::ffi::c_int;
 
-use openfx::{
-    low::StatusError, low_plugin::objects::ImageEffectInstance, sys::generic::core::OfxRectI,
-};
+use openfx::{low::StatusError, low_plugin::objects::ImageEffectInstance, sys::core::OfxRectI};
 
 use crate::helpers::shared_data::{ClipImageManaged, SharedData};
 

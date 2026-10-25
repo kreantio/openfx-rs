@@ -3,7 +3,7 @@ use std::ffi::c_int;
 use openfx::{
     low::StatusError,
     low_plugin::objects::ImageEffectInstance,
-    sys::generic::core::{OfxRectD, OfxRectI},
+    sys::core::{OfxRectD, OfxRectI},
 };
 
 use crate::helpers::shared_data::{ClipImageManaged, SharedData};

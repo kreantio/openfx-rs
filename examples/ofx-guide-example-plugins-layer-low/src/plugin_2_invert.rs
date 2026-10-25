@@ -17,7 +17,7 @@ use openfx::{
         actions::image_effect::{ActionDescribeInContextIn, ActionRenderIn, ImageEffectAction},
         objects::{ImageEffectDescriptor, ImageEffectInstance},
     },
-    sys::generic::core::OfxRectI,
+    sys::core::OfxRectI,
 };
 
 use crate::{

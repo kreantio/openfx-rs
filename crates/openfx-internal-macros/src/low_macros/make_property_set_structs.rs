@@ -44,16 +44,16 @@ fn make_property_set_struct(
     let struct_name = &set.name;
 
     output.extend(quote! {
-        pub struct #struct_name(crate::sys::generic::core::OfxPropertySetHandle);
+        pub struct #struct_name(crate::sys::core::OfxPropertySetHandle);
 
         impl #struct_name {
-            pub fn sys_handle(&self) -> crate::sys::generic::core::OfxPropertySetHandle {
+            pub fn sys_handle(&self) -> crate::sys::core::OfxPropertySetHandle {
                 self.0
             }
         }
 
-        impl From<crate::sys::generic::core::OfxPropertySetHandle> for #struct_name {
-            fn from(handle: crate::sys::generic::core::OfxPropertySetHandle) -> Self {
+        impl From<crate::sys::core::OfxPropertySetHandle> for #struct_name {
+            fn from(handle: crate::sys::core::OfxPropertySetHandle) -> Self {
                 Self(handle)
             }
         }

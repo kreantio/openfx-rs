@@ -81,7 +81,7 @@ pub trait LifetimePlugin {}
 /// [ofxThreadSafety.rst]: https://github.com/AcademySoftwareFoundation/openfx/blob/3de640d6f645fe6e346acd57e568d8b0a5ae4574/Documentation/sources/Reference/ofxThreadSafety.rst?plain=1#L41
 /// [invert.cpp]: https://github.com/AcademySoftwareFoundation/openfx/blob/3de640d6f645fe6e346acd57e568d8b0a5ae4574/Documentation/sources/Guide/Code/Example2/invert.cpp
 pub struct Host {
-    sys: *const crate::sys::generic::core::OfxHost,
+    sys: *const crate::sys::core::OfxHost,
     host: ImageEffectHostDescriptorPropertySet,
 }
 
