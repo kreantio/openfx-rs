@@ -39,8 +39,16 @@ impl From<Status> for OfxStatus {
     }
 }
 
+/// A result going to the other side: if you are writing a plugin, it goes to
+/// the host; if you are writing a host, it goes to the plugin.
 pub type OutboundResult = Result<Status, StatusError>;
 
+/// A “result” coming from the other side: if you are writing a plugin, it comes
+/// from the host; if you are writing a host, it comes from the plugin.
+///
+/// Despite the name, [`std::ops::Try`] is not implemented for this type.
+/// Callers are expected to handle the variants explicitly. This prevents a
+/// status from being accidentally propagated back to the side it came from.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[must_use]
 pub enum InboundResult<T> {
