@@ -1,7 +1,7 @@
 use std::ffi::{CStr, c_int, c_uint};
 
 use crate::{
-    low::OutboundResult2, low_plugin::property_sets::ImageEffectHostDescriptorPropertySet,
+    low::OutboundResult, low_plugin::property_sets::ImageEffectHostDescriptorPropertySet,
     sys_umbrella::OfxHost,
 };
 
@@ -18,7 +18,7 @@ pub trait Plugin {
     const PLUGIN_VERSION_MAJOR: c_uint;
     const PLUGIN_VERSION_MINOR: c_uint;
     fn set_host(host: Host);
-    fn main_entry(action: actions::image_effect::ImageEffectAction) -> OutboundResult2;
+    fn main_entry(action: actions::image_effect::ImageEffectAction) -> OutboundResult;
 }
 
 impl<T: Plugin> crate::sys_plugin_helpers::ImageEffectPluginV1 for T {

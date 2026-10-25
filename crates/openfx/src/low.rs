@@ -38,11 +38,11 @@ impl From<Status> for OfxStatus {
     }
 }
 
-pub type OutboundResult2 = Result<Status, StatusError>;
+pub type OutboundResult = Result<Status, StatusError>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[must_use]
-pub enum InboundResult2<T> {
+pub enum InboundResult<T> {
     Ok(T),
     KnownError(StatusError),
     KnownReply(StatusReply),
@@ -53,7 +53,7 @@ pub enum InboundResult2<T> {
     UnknownDontUseThisDirectly(OfxStatus),
 }
 
-impl InboundResult2<()> {
+impl InboundResult<()> {
     pub fn from_sys(sys_status: OfxStatus) -> Self {
         if sys_status == kOfxStatOK {
             return Self::Ok(());
@@ -69,7 +69,7 @@ impl InboundResult2<()> {
     }
 }
 
-impl<T> InboundResult2<T> {
+impl<T> InboundResult<T> {
     pub fn sys_status(&self) -> OfxStatus {
         match &self {
             Self::Ok(_) => kOfxStatOK,
@@ -110,29 +110,29 @@ impl<T> InboundResult2<T> {
     pub fn ok_or<E>(self, err: E) -> Result<T, E> {
         self.ok().ok_or(err)
     }
-    pub fn map_ok<U, F>(self, f: F) -> InboundResult2<U>
+    pub fn map_ok<U, F>(self, f: F) -> InboundResult<U>
     where
         F: FnOnce(T) -> U,
     {
         match self {
-            Self::Ok(value) => InboundResult2::Ok(f(value)),
-            Self::KnownError(status) => InboundResult2::KnownError(status),
-            Self::KnownReply(reply) => InboundResult2::KnownReply(reply),
+            Self::Ok(value) => InboundResult::Ok(f(value)),
+            Self::KnownError(status) => InboundResult::KnownError(status),
+            Self::KnownReply(reply) => InboundResult::KnownReply(reply),
             Self::UnknownDontUseThisDirectly(sys_status) => {
-                InboundResult2::UnknownDontUseThisDirectly(sys_status)
+                InboundResult::UnknownDontUseThisDirectly(sys_status)
             }
         }
     }
-    pub fn ok_and_then<U, F>(self, f: F) -> InboundResult2<U>
+    pub fn ok_and_then<U, F>(self, f: F) -> InboundResult<U>
     where
-        F: FnOnce(T) -> InboundResult2<U>,
+        F: FnOnce(T) -> InboundResult<U>,
     {
         match self {
             Self::Ok(value) => f(value),
-            Self::KnownError(status) => InboundResult2::KnownError(status),
-            Self::KnownReply(reply) => InboundResult2::KnownReply(reply),
+            Self::KnownError(status) => InboundResult::KnownError(status),
+            Self::KnownReply(reply) => InboundResult::KnownReply(reply),
             Self::UnknownDontUseThisDirectly(sys_status) => {
-                InboundResult2::UnknownDontUseThisDirectly(sys_status)
+                InboundResult::UnknownDontUseThisDirectly(sys_status)
             }
         }
     }

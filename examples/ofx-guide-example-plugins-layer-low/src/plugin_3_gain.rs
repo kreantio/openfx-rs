@@ -7,7 +7,7 @@ use std::{
 
 use openfx::{
     low::{
-        OutboundResult2, Status, StatusError, StatusReply,
+        OutboundResult, Status, StatusError, StatusReply,
         enums::{
             ImageEffectPluginRenderThreadSafety, ImageEffectPropContext,
             ImageEffectPropSupportedComponents, ImageEffectPropSupportedContexts,
@@ -75,7 +75,7 @@ impl Plugin for PluginExampleGain {
         lock.replace(GuaranteeSend(host));
     }
 
-    fn main_entry(action: ImageEffectAction) -> OutboundResult2 {
+    fn main_entry(action: ImageEffectAction) -> OutboundResult {
         match action {
             ImageEffectAction::Load { .. } => action_load(),
             ImageEffectAction::Unload { .. } => action_unload(),
@@ -98,7 +98,7 @@ impl Plugin for PluginExampleGain {
     }
 }
 
-fn action_load() -> OutboundResult2 {
+fn action_load() -> OutboundResult {
     let host = HOST_BEFORE_ACTION_LOAD
         .lock()
         .map_err(|_| StatusError::Failed)?
@@ -114,7 +114,7 @@ fn action_load() -> OutboundResult2 {
     }
 }
 
-fn action_unload() -> OutboundResult2 {
+fn action_unload() -> OutboundResult {
     let mut data = SHARED_DATA.lock().map_err(|_| StatusError::Failed)?;
     if data.take().is_none() {
         Err(StatusError::Failed)
@@ -123,7 +123,7 @@ fn action_unload() -> OutboundResult2 {
     }
 }
 
-fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult2 {
+fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
@@ -171,7 +171,7 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult2 {
 fn action_describe_in_context(
     descriptor: ImageEffectDescriptor,
     in_args: ActionDescribeInContextIn,
-) -> OutboundResult2 {
+) -> OutboundResult {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
@@ -258,7 +258,7 @@ fn action_describe_in_context(
     Ok(Status::OK)
 }
 
-fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult2 {
+fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
@@ -306,7 +306,7 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult2 {
     Ok(Status::OK)
 }
 
-fn action_destroy_instance(instance: ImageEffectInstance) -> OutboundResult2 {
+fn action_destroy_instance(instance: ImageEffectInstance) -> OutboundResult {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
@@ -329,7 +329,7 @@ fn action_is_identity(
     effect: ImageEffectInstance,
     in_args: ActionIsIdentityIn,
     out_args: ActionIsIdentityOut,
-) -> OutboundResult2 {
+) -> OutboundResult {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
@@ -358,7 +358,7 @@ fn action_is_identity(
     }
 }
 
-fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> OutboundResult2 {
+fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> OutboundResult {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;

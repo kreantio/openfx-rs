@@ -229,7 +229,7 @@ macro_rules! param_get_value_at_time{
             let time = $time;
             #[allow(clippy::macro_metavars_in_unsafe)]
             let stat = unsafe { param_get_value_at_time($param_handle, time, $(&mut $value),+) };
-            if !openfx::low::InboundResult2::from_sys(stat).is_ok() {
+            if !openfx::low::InboundResult::from_sys(stat).is_ok() {
                 return Err(openfx::low::StatusError::Failed.into());
             }
         }

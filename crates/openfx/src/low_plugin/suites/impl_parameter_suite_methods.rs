@@ -1,7 +1,7 @@
 use std::ffi::{CStr, c_int, c_uint};
 
 use crate::{
-    low::InboundResult2,
+    low::InboundResult,
     low_plugin::{
         objects::{ParamSetDescriptor, ParamSetInstance},
         property_sets::ParamSetPropertySet,
@@ -25,12 +25,12 @@ impl ParameterSuiteV1 {
         param_set: &ParamSetDescriptor,
         param_type: &CStr,
         name: &CStr,
-    ) -> InboundResult2<OfxPropertySetHandle> {
+    ) -> InboundResult<OfxPropertySetHandle> {
         let sys_fn = unsafe { sys_fn!() };
 
         let mut property_set = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        InboundResult2::from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 param_set.sys_handle(),
                 param_type.as_ptr(),
@@ -53,10 +53,10 @@ impl ParameterSuiteV1 {
         param_set: &ParamSetDescriptor,
         param_type: &CStr,
         name: &CStr,
-    ) -> InboundResult2<()> {
+    ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!("paramDefine") };
 
-        InboundResult2::from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 param_set.sys_handle(),
                 param_type.as_ptr(),
@@ -73,19 +73,19 @@ impl ParameterSuiteV1 {
         &self,
         param_set: &ParamSetInstance,
         name: &CStr,
-    ) -> InboundResult2<()> {
+    ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        InboundResult2::from_sys(unsafe { sys_fn(param_set.sys_handle(), name.as_ptr()) })
+        InboundResult::from_sys(unsafe { sys_fn(param_set.sys_handle(), name.as_ptr()) })
     }
 
     /// ## Safety
     ///
     /// `self` and `param_set` must be valid.
-    pub(crate) unsafe fn param_edit_end(&self, param_set: &ParamSetInstance) -> InboundResult2<()> {
+    pub(crate) unsafe fn param_edit_end(&self, param_set: &ParamSetInstance) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        InboundResult2::from_sys(unsafe { sys_fn(param_set.sys_handle()) })
+        InboundResult::from_sys(unsafe { sys_fn(param_set.sys_handle()) })
     }
 
     /// ## Safety
@@ -95,13 +95,13 @@ impl ParameterSuiteV1 {
         &self,
         param_set: &ParamSetInstance,
         name: &CStr,
-    ) -> InboundResult2<(OfxParamHandle, OfxPropertySetHandle)> {
+    ) -> InboundResult<(OfxParamHandle, OfxPropertySetHandle)> {
         let sys_fn = unsafe { sys_fn!() };
 
         let mut param = std::mem::MaybeUninit::<OfxParamHandle>::uninit();
         let mut property_set = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        InboundResult2::from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 param_set.sys_handle(),
                 name.as_ptr(),
@@ -119,12 +119,12 @@ impl ParameterSuiteV1 {
         &self,
         param_set: &ParamSetInstance,
         name: &CStr,
-    ) -> InboundResult2<OfxParamHandle> {
+    ) -> InboundResult<OfxParamHandle> {
         let sys_fn = unsafe { sys_fn!("paramGetHandle") };
 
         let mut param = std::mem::MaybeUninit::<OfxParamHandle>::uninit();
 
-        InboundResult2::from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 param_set.sys_handle(),
                 name.as_ptr(),
@@ -146,12 +146,12 @@ impl ParameterSuiteV1 {
     pub(super) unsafe fn param_set_get_property_set(
         &self,
         sys_param_set: OfxParamSetHandle,
-    ) -> InboundResult2<OfxPropertySetHandle> {
+    ) -> InboundResult<OfxPropertySetHandle> {
         let sys_fn = unsafe { sys_fn!() };
 
         let mut prop_handle = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        InboundResult2::from_sys(unsafe { sys_fn(sys_param_set, prop_handle.as_mut_ptr()) })
+        InboundResult::from_sys(unsafe { sys_fn(sys_param_set, prop_handle.as_mut_ptr()) })
             .map_ok(|()| unsafe { prop_handle.assume_init() })
     }
 
@@ -162,7 +162,7 @@ impl ParameterSuiteV1 {
     pub(crate) unsafe fn param_set_get_descriptor_property_set(
         &self,
         param_set: &ParamSetDescriptor,
-    ) -> InboundResult2<ParamSetPropertySet> {
+    ) -> InboundResult<ParamSetPropertySet> {
         unsafe {
             self.param_set_get_property_set(param_set.sys_handle())
                 .map_ok(ParamSetPropertySet::from)
@@ -176,7 +176,7 @@ impl ParameterSuiteV1 {
     pub(crate) unsafe fn param_set_get_instance_property_set(
         &self,
         param_set: &ParamSetInstance,
-    ) -> InboundResult2<ParamSetPropertySet> {
+    ) -> InboundResult<ParamSetPropertySet> {
         unsafe {
             self.param_set_get_property_set(param_set.sys_handle())
                 .map_ok(ParamSetPropertySet::from)
@@ -210,10 +210,10 @@ impl ParameterSuiteV1 {
         sys_param_from: OfxParamHandle,
         dst_offset: OfxTime,
         frame_range: Option<&OfxRangeD>,
-    ) -> InboundResult2<()> {
+    ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        InboundResult2::from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 sys_param_to,
                 sys_param_from,
@@ -229,10 +229,10 @@ impl ParameterSuiteV1 {
     pub unsafe fn param_delete_all_keys(
         &self,
         sys_param_handle: OfxParamHandle,
-    ) -> InboundResult2<()> {
+    ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        InboundResult2::from_sys(unsafe { sys_fn(sys_param_handle) })
+        InboundResult::from_sys(unsafe { sys_fn(sys_param_handle) })
     }
 
     /// ## Safety
@@ -242,10 +242,10 @@ impl ParameterSuiteV1 {
         &self,
         sys_param_handle: OfxParamHandle,
         time: OfxTime,
-    ) -> InboundResult2<()> {
+    ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        InboundResult2::from_sys(unsafe { sys_fn(sys_param_handle, time) })
+        InboundResult::from_sys(unsafe { sys_fn(sys_param_handle, time) })
     }
 
     /// ## Safety
@@ -256,12 +256,12 @@ impl ParameterSuiteV1 {
         sys_param_handle: OfxParamHandle,
         time: OfxTime,
         direction: c_int,
-    ) -> InboundResult2<c_int> {
+    ) -> InboundResult<c_int> {
         let sys_fn = unsafe { sys_fn!() };
 
         let mut index = std::mem::MaybeUninit::<c_int>::uninit();
 
-        InboundResult2::from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(sys_param_handle, time, direction, index.as_mut_ptr())
         })
         .map_ok(|()| unsafe { index.assume_init() })
@@ -274,12 +274,12 @@ impl ParameterSuiteV1 {
         &self,
         sys_param_handle: OfxParamHandle,
         nth_key: c_uint,
-    ) -> InboundResult2<OfxTime> {
+    ) -> InboundResult<OfxTime> {
         let sys_fn = unsafe { sys_fn!() };
 
         let mut time = std::mem::MaybeUninit::<OfxTime>::uninit();
 
-        InboundResult2::from_sys(unsafe { sys_fn(sys_param_handle, nth_key, time.as_mut_ptr()) })
+        InboundResult::from_sys(unsafe { sys_fn(sys_param_handle, nth_key, time.as_mut_ptr()) })
             .map_ok(|()| unsafe { time.assume_init() })
     }
 
@@ -289,12 +289,12 @@ impl ParameterSuiteV1 {
     pub unsafe fn param_get_num_keys(
         &self,
         sys_param_handle: OfxParamHandle,
-    ) -> InboundResult2<c_uint> {
+    ) -> InboundResult<c_uint> {
         let sys_fn = unsafe { sys_fn!() };
 
         let mut num_keys = std::mem::MaybeUninit::<c_uint>::uninit();
 
-        InboundResult2::from_sys(unsafe { sys_fn(sys_param_handle, num_keys.as_mut_ptr()) })
+        InboundResult::from_sys(unsafe { sys_fn(sys_param_handle, num_keys.as_mut_ptr()) })
             .map_ok(|()| unsafe { num_keys.assume_init() })
     }
 
@@ -304,12 +304,12 @@ impl ParameterSuiteV1 {
     pub unsafe fn param_get_property_set(
         &self,
         sys_param: OfxParamHandle,
-    ) -> InboundResult2<OfxPropertySetHandle> {
+    ) -> InboundResult<OfxPropertySetHandle> {
         let sys_fn = unsafe { sys_fn!() };
 
         let mut prop_handle = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        InboundResult2::from_sys(unsafe { sys_fn(sys_param, prop_handle.as_mut_ptr()) })
+        InboundResult::from_sys(unsafe { sys_fn(sys_param, prop_handle.as_mut_ptr()) })
             .map_ok(|()| unsafe { prop_handle.assume_init() })
     }
 }
