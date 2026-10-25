@@ -26,7 +26,7 @@ use std::ffi::{CStr, c_int, c_uint, c_void};
 
 use crate::{
     low::{
-        InboundResult, Okish,
+        InboundResult,
         enums::{DrawLineStipplePattern, DrawPrimitive, DrawTextAlignment, StandardColour},
     },
     low_plugin::{
@@ -67,7 +67,7 @@ impl DialogSuiteV1 {
     pub unsafe fn notify_redraw_pending(&self) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!(pascal) };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn() })
+        InboundResult::from_sys(unsafe { sys_fn() })
     }
 
     /// ## Safety
@@ -76,7 +76,7 @@ impl DialogSuiteV1 {
     pub unsafe fn request_dialog(&self, user_data: *mut c_void) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!(pascal) };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(user_data) })
+        InboundResult::from_sys(unsafe { sys_fn(user_data) })
     }
 }
 
@@ -93,7 +93,7 @@ impl DrawSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 context.sys_handle(),
                 primitive.as_sys(),
@@ -115,7 +115,7 @@ impl DrawSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 context.sys_handle(),
                 text.as_ptr(),
@@ -137,14 +137,14 @@ impl DrawSuiteV1 {
 
         let mut colour = std::mem::MaybeUninit::<OfxRGBAColourF>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 context.sys_handle(),
                 std_colour.as_sys(),
                 colour.as_mut_ptr(),
             )
-        })?
-        .map_ok(|()| unsafe { colour.assume_init() }))
+        })
+        .map_ok(|()| unsafe { colour.assume_init() })
     }
 
     /// ## Safety
@@ -157,7 +157,7 @@ impl DrawSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(context.sys_handle(), &colour) })
+        InboundResult::from_sys(unsafe { sys_fn(context.sys_handle(), &colour) })
     }
 
     /// ## Safety
@@ -170,7 +170,7 @@ impl DrawSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(context.sys_handle(), pattern.as_sys()) })
+        InboundResult::from_sys(unsafe { sys_fn(context.sys_handle(), pattern.as_sys()) })
     }
 
     /// ## Safety
@@ -183,7 +183,7 @@ impl DrawSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(context.sys_handle(), width) })
+        InboundResult::from_sys(unsafe { sys_fn(context.sys_handle(), width) })
     }
 }
 
@@ -202,7 +202,7 @@ impl ImageEffectOpenGLRenderSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(texture_handle.sys_handle()) })
+        InboundResult::from_sys(unsafe { sys_fn(texture_handle.sys_handle()) })
     }
 
     /// ## Safety
@@ -219,7 +219,7 @@ impl ImageEffectOpenGLRenderSuiteV1 {
 
         let mut texture_handle = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 clip.sys_handle(),
                 time,
@@ -227,8 +227,8 @@ impl ImageEffectOpenGLRenderSuiteV1 {
                 region,
                 texture_handle.as_mut_ptr(),
             )
-        })?
-        .map_ok(|()| unsafe { OpenGLTexturePropertySet::from(texture_handle.assume_init()) }))
+        })
+        .map_ok(|()| unsafe { OpenGLTexturePropertySet::from(texture_handle.assume_init()) })
     }
 
     /// ## Safety
@@ -237,7 +237,7 @@ impl ImageEffectOpenGLRenderSuiteV1 {
     pub unsafe fn flush_resources(&self) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn() })
+        InboundResult::from_sys(unsafe { sys_fn() })
     }
 }
 
@@ -264,14 +264,14 @@ impl ImageEffectSuiteV1 {
 
         let mut property_set = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 image_effect.sys_handle(),
                 name.as_ptr(),
                 property_set.as_mut_ptr(),
             )
-        })?
-        .map_ok(|()| unsafe { ImageClipDescriptorPropertySet::from(property_set.assume_init()) }))
+        })
+        .map_ok(|()| unsafe { ImageClipDescriptorPropertySet::from(property_set.assume_init()) })
     }
 
     /// ## Safety
@@ -287,20 +287,20 @@ impl ImageEffectSuiteV1 {
         let mut clip = std::mem::MaybeUninit::<OfxImageClipHandle>::uninit();
         let mut property_set = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 image_effect.sys_handle(),
                 name.as_ptr(),
                 clip.as_mut_ptr(),
                 property_set.as_mut_ptr(),
             )
-        })?
+        })
         .map_ok(|()| {
             (
                 unsafe { ImageClipInstance::from_sys_handle(clip.assume_init()) },
                 unsafe { ImageClipInstancePropertySet::from(property_set.assume_init()) },
             )
-        }))
+        })
     }
 
     /// ## Safety
@@ -315,15 +315,15 @@ impl ImageEffectSuiteV1 {
 
         let mut clip = std::mem::MaybeUninit::<OfxImageClipHandle>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 image_effect.sys_handle(),
                 name.as_ptr(),
                 clip.as_mut_ptr(),
                 std::ptr::null_mut(),
             )
-        })?
-        .map_ok(|()| unsafe { ImageClipInstance::from_sys_handle(clip.assume_init()) }))
+        })
+        .map_ok(|()| unsafe { ImageClipInstance::from_sys_handle(clip.assume_init()) })
     }
 
     /// ## Safety
@@ -339,7 +339,7 @@ impl ImageEffectSuiteV1 {
 
         let mut image_handle = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 clip.sys_handle(),
                 time,
@@ -348,8 +348,8 @@ impl ImageEffectSuiteV1 {
                     .map_or(std::ptr::null(), |r| *r as *const OfxRectD),
                 image_handle.as_mut_ptr(),
             )
-        })?
-        .map_ok(|()| unsafe { ImageInstancePropertySet::from(image_handle.assume_init()) }))
+        })
+        .map_ok(|()| unsafe { ImageInstancePropertySet::from(image_handle.assume_init()) })
     }
 
     /// ## Safety
@@ -363,10 +363,8 @@ impl ImageEffectSuiteV1 {
 
         let mut prop_handle = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        Ok(
-            Okish::inbound_result_from_sys(unsafe { sys_fn(sys_clip, prop_handle.as_mut_ptr()) })?
-                .map_ok(|()| unsafe { prop_handle.assume_init() }),
-        )
+        InboundResult::from_sys(unsafe { sys_fn(sys_clip, prop_handle.as_mut_ptr()) })
+            .map_ok(|()| unsafe { prop_handle.assume_init() })
     }
 
     /// ## Safety
@@ -377,10 +375,10 @@ impl ImageEffectSuiteV1 {
         &self,
         clip: &ImageClipDescriptor,
     ) -> InboundResult<ImageClipDescriptorPropertySet> {
-        Ok(unsafe {
-            self.clip_get_property_set(clip.sys_handle())?
+        unsafe {
+            self.clip_get_property_set(clip.sys_handle())
                 .map_ok(ImageClipDescriptorPropertySet::from)
-        })
+        }
     }
 
     /// ## Safety
@@ -391,10 +389,10 @@ impl ImageEffectSuiteV1 {
         &self,
         clip: &ImageClipInstance,
     ) -> InboundResult<ImageClipInstancePropertySet> {
-        Ok(unsafe {
-            self.clip_get_property_set(clip.sys_handle())?
+        unsafe {
+            self.clip_get_property_set(clip.sys_handle())
                 .map_ok(ImageClipInstancePropertySet::from)
-        })
+        }
     }
 
     /// ## Safety
@@ -409,10 +407,8 @@ impl ImageEffectSuiteV1 {
 
         let mut bounds = std::mem::MaybeUninit::<OfxRectD>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
-            sys_fn(clip.sys_handle(), time, bounds.as_mut_ptr())
-        })?
-        .map_ok(|()| unsafe { bounds.assume_init() }))
+        InboundResult::from_sys(unsafe { sys_fn(clip.sys_handle(), time, bounds.as_mut_ptr()) })
+            .map_ok(|()| unsafe { bounds.assume_init() })
     }
 
     /// ## Safety
@@ -429,7 +425,7 @@ impl ImageEffectSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(image_handle.sys_handle()) })
+        InboundResult::from_sys(unsafe { sys_fn(image_handle.sys_handle()) })
     }
 
     /// ## Safety
@@ -443,10 +439,8 @@ impl ImageEffectSuiteV1 {
 
         let mut param_set = std::mem::MaybeUninit::<OfxParamSetHandle>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
-            sys_fn(sys_image_effect, param_set.as_mut_ptr())
-        })?
-        .map_ok(|()| unsafe { param_set.assume_init() }))
+        InboundResult::from_sys(unsafe { sys_fn(sys_image_effect, param_set.as_mut_ptr()) })
+            .map_ok(|()| unsafe { param_set.assume_init() })
     }
 
     /// ## Safety
@@ -457,10 +451,10 @@ impl ImageEffectSuiteV1 {
         &self,
         image_effect: &ImageEffectDescriptor,
     ) -> InboundResult<ParamSetDescriptor> {
-        Ok(unsafe {
-            self.get_param_set(image_effect.sys_handle())?
+        unsafe {
+            self.get_param_set(image_effect.sys_handle())
                 .map_ok(ParamSetDescriptor::from_sys_handle)
-        })
+        }
     }
 
     /// ## Safety
@@ -471,10 +465,10 @@ impl ImageEffectSuiteV1 {
         &self,
         image_effect: &ImageEffectInstance,
     ) -> InboundResult<ParamSetInstance> {
-        Ok(unsafe {
-            self.get_param_set(image_effect.sys_handle())?
+        unsafe {
+            self.get_param_set(image_effect.sys_handle())
                 .map_ok(ParamSetInstance::from_sys_handle)
-        })
+        }
     }
 
     /// ## Safety
@@ -488,10 +482,8 @@ impl ImageEffectSuiteV1 {
 
         let mut prop_handle = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
-            sys_fn(sys_image_effect, prop_handle.as_mut_ptr())
-        })?
-        .map_ok(|()| unsafe { prop_handle.assume_init() }))
+        InboundResult::from_sys(unsafe { sys_fn(sys_image_effect, prop_handle.as_mut_ptr()) })
+            .map_ok(|()| unsafe { prop_handle.assume_init() })
     }
 
     /// ## Safety
@@ -502,10 +494,10 @@ impl ImageEffectSuiteV1 {
         &self,
         image_effect: &ImageEffectDescriptor,
     ) -> InboundResult<ImageEffectDescriptorPropertySet> {
-        Ok(unsafe {
-            self.get_property_set(image_effect.sys_handle())?
+        unsafe {
+            self.get_property_set(image_effect.sys_handle())
                 .map_ok(ImageEffectDescriptorPropertySet::from)
-        })
+        }
     }
 
     /// ## Safety
@@ -516,10 +508,10 @@ impl ImageEffectSuiteV1 {
         &self,
         image_effect: &ImageEffectInstance,
     ) -> InboundResult<ImageEffectInstancePropertySet> {
-        Ok(unsafe {
-            self.get_property_set(image_effect.sys_handle())?
+        unsafe {
+            self.get_property_set(image_effect.sys_handle())
                 .map_ok(ImageEffectInstancePropertySet::from)
-        })
+        }
     }
 
     /// ## Safety
@@ -534,14 +526,14 @@ impl ImageEffectSuiteV1 {
 
         let mut image_memory = std::mem::MaybeUninit::<OfxImageMemoryHandle>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 instance_handle.sys_handle(),
                 n_bytes,
                 image_memory.as_mut_ptr(),
             )
-        })?
-        .map_ok(|()| unsafe { ImageMemory::from_sys_handle(image_memory.assume_init()) }))
+        })
+        .map_ok(|()| unsafe { ImageMemory::from_sys_handle(image_memory.assume_init()) })
     }
 
     /// ## Safety
@@ -553,7 +545,7 @@ impl ImageEffectSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(memory_handle.sys_handle()) })
+        InboundResult::from_sys(unsafe { sys_fn(memory_handle.sys_handle()) })
     }
 
     /// ## Safety
@@ -567,10 +559,10 @@ impl ImageEffectSuiteV1 {
 
         let mut returned_ptr = std::mem::MaybeUninit::<*mut c_void>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(memory_handle.sys_handle(), returned_ptr.as_mut_ptr())
-        })?
-        .map_ok(|()| unsafe { returned_ptr.assume_init() }))
+        })
+        .map_ok(|()| unsafe { returned_ptr.assume_init() })
     }
 
     /// ## Safety
@@ -582,7 +574,7 @@ impl ImageEffectSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(memory_handle.sys_handle()) })
+        InboundResult::from_sys(unsafe { sys_fn(memory_handle.sys_handle()) })
     }
 }
 
@@ -605,10 +597,8 @@ impl InteractSuiteV1 {
 
         let mut property = std::mem::MaybeUninit::<OfxPropertySetHandle>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
-            sys_fn(sys_interact_instance, property.as_mut_ptr())
-        })?
-        .map_ok(|()| unsafe { property.assume_init() }))
+        InboundResult::from_sys(unsafe { sys_fn(sys_interact_instance, property.as_mut_ptr()) })
+            .map_ok(|()| unsafe { property.assume_init() })
     }
 
     /// ## Safety
@@ -624,10 +614,10 @@ impl InteractSuiteV1 {
         &self,
         interact_instance: &InteractDescriptor,
     ) -> InboundResult<InteractDescriptorPropertySet> {
-        Ok(unsafe {
-            self.interact_get_property_set(interact_instance.sys_handle())?
+        unsafe {
+            self.interact_get_property_set(interact_instance.sys_handle())
                 .map_ok(InteractDescriptorPropertySet::from)
-        })
+        }
     }
 
     /// ## Safety
@@ -638,10 +628,10 @@ impl InteractSuiteV1 {
         &self,
         interact_instance: &InteractInstance,
     ) -> InboundResult<InteractInstancePropertySet> {
-        Ok(unsafe {
-            self.interact_get_property_set(interact_instance.sys_handle())?
+        unsafe {
+            self.interact_get_property_set(interact_instance.sys_handle())
                 .map_ok(InteractInstancePropertySet::from)
-        })
+        }
     }
 
     /// ## Safety
@@ -653,7 +643,7 @@ impl InteractSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(interact_instance.sys_handle()) })
+        InboundResult::from_sys(unsafe { sys_fn(interact_instance.sys_handle()) })
     }
 
     /// ## Safety
@@ -665,7 +655,7 @@ impl InteractSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(interact_instance.sys_handle()) })
+        InboundResult::from_sys(unsafe { sys_fn(interact_instance.sys_handle()) })
     }
 }
 
@@ -688,10 +678,8 @@ impl MemorySuiteV1 {
 
         let mut allocated_data = std::mem::MaybeUninit::<*mut c_void>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
-            sys_fn(handle, n_bytes, allocated_data.as_mut_ptr())
-        })?
-        .map_ok(|()| unsafe { allocated_data.assume_init() }))
+        InboundResult::from_sys(unsafe { sys_fn(handle, n_bytes, allocated_data.as_mut_ptr()) })
+            .map_ok(|()| unsafe { allocated_data.assume_init() })
     }
     /// ## Safety
     ///
@@ -699,7 +687,7 @@ impl MemorySuiteV1 {
     pub unsafe fn memory_free(&self, allocated_data: *mut c_void) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(allocated_data) })
+        InboundResult::from_sys(unsafe { sys_fn(allocated_data) })
     }
 }
 
@@ -759,7 +747,7 @@ impl MessageSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!("message") };
 
-        Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 sys_handle,
                 message_type.as_ptr(),
@@ -793,7 +781,7 @@ impl MessageSuiteV2 {
     unsafe fn sys_clear_persistent_message(&self, sys_handle: *mut c_void) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!("clearPersistentMessage") };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(sys_handle) })
+        InboundResult::from_sys(unsafe { sys_fn(sys_handle) })
     }
 
     /// ## Safety
@@ -827,7 +815,7 @@ impl MessageSuiteV2 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!("message") };
 
-        Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 sys_handle,
                 message_type.as_ptr(),
@@ -872,7 +860,7 @@ impl MessageSuiteV2 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!("setPersistentMessage") };
 
-        Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 sys_handle,
                 message_type.as_ptr(),
@@ -917,7 +905,7 @@ impl MultiThreadSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!("multiThread") };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(Some(sys_func), n_threads, custom_arg) })
+        InboundResult::from_sys(unsafe { sys_fn(Some(sys_func), n_threads, custom_arg) })
     }
 
     /// ## Safety
@@ -951,10 +939,8 @@ impl MultiThreadSuiteV1 {
 
         let mut thread_index = std::mem::MaybeUninit::<c_uint>::uninit();
 
-        Ok(
-            Okish::inbound_result_from_sys(unsafe { sys_fn(thread_index.as_mut_ptr()) })?
-                .map_ok(|()| unsafe { thread_index.assume_init() }),
-        )
+        InboundResult::from_sys(unsafe { sys_fn(thread_index.as_mut_ptr()) })
+            .map_ok(|()| unsafe { thread_index.assume_init() })
     }
 
     /// ## Safety
@@ -974,10 +960,8 @@ impl MultiThreadSuiteV1 {
 
         let mut num_cpus = std::mem::MaybeUninit::<c_uint>::uninit();
 
-        Ok(
-            Okish::inbound_result_from_sys(unsafe { sys_fn(num_cpus.as_mut_ptr()) })?
-                .map_ok(|()| unsafe { num_cpus.assume_init() }),
-        )
+        InboundResult::from_sys(unsafe { sys_fn(num_cpus.as_mut_ptr()) })
+            .map_ok(|()| unsafe { num_cpus.assume_init() })
     }
 
     /// ## Safety
@@ -988,10 +972,8 @@ impl MultiThreadSuiteV1 {
 
         let mut mutex = std::mem::MaybeUninit::<OfxMutexHandle>::uninit();
 
-        Ok(
-            Okish::inbound_result_from_sys(unsafe { sys_fn(mutex.as_mut_ptr(), lock_count) })?
-                .map_ok(|()| unsafe { Mutex::from_sys_handle(mutex.assume_init()) }),
-        )
+        InboundResult::from_sys(unsafe { sys_fn(mutex.as_mut_ptr(), lock_count) })
+            .map_ok(|()| unsafe { Mutex::from_sys_handle(mutex.assume_init()) })
     }
 
     /// ## Safety
@@ -1005,7 +987,7 @@ impl MultiThreadSuiteV1 {
     pub(crate) unsafe fn mutex_destroy(&self, mutex: &Mutex) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(mutex.sys_handle()) })
+        InboundResult::from_sys(unsafe { sys_fn(mutex.sys_handle()) })
     }
 
     /// ## Safety
@@ -1014,7 +996,7 @@ impl MultiThreadSuiteV1 {
     pub(crate) unsafe fn mutex_lock(&self, mutex: &Mutex) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(mutex.sys_handle()) })
+        InboundResult::from_sys(unsafe { sys_fn(mutex.sys_handle()) })
     }
 
     /// ## Safety
@@ -1023,7 +1005,7 @@ impl MultiThreadSuiteV1 {
     pub(crate) unsafe fn mutex_try_lock(&self, mutex: &Mutex) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(mutex.sys_handle()) })
+        InboundResult::from_sys(unsafe { sys_fn(mutex.sys_handle()) })
     }
 
     /// ## Safety
@@ -1032,7 +1014,7 @@ impl MultiThreadSuiteV1 {
     pub(crate) unsafe fn mutex_unlock(&self, mutex: &Mutex) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!("mutexUnLock") };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(mutex.sys_handle()) })
+        InboundResult::from_sys(unsafe { sys_fn(mutex.sys_handle()) })
     }
 }
 
@@ -1055,7 +1037,7 @@ impl ParametricParameterSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(sys_param, curve_index, time, key, value, add_animation_key)
         })
     }
@@ -1070,7 +1052,7 @@ impl ParametricParameterSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(sys_param, curve_index) })
+        InboundResult::from_sys(unsafe { sys_fn(sys_param, curve_index) })
     }
 
     /// ## Safety
@@ -1084,7 +1066,7 @@ impl ParametricParameterSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe { sys_fn(sys_param, curve_index, nth_ctl) })
+        InboundResult::from_sys(unsafe { sys_fn(sys_param, curve_index, nth_ctl) })
     }
 
     /// ## Safety
@@ -1100,10 +1082,10 @@ impl ParametricParameterSuiteV1 {
 
         let mut return_value = std::mem::MaybeUninit::<c_int>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(sys_param, curve_index, time, return_value.as_mut_ptr())
-        })?
-        .map_ok(|()| unsafe { return_value.assume_init() }))
+        })
+        .map_ok(|()| unsafe { return_value.assume_init() })
     }
 
     /// ## Safety
@@ -1121,7 +1103,7 @@ impl ParametricParameterSuiteV1 {
         let mut key = std::mem::MaybeUninit::<f64>::uninit();
         let mut value = std::mem::MaybeUninit::<f64>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 sys_param,
                 curve_index,
@@ -1130,8 +1112,8 @@ impl ParametricParameterSuiteV1 {
                 key.as_mut_ptr(),
                 value.as_mut_ptr(),
             )
-        })?
-        .map_ok(|()| unsafe { (key.assume_init(), value.assume_init()) }))
+        })
+        .map_ok(|()| unsafe { (key.assume_init(), value.assume_init()) })
     }
 
     /// ## Safety
@@ -1148,7 +1130,7 @@ impl ParametricParameterSuiteV1 {
 
         let mut return_value = std::mem::MaybeUninit::<f64>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 param,
                 curve_index,
@@ -1156,8 +1138,8 @@ impl ParametricParameterSuiteV1 {
                 parametric_position,
                 return_value.as_mut_ptr(),
             )
-        })?
-        .map_ok(|()| unsafe { return_value.assume_init() }))
+        })
+        .map_ok(|()| unsafe { return_value.assume_init() })
     }
 
     /// ## Safety
@@ -1176,7 +1158,7 @@ impl ParametricParameterSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 param,
                 curve_index,
@@ -1201,9 +1183,7 @@ impl ProgressSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe {
-            sys_fn(effect_instance.sys_handle() as *mut c_void)
-        })
+        InboundResult::from_sys(unsafe { sys_fn(effect_instance.sys_handle() as *mut c_void) })
     }
 
     /// ## Safety
@@ -1216,7 +1196,7 @@ impl ProgressSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(effect_instance.sys_handle() as *mut c_void, label.as_ptr())
         })
     }
@@ -1231,7 +1211,7 @@ impl ProgressSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(effect_instance.sys_handle() as *mut c_void, progress)
         })
     }
@@ -1248,9 +1228,7 @@ impl ProgressSuiteV2 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe {
-            sys_fn(effect_instance.sys_handle() as *mut c_void)
-        })
+        InboundResult::from_sys(unsafe { sys_fn(effect_instance.sys_handle() as *mut c_void) })
     }
 
     /// ## Safety
@@ -1264,7 +1242,7 @@ impl ProgressSuiteV2 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 effect_instance.sys_handle() as *mut c_void,
                 message.as_ptr(),
@@ -1283,7 +1261,7 @@ impl ProgressSuiteV2 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(effect_instance.sys_handle() as *mut c_void, progress)
         })
     }
@@ -1299,10 +1277,10 @@ impl TimeLineSuiteV1 {
 
         let mut time = std::mem::MaybeUninit::<OfxTime>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(instance.sys_handle() as *mut c_void, time.as_mut_ptr())
-        })?
-        .map_ok(|()| unsafe { time.assume_init() }))
+        })
+        .map_ok(|()| unsafe { time.assume_init() })
     }
 
     /// ## Safety
@@ -1317,14 +1295,14 @@ impl TimeLineSuiteV1 {
         let mut first_time = std::mem::MaybeUninit::<OfxTime>::uninit();
         let mut last_time = std::mem::MaybeUninit::<OfxTime>::uninit();
 
-        Ok(Okish::inbound_result_from_sys(unsafe {
+        InboundResult::from_sys(unsafe {
             sys_fn(
                 instance.sys_handle() as *mut c_void,
                 first_time.as_mut_ptr(),
                 last_time.as_mut_ptr(),
             )
-        })?
-        .map_ok(|()| unsafe { (first_time.assume_init(), last_time.assume_init()) }))
+        })
+        .map_ok(|()| unsafe { (first_time.assume_init(), last_time.assume_init()) })
     }
 
     /// ## Safety
@@ -1337,8 +1315,6 @@ impl TimeLineSuiteV1 {
     ) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
-        Okish::inbound_result_from_sys(unsafe {
-            sys_fn(instance.sys_handle() as *mut c_void, time)
-        })
+        InboundResult::from_sys(unsafe { sys_fn(instance.sys_handle() as *mut c_void, time) })
     }
 }

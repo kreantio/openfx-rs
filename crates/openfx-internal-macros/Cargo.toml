@@ -1,10 +1,11 @@
 [package]
 name = "openfx-internal-macros"
+edition.workspace = true
+rust-version.workspace = true
 version.workspace = true
-edition = "2024"
-description = "Internal macros for the crate openfx. No compatibility guarantees."
 license.workspace = true
 repository.workspace = true
+description = "Internal macros for the crate openfx. No compatibility guarantees."
 
 [lib]
 proc-macro = true

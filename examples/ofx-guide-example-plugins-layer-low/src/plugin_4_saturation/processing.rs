@@ -1,9 +1,7 @@
 use std::ffi::c_int;
 
 use openfx::{
-    low::{Okish, OutboundResult, StatusError},
-    low_plugin::objects::ImageEffectInstance,
-    sys::generic::core::OfxRectI,
+    low::StatusError, low_plugin::objects::ImageEffectInstance, sys::generic::core::OfxRectI,
 };
 
 use crate::helpers::shared_data::{ClipImageManaged, SharedData};
@@ -20,7 +18,7 @@ pub fn pixel_processing<T>(
     mask_img: Option<ClipImageManaged>,
     output_img: ClipImageManaged,
     render_window: OfxRectI,
-) -> OutboundResult<()>
+) -> Result<(), StatusError>
 where
     T: Copy + Default + std::ops::Add<Output = T>,
 {
@@ -33,11 +31,11 @@ where
                     .is_some_and(|abort| abort(instance.sys_handle()) != 0)
             }
         {
-            return Okish::result_ok(());
+            return Ok(());
         }
 
         let Some(dst_pix) = output_img.raw_address(render_window.x1, y) else {
-            return Err(StatusError::Failed.into());
+            return Err(StatusError::Failed);
         };
         let mut dst_pix = dst_pix as *mut T;
 
@@ -99,7 +97,7 @@ where
         }
     }
 
-    Okish::result_ok(())
+    Ok(())
 }
 
 pub fn rect_i_from_array(arr: &[c_int; 4]) -> OfxRectI {

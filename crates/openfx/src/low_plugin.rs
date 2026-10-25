@@ -18,7 +18,7 @@ pub trait Plugin {
     const PLUGIN_VERSION_MAJOR: c_uint;
     const PLUGIN_VERSION_MINOR: c_uint;
     fn set_host(host: Host);
-    fn main_entry(action: actions::image_effect::ImageEffectAction) -> OutboundResult<()>;
+    fn main_entry(action: actions::image_effect::ImageEffectAction) -> OutboundResult;
 }
 
 impl<T: Plugin> crate::sys_plugin_helpers::ImageEffectPluginV1 for T {
@@ -45,7 +45,7 @@ impl<T: Plugin> crate::sys_plugin_helpers::ImageEffectPluginV1 for T {
         };
 
         match T::main_entry(action) {
-            Ok(okish) => okish.sys_status(),
+            Ok(status) => status.into(),
             Err(status) => status.into(),
         }
     }

@@ -110,6 +110,7 @@ fn gen_group(
 
     output.extend(quote! {
         #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+        #[must_use]
         pub enum #enum_name_ident {
             #(#statuses,)*
         }

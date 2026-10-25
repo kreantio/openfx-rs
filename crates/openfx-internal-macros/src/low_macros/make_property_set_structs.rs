@@ -224,6 +224,8 @@ fn make_property_getter(
         );
 
         let expressive_ty = preset.expressive_type(ty.ident());
+        let simple_type = preset.simple_type();
+
         let simple_to_expressive_quote =
             preset.simple_type_to_expressive_type(quote! { value_simple });
         let is_conversion_unnecessary = simple_to_expressive_quote.is_none();
@@ -231,7 +233,7 @@ fn make_property_getter(
             Some(simple_to_expressive_quote) => match &prop.ty {
                 InputContainerType::Scalar(_) => quote! { #simple_to_expressive_quote },
                 InputContainerType::Array(_, _) => {
-                    quote! { value_simple.into_iter().map(|value_simple| #simple_to_expressive_quote) }
+                    quote! { value_simple.map(|value_simple| #simple_to_expressive_quote) }
                 }
                 InputContainerType::Slice(_) => {
                     quote! { value_simple.into_iter().map(|value_simple| #simple_to_expressive_quote).collect() }
@@ -260,8 +262,8 @@ fn make_property_getter(
                 quote! {
                     #doc
                     pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::InboundResult<#expressive_ty> {
-                        let value_simple_okish = suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname)?;
-                        Ok(value_simple_okish.map_ok(|value_simple| #simple_value_to_expressive_quote))
+                        suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname)
+                            .map_ok(|value_simple| #simple_value_to_expressive_quote)
                     }
                 },
             ),
@@ -277,8 +279,8 @@ fn make_property_getter(
                 quote! {
                     #doc
                     pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::InboundResult<[#expressive_ty; #size]> {
-                        let value_simple_okish = suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)?;
-                        Ok(value_simple_okish.map_ok(|value_simple| #simple_value_to_expressive_quote))
+                        suite.#fn_name_on_suite::<#size>(self.sys_handle(), crate::sys_umbrella::#cname)
+                            .map_ok(|value_simple| #simple_value_to_expressive_quote)
                     }
                 },
             ),
@@ -286,17 +288,23 @@ fn make_property_getter(
                 quote! {
                     #doc
                     pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::InboundResult<::std::vec::Vec<#expressive_ty>> {
-                        let dimensions_okish = suite.prop_get_dimension(self.sys_handle(), crate::sys_umbrella::#cname)?;
-                        let dimensions = match dimensions_okish.ok_into_result() {
-                            Ok(dimensions) => dimensions,
-                            Err(okish) => return Ok(okish.into_other()),
-                        };
-                        let dimensions = dimensions as usize;
 
-                        let mut value_simple = ::std::vec::Vec::with_capacity(dimensions);
-                        unsafe { value_simple.set_len(dimensions); }
-                        Ok(suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, &mut value_simple)?
-                        .map_ok(|()| #simple_value_to_expressive_quote))
+                        suite.prop_get_dimension(self.sys_handle(), crate::sys_umbrella::#cname)
+                            .ok_and_then(|dimensions| {
+                                let dimensions = dimensions as usize;
+                                let mut value_simple: ::std::vec::Vec<#simple_type> = ::std::vec::Vec::with_capacity(dimensions);
+
+                                const _: () = assert!(!std::mem::needs_drop::<#simple_type>());
+                                // SAFETY: API contract.
+                                //
+                                // On early return: since `#simple_type` does
+                                // not need to be dropped, dropping the vector
+                                // early with uninitialized elements is safe.
+                                unsafe { value_simple.set_len(dimensions); }
+
+                                suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, &mut value_simple)
+                                    .map_ok(|()| #simple_value_to_expressive_quote)
+                            })
                     }
                 },
             ),
@@ -446,6 +454,7 @@ trait ImplGetterPreset {
     fn additional_safety_doc(&self) -> Option<proc_macro2::TokenStream> {
         None
     }
+    fn simple_type(&self) -> proc_macro2::TokenStream;
     /// The expressive type used in the `low` layer, i.e., the type of the value
     /// retrieved from the getter function that this preset adds.
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream;
@@ -475,6 +484,9 @@ impl ImplSetterPreset for ImplAccessorsPresetInt {
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetInt {
+    fn simple_type(&self) -> proc_macro2::TokenStream {
+        quote! { ::std::os::raw::c_int }
+    }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         self.expressive_type(ident)
     }
@@ -493,6 +505,9 @@ impl ImplSetterPreset for ImplAccessorsPresetDouble {
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetDouble {
+    fn simple_type(&self) -> proc_macro2::TokenStream {
+        quote! { ::core::primitive::f64 }
+    }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         self.expressive_type(ident)
     }
@@ -517,6 +532,9 @@ impl ImplSetterPreset for ImplAccessorsPresetBool {
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetBool {
+    fn simple_type(&self) -> proc_macro2::TokenStream {
+        quote! { ::std::os::raw::c_int }
+    }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         self.expressive_type(ident)
     }
@@ -546,6 +564,9 @@ impl ImplGetterPreset for ImplAccessorsPresetPointer {
             /// The lifetime of the retrieved pointer(s) is controlled by the
             /// host.
         })
+    }
+    fn simple_type(&self) -> proc_macro2::TokenStream {
+        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_void>> }
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         self.expressive_type(ident)
@@ -583,6 +604,9 @@ impl ImplGetterPreset for ImplAccessorsPresetString {
             /// host.
         })
     }
+    fn simple_type(&self) -> proc_macro2::TokenStream {
+        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_char>> }
+    }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let c_char = quote_spanned! { ident.span() => c_char };
         quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::#c_char>> }
@@ -592,13 +616,24 @@ impl ImplGetterPreset for ImplAccessorsPresetString {
 struct ImplGetterPresetStringOwned;
 impl ImplGetterPreset for ImplGetterPresetStringOwned {
     fn simple_type_suffix(&self) -> Option<&'static str> {
-        Some("owned")
+        ImplAccessorsPresetString::SIMPLE_TYPE_SUFFIX
     }
     fn fn_name_suffix(&self) -> Option<&'static str> {
         Some("owned")
     }
+    fn simple_type(&self) -> proc_macro2::TokenStream {
+        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_char>> }
+    }
     fn expressive_type(&self, _ident: &syn::Ident) -> proc_macro2::TokenStream {
         quote! { ::std::option::Option<::std::ffi::CString> }
+    }
+    fn simple_type_to_expressive_type(
+        &self,
+        simple_val: proc_macro2::TokenStream,
+    ) -> Option<proc_macro2::TokenStream> {
+        Some(
+            quote! { #simple_val.map(|s| unsafe { ::std::ffi::CStr::from_ptr(s.as_ptr()).to_owned() }) },
+        )
     }
 }
 
@@ -628,6 +663,9 @@ impl ImplGetterPreset for ImplAccessorsPresetEnum {
     fn simple_type_suffix(&self) -> Option<&'static str> {
         Self::SIMPLE_TYPE_SUFFIX
     }
+    fn simple_type(&self) -> proc_macro2::TokenStream {
+        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_char>> }
+    }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let name = &self.name;
         let known = quote_spanned! { ident.span() => crate::low::enums::#name };
@@ -655,6 +693,9 @@ impl ImplGetterPreset for ImplGetterPresetEnumKnown {
     fn fn_name_suffix(&self) -> Option<&'static str> {
         Some("known")
     }
+    fn simple_type(&self) -> proc_macro2::TokenStream {
+        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_char>> }
+    }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let name = &self.name;
         let known = quote_spanned! { ident.span() => crate::low::enums::#name };
@@ -681,6 +722,9 @@ impl ImplGetterPreset for ImplGetterPresetEnumOwned {
     }
     fn fn_name_suffix(&self) -> Option<&'static str> {
         Some("owned")
+    }
+    fn simple_type(&self) -> proc_macro2::TokenStream {
+        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_char>> }
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let name = &self.name;
