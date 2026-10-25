@@ -17,18 +17,19 @@ exclude = [
 [workspace.package]
 edition = "2024"
 rust-version = "1.99"
-version = "0.6.0"
+version = "0.7.0"
 license = "BSD-3-Clause"
 repository = "https://github.com/kreantio/openfx-rs"
 
 [workspace.lints]
 
 [workspace.dependencies]
-openfx = { path = "crates/openfx", version = "0.6.0" }
-openfx-codegen = { path = "crates/private/openfx-codegen", version = "0.6.0" }
-openfx-codegen-config = { path = "crates/private/openfx-codegen-config", version = "0.6.0" }
+openfx = { path = "crates/openfx", version = "0.7.0" }
+openfx-codegen = { path = "crates/private/openfx-codegen", version = "0.7.0" }
+openfx-codegen-config = { path = "crates/private/openfx-codegen-config", version = "0.7.0" }
+openfx-internal-macros = { path = "crates/openfx-internal-macros", version = "0.7.0" }
+
 openfx-datagen = { path = "vendor/openfx-data/openfx-datagen/crates/openfx-datagen", version = "0.6.0" }
-openfx-internal-macros = { path = "crates/openfx-internal-macros", version = "0.6.0" }
 
 clap = "4.6.6"
 convert_case = "0.11.0"
