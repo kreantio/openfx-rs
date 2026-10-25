@@ -5,7 +5,7 @@ use std::ffi::{CStr, c_void};
 
 use crate::{
     low::{
-        InboundResult,
+        InboundResult2,
         enums::{DrawLineStipplePattern, DrawPrimitive, DrawTextAlignment, StandardColour},
     },
     low_plugin::{
@@ -41,7 +41,7 @@ impl DrawContext {
         draw_suite: &DrawSuiteV1,
         primitive: DrawPrimitive,
         points: &[OfxPointD],
-    ) -> InboundResult<()> {
+    ) -> InboundResult2<()> {
         unsafe { draw_suite.draw(self, primitive, points) }
     }
 
@@ -54,7 +54,7 @@ impl DrawContext {
         text: &CStr,
         pos: &OfxPointD,
         alignment: DrawTextAlignment,
-    ) -> InboundResult<()> {
+    ) -> InboundResult2<()> {
         unsafe { draw_suite.draw_text(self, text, pos, alignment) }
     }
 
@@ -65,7 +65,7 @@ impl DrawContext {
         &self,
         draw_suite: &DrawSuiteV1,
         std_colour: StandardColour,
-    ) -> InboundResult<OfxRGBAColourF> {
+    ) -> InboundResult2<OfxRGBAColourF> {
         unsafe { draw_suite.get_colour(self, std_colour) }
     }
 
@@ -76,7 +76,7 @@ impl DrawContext {
         &self,
         draw_suite: &DrawSuiteV1,
         colour: OfxRGBAColourF,
-    ) -> InboundResult<()> {
+    ) -> InboundResult2<()> {
         unsafe { draw_suite.set_colour(self, colour) }
     }
 
@@ -87,14 +87,18 @@ impl DrawContext {
         &self,
         draw_suite: &DrawSuiteV1,
         pattern: DrawLineStipplePattern,
-    ) -> InboundResult<()> {
+    ) -> InboundResult2<()> {
         unsafe { draw_suite.set_line_stipple(self, pattern) }
     }
 
     /// ## Safety
     ///
     /// `self` and `draw_suite` must be valid.
-    pub unsafe fn set_line_width(&self, draw_suite: &DrawSuiteV1, width: f32) -> InboundResult<()> {
+    pub unsafe fn set_line_width(
+        &self,
+        draw_suite: &DrawSuiteV1,
+        width: f32,
+    ) -> InboundResult2<()> {
         unsafe { draw_suite.set_line_width(self, width) }
     }
 }
@@ -106,7 +110,7 @@ impl ImageClipDescriptor {
     pub unsafe fn clip_get_property_set(
         &self,
         image_effect_suite: &ImageEffectSuiteV1,
-    ) -> InboundResult<ImageClipDescriptorPropertySet> {
+    ) -> InboundResult2<ImageClipDescriptorPropertySet> {
         unsafe { image_effect_suite.clip_get_descriptor_property_set(self) }
     }
 }
@@ -120,7 +124,7 @@ impl ImageClipInstance {
         image_effect_suite: &ImageEffectSuiteV1,
         time: OfxTime,
         region: Option<&OfxRectD>,
-    ) -> InboundResult<ImageInstancePropertySet> {
+    ) -> InboundResult2<ImageInstancePropertySet> {
         unsafe { image_effect_suite.clip_get_image(self, time, region) }
     }
 
@@ -130,7 +134,7 @@ impl ImageClipInstance {
     pub unsafe fn clip_get_property_set(
         &self,
         image_effect_suite: &ImageEffectSuiteV1,
-    ) -> InboundResult<ImageClipInstancePropertySet> {
+    ) -> InboundResult2<ImageClipInstancePropertySet> {
         unsafe { image_effect_suite.clip_get_instance_property_set(self) }
     }
 
@@ -141,7 +145,7 @@ impl ImageClipInstance {
         &self,
         image_effect_suite: &ImageEffectSuiteV1,
         time: OfxTime,
-    ) -> InboundResult<OfxRectD> {
+    ) -> InboundResult2<OfxRectD> {
         unsafe { image_effect_suite.clip_get_region_of_definition(self, time) }
     }
 
@@ -157,7 +161,7 @@ impl ImageClipInstance {
         time: OfxTime,
         format: &CStr,
         region: &OfxRectD,
-    ) -> InboundResult<OpenGLTexturePropertySet> {
+    ) -> InboundResult2<OpenGLTexturePropertySet> {
         unsafe { image_effect_open_gl_render_suite.clip_load_texture(self, time, format, region) }
     }
 }
@@ -170,7 +174,7 @@ impl ImageEffectDescriptor {
         &self,
         image_effect_suite: &ImageEffectSuiteV1,
         name: &CStr,
-    ) -> InboundResult<ImageClipDescriptorPropertySet> {
+    ) -> InboundResult2<ImageClipDescriptorPropertySet> {
         unsafe { image_effect_suite.clip_define(self, name) }
     }
 
@@ -180,7 +184,7 @@ impl ImageEffectDescriptor {
     pub unsafe fn get_param_set(
         &self,
         image_effect_suite: &ImageEffectSuiteV1,
-    ) -> InboundResult<ParamSetDescriptor> {
+    ) -> InboundResult2<ParamSetDescriptor> {
         unsafe { image_effect_suite.get_param_set_descriptor(self) }
     }
 
@@ -190,7 +194,7 @@ impl ImageEffectDescriptor {
     pub unsafe fn get_property_set(
         &self,
         image_effect_suite: &ImageEffectSuiteV1,
-    ) -> InboundResult<ImageEffectDescriptorPropertySet> {
+    ) -> InboundResult2<ImageEffectDescriptorPropertySet> {
         unsafe { image_effect_suite.get_descriptor_property_set(self) }
     }
 }
@@ -210,7 +214,7 @@ impl ImageEffectInstance {
         &self,
         image_effect_suite: &ImageEffectSuiteV1,
         name: &CStr,
-    ) -> InboundResult<(ImageClipInstance, ImageClipInstancePropertySet)> {
+    ) -> InboundResult2<(ImageClipInstance, ImageClipInstancePropertySet)> {
         unsafe { image_effect_suite.clip_get_handle(self, name) }
     }
 
@@ -221,7 +225,7 @@ impl ImageEffectInstance {
         &self,
         image_effect_suite: &ImageEffectSuiteV1,
         name: &CStr,
-    ) -> InboundResult<ImageClipInstance> {
+    ) -> InboundResult2<ImageClipInstance> {
         unsafe { image_effect_suite.clip_get_clip_handle(self, name) }
     }
 
@@ -231,7 +235,7 @@ impl ImageEffectInstance {
     pub unsafe fn get_param_set(
         &self,
         image_effect_suite: &ImageEffectSuiteV1,
-    ) -> InboundResult<ParamSetInstance> {
+    ) -> InboundResult2<ParamSetInstance> {
         unsafe { image_effect_suite.get_param_set_instance(self) }
     }
 
@@ -241,7 +245,7 @@ impl ImageEffectInstance {
     pub unsafe fn get_property_set(
         &self,
         image_effect_suite: &ImageEffectSuiteV1,
-    ) -> InboundResult<ImageEffectInstancePropertySet> {
+    ) -> InboundResult2<ImageEffectInstancePropertySet> {
         unsafe { image_effect_suite.get_instance_property_set(self) }
     }
 
@@ -252,7 +256,7 @@ impl ImageEffectInstance {
         &self,
         image_effect_suite: &ImageEffectSuiteV1,
         n_bytes: usize,
-    ) -> InboundResult<ImageMemory> {
+    ) -> InboundResult2<ImageMemory> {
         unsafe { image_effect_suite.image_memory_alloc(self, n_bytes) }
     }
 }
@@ -264,7 +268,7 @@ impl ImageMemory {
     pub unsafe fn image_memory_free(
         &self,
         image_effect_suite: &ImageEffectSuiteV1,
-    ) -> InboundResult<()> {
+    ) -> InboundResult2<()> {
         unsafe { image_effect_suite.image_memory_free(self) }
     }
 
@@ -274,7 +278,7 @@ impl ImageMemory {
     pub unsafe fn image_memory_lock(
         &self,
         image_effect_suite: &ImageEffectSuiteV1,
-    ) -> InboundResult<*mut c_void> {
+    ) -> InboundResult2<*mut c_void> {
         unsafe { image_effect_suite.image_memory_lock(self) }
     }
 
@@ -284,7 +288,7 @@ impl ImageMemory {
     pub unsafe fn image_memory_unlock(
         &self,
         image_effect_suite: &ImageEffectSuiteV1,
-    ) -> InboundResult<()> {
+    ) -> InboundResult2<()> {
         unsafe { image_effect_suite.image_memory_unlock(self) }
     }
 }
@@ -296,7 +300,7 @@ impl InteractDescriptor {
     pub unsafe fn interact_get_property_set(
         &self,
         interact_suite: &InteractSuiteV1,
-    ) -> InboundResult<InteractDescriptorPropertySet> {
+    ) -> InboundResult2<InteractDescriptorPropertySet> {
         unsafe { interact_suite.interacte_get_descriptor_property_set(self) }
     }
 }
@@ -308,14 +312,14 @@ impl InteractInstance {
     pub unsafe fn interact_get_property_set(
         &self,
         interact_suite: &InteractSuiteV1,
-    ) -> InboundResult<InteractInstancePropertySet> {
+    ) -> InboundResult2<InteractInstancePropertySet> {
         unsafe { interact_suite.interacte_get_instance_property_set(self) }
     }
 
     /// ## Safety
     ///
     /// `self` and `interact_suite` must be valid.
-    pub unsafe fn interact_redraw(&self, interact_suite: &InteractSuiteV1) -> InboundResult<()> {
+    pub unsafe fn interact_redraw(&self, interact_suite: &InteractSuiteV1) -> InboundResult2<()> {
         unsafe { interact_suite.interact_redraw(self) }
     }
 
@@ -325,7 +329,7 @@ impl InteractInstance {
     pub unsafe fn interact_swap_buffers(
         &self,
         interact_suite: &InteractSuiteV1,
-    ) -> InboundResult<()> {
+    ) -> InboundResult2<()> {
         unsafe { interact_suite.interact_swap_buffers(self) }
     }
 }
@@ -337,14 +341,14 @@ impl Mutex {
     pub unsafe fn mutex_destroy(
         &self,
         multi_thread_suite: &MultiThreadSuiteV1,
-    ) -> InboundResult<()> {
+    ) -> InboundResult2<()> {
         unsafe { multi_thread_suite.mutex_destroy(self) }
     }
 
     /// ## Safety
     ///
     /// `self` and `multi_thread_suite` must be valid.
-    pub unsafe fn mutex_lock(&self, multi_thread_suite: &MultiThreadSuiteV1) -> InboundResult<()> {
+    pub unsafe fn mutex_lock(&self, multi_thread_suite: &MultiThreadSuiteV1) -> InboundResult2<()> {
         unsafe { multi_thread_suite.mutex_lock(self) }
     }
 
@@ -354,7 +358,7 @@ impl Mutex {
     pub unsafe fn mutex_try_lock(
         &self,
         multi_thread_suite: &MultiThreadSuiteV1,
-    ) -> InboundResult<()> {
+    ) -> InboundResult2<()> {
         unsafe { multi_thread_suite.mutex_try_lock(self) }
     }
 
@@ -364,7 +368,7 @@ impl Mutex {
     pub unsafe fn mutex_un_lock(
         &self,
         multi_thread_suite: &MultiThreadSuiteV1,
-    ) -> InboundResult<()> {
+    ) -> InboundResult2<()> {
         unsafe { multi_thread_suite.mutex_unlock(self) }
     }
 }
@@ -383,7 +387,7 @@ impl ParamSetDescriptor {
         parameter_suite: &ParameterSuiteV1,
         param_type: &CStr,
         name: &CStr,
-    ) -> InboundResult<OfxPropertySetHandle> {
+    ) -> InboundResult2<OfxPropertySetHandle> {
         unsafe { parameter_suite.param_define(self, param_type, name) }
     }
 
@@ -400,7 +404,7 @@ impl ParamSetDescriptor {
         parameter_suite: &ParameterSuiteV1,
         param_type: &CStr,
         name: &CStr,
-    ) -> InboundResult<()> {
+    ) -> InboundResult2<()> {
         unsafe { parameter_suite.param_define_no_output(self, param_type, name) }
     }
 
@@ -410,7 +414,7 @@ impl ParamSetDescriptor {
     pub unsafe fn param_set_get_property_set(
         &self,
         parameter_suite: &ParameterSuiteV1,
-    ) -> InboundResult<ParamSetPropertySet> {
+    ) -> InboundResult2<ParamSetPropertySet> {
         unsafe { parameter_suite.param_set_get_descriptor_property_set(self) }
     }
 }
@@ -423,14 +427,14 @@ impl ParamSetInstance {
         &self,
         parameter_suite: &ParameterSuiteV1,
         name: &CStr,
-    ) -> InboundResult<()> {
+    ) -> InboundResult2<()> {
         unsafe { parameter_suite.param_edit_begin(self, name) }
     }
 
     /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
-    pub unsafe fn param_edit_end(&self, parameter_suite: &ParameterSuiteV1) -> InboundResult<()> {
+    pub unsafe fn param_edit_end(&self, parameter_suite: &ParameterSuiteV1) -> InboundResult2<()> {
         unsafe { parameter_suite.param_edit_end(self) }
     }
 
@@ -446,7 +450,7 @@ impl ParamSetInstance {
         &self,
         parameter_suite: &ParameterSuiteV1,
         name: &CStr,
-    ) -> InboundResult<(OfxParamHandle, OfxPropertySetHandle)> {
+    ) -> InboundResult2<(OfxParamHandle, OfxPropertySetHandle)> {
         unsafe { parameter_suite.param_get_handle(self, name) }
     }
 
@@ -462,7 +466,7 @@ impl ParamSetInstance {
         &self,
         parameter_suite: &ParameterSuiteV1,
         name: &CStr,
-    ) -> InboundResult<OfxParamHandle> {
+    ) -> InboundResult2<OfxParamHandle> {
         unsafe { parameter_suite.param_get_param_handle(self, name) }
     }
 
@@ -472,7 +476,7 @@ impl ParamSetInstance {
     pub unsafe fn param_set_get_property_set(
         &self,
         parameter_suite: &ParameterSuiteV1,
-    ) -> InboundResult<ParamSetPropertySet> {
+    ) -> InboundResult2<ParamSetPropertySet> {
         unsafe { parameter_suite.param_set_get_instance_property_set(self) }
     }
 }

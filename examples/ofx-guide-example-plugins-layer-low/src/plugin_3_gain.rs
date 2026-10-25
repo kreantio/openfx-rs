@@ -7,7 +7,7 @@ use std::{
 
 use openfx::{
     low::{
-        Okish, OutboundResult, StatusError, StatusReply,
+        OutboundResult2, Status, StatusError, StatusReply,
         enums::{
             ImageEffectPluginRenderThreadSafety, ImageEffectPropContext,
             ImageEffectPropSupportedComponents, ImageEffectPropSupportedContexts,
@@ -75,7 +75,7 @@ impl Plugin for PluginExampleGain {
         lock.replace(GuaranteeSend(host));
     }
 
-    fn main_entry(action: ImageEffectAction) -> OutboundResult<()> {
+    fn main_entry(action: ImageEffectAction) -> OutboundResult2 {
         match action {
             ImageEffectAction::Load { .. } => action_load(),
             ImageEffectAction::Unload { .. } => action_unload(),
@@ -98,7 +98,7 @@ impl Plugin for PluginExampleGain {
     }
 }
 
-fn action_load() -> OutboundResult<()> {
+fn action_load() -> OutboundResult2 {
     let host = HOST_BEFORE_ACTION_LOAD
         .lock()
         .map_err(|_| StatusError::Failed)?
@@ -107,42 +107,42 @@ fn action_load() -> OutboundResult<()> {
 
     let mut data = SHARED_DATA.lock().map_err(|_| StatusError::Failed)?;
     if data.is_some() {
-        Err(StatusError::Failed.into())
+        Err(StatusError::Failed)
     } else {
         *data = Some(SharedData::try_new(host)?);
-        Okish::result_ok(())
+        Ok(Status::OK)
     }
 }
 
-fn action_unload() -> OutboundResult<()> {
+fn action_unload() -> OutboundResult2 {
     let mut data = SHARED_DATA.lock().map_err(|_| StatusError::Failed)?;
     if data.take().is_none() {
-        Err(StatusError::Failed.into())
+        Err(StatusError::Failed)
     } else {
-        Okish::result_ok(())
+        Ok(Status::OK)
     }
 }
 
-fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult<()> {
+fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult2 {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
 
-    let props = unsafe { descriptor.get_property_set(s_ifx) }?.ok_or(StatusError::Failed)?;
+    let props = unsafe { descriptor.get_property_set(s_ifx) }.ok_or(StatusError::Failed)?;
 
     unsafe {
         props
-            .set_label(s_prop, Some(PLUGIN_3_GAIN_LABEL))?
+            .set_label(s_prop, Some(PLUGIN_3_GAIN_LABEL))
             .ok_or(StatusError::Failed)?;
         props
-            .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))?
+            .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))
             .ok_or(StatusError::Failed)?;
         props
             .set_image_effect_supported_contexts(
                 s_prop,
                 &[ImageEffectPropSupportedContexts::Filter.into()],
-            )?
+            )
             .ok_or(StatusError::Failed)?;
         props
             .set_image_effect_supported_pixel_depths(
@@ -152,40 +152,39 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult<()> {
                     ImageEffectPropSupportedPixelDepths::Short.into(),
                     ImageEffectPropSupportedPixelDepths::Byte.into(),
                 ],
-            )?
+            )
             .ok_or(StatusError::Failed)?;
         props
             .set_image_effect_plugin_render_thread_safety(
                 s_prop,
                 ImageEffectPluginRenderThreadSafety::FullySafe.into(),
-            )?
+            )
             .ok_or(StatusError::Failed)?;
         props
-            .set_image_effect_plugin_host_frame_threading(s_prop, true)?
+            .set_image_effect_plugin_host_frame_threading(s_prop, true)
             .ok_or(StatusError::Failed)?;
     }
 
-    Okish::result_ok(())
+    Ok(Status::OK)
 }
 
 fn action_describe_in_context(
     descriptor: ImageEffectDescriptor,
     in_args: ActionDescribeInContextIn,
-) -> OutboundResult<()> {
+) -> OutboundResult2 {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
     let s_param = &data.parameter_suite.0;
 
-    let context =
-        unsafe { in_args.get_image_effect_context(s_prop) }?.ok_or(StatusError::Failed)?;
+    let context = unsafe { in_args.get_image_effect_context(s_prop) }.ok_or(StatusError::Failed)?;
     if context != ImageEffectPropContext::Filter {
-        return Err(StatusError::ErrUnsupported.into());
+        return Err(StatusError::ErrUnsupported);
     }
 
     for name in [c"Output", c"Source"] {
-        let props = unsafe { descriptor.clip_define(s_ifx, name) }?.ok_or(StatusError::Failed)?;
+        let props = unsafe { descriptor.clip_define(s_ifx, name) }.ok_or(StatusError::Failed)?;
 
         (unsafe {
             props.set_image_effect_supported_components(
@@ -196,39 +195,39 @@ fn action_describe_in_context(
                     ImageEffectPropSupportedComponents::RGB.into(),
                 ],
             )
-        })?
+        })
         .ok_or(StatusError::Failed)?;
     }
 
-    let param_set = unsafe { descriptor.get_param_set(s_ifx) }?.ok_or(StatusError::Failed)?;
+    let param_set = unsafe { descriptor.get_param_set(s_ifx) }.ok_or(StatusError::Failed)?;
 
     {
         let param_props =
-            unsafe { param_set.param_define(s_param, kOfxParamTypeDouble, GAIN_PARAM_NAME) }?
+            unsafe { param_set.param_define(s_param, kOfxParamTypeDouble, GAIN_PARAM_NAME) }
                 .ok_or(StatusError::Failed)?;
         let param_props = ParamsDouble1DPropertySet::from(param_props);
 
         unsafe {
             param_props
-                .set_param_double_type(s_prop, ParamPropDoubleType::Scale.into())?
+                .set_param_double_type(s_prop, ParamPropDoubleType::Scale.into())
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_param_default_double(s_prop, &[1.0])?
+                .set_param_default_double(s_prop, &[1.0])
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_param_min_double(s_prop, &[0.0])?
+                .set_param_min_double(s_prop, &[0.0])
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_param_display_min_double(s_prop, &[0.0])?
+                .set_param_display_min_double(s_prop, &[0.0])
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_param_display_max_double(s_prop, &[10.0])?
+                .set_param_display_max_double(s_prop, &[10.0])
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_label(s_prop, Some(c"Gain"))?
+                .set_label(s_prop, Some(c"Gain"))
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_param_hint(s_prop, Some(c"How much to multiply the image by."))?
+                .set_param_hint(s_prop, Some(c"How much to multiply the image by."))
                 .ok_or(StatusError::Failed)?;
         }
     }
@@ -236,48 +235,48 @@ fn action_describe_in_context(
     {
         let param_props = unsafe {
             param_set.param_define(s_param, kOfxParamTypeBoolean, APPLY_TO_ALPHA_PARAM_NAME)
-        }?
+        }
         .ok_or(StatusError::Failed)?;
         let param_props = ParamsBytePropertySet::from(param_props);
 
         unsafe {
             param_props
-                .set_param_default_int(s_prop, &[0])?
+                .set_param_default_int(s_prop, &[0])
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_label(s_prop, Some(c"Apply To Alpha"))?
+                .set_label(s_prop, Some(c"Apply To Alpha"))
                 .ok_or(StatusError::Failed)?;
             param_props
                 .set_param_hint(
                     s_prop,
                     Some(c"Whether to apply the gain value to alpha as well."),
-                )?
+                )
                 .ok_or(StatusError::Failed)?;
         }
     }
 
-    Okish::result_ok(())
+    Ok(Status::OK)
 }
 
-fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult<()> {
+fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult2 {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
     let s_param = &data.parameter_suite.0;
 
-    let instance_props = unsafe { instance.get_property_set(s_ifx) }?.ok_or(StatusError::Failed)?;
+    let instance_props = unsafe { instance.get_property_set(s_ifx) }.ok_or(StatusError::Failed)?;
 
     let source_clip =
-        unsafe { instance.clip_get_clip_handle(s_ifx, c"Source") }?.ok_or(StatusError::Failed)?;
+        unsafe { instance.clip_get_clip_handle(s_ifx, c"Source") }.ok_or(StatusError::Failed)?;
     let output_clip =
-        unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }?.ok_or(StatusError::Failed)?;
+        unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }.ok_or(StatusError::Failed)?;
 
-    let param_set = unsafe { instance.get_param_set(s_ifx) }?.ok_or(StatusError::Failed)?;
-    let gain_param = unsafe { param_set.param_get_param_handle(s_param, GAIN_PARAM_NAME) }?
+    let param_set = unsafe { instance.get_param_set(s_ifx) }.ok_or(StatusError::Failed)?;
+    let gain_param = unsafe { param_set.param_get_param_handle(s_param, GAIN_PARAM_NAME) }
         .ok_or(StatusError::Failed)?;
     let apply_to_alpha_param =
-        unsafe { param_set.param_get_param_handle(s_param, APPLY_TO_ALPHA_PARAM_NAME) }?
+        unsafe { param_set.param_get_param_handle(s_param, APPLY_TO_ALPHA_PARAM_NAME) }
             .ok_or(StatusError::Failed)?;
 
     let my_data = MyInstanceData {
@@ -290,93 +289,93 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult<()> {
 
     // SAFETY: the pointee is kept alive by `Box::into_raw` until it is
     // reclaimed with `Box::from_raw` in `action_destroy_instance`.
-    match unsafe {
-        s_prop.prop_set_pointer(
-            instance_props.sys_handle(),
-            kOfxPropInstanceData,
-            std::ptr::NonNull::new(my_data_ptr),
-        )
-    } {
-        Ok(_) => (),
-        Err(e) => {
-            drop(unsafe { Box::from_raw(my_data_ptr as *mut MyInstanceData) });
-            return Err(e.into());
+    unsafe {
+        if !s_prop
+            .prop_set_pointer(
+                instance_props.sys_handle(),
+                kOfxPropInstanceData,
+                std::ptr::NonNull::new(my_data_ptr),
+            )
+            .is_ok()
+        {
+            drop(Box::from_raw(my_data_ptr as *mut MyInstanceData));
+            return Err(StatusError::Failed);
         }
-    };
+    }
 
-    Okish::result_ok(())
+    Ok(Status::OK)
 }
 
-fn action_destroy_instance(instance: ImageEffectInstance) -> OutboundResult<()> {
+fn action_destroy_instance(instance: ImageEffectInstance) -> OutboundResult2 {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
 
-    let props = unsafe { instance.get_property_set(s_ifx) }?.ok_or(StatusError::Failed)?;
+    let props = unsafe { instance.get_property_set(s_ifx) }.ok_or(StatusError::Failed)?;
 
     let Some(my_data_ptr) =
-        (unsafe { props.get_instance_data(s_prop)? }).ok_or(StatusError::Failed)?
+        (unsafe { props.get_instance_data(s_prop) }).ok_or(StatusError::Failed)?
     else {
-        return Err(StatusError::Failed.into());
+        return Err(StatusError::Failed);
     };
 
     drop(unsafe { Box::from_raw(my_data_ptr.as_ptr() as *mut MyInstanceData) });
 
-    Okish::result_ok(())
+    Ok(Status::OK)
 }
 
 fn action_is_identity(
     effect: ImageEffectInstance,
     in_args: ActionIsIdentityIn,
     out_args: ActionIsIdentityOut,
-) -> OutboundResult<()> {
+) -> OutboundResult2 {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
     let s_param = &data.parameter_suite.0;
 
-    let instance_props = unsafe { effect.get_property_set(s_ifx) }?.ok_or(StatusError::Failed)?;
+    let instance_props = unsafe { effect.get_property_set(s_ifx) }.ok_or(StatusError::Failed)?;
 
     let Some(my_data_ptr) =
-        (unsafe { instance_props.get_instance_data(s_prop)? }).ok_or(StatusError::Failed)?
+        (unsafe { instance_props.get_instance_data(s_prop) }).ok_or(StatusError::Failed)?
     else {
-        return Err(StatusError::Failed.into());
+        return Err(StatusError::Failed);
     };
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
-    let time = unsafe { in_args.get_time(s_prop) }?.ok_or(StatusError::Failed)?;
+    let time = unsafe { in_args.get_time(s_prop) }.ok_or(StatusError::Failed)?;
     let mut gain: f64 = Default::default();
     param_get_value_at_time!(s_param, my_data.gain_param, time, &mut gain);
 
     if (gain - 1.0).abs() < 0.000000001 {
-        (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })?
+        (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })
             .ok_or(StatusError::Failed)?;
-        Okish::result_ok(())
+        Ok(Status::OK)
     } else {
         Ok(StatusReply::ReplyDefault.into())
     }
 }
 
-fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> OutboundResult<()> {
+fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> OutboundResult2 {
     let data = shared_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
     let s_param = &data.parameter_suite.0;
 
-    let instance_props = unsafe { instance.get_property_set(s_ifx) }?.ok_or(StatusError::Failed)?;
+    let instance_props = unsafe { instance.get_property_set(s_ifx) }.ok_or(StatusError::Failed)?;
 
-    let time = unsafe { in_args.get_time(s_prop) }?.ok_or(StatusError::Failed)?;
+    let time = unsafe { in_args.get_time(s_prop) }.ok_or(StatusError::Failed)?;
     let render_window =
-        unsafe { in_args.get_image_effect_render_window(s_prop) }?.ok_or(StatusError::Failed)?;
+        unsafe { in_args.get_image_effect_render_window(s_prop) }.ok_or(StatusError::Failed)?;
     let render_window = rect_i_from_array(&render_window);
 
     let Some(my_data_ptr) =
-        (unsafe { instance_props.get_instance_data(s_prop)? }).ok_or(StatusError::Failed)?
+        (unsafe { instance_props.get_instance_data(s_prop) }).ok_or(StatusError::Failed)?
     else {
-        return Err(StatusError::Failed.into());
+        return Err(StatusError::Failed);
     };
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
@@ -391,9 +390,9 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     );
     let apply_to_alpha = apply_to_alpha != 0;
 
-    let output_img = unsafe { my_data.output_clip.0.clip_get_image(s_ifx, time, None) }?
+    let output_img = unsafe { my_data.output_clip.0.clip_get_image(s_ifx, time, None) }
         .ok_or(StatusError::Failed)?;
-    let source_img = unsafe { my_data.source_clip.0.clip_get_image(s_ifx, time, None) }?
+    let source_img = unsafe { my_data.source_clip.0.clip_get_image(s_ifx, time, None) }
         .ok_or(StatusError::Failed)?;
 
     let output_img_m = unsafe { ClipImageManaged::try_new(&data, output_img) }?;
@@ -438,5 +437,5 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
         )?,
     }
 
-    Okish::result_ok(())
+    Ok(Status::OK)
 }

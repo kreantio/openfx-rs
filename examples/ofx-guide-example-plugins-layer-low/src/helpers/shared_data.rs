@@ -111,12 +111,12 @@ impl ClipImageManaged {
         let s_prop = &shared_data.property_suite.0;
 
         let Some(data_ptr) =
-            (unsafe { props.get_image_data(s_prop)? }).ok_or(StatusError::Failed)?
+            (unsafe { props.get_image_data(s_prop) }).ok_or(StatusError::Failed)?
         else {
             return Err(StatusError::Failed);
         };
 
-        let n_comps = match unsafe { props.get_image_effect_components_owned(s_prop) }?
+        let n_comps = match unsafe { props.get_image_effect_components_owned(s_prop) }
             .ok_or(StatusError::Failed)?
         {
             LosslessEnumPropertyOwned::Known(ImageEffectPropComponents::Alpha) => 1,
@@ -127,7 +127,7 @@ impl ClipImageManaged {
                 return Err(StatusError::ErrUnsupported);
             }
         };
-        let pixel_depth = match unsafe { props.get_image_effect_pixel_depth_owned(s_prop) }?
+        let pixel_depth = match unsafe { props.get_image_effect_pixel_depth_owned(s_prop) }
             .ok_or(StatusError::Failed)?
         {
             LosslessEnumPropertyOwned::Known(ImageEffectPropPixelDepth::Byte) => BitDepth::Byte,
@@ -138,11 +138,11 @@ impl ClipImageManaged {
                 return Err(StatusError::ErrUnsupported);
             }
         };
-        let row_bytes = unsafe { props.get_image_row_bytes(s_prop) }?.ok_or(StatusError::Failed)?;
-        let bounds = unsafe { props.get_image_bounds(s_prop) }?.ok_or(StatusError::Failed)?;
+        let row_bytes = unsafe { props.get_image_row_bytes(s_prop) }.ok_or(StatusError::Failed)?;
+        let bounds = unsafe { props.get_image_bounds(s_prop) }.ok_or(StatusError::Failed)?;
         let bounds = rect_i_from_array(&bounds);
         let pixel_aspect_ratio =
-            unsafe { props.get_image_pixel_aspect_ratio(s_prop) }?.ok_or(StatusError::Failed)?;
+            unsafe { props.get_image_pixel_aspect_ratio(s_prop) }.ok_or(StatusError::Failed)?;
 
         Ok(Self {
             image_effect_suite: shared_data.image_effect_suite,
@@ -229,7 +229,7 @@ macro_rules! param_get_value_at_time{
             let time = $time;
             #[allow(clippy::macro_metavars_in_unsafe)]
             let stat = unsafe { param_get_value_at_time($param_handle, time, $(&mut $value),+) };
-            if !openfx::low::Okish::inbound_result_from_sys(stat)?.is_ok() {
+            if !openfx::low::InboundResult2::from_sys(stat).is_ok() {
                 return Err(openfx::low::StatusError::Failed.into());
             }
         }

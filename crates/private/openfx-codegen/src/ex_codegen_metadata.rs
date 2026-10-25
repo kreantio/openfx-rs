@@ -145,7 +145,7 @@ pub fn gen_low_plugin_actions(
             }
 
             output_inner_pseudo.extend(quote! {
-                pub type #action_simple_name_ident = fn(#(#params),*) -> crate::low::OutboundResult<()>;
+                pub type #action_simple_name_ident = fn(#(#params),*) -> crate::low::OutboundResult2;
             });
             output_inner_pseudo.extend(property_set_structs);
         } else if let Some(action_simple_name) =
