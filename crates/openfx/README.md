@@ -58,7 +58,7 @@ use openfx::{
     low::Status,
     low_plugin::{Action, Host, Plugin},
     sys_plugin_helpers::{Plugins, export_plugins, plugin_struct},
-    sys::generic::core::{OfxHost, OfxPlugin},
+    sys::core::{OfxHost, OfxPlugin},
 };
 
 // …
