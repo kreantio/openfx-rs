@@ -289,18 +289,16 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
 
     // SAFETY: the pointee is kept alive by `Box::into_raw` until it is
     // reclaimed with `Box::from_raw` in `action_destroy_instance`.
-    unsafe {
-        if !s_prop
-            .prop_set_pointer(
-                instance_props.sys_handle(),
-                kOfxPropInstanceData,
-                std::ptr::NonNull::new(my_data_ptr),
-            )
-            .is_ok()
-        {
-            drop(Box::from_raw(my_data_ptr as *mut MyInstanceData));
-            return Err(StatusError::Failed);
-        }
+    if let r = unsafe {
+        s_prop.prop_set_pointer(
+            instance_props.sys_handle(),
+            kOfxPropInstanceData,
+            std::ptr::NonNull::new(my_data_ptr),
+        )
+    } && !r.is_ok()
+    {
+        drop(unsafe { Box::from_raw(my_data_ptr as *mut MyInstanceData) });
+        return Err(StatusError::Failed);
     }
 
     Ok(Status::OK)

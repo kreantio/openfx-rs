@@ -177,18 +177,17 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
         "This is random instance data that could be anything you want.",
     ));
     let my_string = Box::into_raw(my_string);
-    unsafe {
-        if !s_prop
-            .prop_set_pointer(
-                props.sys_handle(),
-                kOfxPropInstanceData,
-                std::ptr::NonNull::new(my_string.cast::<c_void>()),
-            )
-            .is_ok()
-        {
-            drop(Box::from_raw(my_string.cast::<String>()));
-            return Err(StatusError::Failed);
-        }
+
+    if let r = unsafe {
+        s_prop.prop_set_pointer(
+            props.sys_handle(),
+            kOfxPropInstanceData,
+            std::ptr::NonNull::new(my_string.cast::<c_void>()),
+        )
+    } && !r.is_ok()
+    {
+        drop(unsafe { Box::from_raw(my_string.cast::<String>()) });
+        return Err(StatusError::Failed);
     }
 
     Ok(Status::OK)
