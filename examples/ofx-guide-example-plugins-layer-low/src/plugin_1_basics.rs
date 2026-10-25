@@ -18,7 +18,7 @@ use openfx::{
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
     },
-    sys::generic::core::{kOfxPropInstanceData, kOfxPropLabel},
+    sys::core::{kOfxPropInstanceData, kOfxPropLabel},
 };
 
 use crate::{

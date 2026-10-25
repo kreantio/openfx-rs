@@ -24,8 +24,8 @@ use openfx::{
         property_sets::{ParamsBytePropertySet, ParamsDouble1DPropertySet},
     },
     sys::{
-        generic::core::{kOfxPropInstanceData, kOfxPropLabel},
-        image_effect_v1::param::{OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble},
+        core::{kOfxPropInstanceData, kOfxPropLabel},
+        param::{OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble},
     },
 };
 

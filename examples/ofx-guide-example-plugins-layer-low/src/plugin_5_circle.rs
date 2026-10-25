@@ -29,8 +29,8 @@ use openfx::{
         },
     },
     sys::{
-        generic::core::{kOfxPropInstanceData, kOfxPropLabel},
-        image_effect_v1::param::{
+        core::{kOfxPropInstanceData, kOfxPropLabel},
+        param::{
             OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble, kOfxParamTypeDouble2D,
             kOfxParamTypeRGBA,
         },

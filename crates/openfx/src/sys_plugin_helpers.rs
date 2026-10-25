@@ -1,7 +1,7 @@
 use std::ffi::{CStr, c_char, c_int, c_uint, c_void};
 
 use crate::{
-    sys::generic::core::{OfxHost, OfxPlugin, OfxPropertySetHandle, OfxStatus},
+    sys::core::{OfxHost, OfxPlugin, OfxPropertySetHandle, OfxStatus},
     sys_umbrella::kOfxImageEffectPluginApi,
 };
 

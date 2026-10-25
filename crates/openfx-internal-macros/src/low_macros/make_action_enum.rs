@@ -33,8 +33,8 @@ pub fn make_action_enum(attr: TokenStream, item: TokenStream) -> TokenStream {
             UnknownDontUseThisDirectly {
                 action: ::std::option::Option<std::ptr::NonNull<::std::os::raw::c_char>>,
                 handle: *const ::std::ffi::c_void,
-                in_args: crate::sys::generic::core::OfxPropertySetHandle,
-                out_args: crate::sys::generic::core::OfxPropertySetHandle,
+                in_args: crate::sys::core::OfxPropertySetHandle,
+                out_args: crate::sys::core::OfxPropertySetHandle,
             }
         }
         impl #enum_name {
@@ -49,7 +49,7 @@ pub fn make_action_enum(attr: TokenStream, item: TokenStream) -> TokenStream {
             /// 
             /// [label strings]: https://openfx.readthedocs.io/en/latest/Reference/ofxCoreAPI.html#strings
             /// [^1]: <https://github.com/AcademySoftwareFoundation/openfx/issues/273#issuecomment-6233931086>
-            pub fn sys_match(&self, action: &::std::ffi::CStr) -> Option<(*const ::std::ffi::c_void, crate::sys::generic::core::OfxPropertySetHandle, crate::sys::generic::core::OfxPropertySetHandle)> {
+            pub fn sys_match(&self, action: &::std::ffi::CStr) -> Option<(*const ::std::ffi::c_void, crate::sys::core::OfxPropertySetHandle, crate::sys::core::OfxPropertySetHandle)> {
                 if let Some(self_action) = self.sys_action() && self_action == action {
                     Some((self.sys_handle(), self.sys_in_args(), self.sys_out_args()))
                 } else {
@@ -79,7 +79,7 @@ fn make_variant(output: &mut proc_macro2::TokenStream, var: &InputItem) {
         };
         quote! { #in_args: #path #name }
     } else {
-        quote! { sys_in_args: crate::sys::generic::core::OfxPropertySetHandle }
+        quote! { sys_in_args: crate::sys::core::OfxPropertySetHandle }
     };
     let out_args_field = if let Some(out_args) = &var.meta.out_args {
         let name = syn::Ident::new(&format!("Action{}Out", name), out_args.span());
@@ -91,7 +91,7 @@ fn make_variant(output: &mut proc_macro2::TokenStream, var: &InputItem) {
         };
         quote! { #out_args: #path #name }
     } else {
-        quote! { sys_out_args: crate::sys::generic::core::OfxPropertySetHandle }
+        quote! { sys_out_args: crate::sys::core::OfxPropertySetHandle }
     };
 
     output.extend(quote! {
@@ -146,8 +146,8 @@ fn make_from_sys_fn(enum_name: &str, items: &[InputItem]) -> proc_macro2::TokenS
         pub unsafe fn from_sys(
             action: *const ::std::os::raw::c_char,
             handle: *const ::std::ffi::c_void,
-            in_args: crate::sys::generic::core::OfxPropertySetHandle,
-            out_args: crate::sys::generic::core::OfxPropertySetHandle,
+            in_args: crate::sys::core::OfxPropertySetHandle,
+            out_args: crate::sys::core::OfxPropertySetHandle,
         ) -> Self {
             let action = if action.is_null() {
                 return Self::UnknownDontUseThisDirectly {
@@ -225,7 +225,7 @@ fn make_sys_fns(enum_name: &str, items: &[InputItem]) -> proc_macro2::TokenStrea
             }
         }
 
-        pub fn sys_in_args(&self) -> crate::sys::generic::core::OfxPropertySetHandle {
+        pub fn sys_in_args(&self) -> crate::sys::core::OfxPropertySetHandle {
             match self {
                 #(Self::#vars_with_in_args { in_args, .. } => in_args.sys_handle(),)*
                 #(Self::#vars_with_sys_in_args { sys_in_args, .. } => *sys_in_args,)*
@@ -233,7 +233,7 @@ fn make_sys_fns(enum_name: &str, items: &[InputItem]) -> proc_macro2::TokenStrea
             }
         }
 
-        pub fn sys_out_args(&self) -> crate::sys::generic::core::OfxPropertySetHandle {
+        pub fn sys_out_args(&self) -> crate::sys::core::OfxPropertySetHandle {
             match self {
                 #(Self::#vars_with_out_args { out_args, .. } => out_args.sys_handle(),)*
                 #(Self::#vars_with_sys_out_args { sys_out_args, .. } => *sys_out_args,)*

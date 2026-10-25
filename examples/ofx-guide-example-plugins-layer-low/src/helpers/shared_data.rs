@@ -16,7 +16,7 @@ use openfx::{
         property_sets::{ImageInstancePropertySet, LosslessEnumPropertyOwned},
         suites::{ImageEffectSuiteV1, ParameterSuiteV1, PropertySuiteV1},
     },
-    sys::generic::core::OfxRectI,
+    sys::core::OfxRectI,
 };
 
 use super::internal_utils::rect_i_from_array;

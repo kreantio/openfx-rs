@@ -1,5 +1,5 @@
 use openfx::{
-    sys::generic::core::{OfxHost, OfxPlugin},
+    sys::core::{OfxHost, OfxPlugin},
     sys_plugin_helpers::{Plugins, export_plugins, plugin_struct},
 };
 
