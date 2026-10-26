@@ -29,13 +29,16 @@ use openfx::{
     },
 };
 
-use processing::{pixel_processing, rect_i_from_array};
+use processing::pixel_processing;
 
 use crate::{
     definitions::{PLUGIN_4_SATURATION_IDENTIFIER, PLUGIN_4_SATURATION_LABEL, PLUGINS_GROUPING},
-    helpers::shared_data::{
-        BitDepth, ClipImageManaged, GuaranteeSend, GuaranteeSendClipInInstance, SharedData,
-        param_get_value_at_time,
+    helpers::{
+        internal_utils::{rect_i_from_array, set_labels},
+        shared_data::{
+            BitDepth, ClipImageManaged, GuaranteeSend, GuaranteeSendClipInInstance, SharedData,
+            param_get_value_at_time,
+        },
     },
 };
 
@@ -134,9 +137,7 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
     let props = unsafe { descriptor.get_property_set(s_ifx) }.ok_or(StatusError::Failed)?;
 
     unsafe {
-        props
-            .set_label(s_prop, Some(PLUGIN_4_SATURATION_LABEL))
-            .ok_or(StatusError::Failed)?;
+        set_labels(&data.property_suite.0, &props, PLUGIN_4_SATURATION_LABEL)?;
         props
             .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))
             .ok_or(StatusError::Failed)?;

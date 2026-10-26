@@ -23,7 +23,10 @@ use openfx::{
 
 use crate::{
     definitions::{PLUGIN_1_BASICS_IDENTIFIER, PLUGIN_1_BASICS_LABEL, PLUGINS_GROUPING},
-    helpers::shared_data::{GuaranteeSend, SharedData},
+    helpers::{
+        internal_utils::set_labels,
+        shared_data::{GuaranteeSend, SharedData},
+    },
 };
 
 static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(None);
@@ -99,9 +102,7 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
         .ok_or(StatusError::Failed)?;
 
     unsafe {
-        props
-            .set_label(s_prop, Some(PLUGIN_1_BASICS_LABEL))
-            .ok_or(StatusError::Failed)?;
+        set_labels(&data.property_suite.0, &props, PLUGIN_1_BASICS_LABEL)?;
         props
             .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))
             .ok_or(StatusError::Failed)?;
