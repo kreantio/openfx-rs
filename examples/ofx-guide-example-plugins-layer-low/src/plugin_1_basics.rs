@@ -18,7 +18,7 @@ use openfx::{
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
     },
-    sys::core::{kOfxPropInstanceData, kOfxPropLabel},
+    sys::core::kOfxPropLabel,
 };
 
 use crate::{
@@ -179,11 +179,7 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
     let my_string = Box::into_raw(my_string);
 
     if let r = unsafe {
-        s_prop.prop_set_pointer(
-            props.sys_handle(),
-            kOfxPropInstanceData,
-            std::ptr::NonNull::new(my_string.cast::<c_void>()),
-        )
+        props.set_instance_data(s_prop, std::ptr::NonNull::new(my_string.cast::<c_void>()))
     } && !r.is_ok()
     {
         drop(unsafe { Box::from_raw(my_string.cast::<String>()) });
