@@ -112,12 +112,3 @@ fn pixel_address<T>(
 
     Some(unsafe { row_start_address.offset(x_offset * n_comps_per_pixel as isize) })
 }
-
-pub fn rect_i_from_array(arr: &[c_int; 4]) -> OfxRectI {
-    OfxRectI {
-        x1: arr[0],
-        y1: arr[1],
-        x2: arr[2],
-        y2: arr[3],
-    }
-}
