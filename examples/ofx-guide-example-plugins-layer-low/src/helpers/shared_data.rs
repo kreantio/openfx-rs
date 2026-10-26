@@ -210,8 +210,6 @@ impl Drop for ClipImageManaged {
     }
 }
 
-/// FIXME: should give back `OfxResult` instead of using `?` internally. This
-/// might require a proc macro for defining a variadic inner function.
 macro_rules! param_get_value_at_time{
     (
         $parameter_suite:expr,
@@ -224,14 +222,13 @@ macro_rules! param_get_value_at_time{
                 $parameter_suite
                     .sys_ref()
                     .paramGetValueAtTime
-                    .ok_or(openfx::low::StatusError::ErrMissingHostFeature)?
+                    .unwrap_unchecked()
             };
             let time = $time;
             #[allow(clippy::macro_metavars_in_unsafe)]
-            let stat = unsafe { param_get_value_at_time($param_handle, time, $(&mut $value),+) };
-            if !openfx::low::InboundResult::from_sys(stat).is_ok() {
-                return Err(openfx::low::StatusError::Failed.into());
-            }
+            ::openfx::low::InboundResult::from_sys(unsafe {
+                param_get_value_at_time($param_handle, time, $(&mut $value),+)
+            })
         }
     }
 }
