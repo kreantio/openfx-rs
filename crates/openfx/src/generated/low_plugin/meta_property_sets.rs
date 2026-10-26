@@ -82,6 +82,8 @@ mod __ {
     }
     # [propset (write = plugin)]
     struct ImageEffectDescriptorPropertySet {
+        # [prop (@ OfxImageEffectInstancePropSequentialRender)]
+        image_effect_instance_sequential_render: Int,
         # [prop (@ OfxImageEffectPluginPropFieldRenderTwiceAlways)]
         image_effect_plugin_field_render_twice_always: Bool,
         # [prop (@ OfxImageEffectPluginPropGrouping)]
@@ -150,7 +152,7 @@ mod __ {
         # [prop (@ OfxImageEffectInstancePropEffectDuration)]
         image_effect_instance_effect_duration: Double,
         # [prop (@ OfxImageEffectInstancePropSequentialRender)]
-        image_effect_instance_sequential_render: Bool,
+        image_effect_instance_sequential_render: Int,
         # [prop (@ OfxImageEffectPropCPURenderSupported)]
         image_effect_cpu_render_supported: ty_enum!(ImageEffectPropCPURenderSupported),
         # [prop (@ OfxImageEffectPropColourManagementConfig)]
@@ -183,7 +185,7 @@ mod __ {
         image_effect_project_size: [Double; 2],
         # [prop (@ OfxImageEffectPropSupportsTiles)]
         image_effect_supports_tiles: Bool,
-        # [prop (@ OfxPropInstanceData)]
+        # [prop (write = all , @ OfxPropInstanceData)]
         instance_data: Pointer,
         # [prop (@ OfxPropIsInteractive)]
         is_interactive: Bool,
@@ -224,7 +226,7 @@ mod __ {
         # [prop (@ OfxImageEffectHostPropNativeOrigin)]
         image_effect_host_native_origin: ty_enum!(ImageEffectHostPropNativeOrigin),
         # [prop (@ OfxImageEffectInstancePropSequentialRender)]
-        image_effect_instance_sequential_render: Bool,
+        image_effect_instance_sequential_render: Int,
         # [prop (@ OfxImageEffectPropCPURenderSupported)]
         image_effect_cpu_render_supported: ty_enum!(ImageEffectPropCPURenderSupported),
         # [prop (@ OfxImageEffectPropColourManagementAvailableConfigs)]
@@ -311,13 +313,13 @@ mod __ {
         interact_has_alpha: Bool,
         # [prop (@ OfxInteractPropPixelScale)]
         interact_pixel_scale: [Double; 2],
-        # [prop (@ OfxInteractPropSlaveToParam)]
+        # [prop (write = plugin , @ OfxInteractPropSlaveToParam)]
         interact_slave_to_param: [String],
         # [prop (@ OfxInteractPropSuggestedColour)]
         interact_suggested_colour: [Double; 3],
         # [prop (@ OfxPropEffectInstance)]
         effect_instance: Pointer,
-        # [prop (@ OfxPropInstanceData)]
+        # [prop (write = all , @ OfxPropInstanceData)]
         instance_data: Pointer,
     }
     # [propset (write = host)]
@@ -356,8 +358,10 @@ mod __ {
         # [prop (@ OfxPropParamSetNeedsSyncing)]
         param_set_needs_syncing: Bool,
     }
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
-    struct ParamsBytePropertySet {}
+    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
+    struct ParamsBooleanPropertySet {}
+    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
+    struct ParamsBytesPropertySet {}
     # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
     struct ParamsChoicePropertySet {
         # [prop (@ OfxParamPropChoiceOption)]
@@ -372,6 +376,8 @@ mod __ {
     }
     # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsDouble + ParamsNumeric + ParamsValue)]
     struct ParamsDouble1DPropertySet {
+        # [prop (@ OfxParamPropDefaultCoordinateSystem)]
+        param_default_coordinate_system: ty_enum!(ParamPropDefaultCoordinateSystem),
         # [prop (@ OfxParamPropDoubleType)]
         param_double_type: ty_enum!(ParamPropDoubleType),
         # [prop (@ OfxParamPropShowTimeMarker)]
@@ -379,6 +385,10 @@ mod __ {
     }
     # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsDouble + ParamsNumeric + ParamsValue)]
     struct ParamsDouble2D3DPropertySet {
+        # [prop (@ OfxParamPropDefaultCoordinateSystem)]
+        param_default_coordinate_system: ty_enum!(ParamPropDefaultCoordinateSystem),
+        # [prop (@ OfxParamPropDimensionLabel)]
+        param_dimension_label: [String],
         # [prop (@ OfxParamPropDoubleType)]
         param_double_type: ty_enum!(ParamPropDoubleType),
     }
@@ -388,14 +398,11 @@ mod __ {
         param_group_open: Bool,
     }
     # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
+    struct ParamsInt1DPropertySet {}
+    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
     struct ParamsInt2D3DPropertySet {
         # [prop (@ OfxParamPropDimensionLabel)]
         param_dimension_label: [String],
-    }
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsDouble + ParamsNumeric + ParamsValue)]
-    struct ParamsNormalizedSpatialPropertySet {
-        # [prop (@ OfxParamPropDefaultCoordinateSystem)]
-        param_default_coordinate_system: ty_enum!(ParamPropDefaultCoordinateSystem),
     }
     # [propset (write = plugin , refs = ParamsCommon)]
     struct ParamsPagePropertySet {
@@ -429,6 +436,8 @@ mod __ {
         # [prop (@ OfxParamPropPluginMayWrite)]
         param_plugin_may_write: Bool,
     }
+    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon)]
+    struct ParamsPushButtonPropertySet {}
     # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
     struct ParamsRGBPropertySet {
         # [prop (@ OfxParamPropColourManagement)]
@@ -446,7 +455,7 @@ mod __ {
         # [prop (@ OfxParamPropChoiceOption)]
         param_choice_option: [String],
     }
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
+    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
     struct ParamsStringPropertySet {
         # [prop (@ OfxParamPropStringFilePathExists)]
         param_string_file_path_exists: Bool,
@@ -457,7 +466,7 @@ mod __ {
     mod __ {
         #[propsetdef]
         struct ParamsAllButGroupPage {
-            # [prop (@ OfxParamPropHasHostOverlayHandle)]
+            # [prop (write = host , @ OfxParamPropHasHostOverlayHandle)]
             param_has_host_overlay_handle: Bool,
             # [prop (@ OfxParamPropInteractMinimumSize)]
             param_interact_minimum_size: [Double; 2],

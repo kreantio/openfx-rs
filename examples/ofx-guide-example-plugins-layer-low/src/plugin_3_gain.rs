@@ -21,7 +21,7 @@ use openfx::{
             ImageEffectAction,
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
-        property_sets::{ParamsBytePropertySet, ParamsDouble1DPropertySet},
+        property_sets::{ParamsBooleanPropertySet, ParamsDouble1DPropertySet},
     },
     sys::{
         core::{kOfxPropInstanceData, kOfxPropLabel},
@@ -237,7 +237,7 @@ fn action_describe_in_context(
             param_set.param_define(s_param, kOfxParamTypeBoolean, APPLY_TO_ALPHA_PARAM_NAME)
         }
         .ok_or(StatusError::Failed)?;
-        let param_props = ParamsBytePropertySet::from(param_props);
+        let param_props = ParamsBooleanPropertySet::from(param_props);
 
         unsafe {
             param_props

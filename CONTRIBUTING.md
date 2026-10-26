@@ -129,6 +129,8 @@ Action names follow the same terminology as property names.
 
 ### Terms for Types
 
+#### Types of Types
+
 - **Simple types** are the types exchanged directly between OpenFX hosts and
   OpenFX plugins through the OpenFX API. They are `Int`, `Double`, `String`, and
   `Pointer`.
@@ -140,9 +142,20 @@ Action names follow the same terminology as property names.
     the `String` simple type, and the other expressive types are built directly
     on top of their respective simple types.
   - They only have representations in the `low` layer.
+  - Values of simple types and expressive types can be converted into each other
+    in either direction.
+- **Parameter types** are the types used for parameters. A parameter type is a
+  simple type with a dimensionality and an associated property set. For example,
+  `Double3D` is a parameter type that represents a 3-dimensional `Double` value
+  and is associated with the `ParamsDouble2D3D` property set.
 
-Values of simple types and expressive types can be converted into each other in
-either direction.
+#### Origins of the Type Names
+
+- Simple types and expressive types:
+  https://github.com/AcademySoftwareFoundation/openfx/blob/c3f1c2dcf4f51762b794c4fc21181b4a501be1bf/scripts/gen-props.py#L1078-L1084
+- Parameter types:
+  - [ofxParam.h]'s defines that start with `kOfxParamType`.
+  - [ofxParametricParam.h]'s defines that start with `kOfxParamType`.
 
 [the `openfx` crate]: ./crates/openfx/
 [`openfx-codegen`]: ./crates/private/openfx-codegen/
@@ -150,6 +163,8 @@ either direction.
 [`openfx-datagen`]: https://github.com/kreantio/openfx-datagen
 [`openfx-data`]: https://github.com/kreantio/openfx-data
 [Tree-sitter]: https://tree-sitter.github.io/tree-sitter/
+[ofxParam.h]: https://github.com/AcademySoftwareFoundation/openfx/blob/c3f1c2dcf4f51762b794c4fc21181b4a501be1bf/include/ofxParam.h
+[ofxParametricParam.h]: https://github.com/AcademySoftwareFoundation/openfx/blob/c3f1c2dcf4f51762b794c4fc21181b4a501be1bf/include/ofxParametricParam.h
 
 [^1]: https://github.com/AcademySoftwareFoundation/openfx/blob/e40728885390ec16276d11e00025de9b4282060c/scripts/gen-props.py#L215
 
