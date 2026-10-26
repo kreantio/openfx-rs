@@ -342,7 +342,8 @@ fn action_is_identity(
 
     let time = unsafe { in_args.get_time(s_prop) }.ok_or(StatusError::Failed)?;
     let mut gain: f64 = Default::default();
-    param_get_value_at_time!(s_param, my_data.gain_param, time, &mut gain);
+    param_get_value_at_time!(s_param, my_data.gain_param, time, &mut gain)
+        .ok_or(StatusError::Failed)?;
 
     if (gain - 1.0).abs() < 0.000000001 {
         (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })
@@ -375,14 +376,16 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
     let mut gain: f64 = Default::default();
-    param_get_value_at_time!(s_param, my_data.gain_param, time, &mut gain);
+    param_get_value_at_time!(s_param, my_data.gain_param, time, &mut gain)
+        .ok_or(StatusError::Failed)?;
     let mut apply_to_alpha: c_int = Default::default();
     param_get_value_at_time!(
         s_param,
         my_data.apply_to_alpha_param,
         time,
         &mut apply_to_alpha
-    );
+    )
+    .ok_or(StatusError::Failed)?;
     let apply_to_alpha = apply_to_alpha != 0;
 
     let output_img = unsafe { my_data.output_clip.0.clip_get_image(s_ifx, time, None) }

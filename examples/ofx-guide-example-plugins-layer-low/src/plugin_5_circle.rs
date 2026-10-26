@@ -465,7 +465,8 @@ fn action_get_region_of_definition(
     let mut growing_rod = false;
     if let Some(grow_rod_param) = my_data.grow_rod_param {
         let mut growing_rod_: c_int = Default::default();
-        param_get_value_at_time!(s_param, grow_rod_param, time, &mut growing_rod_);
+        param_get_value_at_time!(s_param, grow_rod_param, time, &mut growing_rod_)
+            .ok_or(StatusError::Failed)?;
         growing_rod = growing_rod_ != 0;
     };
 
@@ -474,7 +475,8 @@ fn action_get_region_of_definition(
     }
 
     let mut radius: f64 = Default::default();
-    param_get_value_at_time!(s_param, my_data.radius_param, time, &mut radius);
+    param_get_value_at_time!(s_param, my_data.radius_param, time, &mut radius)
+        .ok_or(StatusError::Failed)?;
     let mut centre_x = 0.0;
     let mut centre_y = 0.0;
     param_get_value_at_time!(
@@ -483,7 +485,8 @@ fn action_get_region_of_definition(
         time,
         &mut centre_x,
         &mut centre_y
-    );
+    )
+    .ok_or(StatusError::Failed)?;
 
     let mut rod = unsafe {
         my_data
@@ -527,7 +530,8 @@ fn action_is_identity(
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
     let mut radius: f64 = Default::default();
-    param_get_value_at_time!(s_param, my_data.radius_param, time, &mut radius);
+    param_get_value_at_time!(s_param, my_data.radius_param, time, &mut radius)
+        .ok_or(StatusError::Failed)?;
 
     let is_identity = if radius < 0.0001 {
         true
@@ -535,7 +539,8 @@ fn action_is_identity(
         let mut growing_rod = false;
         if let Some(grow_rod_param) = my_data.grow_rod_param {
             let mut growing_rod_: c_int = Default::default();
-            param_get_value_at_time!(s_param, grow_rod_param, time, &mut growing_rod_);
+            param_get_value_at_time!(s_param, grow_rod_param, time, &mut growing_rod_)
+                .ok_or(StatusError::Failed)?;
             growing_rod = growing_rod_ != 0;
         };
 
@@ -558,7 +563,8 @@ fn action_is_identity(
                 time,
                 &mut centre_x,
                 &mut centre_y
-            );
+            )
+            .ok_or(StatusError::Failed)?;
 
             centre_x + radius < bounds.x1
                 || centre_x - radius > bounds.x2
@@ -600,7 +606,8 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
     let mut radius: f64 = Default::default();
-    param_get_value_at_time!(s_param, my_data.radius_param, time, &mut radius);
+    param_get_value_at_time!(s_param, my_data.radius_param, time, &mut radius)
+        .ok_or(StatusError::Failed)?;
     let centre = {
         let mut centre_x = 0.0;
         let mut centre_y = 0.0;
@@ -610,7 +617,8 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
             time,
             &mut centre_x,
             &mut centre_y
-        );
+        )
+        .ok_or(StatusError::Failed)?;
         [centre_x, centre_y]
     };
     let colour = {
@@ -626,7 +634,8 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
             &mut colour_g,
             &mut colour_b,
             &mut colour_a
-        );
+        )
+        .ok_or(StatusError::Failed)?;
         [colour_r, colour_g, colour_b, colour_a]
     };
 

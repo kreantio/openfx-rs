@@ -346,7 +346,8 @@ fn action_is_identity(
 
     let time = unsafe { in_args.get_time(s_prop) }.ok_or(StatusError::Failed)?;
     let mut saturation: f64 = Default::default();
-    param_get_value_at_time!(s_param, my_data.saturation_param, time, &mut saturation);
+    param_get_value_at_time!(s_param, my_data.saturation_param, time, &mut saturation)
+        .ok_or(StatusError::Failed)?;
 
     if (saturation - 1.0).abs() < 0.000000001 {
         (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })
@@ -379,7 +380,8 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
     let mut saturation: f64 = Default::default();
-    param_get_value_at_time!(s_param, my_data.saturation_param, time, &mut saturation);
+    param_get_value_at_time!(s_param, my_data.saturation_param, time, &mut saturation)
+        .ok_or(StatusError::Failed)?;
 
     let output_img = unsafe { my_data.output_clip.0.clip_get_image(s_ifx, time, None) }
         .ok_or(StatusError::Failed)?;
