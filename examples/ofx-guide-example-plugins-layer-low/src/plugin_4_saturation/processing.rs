@@ -1,5 +1,3 @@
-use std::ffi::c_int;
-
 use openfx::{low::StatusError, low_plugin::objects::ImageEffectInstance, sys::core::OfxRectI};
 
 use crate::helpers::shared_data::{ClipImageManaged, SharedData};
@@ -96,15 +94,6 @@ where
     }
 
     Ok(())
-}
-
-pub fn rect_i_from_array(arr: &[c_int; 4]) -> OfxRectI {
-    OfxRectI {
-        x1: arr[0],
-        y1: arr[1],
-        x2: arr[2],
-        y2: arr[3],
-    }
 }
 
 fn blend(v1: f64, v2: f64, blend: f64) -> f64 {
