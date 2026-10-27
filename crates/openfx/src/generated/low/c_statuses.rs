@@ -8,20 +8,35 @@ const _: () = assert!(
 #[must_use]
 #[non_exhaustive]
 pub enum StatusError {
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatErrBadHandle`]"]
     ErrBadHandle,
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatErrBadIndex`]"]
     ErrBadIndex,
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatErrExists`]"]
     ErrExists,
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatErrFatal`]"]
     ErrFatal,
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatErrFormat`]"]
     ErrFormat,
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatErrImageFormat`]"]
     ErrImageFormat,
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatErrMemory`]"]
     ErrMemory,
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatErrMissingHostFeature`]"]
     ErrMissingHostFeature,
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatErrUnknown`]"]
     ErrUnknown,
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatErrUnsupported`]"]
     ErrUnsupported,
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatErrValue`]"]
     ErrValue,
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatFailed`]"]
     Failed,
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatGPUOutOfMemory`]"]
     GPUOutOfMemory,
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatGPURenderFailed`]"]
     GPURenderFailed,
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatUnlicensed`]"]
     Unlicensed,
 }
 impl StatusError {
@@ -73,8 +88,11 @@ impl From<StatusError> for crate::sys_umbrella::OfxStatus {
 #[must_use]
 #[non_exhaustive]
 pub enum StatusReply {
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatReplyDefault`]"]
     ReplyDefault,
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatReplyNo`]"]
     ReplyNo,
+    #[doc = "See: [`crate::sys_umbrella::kOfxStatReplyYes`]"]
     ReplyYes,
 }
 impl StatusReply {

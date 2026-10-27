@@ -61,6 +61,8 @@ include!(concat!(
 
 #[openfx_internal_macros::low_impl_suite]
 impl DialogSuiteV1 {
+    /// See: [`crate::sys_umbrella::OfxDialogSuiteV1::NotifyRedrawPending`]
+    ///
     /// ## Safety
     ///
     /// `self` must be valid.
@@ -70,6 +72,8 @@ impl DialogSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxDialogSuiteV1::RequestDialog`]
+    ///
     /// ## Safety
     ///
     /// `self` must be valid.
@@ -82,6 +86,8 @@ impl DialogSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl DrawSuiteV1 {
+    /// See: [`crate::sys_umbrella::OfxDrawSuiteV1::draw`]
+    ///
     /// ## Safety
     ///
     /// `self` and `context` must be valid.
@@ -103,6 +109,8 @@ impl DrawSuiteV1 {
         })
     }
 
+    /// See: [`crate::sys_umbrella::OfxDrawSuiteV1::drawText`]
+    ///
     /// ## Safety
     ///
     /// `self` and `context` must be valid.
@@ -125,6 +133,8 @@ impl DrawSuiteV1 {
         })
     }
 
+    /// See: [`crate::sys_umbrella::OfxDrawSuiteV1::getColour`]
+    ///
     /// ## Safety
     ///
     /// `self` and `context` must be valid.
@@ -147,6 +157,8 @@ impl DrawSuiteV1 {
         .map_ok(|()| unsafe { colour.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxDrawSuiteV1::setColour`]
+    ///
     /// ## Safety
     ///
     /// `self` and `context` must be valid.
@@ -160,6 +172,8 @@ impl DrawSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(context.sys_handle(), &colour) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxDrawSuiteV1::setLineStipple`]
+    ///
     /// ## Safety
     ///
     /// `self` and `context` must be valid.
@@ -173,6 +187,8 @@ impl DrawSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(context.sys_handle(), pattern.as_sys()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxDrawSuiteV1::setLineWidth`]
+    ///
     /// ## Safety
     ///
     /// `self` and `context` must be valid.
@@ -189,6 +205,8 @@ impl DrawSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl ImageEffectOpenGLRenderSuiteV1 {
+    /// See: [`crate::sys_umbrella::OfxImageEffectOpenGLRenderSuiteV1::clipFreeTexture`]
+    ///
     /// ## Safety
     ///
     /// `self` and `texture_handle` must be valid.
@@ -205,6 +223,8 @@ impl ImageEffectOpenGLRenderSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(texture_handle.sys_handle()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectOpenGLRenderSuiteV1::clipLoadTexture`]
+    ///
     /// ## Safety
     ///
     /// `self` and `clip` must be valid.
@@ -231,6 +251,8 @@ impl ImageEffectOpenGLRenderSuiteV1 {
         .map_ok(|()| unsafe { OpenGLTexturePropertySet::from(texture_handle.assume_init()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectOpenGLRenderSuiteV1::flushResources`]
+    ///
     /// ## Safety
     ///
     /// `self` must be valid.
@@ -243,6 +265,8 @@ impl ImageEffectOpenGLRenderSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl ImageEffectSuiteV1 {
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::abort`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect` must be valid.
@@ -252,6 +276,8 @@ impl ImageEffectSuiteV1 {
         (unsafe { sys_fn(image_effect.sys_handle()) }) != 0
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::clipDefine`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect` must be valid.
@@ -274,6 +300,8 @@ impl ImageEffectSuiteV1 {
         .map_ok(|()| unsafe { ImageClipDescriptorPropertySet::from(property_set.assume_init()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::clipGetHandle`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect` must be valid.
@@ -303,6 +331,8 @@ impl ImageEffectSuiteV1 {
         })
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::clipGetHandle`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect` must be valid.
@@ -326,6 +356,8 @@ impl ImageEffectSuiteV1 {
         .map_ok(|()| unsafe { ImageClipInstance::from_sys_handle(clip.assume_init()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::clipGetImage`]
+    ///
     /// ## Safety
     ///
     /// `self` and `clip` must be valid.
@@ -352,6 +384,8 @@ impl ImageEffectSuiteV1 {
         .map_ok(|()| unsafe { ImageInstancePropertySet::from(image_handle.assume_init()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::clipGetPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_clip` must be valid.
@@ -367,6 +401,8 @@ impl ImageEffectSuiteV1 {
             .map_ok(|()| unsafe { prop_handle.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::clipGetPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `clip` must be valid.
@@ -381,6 +417,8 @@ impl ImageEffectSuiteV1 {
         }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::clipGetPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `clip` must be valid.
@@ -395,6 +433,8 @@ impl ImageEffectSuiteV1 {
         }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::clipGetRegionOfDefinition`]
+    ///
     /// ## Safety
     ///
     /// `self` and `clip` must be valid.
@@ -411,6 +451,8 @@ impl ImageEffectSuiteV1 {
             .map_ok(|()| unsafe { bounds.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::clipReleaseImage`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_handle` must be valid.
@@ -428,6 +470,8 @@ impl ImageEffectSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(image_handle.sys_handle()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::getParamSet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_image_effect` must be valid.
@@ -443,6 +487,8 @@ impl ImageEffectSuiteV1 {
             .map_ok(|()| unsafe { param_set.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::getParamSet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect` must be valid.
@@ -457,6 +503,8 @@ impl ImageEffectSuiteV1 {
         }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::getParamSet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect` must be valid.
@@ -471,6 +519,8 @@ impl ImageEffectSuiteV1 {
         }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::getPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_image_effect` must be valid.
@@ -486,6 +536,8 @@ impl ImageEffectSuiteV1 {
             .map_ok(|()| unsafe { prop_handle.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::getPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect` must be valid.
@@ -500,6 +552,8 @@ impl ImageEffectSuiteV1 {
         }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::getPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect` must be valid.
@@ -514,6 +568,8 @@ impl ImageEffectSuiteV1 {
         }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::imageMemoryAlloc`]
+    ///
     /// ## Safety
     ///
     /// `self` and `instance_handle` must be valid.
@@ -536,6 +592,8 @@ impl ImageEffectSuiteV1 {
         .map_ok(|()| unsafe { ImageMemory::from_sys_handle(image_memory.assume_init()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::imageMemoryFree`]
+    ///
     /// ## Safety
     ///
     /// `self` and `memory_handle` must be valid.
@@ -548,6 +606,8 @@ impl ImageEffectSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(memory_handle.sys_handle()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::imageMemoryLock`]
+    ///
     /// ## Safety
     ///
     /// `self` and `memory_handle` must be valid.
@@ -565,6 +625,8 @@ impl ImageEffectSuiteV1 {
         .map_ok(|()| unsafe { returned_ptr.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::imageMemoryUnlock`]
+    ///
     /// ## Safety
     ///
     /// `self` and `memory_handle` must be valid.
@@ -580,6 +642,8 @@ impl ImageEffectSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl InteractSuiteV1 {
+    /// See: [`crate::sys_umbrella::OfxInteractSuiteV1::interactGetPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_interact_instance` must be valid.
@@ -601,6 +665,8 @@ impl InteractSuiteV1 {
             .map_ok(|()| unsafe { property.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxInteractSuiteV1::interactGetPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `interact_instance` must be valid.
@@ -620,6 +686,8 @@ impl InteractSuiteV1 {
         }
     }
 
+    /// See: [`crate::sys_umbrella::OfxInteractSuiteV1::interactGetPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `interact_instance` must be valid.
@@ -634,6 +702,8 @@ impl InteractSuiteV1 {
         }
     }
 
+    /// See: [`crate::sys_umbrella::OfxInteractSuiteV1::interactRedraw`]
+    ///
     /// ## Safety
     ///
     /// `self` and `interact_instance` must be valid.
@@ -646,6 +716,8 @@ impl InteractSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(interact_instance.sys_handle()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxInteractSuiteV1::interactSwapBuffers`]
+    ///
     /// ## Safety
     ///
     /// `self` and `interact_instance` must be valid.
@@ -661,6 +733,8 @@ impl InteractSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl MemorySuiteV1 {
+    /// See: [`crate::sys_umbrella::OfxMemorySuiteV1::memoryAlloc`]
+    ///
     /// ## Safety
     ///
     /// `self` and `handle` must be valid.
@@ -681,6 +755,8 @@ impl MemorySuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(handle, n_bytes, allocated_data.as_mut_ptr()) })
             .map_ok(|()| unsafe { allocated_data.assume_init() })
     }
+    /// See: [`crate::sys_umbrella::OfxMemorySuiteV1::memoryFree`]
+    ///
     /// ## Safety
     ///
     /// `self` and `allocated_data` must be valid.
@@ -725,6 +801,8 @@ impl From<&ImageEffectInstance> for PersistentMessageHandle {
 
 #[openfx_internal_macros::low_impl_suite]
 impl MessageSuiteV1 {
+    /// See: [`crate::sys_umbrella::OfxMessageSuiteV1::message`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_handle` must be valid.
@@ -758,6 +836,8 @@ impl MessageSuiteV1 {
         })
     }
 
+    /// See: [`crate::sys_umbrella::OfxMessageSuiteV1::message`]
+    ///
     /// ## Safety
     ///
     /// `self` and `handle` must be valid.
@@ -775,6 +855,8 @@ impl MessageSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl MessageSuiteV2 {
+    /// See: [`crate::sys_umbrella::OfxMessageSuiteV2::clearPersistentMessage`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_handle` must be valid.
@@ -784,6 +866,8 @@ impl MessageSuiteV2 {
         InboundResult::from_sys(unsafe { sys_fn(sys_handle) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxMessageSuiteV2::clearPersistentMessage`]
+    ///
     /// ## Safety
     ///
     /// `self` and `handle` must be valid.
@@ -795,6 +879,8 @@ impl MessageSuiteV2 {
         unsafe { self.sys_clear_persistent_message(handle.into().0) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxMessageSuiteV2::message`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_handle` must be valid.
@@ -826,6 +912,8 @@ impl MessageSuiteV2 {
         })
     }
 
+    /// See: [`crate::sys_umbrella::OfxMessageSuiteV2::message`]
+    ///
     /// ## Safety
     ///
     /// `self` and `handle` must be valid.
@@ -840,6 +928,8 @@ impl MessageSuiteV2 {
         unsafe { self.sys_message(handle.into().0, message_type, message_id, message) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxMessageSuiteV2::setPersistentMessage`]
+    ///
     /// ## SAFETY
     ///
     /// `self` and `sys_handle` must be valid.
@@ -871,6 +961,8 @@ impl MessageSuiteV2 {
         })
     }
 
+    /// See: [`crate::sys_umbrella::OfxMessageSuiteV2::setPersistentMessage`]
+    ///
     /// ## Safety
     ///
     /// `self` and `handle` must be valid.
@@ -890,6 +982,8 @@ impl MessageSuiteV2 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl MultiThreadSuiteV1 {
+    /// See: [`crate::sys_umbrella::OfxMultiThreadSuiteV1::multiThread`]
+    ///
     /// ## Safety
     ///
     /// `self` must be valid.
@@ -908,6 +1002,8 @@ impl MultiThreadSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(Some(sys_func), n_threads, custom_arg) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxMultiThreadSuiteV1::multiThread`]
+    ///
     /// ## Safety
     ///
     /// `self` must be valid.
@@ -931,6 +1027,8 @@ impl MultiThreadSuiteV1 {
         unsafe { self.sys_multi_thread(func, n_threads, custom_arg as *const T as *mut c_void) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxMultiThreadSuiteV1::multiThreadIndex`]
+    ///
     /// ## Safety
     ///
     /// `self` must be valid.
@@ -943,6 +1041,8 @@ impl MultiThreadSuiteV1 {
             .map_ok(|()| unsafe { thread_index.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxMultiThreadSuiteV1::multiThreadIsSpawnedThread`]
+    ///
     /// ## Safety
     ///
     /// `self` must be valid.
@@ -952,6 +1052,8 @@ impl MultiThreadSuiteV1 {
         (unsafe { sys_fn() }) != 0
     }
 
+    /// See: [`crate::sys_umbrella::OfxMultiThreadSuiteV1::multiThreadNumCPUs`]
+    ///
     /// ## Safety
     ///
     /// `self` must be valid.
@@ -964,6 +1066,8 @@ impl MultiThreadSuiteV1 {
             .map_ok(|()| unsafe { num_cpus.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxMultiThreadSuiteV1::mutexCreate`]
+    ///
     /// ## Safety
     ///
     /// `self` must be valid.
@@ -976,6 +1080,8 @@ impl MultiThreadSuiteV1 {
             .map_ok(|()| unsafe { Mutex::from_sys_handle(mutex.assume_init()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxMultiThreadSuiteV1::mutexDestroy`]
+    ///
     /// ## Safety
     ///
     /// `self` and `mutex` must be valid.
@@ -990,6 +1096,8 @@ impl MultiThreadSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(mutex.sys_handle()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxMultiThreadSuiteV1::mutexLock`]
+    ///
     /// ## Safety
     ///
     /// `self` and `mutex` must be valid.
@@ -999,6 +1107,8 @@ impl MultiThreadSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(mutex.sys_handle()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxMultiThreadSuiteV1::mutexTryLock`]
+    ///
     /// ## Safety
     ///
     /// `self` and `mutex` must be valid.
@@ -1008,6 +1118,8 @@ impl MultiThreadSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(mutex.sys_handle()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxMultiThreadSuiteV1::mutexUnLock`]
+    ///
     /// ## Safety
     ///
     /// `self` and `mutex` must be valid.
@@ -1023,6 +1135,8 @@ impl OpenCLProgramSuiteV1 {}
 
 #[openfx_internal_macros::low_impl_suite]
 impl ParametricParameterSuiteV1 {
+    /// See: [`crate::sys_umbrella::OfxParametricParameterSuiteV1::parametricParamAddControlPoint`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_param` must be valid.
@@ -1042,6 +1156,8 @@ impl ParametricParameterSuiteV1 {
         })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParametricParameterSuiteV1::parametricParamDeleteAllControlPoints`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_param` must be valid.
@@ -1055,6 +1171,8 @@ impl ParametricParameterSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(sys_param, curve_index) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParametricParameterSuiteV1::parametricParamDeleteControlPoint`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_param` must be valid.
@@ -1069,6 +1187,8 @@ impl ParametricParameterSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(sys_param, curve_index, nth_ctl) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParametricParameterSuiteV1::parametricParamGetNControlPoints`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_param` must be valid.
@@ -1088,6 +1208,8 @@ impl ParametricParameterSuiteV1 {
         .map_ok(|()| unsafe { return_value.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParametricParameterSuiteV1::parametricParamGetNthControlPoint`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_param` must be valid.
@@ -1116,6 +1238,8 @@ impl ParametricParameterSuiteV1 {
         .map_ok(|()| unsafe { (key.assume_init(), value.assume_init()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParametricParameterSuiteV1::parametricParamGetValue`]
+    ///
     /// ## Safety
     ///
     /// `self` and `param` must be valid.
@@ -1142,6 +1266,8 @@ impl ParametricParameterSuiteV1 {
         .map_ok(|()| unsafe { return_value.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParametricParameterSuiteV1::parametricParamSetNthControlPoint`]
+    ///
     /// ## Safety
     ///
     /// `self` and `param` must be valid.
@@ -1174,6 +1300,8 @@ impl ParametricParameterSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl ProgressSuiteV1 {
+    /// See: [`crate::sys_umbrella::OfxProgressSuiteV1::progressEnd`]
+    ///
     /// ## Safety
     ///
     /// `self` and `effect_instance` must be valid.
@@ -1186,6 +1314,8 @@ impl ProgressSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(effect_instance.sys_handle() as *mut c_void) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxProgressSuiteV1::progressStart`]
+    ///
     /// ## Safety
     ///
     /// `self` and `effect_instance` must be valid.
@@ -1201,6 +1331,8 @@ impl ProgressSuiteV1 {
         })
     }
 
+    /// See: [`crate::sys_umbrella::OfxProgressSuiteV1::progressUpdate`]
+    ///
     /// ## Safety
     ///
     /// `self` and `effect_instance` must be valid.
@@ -1219,6 +1351,8 @@ impl ProgressSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl ProgressSuiteV2 {
+    /// See: [`crate::sys_umbrella::OfxProgressSuiteV2::progressEnd`]
+    ///
     /// ## Safety
     ///
     /// `self` and `effect_instance` must be valid.
@@ -1231,6 +1365,8 @@ impl ProgressSuiteV2 {
         InboundResult::from_sys(unsafe { sys_fn(effect_instance.sys_handle() as *mut c_void) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxProgressSuiteV2::progressStart`]
+    ///
     /// ## Safety
     ///
     /// `self` and `effect_instance` must be valid.
@@ -1251,6 +1387,8 @@ impl ProgressSuiteV2 {
         })
     }
 
+    /// See: [`crate::sys_umbrella::OfxProgressSuiteV2::progressUpdate`]
+    ///
     /// ## Safety
     ///
     /// `self` and `effect_instance` must be valid.
@@ -1269,6 +1407,8 @@ impl ProgressSuiteV2 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl TimeLineSuiteV1 {
+    /// See: [`crate::sys_umbrella::OfxTimeLineSuiteV1::getTime`]
+    ///
     /// ## Safety
     ///
     /// `self` and `instance` must be valid.
@@ -1283,6 +1423,8 @@ impl TimeLineSuiteV1 {
         .map_ok(|()| unsafe { time.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxTimeLineSuiteV1::getTimeBounds`]
+    ///
     /// ## Safety
     ///
     /// `self` and `instance` must be valid.
@@ -1305,6 +1447,8 @@ impl TimeLineSuiteV1 {
         .map_ok(|()| unsafe { (first_time.assume_init(), last_time.assume_init()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxTimeLineSuiteV1::gotoTime`]
+    ///
     /// ## Safety
     ///
     /// `self` and `instance` must be valid.

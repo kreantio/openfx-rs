@@ -1,6 +1,8 @@
-use proc_macro::TokenStream;
+use quote::quote;
 
-pub fn err_if_attribute_is_not_empty(attr: TokenStream) -> Result<(), TokenStream> {
+pub fn err_if_attribute_is_not_empty(
+    attr: proc_macro::TokenStream,
+) -> Result<(), proc_macro::TokenStream> {
     if !attr.is_empty() {
         Err(syn::Error::new_spanned(
             proc_macro2::TokenStream::from(attr),
@@ -45,4 +47,11 @@ pub fn peek_attribute(input: syn::parse::ParseStream, name: &str) -> bool {
 
     let fork = input.fork();
     test(&fork, name).unwrap_or(false)
+}
+
+pub fn make_doc_see_sys(cname: &str) -> proc_macro2::TokenStream {
+    let doc = format!("See: [`crate::sys_umbrella::{cname}`]");
+    quote! {
+        #[doc = #doc]
+    }
 }

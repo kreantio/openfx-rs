@@ -25,6 +25,8 @@ use crate::{
 ///   [`crate::low_plugin::property_sets`].
 #[openfx_internal_macros::low_impl_suite]
 impl PropertySuiteV1 {
+    /// See: [`crate::sys_umbrella::OfxPropertySuiteV1::propGetDimension`]
+    ///
     /// ## Safety
     ///
     /// `self` and `properties` must be valid.
@@ -43,6 +45,8 @@ impl PropertySuiteV1 {
         .map_ok(|()| unsafe { count.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxPropertySuiteV1::propReset`]
+    ///
     /// ## Safety
     ///
     /// `self` and `properties` must be valid.
@@ -59,6 +63,7 @@ impl PropertySuiteV1 {
 
 macro_rules! impl_accessor_methods {
     (@doc) => {
+        // TODO: add `See: [`crate::sys_umbrella::OfxPropertySuiteV1::…`]`.
         r#"## Safety
 
  - `self.0` must be a valid pointer to
