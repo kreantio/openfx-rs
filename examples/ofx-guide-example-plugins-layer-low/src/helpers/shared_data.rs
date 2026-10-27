@@ -209,27 +209,3 @@ impl Drop for ClipImageManaged {
         let _ = unsafe { self.image_effect_suite.0.clip_release_image(&self.props) };
     }
 }
-
-macro_rules! param_get_value_at_time{
-    (
-        $parameter_suite:expr,
-        $param_handle:expr,
-        $time:expr,
-        $(&mut $value:ident),+ $(,)?
-    ) => {
-        {
-            let param_get_value_at_time = unsafe {
-                $parameter_suite
-                    .sys_ref()
-                    .paramGetValueAtTime
-                    .unwrap_unchecked()
-            };
-            let time = $time;
-            #[allow(clippy::macro_metavars_in_unsafe)]
-            ::openfx::low::InboundResult::from_sys(unsafe {
-                param_get_value_at_time($param_handle, time, $(&mut $value),+)
-            })
-        }
-    }
-}
-pub(crate) use param_get_value_at_time;
