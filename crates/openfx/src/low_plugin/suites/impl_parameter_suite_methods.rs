@@ -311,6 +311,8 @@ impl ParameterSuiteV1 {
             .map_ok(|()| unsafe { time.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramGetNumKeys`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_param_handle` must be valid.

@@ -95,7 +95,7 @@ fn make_variant(output: &mut proc_macro2::TokenStream, enum_name: &str, var: &In
         quote! { sys_out_args: crate::sys::core::OfxPropertySetHandle }
     };
 
-    let doc_see_sys = make_doc_see_sys(&cname.to_string());
+    let doc_see_sys = make_doc_see_sys(&cname);
 
     output.extend(quote! {
         #doc_see_sys

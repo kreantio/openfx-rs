@@ -205,7 +205,7 @@ impl DrawSuiteV1 {
 
 #[openfx_internal_macros::low_impl_suite]
 impl ImageEffectOpenGLRenderSuiteV1 {
-    /// See: [`crate::sys_umbrella::OfxImageEffectOpenGLRenderSuiteV1::clipFreeTexture`]==
+    /// See: [`crate::sys_umbrella::OfxImageEffectOpenGLRenderSuiteV1::clipFreeTexture`]
     ///
     /// ## Safety
     ///
@@ -625,7 +625,7 @@ impl ImageEffectSuiteV1 {
         .map_ok(|()| unsafe { returned_ptr.assume_init() })
     }
 
-    /// See: [crate::sys_umbrella::OfxImageEffectSuiteV1::imageMemoryUnlock]
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::imageMemoryUnlock`]
     ///
     /// ## Safety
     ///
