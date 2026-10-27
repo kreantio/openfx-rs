@@ -209,30 +209,3 @@ impl Drop for ClipImageManaged {
         let _ = unsafe { self.image_effect_suite.0.clip_release_image(&self.props) };
     }
 }
-
-/// FIXME: should give back `OfxResult` instead of using `?` internally. This
-/// might require a proc macro for defining a variadic inner function.
-macro_rules! param_get_value_at_time{
-    (
-        $parameter_suite:expr,
-        $param_handle:expr,
-        $time:expr,
-        $(&mut $value:ident),+ $(,)?
-    ) => {
-        {
-            let param_get_value_at_time = unsafe {
-                $parameter_suite
-                    .sys_ref()
-                    .paramGetValueAtTime
-                    .ok_or(openfx::low::StatusError::ErrMissingHostFeature)?
-            };
-            let time = $time;
-            #[allow(clippy::macro_metavars_in_unsafe)]
-            let stat = unsafe { param_get_value_at_time($param_handle, time, $(&mut $value),+) };
-            if !openfx::low::InboundResult::from_sys(stat).is_ok() {
-                return Err(openfx::low::StatusError::Failed.into());
-            }
-        }
-    }
-}
-pub(crate) use param_get_value_at_time;

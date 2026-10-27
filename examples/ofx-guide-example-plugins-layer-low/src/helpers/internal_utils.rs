@@ -43,3 +43,25 @@ pub unsafe fn set_labels(
 
     Ok(())
 }
+
+macro_rules! param_get_value_at_time{
+    (
+        $parameter_suite:expr,
+        $param_handle:expr,
+        $time:expr,
+        $(&mut $value:ident),+ $(,)?
+    ) => {
+        {
+            let param_get_value_at_time =
+                $parameter_suite
+                    .sys_ref()
+                    .paramGetValueAtTime
+                    .unwrap_unchecked();
+            let time = $time;
+            ::openfx::low::InboundResult::from_sys(
+                param_get_value_at_time($param_handle, time, $(&mut $value),+)
+            )
+        }
+    }
+}
+pub(crate) use param_get_value_at_time;
