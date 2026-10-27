@@ -34,10 +34,9 @@ use processing::pixel_processing;
 use crate::{
     definitions::{PLUGIN_4_SATURATION_IDENTIFIER, PLUGIN_4_SATURATION_LABEL, PLUGINS_GROUPING},
     helpers::{
-        internal_utils::{rect_i_from_array, set_labels},
+        internal_utils::{param_get_value_at_time, rect_i_from_array, set_labels},
         shared_data::{
             BitDepth, ClipImageManaged, GuaranteeSend, GuaranteeSendClipInInstance, SharedData,
-            param_get_value_at_time,
         },
     },
 };
@@ -346,7 +345,7 @@ fn action_is_identity(
 
     let time = unsafe { in_args.get_time(s_prop) }.ok_or(StatusError::Failed)?;
     let mut saturation: f64 = Default::default();
-    param_get_value_at_time!(s_param, my_data.saturation_param, time, &mut saturation)
+    unsafe { param_get_value_at_time!(s_param, my_data.saturation_param, time, &mut saturation) }
         .ok_or(StatusError::Failed)?;
 
     if (saturation - 1.0).abs() < 0.000000001 {
@@ -380,7 +379,7 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
     let mut saturation: f64 = Default::default();
-    param_get_value_at_time!(s_param, my_data.saturation_param, time, &mut saturation)
+    unsafe { param_get_value_at_time!(s_param, my_data.saturation_param, time, &mut saturation) }
         .ok_or(StatusError::Failed)?;
 
     let output_img = unsafe { my_data.output_clip.0.clip_get_image(s_ifx, time, None) }
