@@ -548,6 +548,7 @@ impl Iterator for OpenFXTypeExpressiveIterator {
 /// - `Plugin`: the plugin writes the property.
 #[derive(PartialEq)]
 pub enum InputWriteSide {
+    All(syn::Ident),
     Host(syn::Ident),
     Plugin(syn::Ident),
 }
@@ -556,9 +557,13 @@ impl syn::parse::Parse for InputWriteSide {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let side = input.parse::<syn::Ident>()?;
         match side.to_string().as_str() {
+            "all" => Ok(Self::All(side)),
             "host" => Ok(Self::Host(side)),
             "plugin" => Ok(Self::Plugin(side)),
-            _ => Err(syn::Error::new_spanned(side, "expected `host` or `plugin`")),
+            _ => Err(syn::Error::new_spanned(
+                side,
+                "expected `all`, `host` or `plugin`",
+            )),
         }
     }
 }
@@ -566,23 +571,24 @@ impl syn::parse::Parse for InputWriteSide {
 impl InputWriteSide {
     pub fn ident(&self) -> &syn::Ident {
         match self {
-            Self::Host(ident) | Self::Plugin(ident) => ident,
+            Self::All(ident) | Self::Host(ident) | Self::Plugin(ident) => ident,
         }
     }
 
     pub fn as_str(&self) -> &'static str {
         match self {
+            Self::All(_) => "all",
             Self::Host(_) => "host",
             Self::Plugin(_) => "plugin",
         }
     }
 
     pub fn is_host(&self) -> bool {
-        matches!(self, Self::Host(_))
+        matches!(self, Self::All(_) | Self::Host(_))
     }
 
     pub fn is_plugin(&self) -> bool {
-        matches!(self, Self::Plugin(_))
+        matches!(self, Self::All(_) | Self::Plugin(_))
     }
 }
 

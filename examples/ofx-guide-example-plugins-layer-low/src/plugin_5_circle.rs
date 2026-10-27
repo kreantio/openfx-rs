@@ -24,12 +24,11 @@ use openfx::{
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
         property_sets::{
-            ParamsBytePropertySet, ParamsDouble1DPropertySet, ParamsDouble2D3DPropertySet,
-            ParamsNormalizedSpatialPropertySet,
+            ParamsBooleanPropertySet, ParamsDouble1DPropertySet, ParamsDouble2D3DPropertySet,
         },
     },
     sys::{
-        core::{kOfxPropInstanceData, kOfxPropLabel},
+        core::kOfxPropLabel,
         param::{
             OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble, kOfxParamTypeDouble2D,
             kOfxParamTypeRGBA,
@@ -255,38 +254,37 @@ fn action_describe_in_context(
         let param_props =
             unsafe { param_set.param_define(s_param, kOfxParamTypeDouble, RADIUS_PARAM_NAME) }
                 .ok_or(StatusError::Failed)?;
-        let param_props_d = ParamsDouble1DPropertySet::from(param_props);
-        let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
+        let param_props = ParamsDouble1DPropertySet::from(param_props);
 
         unsafe {
-            param_props_d
+            param_props
                 .set_param_double_type(s_prop, ParamPropDoubleType::X.into())
                 .ok_or(StatusError::Failed)?;
             // Not supported by DaVinci Resolve. To make the plugin work there,
             // we ignore the return value here. TODO: Calculate the default value
             // in canonical coordinate if this fails.
-            param_props_ns
+            param_props
                 .set_param_default_coordinate_system(
                     s_prop,
                     ParamPropDefaultCoordinateSystem::Normalised.into(),
                 )
                 .ok();
-            param_props_d
+            param_props
                 .set_param_default_double(s_prop, &[0.25])
                 .ok_or(StatusError::Failed)?;
-            param_props_d
+            param_props
                 .set_param_min_double(s_prop, &[0.0])
                 .ok_or(StatusError::Failed)?;
-            param_props_d
+            param_props
                 .set_param_display_min_double(s_prop, &[0.0])
                 .ok_or(StatusError::Failed)?;
-            param_props_d
+            param_props
                 .set_param_display_max_double(s_prop, &[2.0])
                 .ok_or(StatusError::Failed)?;
-            param_props_d
+            param_props
                 .set_label(s_prop, Some(c"Radius"))
                 .ok_or(StatusError::Failed)?;
-            param_props_d
+            param_props
                 .set_param_hint(s_prop, Some(c"The radius of the circle."))
                 .ok_or(StatusError::Failed)?;
         }
@@ -296,26 +294,25 @@ fn action_describe_in_context(
         let param_props =
             unsafe { param_set.param_define(s_param, kOfxParamTypeDouble2D, CENTRE_PARAM_NAME) }
                 .ok_or(StatusError::Failed)?;
-        let param_props_d = ParamsDouble2D3DPropertySet::from(param_props);
-        let param_props_ns = ParamsNormalizedSpatialPropertySet::from(param_props);
+        let param_props = ParamsDouble2D3DPropertySet::from(param_props);
 
         unsafe {
-            param_props_d
+            param_props
                 .set_param_double_type(s_prop, ParamPropDoubleType::XYAbsolute.into())
                 .ok_or(StatusError::Failed)?;
-            param_props_ns
+            param_props
                 .set_param_default_coordinate_system(
                     s_prop,
                     ParamPropDefaultCoordinateSystem::Normalised.into(),
                 )
                 .ok();
-            param_props_d
+            param_props
                 .set_param_default_double(s_prop, &[0.5, 0.5])
                 .ok_or(StatusError::Failed)?;
-            param_props_d
+            param_props
                 .set_label(s_prop, Some(c"Centre"))
                 .ok_or(StatusError::Failed)?;
-            param_props_d
+            param_props
                 .set_param_hint(s_prop, Some(c"The centre of the circle."))
                 .ok_or(StatusError::Failed)?;
         }
@@ -344,7 +341,7 @@ fn action_describe_in_context(
         let param_props =
             unsafe { param_set.param_define(s_param, kOfxParamTypeBoolean, GROW_ROD_PARAM_NAME) }
                 .ok_or(StatusError::Failed)?;
-        let param_props = ParamsBytePropertySet::from(param_props);
+        let param_props = ParamsBooleanPropertySet::from(param_props);
 
         unsafe {
             param_props
@@ -409,13 +406,9 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
 
     // SAFETY: the pointee is kept alive by `Box::into_raw` until it is
     // reclaimed with `Box::from_raw` in `action_destroy_instance`.
-    if let r = unsafe {
-        s_prop.prop_set_pointer(
-            instance_props.sys_handle(),
-            kOfxPropInstanceData,
-            std::ptr::NonNull::new(my_data_ptr),
-        )
-    } && !r.is_ok()
+    if let r =
+        unsafe { instance_props.set_instance_data(s_prop, std::ptr::NonNull::new(my_data_ptr)) }
+        && !r.is_ok()
     {
         drop(unsafe { Box::from_raw(my_data_ptr as *mut MyInstanceData) });
         return Err(StatusError::Failed);
