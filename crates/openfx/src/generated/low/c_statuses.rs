@@ -6,6 +6,7 @@ const _: () = assert!(
 );
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[must_use]
+#[non_exhaustive]
 pub enum StatusError {
     ErrBadHandle,
     ErrBadIndex,
@@ -70,6 +71,7 @@ impl From<StatusError> for crate::sys_umbrella::OfxStatus {
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[must_use]
+#[non_exhaustive]
 pub enum StatusReply {
     ReplyDefault,
     ReplyNo,
