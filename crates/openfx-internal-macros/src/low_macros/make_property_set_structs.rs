@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use proc_macro::TokenStream;
 use quote::{quote, quote_spanned};
 
-use crate::low_macros::utils;
+use crate::low_macros::utils::{self, make_doc_see_sys};
 
 mod inputs;
 use inputs::*;
@@ -165,7 +165,10 @@ fn make_property_setter(
             _ => quote! { value },
         };
 
+        let doc_see_sys = make_doc_see_sys(&cname.to_string());
         let mut doc = quote! {
+                #doc_see_sys
+                ///
                 /// ## Safety
                 ///
                 /// - `self.0` must be a valid handle of
@@ -242,7 +245,10 @@ fn make_property_getter(
             _ => quote! { value_simple },
         };
 
+        let doc_see_sys = make_doc_see_sys(&cname.to_string());
         let mut doc = quote! {
+            #doc_see_sys
+            ///
             /// ## Safety
             ///
             /// - `self.0` must be a valid handle of
@@ -325,8 +331,12 @@ fn make_property_resetter(
         prop.simple_name.span(),
     );
 
+    let doc_see_sys = make_doc_see_sys(&cname.to_string());
+
     output.extend(
         quote! {
+            #doc_see_sys
+            ///
             /// ## Safety
             ///
             /// - `self.0` must be a valid handle of
@@ -354,8 +364,12 @@ fn make_property_dimensions_getter(
         prop.simple_name.span(),
     );
 
+    let doc_see_sys = make_doc_see_sys(&cname.to_string());
+
     output.extend(
         quote! {
+            #doc_see_sys
+            ///
             /// ## Safety
             ///
             /// - `self.0` must be a valid handle of

@@ -94,7 +94,7 @@ fn gen_group(
         return Err(format!("No statuses provided to generate `enum {enum_name_ident}`!").into());
     }
 
-    let status_sys_ident = statuses
+    let status_sys_idents = statuses
         .iter()
         .map(|status| {
             syn::Ident::new(
@@ -107,17 +107,25 @@ fn gen_group(
         .iter()
         .map(|status| syn::Ident::new(status, proc_macro2::Span::call_site()))
         .collect::<Vec<_>>();
+    let status_docs = status_sys_idents
+        .iter()
+        .map(|ident| format!("See: [`crate::sys_umbrella::{ident}`]"))
+        .collect::<Vec<_>>();
 
     output.extend(quote! {
         #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
         #[must_use]
+        #[non_exhaustive]
         pub enum #enum_name_ident {
-            #(#statuses,)*
+            #(
+                #[doc = #status_docs]
+                #statuses,
+            )*
         }
         impl #enum_name_ident {
             pub fn try_from_sys(sys_status: crate::sys_umbrella::OfxStatus) -> Option<Self> {
                 match sys_status {
-                    #(crate::sys_umbrella::#status_sys_ident => Some(Self::#statuses),)*
+                    #(crate::sys_umbrella::#status_sys_idents => Some(Self::#statuses),)*
                     _ => None,
                 }
             }
@@ -125,7 +133,7 @@ fn gen_group(
         impl From<#enum_name_ident> for crate::sys_umbrella::OfxStatus {
             fn from(status: #enum_name_ident) -> Self {
                 match status {
-                    #(#enum_name_ident::#statuses => crate::sys_umbrella::#status_sys_ident,)*
+                    #(#enum_name_ident::#statuses => crate::sys_umbrella::#status_sys_idents,)*
                 }
             }
         }

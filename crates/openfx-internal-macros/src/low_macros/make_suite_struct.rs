@@ -1,6 +1,8 @@
 use proc_macro::TokenStream;
 use quote::quote;
 
+use crate::low_macros::utils::make_doc_see_sys;
+
 /// ## Note
 ///
 /// This was originally a declarative macro. While migrating
@@ -15,7 +17,11 @@ pub fn make_suite_struct(tokens: TokenStream) -> TokenStream {
         full_ident,
     } = syn::parse_macro_input!(tokens as Input);
 
+    let doc_see_sys = make_doc_see_sys(&full_ident.to_string());
+
     quote! {
+        #doc_see_sys
+        ///
         /// ## Safety
         ///
         /// This type is not `Send`, but it is `Sync`. For details, see the Safety

@@ -13,6 +13,8 @@ use crate::{
 /// Implementations of methods directly operating on parameter suites.
 #[openfx_internal_macros::low_impl_suite]
 impl ParameterSuiteV1 {
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramDefine`]
+    ///
     /// ## Safety
     ///
     /// `self` and `param_set` must be valid.
@@ -41,6 +43,8 @@ impl ParameterSuiteV1 {
         .map_ok(|()| unsafe { property_set.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramDefine`]
+    ///
     /// ## Safety
     ///
     /// `self` and `param_set` must be valid.
@@ -66,6 +70,8 @@ impl ParameterSuiteV1 {
         })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramEditBegin`]
+    ///
     /// ## Safety
     ///
     /// `self` and `param_set` must be valid.
@@ -79,6 +85,8 @@ impl ParameterSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(param_set.sys_handle(), name.as_ptr()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramEditEnd`]
+    ///
     /// ## Safety
     ///
     /// `self` and `param_set` must be valid.
@@ -88,6 +96,8 @@ impl ParameterSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(param_set.sys_handle()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramGetHandle`]
+    ///
     /// ## Safety
     ///
     /// `self` and `param_set` must be valid.
@@ -112,6 +122,8 @@ impl ParameterSuiteV1 {
         .map_ok(|()| unsafe { (param.assume_init(), property_set.assume_init()) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramGetHandle`]
+    ///
     /// ## Safety
     ///
     /// `self` and `param_set` must be valid.
@@ -135,6 +147,8 @@ impl ParameterSuiteV1 {
         .map_ok(|()| unsafe { param.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramSetGetPropertySet`]
+    ///
     /// ## Note
     ///
     /// `pub(super)` to satisfy the check enforced by
@@ -155,6 +169,8 @@ impl ParameterSuiteV1 {
             .map_ok(|()| unsafe { prop_handle.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramSetGetPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `param_set` must be valid.
@@ -169,6 +185,8 @@ impl ParameterSuiteV1 {
         }
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramSetGetPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `param_set` must be valid.
@@ -201,6 +219,8 @@ impl ParameterSuiteV1 {
 /// TO REVIEWERS: remind me if the statements above need updating.
 #[openfx_internal_macros::low_impl_suite]
 impl ParameterSuiteV1 {
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramCopy`]
+    ///
     /// ## Safety
     ///
     /// `self`, `sys_param_to` and `sys_param_from` must be valid.
@@ -223,6 +243,8 @@ impl ParameterSuiteV1 {
         })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramDeleteAllKeys`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_param_handle` must be valid.
@@ -235,6 +257,8 @@ impl ParameterSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(sys_param_handle) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramDeleteKey`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_param_handle` must be valid.
@@ -248,6 +272,8 @@ impl ParameterSuiteV1 {
         InboundResult::from_sys(unsafe { sys_fn(sys_param_handle, time) })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramGetKeyIndex`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_param_handle` must be valid.
@@ -267,6 +293,8 @@ impl ParameterSuiteV1 {
         .map_ok(|()| unsafe { index.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramGetKeyTime`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_param_handle` must be valid.
@@ -283,6 +311,8 @@ impl ParameterSuiteV1 {
             .map_ok(|()| unsafe { time.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramGetNumKeys`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_param_handle` must be valid.
@@ -298,6 +328,8 @@ impl ParameterSuiteV1 {
             .map_ok(|()| unsafe { num_keys.assume_init() })
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramGetPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `sys_param` must be valid.
