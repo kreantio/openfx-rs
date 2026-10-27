@@ -33,6 +33,8 @@ include!(concat!(
 ));
 
 impl DrawContext {
+    /// See: [`crate::sys_umbrella::OfxDrawSuiteV1::draw`]
+    ///
     /// ## Safety
     ///
     /// `self` and `draw_suite` must be valid.
@@ -45,6 +47,8 @@ impl DrawContext {
         unsafe { draw_suite.draw(self, primitive, points) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxDrawSuiteV1::drawText`]
+    ///
     /// ## Safety
     ///
     /// `self` and `draw_suite` must be valid.
@@ -58,6 +62,8 @@ impl DrawContext {
         unsafe { draw_suite.draw_text(self, text, pos, alignment) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxDrawSuiteV1::getColour`]
+    ///
     /// ## Safety
     ///
     /// `self` and `draw_suite` must be valid.
@@ -69,6 +75,8 @@ impl DrawContext {
         unsafe { draw_suite.get_colour(self, std_colour) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxDrawSuiteV1::setColour`]
+    ///
     /// ## Safety
     ///
     /// `self` and `draw_suite` must be valid.
@@ -80,6 +88,8 @@ impl DrawContext {
         unsafe { draw_suite.set_colour(self, colour) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxDrawSuiteV1::setLineStipple`]
+    ///
     /// ## Safety
     ///
     /// `self` and `draw_suite` must be valid.
@@ -91,6 +101,8 @@ impl DrawContext {
         unsafe { draw_suite.set_line_stipple(self, pattern) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxDrawSuiteV1::setLineWidth`]
+    ///
     /// ## Safety
     ///
     /// `self` and `draw_suite` must be valid.
@@ -100,6 +112,8 @@ impl DrawContext {
 }
 
 impl ImageClipDescriptor {
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::clipGetPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
@@ -112,6 +126,8 @@ impl ImageClipDescriptor {
 }
 
 impl ImageClipInstance {
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::clipGetImage`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
@@ -124,6 +140,8 @@ impl ImageClipInstance {
         unsafe { image_effect_suite.clip_get_image(self, time, region) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::clipGetPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
@@ -134,6 +152,8 @@ impl ImageClipInstance {
         unsafe { image_effect_suite.clip_get_instance_property_set(self) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::clipGetRegionOfDefinition`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
@@ -145,6 +165,8 @@ impl ImageClipInstance {
         unsafe { image_effect_suite.clip_get_region_of_definition(self, time) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectOpenGLRenderSuiteV1::clipLoadTexture`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect_open_gl_render_suite` must be valid.
@@ -163,6 +185,8 @@ impl ImageClipInstance {
 }
 
 impl ImageEffectDescriptor {
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::clipDefine`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
@@ -174,6 +198,8 @@ impl ImageEffectDescriptor {
         unsafe { image_effect_suite.clip_define(self, name) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::getParamSet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
@@ -184,6 +210,8 @@ impl ImageEffectDescriptor {
         unsafe { image_effect_suite.get_param_set_descriptor(self) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::getPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
@@ -196,6 +224,8 @@ impl ImageEffectDescriptor {
 }
 
 impl ImageEffectInstance {
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::abort`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
@@ -203,6 +233,8 @@ impl ImageEffectInstance {
         unsafe { image_effect_suite.abort(self) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::clipGetHandle`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
@@ -214,6 +246,8 @@ impl ImageEffectInstance {
         unsafe { image_effect_suite.clip_get_handle(self, name) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::clipGetHandle`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
@@ -225,6 +259,8 @@ impl ImageEffectInstance {
         unsafe { image_effect_suite.clip_get_clip_handle(self, name) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::getParamSet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
@@ -235,6 +271,8 @@ impl ImageEffectInstance {
         unsafe { image_effect_suite.get_param_set_instance(self) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::getPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
@@ -245,6 +283,8 @@ impl ImageEffectInstance {
         unsafe { image_effect_suite.get_instance_property_set(self) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::imageMemoryAlloc`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
@@ -258,6 +298,8 @@ impl ImageEffectInstance {
 }
 
 impl ImageMemory {
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::imageMemoryFree`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
@@ -268,6 +310,8 @@ impl ImageMemory {
         unsafe { image_effect_suite.image_memory_free(self) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::imageMemoryLock`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
@@ -278,6 +322,8 @@ impl ImageMemory {
         unsafe { image_effect_suite.image_memory_lock(self) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxImageEffectSuiteV1::imageMemoryUnlock`]
+    ///
     /// ## Safety
     ///
     /// `self` and `image_effect_suite` must be valid.
@@ -290,6 +336,8 @@ impl ImageMemory {
 }
 
 impl InteractDescriptor {
+    /// See: [`crate::sys_umbrella::OfxInteractSuiteV1::interactGetPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `interact_suite` must be valid.
@@ -302,6 +350,8 @@ impl InteractDescriptor {
 }
 
 impl InteractInstance {
+    /// See: [`crate::sys_umbrella::OfxInteractSuiteV1::interactGetPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `interact_suite` must be valid.
@@ -312,6 +362,8 @@ impl InteractInstance {
         unsafe { interact_suite.interacte_get_instance_property_set(self) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxInteractSuiteV1::interactRedraw`]
+    ///
     /// ## Safety
     ///
     /// `self` and `interact_suite` must be valid.
@@ -319,6 +371,8 @@ impl InteractInstance {
         unsafe { interact_suite.interact_redraw(self) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxInteractSuiteV1::interactSwapBuffers`]
+    ///
     /// ## Safety
     ///
     /// `self` and `interact_suite` must be valid.
@@ -331,6 +385,8 @@ impl InteractInstance {
 }
 
 impl Mutex {
+    /// See: [`crate::sys_umbrella::OfxMultiThreadSuiteV1::mutexDestroy`]
+    ///
     /// ## Safety
     ///
     /// `self` and `multi_thread_suite` must be valid.
@@ -341,6 +397,8 @@ impl Mutex {
         unsafe { multi_thread_suite.mutex_destroy(self) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxMultiThreadSuiteV1::mutexLock`]
+    ///
     /// ## Safety
     ///
     /// `self` and `multi_thread_suite` must be valid.
@@ -348,6 +406,8 @@ impl Mutex {
         unsafe { multi_thread_suite.mutex_lock(self) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxMultiThreadSuiteV1::mutexTryLock`]
+    ///
     /// ## Safety
     ///
     /// `self` and `multi_thread_suite` must be valid.
@@ -358,6 +418,8 @@ impl Mutex {
         unsafe { multi_thread_suite.mutex_try_lock(self) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxMultiThreadSuiteV1::mutexUnLock`]
+    ///
     /// ## Safety
     ///
     /// `self` and `multi_thread_suite` must be valid.
@@ -370,6 +432,8 @@ impl Mutex {
 }
 
 impl ParamSetDescriptor {
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramDefine`]
+    ///
     /// It is recommended to use the typed versions of this function where
     /// applicable.
     ///
@@ -387,6 +451,8 @@ impl ParamSetDescriptor {
         unsafe { parameter_suite.param_define(self, param_type, name) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramDefine`]
+    ///
     /// It is recommended to use the typed versions of this function where
     /// applicable.
     ///
@@ -404,6 +470,8 @@ impl ParamSetDescriptor {
         unsafe { parameter_suite.param_define_no_output(self, param_type, name) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramSetGetPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
@@ -416,6 +484,8 @@ impl ParamSetDescriptor {
 }
 
 impl ParamSetInstance {
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramEditBegin`]
+    ///
     /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
@@ -427,6 +497,8 @@ impl ParamSetInstance {
         unsafe { parameter_suite.param_edit_begin(self, name) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramEditEnd`]
+    ///
     /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
@@ -434,6 +506,8 @@ impl ParamSetInstance {
         unsafe { parameter_suite.param_edit_end(self) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramGetHandle`]
+    ///
     /// It is recommended to use the typed versions of this function where
     /// applicable.
     ///
@@ -450,6 +524,8 @@ impl ParamSetInstance {
         unsafe { parameter_suite.param_get_handle(self, name) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramGetHandle`]
+    ///
     /// It is recommended to use the typed versions of this function where
     /// applicable.
     ///
@@ -466,6 +542,8 @@ impl ParamSetInstance {
         unsafe { parameter_suite.param_get_param_handle(self, name) }
     }
 
+    /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramSetGetPropertySet`]
+    ///
     /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
