@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 use quote::{quote, quote_spanned};
 
-use crate::low_macros::utils;
+use crate::low_macros::utils::{self, make_doc_see_sys};
 
 pub fn make_action_enum(attr: TokenStream, item: TokenStream) -> TokenStream {
     if let Err(error) = utils::err_if_attribute_is_not_empty(attr) {
@@ -13,11 +13,11 @@ pub fn make_action_enum(attr: TokenStream, item: TokenStream) -> TokenStream {
     let input = syn::parse_macro_input!(item as Input);
     let enum_name = &input.name;
 
-    for var in &input.items {
-        make_variant(&mut output_inner, var);
-    }
-
     let enum_name_str = enum_name.to_string();
+
+    for var in &input.items {
+        make_variant(&mut output_inner, &enum_name_str, var);
+    }
 
     let from_sys_fn = make_from_sys_fn(&enum_name_str, &input.items);
     let sys_fns = make_sys_fns(&enum_name_str, &input.items);
@@ -61,8 +61,9 @@ pub fn make_action_enum(attr: TokenStream, item: TokenStream) -> TokenStream {
     .into()
 }
 
-fn make_variant(output: &mut proc_macro2::TokenStream, var: &InputItem) {
+fn make_variant(output: &mut proc_macro2::TokenStream, enum_name: &str, var: &InputItem) {
     let name = &var.name;
+    let cname = get_cname(var, enum_name);
     let handle_field = if let Some(handle_type) = &var.meta.handle {
         quote! { handle: crate::low_plugin::objects::#handle_type }
     } else {
@@ -94,7 +95,10 @@ fn make_variant(output: &mut proc_macro2::TokenStream, var: &InputItem) {
         quote! { sys_out_args: crate::sys::core::OfxPropertySetHandle }
     };
 
+    let doc_see_sys = make_doc_see_sys(&cname.to_string());
+
     output.extend(quote! {
+        #doc_see_sys
         #name {
             #handle_field,
             #in_args_field,
