@@ -49,8 +49,8 @@ use crate::{
     },
 };
 
-mod impl_parameter_suite_methods;
-mod impl_property_suite_property_accessor_methods;
+mod parameter_suite;
+mod property_suite;
 
 pub use crate::generated::low_plugin::c_suites::suites::*;
 
