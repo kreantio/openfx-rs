@@ -14,6 +14,8 @@ pub mod parameters;
 pub mod property_sets;
 pub mod suites;
 
+mod internal_macros;
+
 pub trait Plugin {
     const PLUGIN_IDENTIFIER: &'static CStr;
     const PLUGIN_VERSION_MAJOR: c_uint;
