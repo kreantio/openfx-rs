@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
 use serde::Deserialize as _;
 
@@ -46,13 +46,13 @@ pub struct CodegenConfigStatusesGroup {
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigSuites {
-    pub special_cases: std::collections::HashMap<String, CodegenConfigSuiteSpecialCase>,
+    pub special_cases: BTreeMap<String, CodegenConfigSuiteSpecialCase>,
 }
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigSuiteSpecialCase {
     pub key_name: Option<String>,
-    pub functions: Option<HashMap<String, CodegenConfigSuiteSpecialCaseFunction>>,
+    pub functions: Option<BTreeMap<String, CodegenConfigSuiteSpecialCaseFunction>>,
 }
 
 #[derive(serde::Deserialize)]
@@ -67,14 +67,14 @@ pub struct CodegenConfigSuiteSpecialCaseFunction {
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigObjects {
-    #[serde(deserialize_with = "CodegenConfigObjectMappingEntry::deserialize_hashmap")]
-    pub mapping: HashMap<String, CodegenConfigObjectMappingEntry>,
+    #[serde(deserialize_with = "CodegenConfigObjectMappingEntry::deserialize_BTreeMap")]
+    pub mapping: BTreeMap<String, CodegenConfigObjectMappingEntry>,
 }
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigParameters {
-    pub mapping: HashMap<String, CodegenConfigParameterMappingEntry>,
-    pub property_accessor_monomorphization_allow_list: HashSet<String>,
+    pub mapping: BTreeMap<String, CodegenConfigParameterMappingEntry>,
+    pub property_accessor_monomorphization_allow_list: BTreeSet<String>,
 }
 
 #[derive(serde::Deserialize)]
@@ -115,7 +115,7 @@ pub enum CodegenConfigParameterMappingEntryElementType {
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigPropertySets {
     pub ignore: CodegenConfigStringMatcherAnyOf,
-    pub renaming: HashMap<String, String>,
+    pub renaming: BTreeMap<String, String>,
 }
 
 #[derive(Default, serde::Deserialize)]
@@ -128,11 +128,11 @@ pub struct CodegenConfigObjectMappingEntry {
     pub set: CodegenConfigObjectMappingEntrySet,
     #[serde(default)]
     pub omit: bool,
-    pub omit_functions: Option<HashSet<String>>,
+    pub omit_functions: Option<BTreeSet<String>>,
 }
 
 impl CodegenConfigObjectMappingEntry {
-    fn deserialize_hashmap<'de, D>(deserializer: D) -> Result<HashMap<String, Self>, D::Error>
+    fn deserialize_BTreeMap<'de, D>(deserializer: D) -> Result<BTreeMap<String, Self>, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
@@ -144,9 +144,9 @@ impl CodegenConfigObjectMappingEntry {
             Zelf(CodegenConfigObjectMappingEntry),
         }
 
-        let hashmap: HashMap<String, OneOf> = HashMap::deserialize(deserializer)?;
+        let BTreeMap: BTreeMap<String, OneOf> = BTreeMap::deserialize(deserializer)?;
 
-        Ok(hashmap
+        Ok(BTreeMap
             .into_iter()
             .map(|(key, value)| {
                 (
@@ -160,7 +160,7 @@ impl CodegenConfigObjectMappingEntry {
                     },
                 )
             })
-            .collect::<HashMap<_, _>>())
+            .collect::<BTreeMap<_, _>>())
     }
 }
 
@@ -199,26 +199,26 @@ impl<'de> serde::Deserialize<'de> for CodegenConfigObjectMappingEntrySet {
 pub struct CodegenConfigActions {
     pub pseudo: CodegenConfigActionsPseudo,
     pub core: CodegenConfigActionsCore,
-    pub concretes: HashMap<String, CodegenConfigActionsConcrete>,
+    pub concretes: BTreeMap<String, CodegenConfigActionsConcrete>,
 }
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigActionsPseudo {
-    pub members: HashSet<String>,
+    pub members: BTreeSet<String>,
 }
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigActionsCore {
     pub members_prefix: String,
-    pub members: HashMap<String, CodegenConfigActionsMember>,
+    pub members: BTreeMap<String, CodegenConfigActionsMember>,
 }
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigActionsConcrete {
     pub handle_prefix: String,
-    pub members_from_core: HashSet<String>,
+    pub members_from_core: BTreeSet<String>,
     pub members_prefix: String,
-    pub members: HashMap<String, CodegenConfigActionsMember>,
+    pub members: BTreeMap<String, CodegenConfigActionsMember>,
 }
 
 #[derive(serde::Deserialize)]
