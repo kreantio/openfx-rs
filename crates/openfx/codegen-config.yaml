@@ -175,9 +175,23 @@ parameters:
     Group: { property_set: ParamsGroup, ty: null }
     Page: { property_set: ParamsPage, ty: null }
     PushButton: { property_set: ParamsPushButton, ty: null }
-    # Parametric: { property_set: ParamsParametric, ty: null }
+    # TODO: `struct ParamParametric<const N: c_int>`?
+    Parametric: { property_set: ParamsParametric, ty: null }
+  # Properties in a parameter's property set whose type is specified with
+  # `ty_one_of!` and that are missing from this list are treated as errors.
+  # This ensures that we don't blindly monomorphize properties without
+  # understanding what they represent.
+  property_accessor_monomorphization_allow_list:
+    - param_display_max
+    - param_display_min
+    - param_max
+    - param_min
+    - param_default
 
 property_sets:
+  ignore:
+    # Instead, they are generated together with the parameters.
+    - { regex: "^Params.+$" }
   renaming:
     ImageEffectHost: ImageEffectHostDescriptor
     Image: ImageInstance

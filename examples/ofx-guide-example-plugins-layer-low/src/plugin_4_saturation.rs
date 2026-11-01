@@ -21,7 +21,7 @@ use openfx::{
             ImageEffectAction,
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
-        property_sets::ParamsDouble1DPropertySet,
+        parameters::ParamDoublePropertySet,
     },
     sys::{
         core::kOfxPropLabel,
@@ -227,7 +227,7 @@ fn action_describe_in_context(
         let param_props =
             unsafe { param_set.param_define(s_param, kOfxParamTypeDouble, SATURATION_PARAM_NAME) }
                 .ok_or(StatusError::Failed)?;
-        let param_props = ParamsDouble1DPropertySet::from(param_props);
+        let param_props = ParamDoublePropertySet::from(param_props);
 
         unsafe {
             param_props

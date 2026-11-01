@@ -10,6 +10,7 @@ pub mod actions {
 }
 
 pub mod objects;
+pub mod parameters;
 pub mod property_sets;
 pub mod suites;
 
