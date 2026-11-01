@@ -67,7 +67,7 @@ pub struct CodegenConfigSuiteSpecialCaseFunction {
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigObjects {
-    #[serde(deserialize_with = "CodegenConfigObjectMappingEntry::deserialize_BTreeMap")]
+    #[serde(deserialize_with = "CodegenConfigObjectMappingEntry::deserialize_b_tree_map")]
     pub mapping: BTreeMap<String, CodegenConfigObjectMappingEntry>,
 }
 
@@ -132,7 +132,7 @@ pub struct CodegenConfigObjectMappingEntry {
 }
 
 impl CodegenConfigObjectMappingEntry {
-    fn deserialize_BTreeMap<'de, D>(deserializer: D) -> Result<BTreeMap<String, Self>, D::Error>
+    fn deserialize_b_tree_map<'de, D>(deserializer: D) -> Result<BTreeMap<String, Self>, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
@@ -144,9 +144,9 @@ impl CodegenConfigObjectMappingEntry {
             Zelf(CodegenConfigObjectMappingEntry),
         }
 
-        let BTreeMap: BTreeMap<String, OneOf> = BTreeMap::deserialize(deserializer)?;
+        let map: BTreeMap<String, OneOf> = BTreeMap::deserialize(deserializer)?;
 
-        Ok(BTreeMap
+        Ok(map
             .into_iter()
             .map(|(key, value)| {
                 (
