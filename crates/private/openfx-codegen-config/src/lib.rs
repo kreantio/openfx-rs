@@ -85,8 +85,8 @@ pub struct CodegenConfigParameterMappingEntry {
 }
 
 pub struct CodegenConfigParameterMappingEntryType {
-    pub dimensions: usize,
     pub element_type: CodegenConfigParameterMappingEntryElementType,
+    pub dimensions: usize,
 }
 
 impl<'de> serde::Deserialize<'de> for CodegenConfigParameterMappingEntryType {
@@ -94,11 +94,11 @@ impl<'de> serde::Deserialize<'de> for CodegenConfigParameterMappingEntryType {
     where
         D: serde::Deserializer<'de>,
     {
-        let tuple: (usize, CodegenConfigParameterMappingEntryElementType) =
+        let tuple: (CodegenConfigParameterMappingEntryElementType, usize) =
             serde::Deserialize::deserialize(deserializer)?;
         Ok(Self {
-            dimensions: tuple.0,
-            element_type: tuple.1,
+            element_type: tuple.0,
+            dimensions: tuple.1,
         })
     }
 }
