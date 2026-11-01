@@ -9,8 +9,8 @@ use quote::quote;
 
 use openfx_codegen_config::CodegenConfig;
 use openfx_datagen::metadata_extracting::{
-    ActiondefMetadataEntry, PropdefDimension, PropdefType, PropdefTypeSimple, StringEnumVariant,
-    WriteSide,
+    ActiondefMetadataEntry, PropdefDimension, PropdefType, PropdefTypeSimple, PropsetMetadataEntry,
+    StringEnumVariant, WriteSide,
 };
 
 use crate::{input_metadata::InputMetadata, utils::strip_common_prefix};
@@ -406,80 +406,29 @@ pub fn gen_low_plugin_property_sets(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut output_inner = proc_macro2::TokenStream::new();
 
+    let mut used_refs: HashSet<String> = HashSet::new();
+
     for (set_name, set) in &metadata.raw.propset_map {
+        if config.property_sets.ignore.matches(set_name) {
+            continue;
+        }
+
         let set_name = config
             .property_sets
             .renaming
             .get(set_name)
             .unwrap_or(set_name);
 
-        let mut items: BTreeMap<&str, proc_macro2::TokenStream> = BTreeMap::new();
-
-        for (prop_cname, prop) in &set.props {
-            let write = prop.write.as_ref();
-            add_property_set_item(&mut items, metadata, prop_cname, write, set_name)?;
-        }
-
-        let mut meta_items: Vec<proc_macro2::TokenStream> = vec![];
-
-        meta_items.push(match set.write {
-            WriteSide::All => quote! { write = all },
-            WriteSide::Host => quote! { write = host },
-            WriteSide::Plugin => quote! { write = plugin },
-        });
-
-        if !set.props_refs.is_empty() {
-            let refs = set
-                .props_refs
-                .iter()
-                .map(|str| syn::Ident::new(str, proc_macro2::Span::call_site()));
-            meta_items.push(quote! { refs = #(#refs)+* });
-        }
-
-        let parenthesized_meta_items = if meta_items.is_empty() {
-            quote! {}
-        } else {
-            quote! { (#(#meta_items),*) }
-        };
-
-        let struct_name_ident = syn::Ident::new(
-            &format!("{set_name}PropertySet"),
-            proc_macro2::Span::call_site(),
-        );
-
-        let items: Vec<_> = items.values().cloned().collect();
-
-        output_inner.extend(quote! {
-            #[propset #parenthesized_meta_items]
-            struct #struct_name_ident { #(#items)* }
-        });
+        output_inner.extend(process_property_set(
+            metadata,
+            set_name,
+            set,
+            &mut used_refs,
+        )?);
     }
 
-    {
-        let mut output_def_inner = proc_macro2::TokenStream::new();
-
-        for (def_name, def) in &metadata.raw.propsetdef_map {
-            let mut items: BTreeMap<&str, proc_macro2::TokenStream> = BTreeMap::new();
-
-            for (prop_cname, prop) in &def.props {
-                let write = prop.write.as_ref();
-                add_property_set_item(&mut items, metadata, prop_cname, write, def_name)?;
-            }
-
-            let def_name_ident = syn::Ident::new(def_name, proc_macro2::Span::call_site());
-
-            let items: Vec<_> = items.values().cloned().collect();
-
-            output_def_inner.extend(quote! {
-                #[propsetdef]
-                struct #def_name_ident { #(#items)* }
-            });
-        }
-
-        output_inner.extend(quote! {
-            #[propsetdefs]
-            mod __ { #output_def_inner }
-        });
+    if let Some(output_def) = process_property_set_definitions(metadata, &used_refs)? {
+        output_inner.extend(output_def);
     }
 
     std::fs::write(
@@ -494,6 +443,135 @@ pub fn gen_low_plugin_property_sets(
     )?;
 
     Ok(())
+}
+
+pub fn gen_low_plugin_parameters(
+    config: &CodegenConfig,
+    output_file: &Path,
+    metadata: &InputMetadata,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut output_inner = proc_macro2::TokenStream::new();
+
+    let mut used_refs: HashSet<String> = HashSet::new();
+
+    for (parameter_type_name, entry) in &config.parameters.mapping {
+        let Some(set) = metadata.raw.propset_map.get(&entry.property_set) else {
+            return Err(format!("Missing property set: {}", entry.property_set).into());
+        };
+
+        let set_name = format!("Param{parameter_type_name}");
+
+        output_inner.extend(process_property_set(
+            metadata,
+            &set_name,
+            set,
+            &mut used_refs,
+        )?);
+    }
+
+    if let Some(output_def) = process_property_set_definitions(metadata, &used_refs)? {
+        output_inner.extend(output_def);
+    }
+
+    std::fs::write(
+        output_file,
+        quote! {
+            #[openfx_internal_macros::low_make_property_set_structs]
+            mod __ {
+                #output_inner
+            }
+        }
+        .to_string(),
+    )?;
+
+    Ok(())
+}
+
+fn process_property_set(
+    metadata: &InputMetadata,
+    set_name: &str,
+    set: &PropsetMetadataEntry,
+    used_refs: &mut HashSet<String>,
+) -> Result<proc_macro2::TokenStream, Box<dyn std::error::Error>> {
+    let mut items: BTreeMap<&str, proc_macro2::TokenStream> = BTreeMap::new();
+
+    for (prop_cname, prop) in &set.props {
+        let write = prop.write.as_ref();
+        add_property_set_item(&mut items, metadata, prop_cname, write, set_name)?;
+    }
+
+    let mut meta_items: Vec<proc_macro2::TokenStream> = vec![];
+
+    meta_items.push(match set.write {
+        WriteSide::All => quote! { write = all },
+        WriteSide::Host => quote! { write = host },
+        WriteSide::Plugin => quote! { write = plugin },
+    });
+
+    if !set.props_refs.is_empty() {
+        used_refs.extend(set.props_refs.iter().cloned());
+        let refs = set
+            .props_refs
+            .iter()
+            .map(|str| syn::Ident::new(str, proc_macro2::Span::call_site()));
+        meta_items.push(quote! { refs = #(#refs)+* });
+    }
+
+    let parenthesized_meta_items = if meta_items.is_empty() {
+        quote! {}
+    } else {
+        quote! { (#(#meta_items),*) }
+    };
+
+    let struct_name_ident = syn::Ident::new(
+        &format!("{set_name}PropertySet"),
+        proc_macro2::Span::call_site(),
+    );
+
+    let items: Vec<_> = items.values().cloned().collect();
+
+    Ok(quote! {
+        #[propset #parenthesized_meta_items]
+        struct #struct_name_ident { #(#items)* }
+    })
+}
+
+fn process_property_set_definitions(
+    metadata: &InputMetadata,
+    used_refs: &HashSet<String>,
+) -> Result<Option<proc_macro2::TokenStream>, Box<dyn std::error::Error>> {
+    let mut output_def_inner = proc_macro2::TokenStream::new();
+
+    for (def_name, def) in &metadata.raw.propsetdef_map {
+        if !used_refs.contains(def_name) {
+            continue;
+        }
+
+        let mut items: BTreeMap<&str, proc_macro2::TokenStream> = BTreeMap::new();
+
+        for (prop_cname, prop) in &def.props {
+            let write = prop.write.as_ref();
+            add_property_set_item(&mut items, metadata, prop_cname, write, def_name)?;
+        }
+
+        let def_name_ident = syn::Ident::new(def_name, proc_macro2::Span::call_site());
+
+        let items: Vec<_> = items.values().cloned().collect();
+
+        output_def_inner.extend(quote! {
+            #[propsetdef]
+            struct #def_name_ident { #(#items)* }
+        });
+    }
+
+    if output_def_inner.is_empty() {
+        Ok(None)
+    } else {
+        Ok(Some(quote! {
+            #[propsetdefs]
+            mod __ { #output_def_inner }
+        }))
+    }
 }
 
 fn add_property_set_item<'a>(

@@ -16,6 +16,7 @@ pub struct CodegenConfig {
     pub statuses: CodegenConfigStatuses,
     pub suites: CodegenConfigSuites,
     pub objects: CodegenConfigObjects,
+    pub parameters: CodegenConfigParameters,
     pub property_sets: CodegenConfigPropertySets,
     pub actions: CodegenConfigActions,
 }
@@ -71,7 +72,49 @@ pub struct CodegenConfigObjects {
 }
 
 #[derive(serde::Deserialize)]
+pub struct CodegenConfigParameters {
+    pub mapping: HashMap<String, CodegenConfigParameterMappingEntry>,
+    pub property_accessor_monomorphization_allow_list: HashSet<String>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct CodegenConfigParameterMappingEntry {
+    pub property_set: String,
+    #[serde(rename = "ty")]
+    pub r#type: Option<CodegenConfigParameterMappingEntryType>,
+}
+
+pub struct CodegenConfigParameterMappingEntryType {
+    pub dimensions: usize,
+    pub element_type: CodegenConfigParameterMappingEntryElementType,
+}
+
+impl<'de> serde::Deserialize<'de> for CodegenConfigParameterMappingEntryType {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let tuple: (usize, CodegenConfigParameterMappingEntryElementType) =
+            serde::Deserialize::deserialize(deserializer)?;
+        Ok(Self {
+            dimensions: tuple.0,
+            element_type: tuple.1,
+        })
+    }
+}
+
+#[derive(serde::Deserialize)]
+pub enum CodegenConfigParameterMappingEntryElementType {
+    Int,
+    Double,
+    String,
+    Pointer,
+    Bool,
+}
+
+#[derive(serde::Deserialize)]
 pub struct CodegenConfigPropertySets {
+    pub ignore: CodegenConfigStringMatcherAnyOf,
     pub renaming: HashMap<String, String>,
 }
 

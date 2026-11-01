@@ -23,8 +23,9 @@ use openfx::{
             ActionRenderIn, ImageEffectAction,
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
-        property_sets::{
-            ParamsBooleanPropertySet, ParamsDouble1DPropertySet, ParamsDouble2D3DPropertySet,
+        parameters::{
+            ParamBooleanPropertySet, ParamDouble2DPropertySet, ParamDoublePropertySet,
+            ParamRGBAPropertySet,
         },
     },
     sys::{
@@ -253,7 +254,7 @@ fn action_describe_in_context(
         let param_props =
             unsafe { param_set.param_define(s_param, kOfxParamTypeDouble, RADIUS_PARAM_NAME) }
                 .ok_or(StatusError::Failed)?;
-        let param_props = ParamsDouble1DPropertySet::from(param_props);
+        let param_props = ParamDoublePropertySet::from(param_props);
 
         unsafe {
             param_props
@@ -293,7 +294,7 @@ fn action_describe_in_context(
         let param_props =
             unsafe { param_set.param_define(s_param, kOfxParamTypeDouble2D, CENTRE_PARAM_NAME) }
                 .ok_or(StatusError::Failed)?;
-        let param_props = ParamsDouble2D3DPropertySet::from(param_props);
+        let param_props = ParamDouble2DPropertySet::from(param_props);
 
         unsafe {
             param_props
@@ -321,16 +322,16 @@ fn action_describe_in_context(
         let param_props =
             unsafe { param_set.param_define(s_param, kOfxParamTypeRGBA, COLOUR_PARAM_NAME) }
                 .ok_or(StatusError::Failed)?;
-        let param_props_d = ParamsDouble2D3DPropertySet::from(param_props);
+        let param_props = ParamRGBAPropertySet::from(param_props);
 
         unsafe {
-            param_props_d
+            param_props
                 .set_param_default_double(s_prop, &[1.0, 1.0, 1.0, 0.5])
                 .ok_or(StatusError::Failed)?;
-            param_props_d
+            param_props
                 .set_label(s_prop, Some(c"Colour"))
                 .ok_or(StatusError::Failed)?;
-            param_props_d
+            param_props
                 .set_param_hint(s_prop, Some(c"The colour of the circle."))
                 .ok_or(StatusError::Failed)?;
         }
@@ -340,7 +341,7 @@ fn action_describe_in_context(
         let param_props =
             unsafe { param_set.param_define(s_param, kOfxParamTypeBoolean, GROW_ROD_PARAM_NAME) }
                 .ok_or(StatusError::Failed)?;
-        let param_props = ParamsBooleanPropertySet::from(param_props);
+        let param_props = ParamBooleanPropertySet::from(param_props);
 
         unsafe {
             param_props
