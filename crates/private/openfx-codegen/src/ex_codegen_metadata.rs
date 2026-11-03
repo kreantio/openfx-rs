@@ -419,12 +419,14 @@ pub fn gen_low_plugin_property_sets(
             .get(set_name)
             .unwrap_or(set_name);
 
-        output_inner.extend(process_property_set(
-            metadata,
-            set_name,
-            set,
-            &mut used_refs,
-        )?);
+        used_refs.extend(set.props_refs.iter().cloned());
+        let refs = set
+            .props_refs
+            .iter()
+            .map(|str| syn::Ident::new(str, proc_macro2::Span::call_site()))
+            .collect::<Vec<_>>();
+
+        output_inner.extend(process_property_set(metadata, set_name, set, &refs, &[])?);
     }
 
     if let Some(output_def) = process_property_set_definitions(metadata, &used_refs)? {
@@ -461,11 +463,71 @@ pub fn gen_low_plugin_parameters(
 
         let set_name = format!("Param{parameter_type_name}");
 
+        let mut extra_meta_args: Vec<proc_macro2::TokenStream> = vec![];
+
+        used_refs.extend(set.props_refs.iter().cloned());
+        let refs = set
+            .props_refs
+            .iter()
+            .map(|str| syn::Ident::new(str, proc_macro2::Span::call_site()))
+            .collect::<Vec<_>>();
+
+        let mut m_allow_list: BTreeSet<String> = BTreeSet::new();
+        for prop_name in set.props.keys() {
+            if config.parameters.generic_properties.contains(prop_name) {
+                m_allow_list.insert(prop_name.clone());
+            }
+        }
+        for ref_name in &set.props_refs {
+            let Some(def) = metadata.raw.propsetdef_map.get(ref_name) else {
+                return Err(format!("Missing propsetdef: {ref_name}").into());
+            };
+            for prop_name in def.props.keys() {
+                if config.parameters.generic_properties.contains(prop_name) {
+                    m_allow_list.insert(prop_name.clone());
+                }
+            }
+        }
+        {
+            let ty = if let Some(ty) = &entry.r#type {
+                let el_ty = match ty.element_type {
+                    openfx_codegen_config::CodegenConfigParameterMappingEntryElementType::Int => quote! { Int },
+                    openfx_codegen_config::CodegenConfigParameterMappingEntryElementType::Double => quote! { Double },
+                    openfx_codegen_config::CodegenConfigParameterMappingEntryElementType::String => quote! { String },
+                    openfx_codegen_config::CodegenConfigParameterMappingEntryElementType::Pointer => quote! { Pointer },
+                    openfx_codegen_config::CodegenConfigParameterMappingEntryElementType::Bool => quote! { Bool },
+                };
+                let dim =
+                    syn::LitInt::new(&ty.dimensions.to_string(), proc_macro2::Span::call_site());
+                quote! { (#el_ty; #dim) }
+            } else {
+                tracing::warn!(
+                    "Valueless parameter type `{}`'s property set has generic properties: {}",
+                    parameter_type_name,
+                    m_allow_list.iter().cloned().collect::<Vec<_>>().join(", ")
+                );
+                quote! { None }
+            };
+
+            let mut m_allow_list_idents: Vec<syn::Ident> = vec![];
+            for cname in &m_allow_list {
+                let mut names = PropertyNames::new(cname);
+                m_allow_list_idents.push(syn::Ident::new(
+                    names.snake_name()?.as_str(),
+                    proc_macro2::Span::call_site(),
+                ));
+            }
+            extra_meta_args.push(
+                quote! { monomorphization = { type = #ty, allow_list = [#(#m_allow_list_idents),*] } },
+            )
+        }
+
         output_inner.extend(process_property_set(
             metadata,
             &set_name,
             set,
-            &mut used_refs,
+            &refs,
+            &extra_meta_args,
         )?);
     }
 
@@ -491,7 +553,8 @@ fn process_property_set(
     metadata: &InputMetadata,
     set_name: &str,
     set: &PropsetMetadataEntry,
-    used_refs: &mut HashSet<String>,
+    refs: &[syn::Ident],
+    extra_meta_args: &[proc_macro2::TokenStream],
 ) -> Result<proc_macro2::TokenStream, Box<dyn std::error::Error>> {
     let mut items: BTreeMap<&str, proc_macro2::TokenStream> = BTreeMap::new();
 
@@ -500,7 +563,7 @@ fn process_property_set(
         add_property_set_item(&mut items, metadata, prop_cname, write, set_name)?;
     }
 
-    let mut meta_items: Vec<proc_macro2::TokenStream> = vec![];
+    let mut meta_items: Vec<proc_macro2::TokenStream> = extra_meta_args.to_vec();
 
     meta_items.push(match set.write {
         WriteSide::All => quote! { write = all },
@@ -509,11 +572,6 @@ fn process_property_set(
     });
 
     if !set.props_refs.is_empty() {
-        used_refs.extend(set.props_refs.iter().cloned());
-        let refs = set
-            .props_refs
-            .iter()
-            .map(|str| syn::Ident::new(str, proc_macro2::Span::call_site()));
         meta_items.push(quote! { refs = #(#refs)+* });
     }
 
@@ -581,14 +639,7 @@ fn add_property_set_item<'a>(
     write: Option<&WriteSide>,
     set_name: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let Some(prop_canonical_name) = prop_cname.strip_prefix("k") else {
-        return Err(format!("Irregular property cname: {prop_cname}").into());
-    };
-    let Some(simple_name) = prop_cname.strip_prefix("kOfx") else {
-        return Err(format!("Irregular property cname: {prop_cname}").into());
-    };
-    let super_simple_name = get_property_super_simple_name_from_simple_name(simple_name);
-    let prop_snake_name = super_simple_name.to_case(convert_case::Case::Snake);
+    let mut prop_names = PropertyNames::new(prop_cname);
 
     let Some(def) = metadata.raw.propdef_map.get(prop_cname) else {
         return Err(format!("Missing propdef: {prop_cname}").into());
@@ -615,7 +666,8 @@ fn add_property_set_item<'a>(
             }
         }
         PropdefType::StringEnum { .. } => {
-            let simple_name_ident = syn::Ident::new(simple_name, proc_macro2::Span::call_site());
+            let simple_name_ident =
+                syn::Ident::new(prop_names.simple_name()?, proc_macro2::Span::call_site());
             quote! { ty_enum!(#simple_name_ident) }
         }
     };
@@ -642,8 +694,8 @@ fn add_property_set_item<'a>(
     }
 
     let prop_canonical_name_ident =
-        syn::Ident::new(prop_canonical_name, proc_macro2::Span::call_site());
-    let prop_snake_name_ident = match prop_snake_name.as_str() {
+        syn::Ident::new(prop_names.canonical_name()?, proc_macro2::Span::call_site());
+    let prop_snake_name_ident = match prop_names.snake_name()?.as_str() {
         "type" => syn::Ident::new_raw("type", proc_macro2::Span::call_site()),
         prop_snake_name => syn::Ident::new(prop_snake_name, proc_macro2::Span::call_site()),
     };
@@ -673,14 +725,72 @@ fn add_property_set_item<'a>(
     Ok(())
 }
 
-fn get_property_super_simple_name_from_simple_name(simple_name: &str) -> String {
-    static RE: std::sync::LazyLock<regex::Regex> =
-        std::sync::LazyLock::new(|| regex::Regex::new(r"Prop([A-Z])").unwrap());
-
-    if !RE.is_match(simple_name) {
-        tracing::warn!("Property simple name without the `Prop` part: {simple_name}");
-        return simple_name.to_string();
+struct PropertyNames<'a> {
+    cname: &'a str,
+    canonical_name: Option<&'a str>,
+    simple_name: Option<&'a str>,
+    super_simple_name: Option<String>,
+    snake_name: Option<String>,
+}
+impl<'a> PropertyNames<'a> {
+    fn new(cname: &'a str) -> Self {
+        Self {
+            cname,
+            canonical_name: None,
+            simple_name: None,
+            super_simple_name: None,
+            snake_name: None,
+        }
     }
 
-    RE.replace(simple_name, "$1").to_string()
+    fn canonical_name(&mut self) -> Result<&'a str, Box<dyn std::error::Error>> {
+        if self.canonical_name.is_none() {
+            let Some(canonical_name) = self.cname.strip_prefix("k") else {
+                return Err(format!("Irregular property cname: {}", self.cname).into());
+            };
+            self.canonical_name = Some(canonical_name);
+        }
+        Ok(self.canonical_name.unwrap())
+    }
+    fn simple_name(&mut self) -> Result<&'a str, Box<dyn std::error::Error>> {
+        if self.simple_name.is_none() {
+            let canonical_name = self.canonical_name()?;
+            let Some(simple_name) = canonical_name.strip_prefix("Ofx") else {
+                return Err(
+                    format!("Irregular property canonical name: {}", canonical_name).into(),
+                );
+            };
+            self.simple_name = Some(simple_name);
+        }
+        Ok(self.simple_name.unwrap())
+    }
+    fn super_simple_name(&mut self) -> Result<&str, Box<dyn std::error::Error>> {
+        if self.super_simple_name.is_none() {
+            let simple_name = self.simple_name()?;
+            let super_simple_name =
+                Self::get_property_super_simple_name_from_simple_name(simple_name);
+            self.super_simple_name = Some(super_simple_name);
+        }
+        Ok(self.super_simple_name.as_ref().unwrap())
+    }
+    fn snake_name(&mut self) -> Result<String, Box<dyn std::error::Error>> {
+        if self.snake_name.is_none() {
+            let super_simple_name = self.super_simple_name()?;
+            let snake_name = super_simple_name.to_case(convert_case::Case::Snake);
+            self.snake_name = Some(snake_name);
+        }
+        Ok(self.snake_name.as_ref().unwrap().clone())
+    }
+
+    fn get_property_super_simple_name_from_simple_name(simple_name: &str) -> String {
+        static RE: std::sync::LazyLock<regex::Regex> =
+            std::sync::LazyLock::new(|| regex::Regex::new(r"Prop([A-Z])").unwrap());
+
+        if !RE.is_match(simple_name) {
+            tracing::warn!("Property simple name without the `Prop` part: {simple_name}");
+            return simple_name.to_string();
+        }
+
+        RE.replace(simple_name, "$1").to_string()
+    }
 }

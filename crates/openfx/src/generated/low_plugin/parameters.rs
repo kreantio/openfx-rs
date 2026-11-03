@@ -1,22 +1,22 @@
 #[openfx_internal_macros::low_make_property_set_structs]
 mod __ {
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
+    # [propset (monomorphization = { type = (Bool ; 1) , allow_list = [param_default] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
     struct ParamBooleanPropertySet {}
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
+    # [propset (monomorphization = { type = (Pointer ; 1) , allow_list = [param_default] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
     struct ParamBytesPropertySet {}
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
+    # [propset (monomorphization = { type = (Int ; 1) , allow_list = [param_default] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
     struct ParamChoicePropertySet {
         # [prop (@ OfxParamPropChoiceOption)]
         param_choice_option: [String],
         # [prop (@ OfxParamPropChoiceOrder)]
         param_choice_order: [Int],
     }
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
+    # [propset (monomorphization = { type = (String ; 1) , allow_list = [param_default] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
     struct ParamCustomPropertySet {
         # [prop (@ OfxParamPropCustomInterpCallbackV1)]
         param_custom_interp_callback_v_1: Pointer,
     }
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsDouble + ParamsNumeric + ParamsValue)]
+    # [propset (monomorphization = { type = (Double ; 1) , allow_list = [param_default , param_display_max , param_display_min , param_max , param_min] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsDouble + ParamsNumeric + ParamsValue)]
     struct ParamDoublePropertySet {
         # [prop (@ OfxParamPropDefaultCoordinateSystem)]
         param_default_coordinate_system: ty_enum!(ParamPropDefaultCoordinateSystem),
@@ -25,7 +25,7 @@ mod __ {
         # [prop (@ OfxParamPropShowTimeMarker)]
         param_show_time_marker: Bool,
     }
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsDouble + ParamsNumeric + ParamsValue)]
+    # [propset (monomorphization = { type = (Double ; 2) , allow_list = [param_default , param_display_max , param_display_min , param_max , param_min] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsDouble + ParamsNumeric + ParamsValue)]
     struct ParamDouble2DPropertySet {
         # [prop (@ OfxParamPropDefaultCoordinateSystem)]
         param_default_coordinate_system: ty_enum!(ParamPropDefaultCoordinateSystem),
@@ -34,7 +34,7 @@ mod __ {
         # [prop (@ OfxParamPropDoubleType)]
         param_double_type: ty_enum!(ParamPropDoubleType),
     }
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsDouble + ParamsNumeric + ParamsValue)]
+    # [propset (monomorphization = { type = (Double ; 3) , allow_list = [param_default , param_display_max , param_display_min , param_max , param_min] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsDouble + ParamsNumeric + ParamsValue)]
     struct ParamDouble3DPropertySet {
         # [prop (@ OfxParamPropDefaultCoordinateSystem)]
         param_default_coordinate_system: ty_enum!(ParamPropDefaultCoordinateSystem),
@@ -43,29 +43,29 @@ mod __ {
         # [prop (@ OfxParamPropDoubleType)]
         param_double_type: ty_enum!(ParamPropDoubleType),
     }
-    # [propset (write = plugin , refs = ParamsCommon)]
+    # [propset (monomorphization = { type = None , allow_list = [] } , write = plugin , refs = ParamsCommon)]
     struct ParamGroupPropertySet {
         # [prop (@ OfxParamPropGroupOpen)]
         param_group_open: Bool,
     }
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
+    # [propset (monomorphization = { type = (Int ; 1) , allow_list = [param_default , param_display_max , param_display_min , param_max , param_min] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
     struct ParamIntegerPropertySet {}
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
+    # [propset (monomorphization = { type = (Int ; 2) , allow_list = [param_default , param_display_max , param_display_min , param_max , param_min] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
     struct ParamInteger2DPropertySet {
         # [prop (@ OfxParamPropDimensionLabel)]
         param_dimension_label: [String],
     }
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
+    # [propset (monomorphization = { type = (Int ; 3) , allow_list = [param_default , param_display_max , param_display_min , param_max , param_min] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
     struct ParamInteger3DPropertySet {
         # [prop (@ OfxParamPropDimensionLabel)]
         param_dimension_label: [String],
     }
-    # [propset (write = plugin , refs = ParamsCommon)]
+    # [propset (monomorphization = { type = None , allow_list = [] } , write = plugin , refs = ParamsCommon)]
     struct ParamPagePropertySet {
         # [prop (@ OfxParamPropPageChild)]
         param_page_child: [String],
     }
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
+    # [propset (monomorphization = { type = None , allow_list = [param_default] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
     struct ParamParametricPropertySet {
         # [prop (@ OfxParamPropAnimates)]
         param_animates: Bool,
@@ -92,26 +92,26 @@ mod __ {
         # [prop (@ OfxParamPropPluginMayWrite)]
         param_plugin_may_write: Bool,
     }
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon)]
+    # [propset (monomorphization = { type = None , allow_list = [] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon)]
     struct ParamPushButtonPropertySet {}
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
+    # [propset (monomorphization = { type = (Double ; 3) , allow_list = [param_default , param_display_max , param_display_min , param_max , param_min] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
     struct ParamRGBPropertySet {
         # [prop (@ OfxParamPropColourManagement)]
         param_colour_management: ty_enum!(ParamPropColourManagement),
     }
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
+    # [propset (monomorphization = { type = (Double ; 4) , allow_list = [param_default , param_display_max , param_display_min , param_max , param_min] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]
     struct ParamRGBAPropertySet {
         # [prop (@ OfxParamPropColourManagement)]
         param_colour_management: ty_enum!(ParamPropColourManagement),
     }
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
+    # [propset (monomorphization = { type = (String ; 1) , allow_list = [param_default] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
     struct ParamStrChoicePropertySet {
         # [prop (@ OfxParamPropChoiceEnum)]
         param_choice_enum: [String],
         # [prop (@ OfxParamPropChoiceOption)]
         param_choice_option: [String],
     }
-    # [propset (write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
+    # [propset (monomorphization = { type = (String ; 1) , allow_list = [param_default] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
     struct ParamStringPropertySet {
         # [prop (@ OfxParamPropStringFilePathExists)]
         param_string_file_path_exists: Bool,
