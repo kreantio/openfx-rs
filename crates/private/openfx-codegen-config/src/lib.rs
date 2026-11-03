@@ -74,7 +74,7 @@ pub struct CodegenConfigObjects {
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigParameters {
     pub mapping: BTreeMap<String, CodegenConfigParameterMappingEntry>,
-    pub property_accessor_monomorphization_allow_list: BTreeSet<String>,
+    pub generic_properties: BTreeSet<String>,
 }
 
 #[derive(serde::Deserialize)]

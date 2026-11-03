@@ -1,17 +1,23 @@
 //! ## Agentic activities
 //!
-//! - The syntax of `make_property_set_structs!` was changed from a highly
-//!   customized DSL to a pseudo-Rust syntax. The parsing logic for it was
-//!   adapted by AI:
+//! - The syntax of the macro was changed from a highly customized DSL to a
+//!   pseudo-Rust syntax. The parsing logic for it was adapted by AI:
 //!   - Author: OpenCode 2 / GLM 5.3 (provider: Z.AI, thinking: Max)
 //!   - Reviewed-by: Umaĵo (reviewing and refining)
-//! - The syntax of `make_property_set_structs!` was changed to support
-//!   `@propsetdef` directly. The parsing logic for it was adapted by AI:
+//! - The syntax of the macro was changed to support `@propsetdef` directly. The
+//!   parsing logic for it was adapted by AI:
 //!   - Author: OpenCode 2 / GLM 5.3 (provider: Z.AI, thinking: Max)
 //!   - Author: OpenCode 2 / GLM 5.3 (provider: OpenCode Go, thinking: Max)
 //!   - Reviewed-by: Umaĵo (reviewing and refining)
+//! - `monomorphization` support was added to the macro syntax. The parsing
+//!   logic for it was adapted by AI:
+//!   - Author: OpenCode 2 / Kimi K3.1 Pro (provider: Moonshot (CN), thinking:
+//!     Default)
+//!   - Reviewed-by: Umaĵo
 
 use std::collections::HashMap;
+
+use syn::ext::IdentExt as _;
 
 use crate::{common::OpenFXTypeSimple, low_macros::utils};
 
@@ -46,10 +52,14 @@ use crate::{common::OpenFXTypeSimple, low_macros::utils};
 ///         // …
 ///     }
 ///     #[propset(
+///         monomorphization = {
+///             type = (Double; 1),
+///             allow_list = [param_default , param_display_max , param_display_min , param_max , param_min]
+///         },
 ///         write = plugin,
 ///         refs = ParamsAllButGroupPage+ParamsCommon+ParamsDouble+ParamsNumeric+ParamsValue
 ///     )]
-///     struct ParamDouble1DPropertySet {
+///     struct ParamDoublePropertySet {
 ///         // …
 ///     }
 ///     // …
@@ -94,9 +104,10 @@ impl syn::parse::Parse for Input {
     }
 }
 
-/// A `#[propset(write = …[, refs = …])] struct … { … }` item.
+/// A `#[propset([monomorphization = { … }, ]write = …[, refs = …])] struct … { … }` item.
 pub struct InputPropertySet {
     pub name: syn::Ident,
+    pub monomorphization: Option<InputPropertySetMonomorphization>,
     /// The default `write` side for properties which do not specify one.
     pub write: InputWriteSide,
     /// The `refs = …` propsetdef names, in order.
@@ -106,7 +117,7 @@ pub struct InputPropertySet {
 
 impl syn::parse::Parse for InputPropertySet {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        // `#[propset(write = …[, refs = A+B+…])]`
+        // `#[propset([monomorphization = { … }, ]write = …[, refs = A+B+…])]`
         input.parse::<syn::Token![#]>()?;
         let content;
         syn::bracketed!(content in input);
@@ -120,7 +131,16 @@ impl syn::parse::Parse for InputPropertySet {
             return Err(content.error("unexpected tokens in attribute"));
         }
 
-        let key = inner.parse::<syn::Ident>()?;
+        let mut key = inner.parse::<syn::Ident>()?;
+        let monomorphization = if key == "monomorphization" {
+            inner.parse::<syn::Token![=]>()?;
+            let monomorphization = InputPropertySetMonomorphization::parse(&inner)?;
+            inner.parse::<syn::Token![,]>()?;
+            key = inner.parse::<syn::Ident>()?;
+            Some(monomorphization)
+        } else {
+            None
+        };
         if key != "write" {
             return Err(syn::Error::new_spanned(key, "expected `write`"));
         }
@@ -150,6 +170,7 @@ impl syn::parse::Parse for InputPropertySet {
 
         Ok(InputPropertySet {
             name,
+            monomorphization,
             write,
             refs,
             items,
@@ -236,6 +257,101 @@ impl InputPropertySet {
                 Ok((item, write))
             })
             .collect()
+    }
+}
+
+pub struct InputPropertySetMonomorphization {
+    pub ty: Option<InputPropertySetMonomorphizationType>,
+    pub allow_list: HashMap<String, syn::Ident>,
+}
+
+pub struct InputPropertySetMonomorphizationType {
+    pub element_type: InputPropertySetMonomorphizationElementType,
+    pub dimensions: usize,
+}
+
+pub enum InputPropertySetMonomorphizationElementType {
+    Int,
+    Double,
+    String,
+    Pointer,
+    Bool,
+}
+
+impl InputPropertySetMonomorphization {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let content;
+        syn::braced!(content in input);
+
+        let key = content.call(syn::Ident::parse_any)?;
+        if key != "type" {
+            return Err(syn::Error::new_spanned(key, "expected `type`"));
+        }
+        content.parse::<syn::Token![=]>()?;
+
+        let ty = if content.peek(syn::token::Paren) {
+            let type_content;
+            syn::parenthesized!(type_content in content);
+            let element_type = type_content.parse::<syn::Ident>()?;
+            let element_type = match element_type.to_string().as_str() {
+                "Int" => InputPropertySetMonomorphizationElementType::Int,
+                "Double" => InputPropertySetMonomorphizationElementType::Double,
+                "String" => InputPropertySetMonomorphizationElementType::String,
+                "Pointer" => InputPropertySetMonomorphizationElementType::Pointer,
+                "Bool" => InputPropertySetMonomorphizationElementType::Bool,
+                _ => {
+                    return Err(syn::Error::new_spanned(
+                        element_type,
+                        "expected `Int`, `Double`, `String`, `Pointer` or `Bool`",
+                    ));
+                }
+            };
+            type_content.parse::<syn::Token![;]>()?;
+            let dimensions = type_content.parse::<syn::LitInt>()?.base10_parse()?;
+            if !type_content.is_empty() {
+                return Err(type_content.error("unexpected tokens in monomorphization type"));
+            }
+            Some(InputPropertySetMonomorphizationType {
+                element_type,
+                dimensions,
+            })
+        } else {
+            let none = content.parse::<syn::Ident>()?;
+            if none != "None" {
+                return Err(syn::Error::new_spanned(
+                    none,
+                    "expected `(Type; dimensions)` or `None`",
+                ));
+            }
+            None
+        };
+
+        content.parse::<syn::Token![,]>()?;
+        let key = content.parse::<syn::Ident>()?;
+        if key != "allow_list" {
+            return Err(syn::Error::new_spanned(key, "expected `allow_list`"));
+        }
+        content.parse::<syn::Token![=]>()?;
+        let allow_list_content;
+        syn::bracketed!(allow_list_content in content);
+        let idents = syn::punctuated::Punctuated::<syn::Ident, syn::Token![,]>::parse_terminated(
+            &allow_list_content,
+        )?;
+        let mut allow_list = HashMap::new();
+        for ident in idents {
+            let name = ident.to_string();
+            if allow_list.insert(name, ident.clone()).is_some() {
+                return Err(syn::Error::new_spanned(
+                    ident,
+                    "duplicate property in monomorphization allow list",
+                ));
+            }
+        }
+        if !content.is_empty() {
+            return Err(content.error("unexpected tokens in monomorphization"));
+        }
+
+        Ok(Self { ty, allow_list })
     }
 }
 
