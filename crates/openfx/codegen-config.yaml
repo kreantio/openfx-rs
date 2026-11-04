@@ -152,7 +152,7 @@ objects:
     OpenGLTexture: { is: OfxPropertySetHandle, omit: true }
 
 parameters:
-  mapping: # NOTE: This configuration is currently unused.
+  mapping:
     # sources:
     # - See “CONTRIBUTING.md § Origins of the Type Names” for the origin of
     #   these names.
@@ -175,8 +175,6 @@ parameters:
     Group: { property_set: ParamsGroup, ty: null }
     Page: { property_set: ParamsPage, ty: null }
     PushButton: { property_set: ParamsPushButton, ty: null }
-    # TODO: `struct ParamParametric<const N: c_int>`?
-    Parametric: { property_set: ParamsParametric, ty: null }
   # Properties in a parameter's property set whose type is specified with
   # `ty_one_of!` and that are missing from this list are treated as errors.
   # This ensures that we don't blindly monomorphize properties without
@@ -187,6 +185,9 @@ parameters:
     - kOfxParamPropMax
     - kOfxParamPropMin
     - kOfxParamPropDefault
+  parametic_parameter: # NOTE: This configuration is currently unused.
+    # TODO: `struct ParamParametric<const N: c_int>`?
+    property_set: ParamsParametric
 
 property_sets:
   ignore:

@@ -355,6 +355,18 @@ impl InputPropertySetMonomorphization {
     }
 }
 
+impl InputPropertySetMonomorphizationElementType {
+    pub fn name(&self) -> &'static str {
+        match self {
+            InputPropertySetMonomorphizationElementType::Int => "Int",
+            InputPropertySetMonomorphizationElementType::Double => "Double",
+            InputPropertySetMonomorphizationElementType::String => "String",
+            InputPropertySetMonomorphizationElementType::Pointer => "Pointer",
+            InputPropertySetMonomorphizationElementType::Bool => "Bool",
+        }
+    }
+}
+
 /// A `#[propsetdefs] mod … { … }` item collecting named [`InputPropsetdef`]s.
 pub struct InputPropsetdefs {
     pub defs: Vec<InputPropsetdef>,
@@ -514,24 +526,6 @@ impl syn::parse::Parse for InputContainerType {
     }
 }
 
-impl InputContainerType {
-    pub fn possible_types(&self) -> &InputPossibleTypes {
-        match self {
-            InputContainerType::Scalar(ty) => ty,
-            InputContainerType::Array(ty, _) => ty,
-            InputContainerType::Slice(ty) => ty,
-        }
-    }
-
-    pub fn as_name_suffix(&self) -> &str {
-        match self {
-            InputContainerType::Scalar(_) => "",
-            InputContainerType::Array(_, _) => "_array",
-            InputContainerType::Slice(_) => "_n",
-        }
-    }
-}
-
 pub struct InputPossibleTypes {
     pub int: Option<syn::Ident>,
     pub double: Option<syn::Ident>,
@@ -645,6 +639,12 @@ impl InputPossibleTypes {
             types.push(OpenFXTypeExpressive::Pointer(pointer.clone()));
         }
         OpenFXTypeExpressiveIterator(types)
+    }
+
+    pub fn only(&self) -> Option<OpenFXTypeExpressive> {
+        let mut iter = self.iter();
+        let first = iter.next();
+        if iter.next().is_some() { None } else { first }
     }
 }
 
