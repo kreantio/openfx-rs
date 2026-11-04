@@ -13,7 +13,10 @@ use openfx_datagen::metadata_extracting::{
     StringEnumVariant, WriteSide,
 };
 
-use crate::{input_metadata::InputMetadata, utils::strip_common_prefix};
+use crate::{
+    input_metadata::InputMetadata,
+    utils::{new_ident, strip_common_prefix},
+};
 
 pub fn gen_low_enums_from_metadata(
     output_file: &Path,
@@ -36,7 +39,7 @@ pub fn gen_low_enums_from_metadata(
             .strip_prefix("kOfx")
             .ok_or("Enum property name should start with \"kOfx\".")?;
 
-        let simple_enum_name = syn::Ident::new(simple_enum_name, proc_macro2::Span::call_site());
+        let simple_enum_name = new_ident(simple_enum_name);
 
         let mut defined_vars: Vec<String> = vec![];
         let mut literal_vars: Vec<String> = vec![];
@@ -57,22 +60,13 @@ pub fn gen_low_enums_from_metadata(
             .map(|n| n.to_case(convert_case::Case::Pascal))
             .collect();
 
-        let defined_vars: Vec<_> = defined_vars
-            .iter()
-            .map(|v| syn::Ident::new(v, proc_macro2::Span::call_site()))
-            .collect();
+        let defined_vars: Vec<_> = defined_vars.iter().map(new_ident).collect();
         let literal_vars: Vec<_> = literal_vars
             .iter()
             .map(|v| CString::new(v.to_owned()).unwrap())
             .collect();
-        let simple_defined_names: Vec<_> = simple_defined_names
-            .iter()
-            .map(|v| syn::Ident::new(v, proc_macro2::Span::call_site()))
-            .collect();
-        let pascal_literal_names: Vec<_> = pascal_literal_names
-            .iter()
-            .map(|v| syn::Ident::new(v, proc_macro2::Span::call_site()))
-            .collect();
+        let simple_defined_names: Vec<_> = simple_defined_names.iter().map(new_ident).collect();
+        let pascal_literal_names: Vec<_> = pascal_literal_names.iter().map(new_ident).collect();
 
         output_inner.extend(quote! {
             enum #simple_enum_name {
@@ -116,8 +110,7 @@ pub fn gen_low_plugin_actions(
 
     for (name, action) in &metadata.raw.actiondef_map {
         if let Some(action_simple_name) = config.actions.pseudo.members.get(name) {
-            let action_simple_name_ident =
-                syn::Ident::new(action_simple_name, proc_macro2::Span::call_site());
+            let action_simple_name_ident = new_ident(action_simple_name);
 
             let in_arg_set_name = format!("{action_simple_name}In");
             let out_arg_set_name = format!("{action_simple_name}Out");
@@ -269,9 +262,8 @@ pub fn gen_low_plugin_actions(
 
         let action_enum_name = format!("{}Action", mod_name.to_case(convert_case::Case::Pascal));
 
-        let mod_name_ident = syn::Ident::new(mod_name, proc_macro2::Span::call_site());
-        let action_enum_name_ident =
-            syn::Ident::new(&action_enum_name, proc_macro2::Span::call_site());
+        let mod_name_ident = new_ident(mod_name);
+        let action_enum_name_ident = new_ident(&action_enum_name);
         output.extend(quote! {
             pub mod #mod_name_ident {
                 #[openfx_internal_macros::low_make_action_enum]
@@ -301,8 +293,8 @@ fn process_action_property_sets(
     in_arg_set_name: &str,
     out_arg_set_name: &str,
 ) -> Result<ProcessActionPropertySetsOutput, Box<dyn std::error::Error>> {
-    let in_arg_set_ident = syn::Ident::new(in_arg_set_name, proc_macro2::Span::call_site());
-    let out_arg_set_ident = syn::Ident::new(out_arg_set_name, proc_macro2::Span::call_site());
+    let in_arg_set_ident = new_ident(in_arg_set_name);
+    let out_arg_set_ident = new_ident(out_arg_set_name);
 
     let mut in_arg_items: BTreeMap<&str, proc_macro2::TokenStream> = BTreeMap::new();
     for (in_arg_cname, prop) in &action.in_args {
@@ -375,15 +367,12 @@ fn process_action_enum_item(
     has_out_args: bool,
     extra_meta_args: &[proc_macro2::TokenStream],
 ) -> Result<proc_macro2::TokenStream, Box<dyn std::error::Error>> {
-    let action_name_ident = syn::Ident::new(action_simple_name, proc_macro2::Span::call_site());
+    let action_name_ident = new_ident(action_simple_name);
 
     let mut meta_args: Vec<proc_macro2::TokenStream> = extra_meta_args.to_vec();
 
     if let Some(handle_name) = handle_name {
-        let handle_name_ident = syn::Ident::new(
-            &format!("{handle_prefix}{handle_name}"),
-            proc_macro2::Span::call_site(),
-        );
+        let handle_name_ident = new_ident(format!("{handle_prefix}{handle_name}"));
         meta_args.push(quote! { handle = #handle_name_ident });
     }
     if has_in_args {
@@ -420,11 +409,7 @@ pub fn gen_low_plugin_property_sets(
             .unwrap_or(set_name);
 
         used_refs.extend(set.props_refs.iter().cloned());
-        let refs = set
-            .props_refs
-            .iter()
-            .map(|str| syn::Ident::new(str, proc_macro2::Span::call_site()))
-            .collect::<Vec<_>>();
+        let refs = set.props_refs.iter().map(new_ident).collect::<Vec<_>>();
 
         output_inner.extend(process_property_set(metadata, set_name, set, &refs, &[])?);
     }
@@ -466,11 +451,7 @@ pub fn gen_low_plugin_parameters(
         let mut extra_meta_args: Vec<proc_macro2::TokenStream> = vec![];
 
         used_refs.extend(set.props_refs.iter().cloned());
-        let refs = set
-            .props_refs
-            .iter()
-            .map(|str| syn::Ident::new(str, proc_macro2::Span::call_site()))
-            .collect::<Vec<_>>();
+        let refs = set.props_refs.iter().map(new_ident).collect::<Vec<_>>();
 
         let mut m_allow_list: BTreeSet<String> = BTreeSet::new();
         for prop_name in set.props.keys() {
@@ -512,10 +493,7 @@ pub fn gen_low_plugin_parameters(
             let mut m_allow_list_idents: Vec<syn::Ident> = vec![];
             for cname in &m_allow_list {
                 let mut names = PropertyNames::new(cname);
-                m_allow_list_idents.push(syn::Ident::new(
-                    names.snake_name()?.as_str(),
-                    proc_macro2::Span::call_site(),
-                ));
+                m_allow_list_idents.push(new_ident(names.snake_name()?.as_str()));
             }
             extra_meta_args.push(
                 quote! { monomorphization = { type = #ty, allow_list = [#(#m_allow_list_idents),*] } },
@@ -581,10 +559,7 @@ fn process_property_set(
         quote! { (#(#meta_items),*) }
     };
 
-    let struct_name_ident = syn::Ident::new(
-        &format!("{set_name}PropertySet"),
-        proc_macro2::Span::call_site(),
-    );
+    let struct_name_ident = new_ident(format!("{set_name}PropertySet"));
 
     let items: Vec<_> = items.values().cloned().collect();
 
@@ -612,7 +587,7 @@ fn process_property_set_definitions(
             add_property_set_item(&mut items, metadata, prop_cname, write, def_name)?;
         }
 
-        let def_name_ident = syn::Ident::new(def_name, proc_macro2::Span::call_site());
+        let def_name_ident = new_ident(def_name);
 
         let items: Vec<_> = items.values().cloned().collect();
 
@@ -666,8 +641,7 @@ fn add_property_set_item<'a>(
             }
         }
         PropdefType::StringEnum { .. } => {
-            let simple_name_ident =
-                syn::Ident::new(prop_names.simple_name()?, proc_macro2::Span::call_site());
+            let simple_name_ident = new_ident(prop_names.simple_name()?);
             quote! { ty_enum!(#simple_name_ident) }
         }
     };
@@ -693,11 +667,10 @@ fn add_property_set_item<'a>(
         });
     }
 
-    let prop_canonical_name_ident =
-        syn::Ident::new(prop_names.canonical_name()?, proc_macro2::Span::call_site());
+    let prop_canonical_name_ident = new_ident(prop_names.canonical_name()?);
     let prop_snake_name_ident = match prop_names.snake_name()?.as_str() {
         "type" => syn::Ident::new_raw("type", proc_macro2::Span::call_site()),
-        prop_snake_name => syn::Ident::new(prop_snake_name, proc_macro2::Span::call_site()),
+        prop_snake_name => new_ident(prop_snake_name),
     };
 
     meta_items.push(quote! { @#prop_canonical_name_ident });
