@@ -98,30 +98,77 @@ pub fn gen_low_plugin_suites(
 
     // impl_host_for_fetch_suites.rs
     {
-        let mut output = quote! {
-            use openfx_internal_macros::low_plugin_impl_host_for_fetch_suite;
-        };
+        let mut output_inner = proc_macro2::TokenStream::new();
 
         for simple_ident in &simple_idents {
             let special_case = &config.suites.special_cases.get(&simple_ident.to_string());
 
             if let Some(corrected_cname) = special_case.and_then(|sc| sc.key_name.as_deref()) {
-                let corrected_cname_ident = new_ident(corrected_cname);
-                output.extend(quote! {
-                    low_plugin_impl_host_for_fetch_suite!(#simple_ident @ #corrected_cname_ident);
-                });
+                output_inner.extend(process_impl_host_for_fetch_suite(
+                    simple_ident.clone(),
+                    Some(new_ident(corrected_cname)),
+                )?);
             } else {
-                output.extend(quote! {
-                    low_plugin_impl_host_for_fetch_suite!(#simple_ident);
-                });
+                output_inner.extend(process_impl_host_for_fetch_suite(
+                    simple_ident.clone(),
+                    None,
+                )?);
             }
         }
 
         std::fs::write(
             output_folder.join("impl_host_for_fetch_suites.rs"),
-            output.to_string(),
+            quote! {
+                use crate::{low_plugin::suites::*, sys_umbrella};
+                #[allow(unsafe_op_in_unsafe_fn, clippy::missing_safety_doc)]
+                impl crate::low_plugin::Host {
+                    #output_inner
+                }
+            }
+            .to_string(),
         )?;
     }
 
     Ok(())
+}
+
+fn process_impl_host_for_fetch_suite(
+    simple_ident: syn::Ident,
+    corrected_k_ident: Option<syn::Ident>,
+) -> Result<proc_macro2::TokenStream, Box<dyn std::error::Error>> {
+    let simple_ident_str = simple_ident.to_string();
+    let Some(v_index) = simple_ident_str.rfind('V') else {
+        return Err(format!("expected identifier to contain 'V': {simple_ident_str}").into());
+    };
+    let Some(version_number) = simple_ident_str[v_index + 1..].parse::<i32>().ok() else {
+        return Err(
+            format!("expected a valid version number after 'V': {simple_ident_str}").into(),
+        );
+    };
+    let version_number = syn::LitInt::new(&version_number.to_string(), simple_ident.span());
+    let fn_ident = syn::Ident::new(
+        &format!(
+            "fetch_{}_v{}",
+            simple_ident_str[..v_index]
+                .to_owned()
+                .to_case(convert_case::Case::Snake),
+            version_number
+        ),
+        simple_ident.span(),
+    );
+    let k_ident = if let Some(corrected_k_ident) = &corrected_k_ident {
+        corrected_k_ident.to_owned()
+    } else {
+        syn::Ident::new(
+            &format!("kOfx{}", &simple_ident_str[..v_index]),
+            simple_ident.span(),
+        )
+    };
+
+    Ok(quote! {
+        pub unsafe fn #fn_ident(&self) -> Option<#simple_ident> {
+            let sys_suite = self.sys_fetch_suite(sys_umbrella::#k_ident, #version_number);
+            #simple_ident::try_from(sys_suite)
+        }
+    })
 }
