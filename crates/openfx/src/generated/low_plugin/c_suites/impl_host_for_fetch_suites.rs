@@ -1,17 +1,70 @@
-use openfx_internal_macros::low_plugin_impl_host_for_fetch_suite;
-low_plugin_impl_host_for_fetch_suite!(DialogSuiteV1);
-low_plugin_impl_host_for_fetch_suite!(DrawSuiteV1);
-low_plugin_impl_host_for_fetch_suite ! (ImageEffectOpenGLRenderSuiteV1 @ kOfxOpenGLRenderSuite);
-low_plugin_impl_host_for_fetch_suite!(ImageEffectSuiteV1);
-low_plugin_impl_host_for_fetch_suite!(InteractSuiteV1);
-low_plugin_impl_host_for_fetch_suite!(MemorySuiteV1);
-low_plugin_impl_host_for_fetch_suite!(MessageSuiteV1);
-low_plugin_impl_host_for_fetch_suite!(MessageSuiteV2);
-low_plugin_impl_host_for_fetch_suite!(MultiThreadSuiteV1);
-low_plugin_impl_host_for_fetch_suite!(OpenCLProgramSuiteV1);
-low_plugin_impl_host_for_fetch_suite!(ParameterSuiteV1);
-low_plugin_impl_host_for_fetch_suite!(ParametricParameterSuiteV1);
-low_plugin_impl_host_for_fetch_suite!(ProgressSuiteV1);
-low_plugin_impl_host_for_fetch_suite!(ProgressSuiteV2);
-low_plugin_impl_host_for_fetch_suite!(PropertySuiteV1);
-low_plugin_impl_host_for_fetch_suite!(TimeLineSuiteV1);
+use crate::{low_plugin::suites::*, sys_umbrella};
+#[allow(unsafe_op_in_unsafe_fn, clippy::missing_safety_doc)]
+impl crate::low_plugin::Host {
+    pub unsafe fn fetch_dialog_suite_v1(&self) -> Option<DialogSuiteV1> {
+        let sys_suite = self.sys_fetch_suite(sys_umbrella::kOfxDialogSuite, 1);
+        DialogSuiteV1::try_from(sys_suite)
+    }
+    pub unsafe fn fetch_draw_suite_v1(&self) -> Option<DrawSuiteV1> {
+        let sys_suite = self.sys_fetch_suite(sys_umbrella::kOfxDrawSuite, 1);
+        DrawSuiteV1::try_from(sys_suite)
+    }
+    pub unsafe fn fetch_image_effect_open_gl_render_suite_v1(
+        &self,
+    ) -> Option<ImageEffectOpenGLRenderSuiteV1> {
+        let sys_suite = self.sys_fetch_suite(sys_umbrella::kOfxOpenGLRenderSuite, 1);
+        ImageEffectOpenGLRenderSuiteV1::try_from(sys_suite)
+    }
+    pub unsafe fn fetch_image_effect_suite_v1(&self) -> Option<ImageEffectSuiteV1> {
+        let sys_suite = self.sys_fetch_suite(sys_umbrella::kOfxImageEffectSuite, 1);
+        ImageEffectSuiteV1::try_from(sys_suite)
+    }
+    pub unsafe fn fetch_interact_suite_v1(&self) -> Option<InteractSuiteV1> {
+        let sys_suite = self.sys_fetch_suite(sys_umbrella::kOfxInteractSuite, 1);
+        InteractSuiteV1::try_from(sys_suite)
+    }
+    pub unsafe fn fetch_memory_suite_v1(&self) -> Option<MemorySuiteV1> {
+        let sys_suite = self.sys_fetch_suite(sys_umbrella::kOfxMemorySuite, 1);
+        MemorySuiteV1::try_from(sys_suite)
+    }
+    pub unsafe fn fetch_message_suite_v1(&self) -> Option<MessageSuiteV1> {
+        let sys_suite = self.sys_fetch_suite(sys_umbrella::kOfxMessageSuite, 1);
+        MessageSuiteV1::try_from(sys_suite)
+    }
+    pub unsafe fn fetch_message_suite_v2(&self) -> Option<MessageSuiteV2> {
+        let sys_suite = self.sys_fetch_suite(sys_umbrella::kOfxMessageSuite, 2);
+        MessageSuiteV2::try_from(sys_suite)
+    }
+    pub unsafe fn fetch_multi_thread_suite_v1(&self) -> Option<MultiThreadSuiteV1> {
+        let sys_suite = self.sys_fetch_suite(sys_umbrella::kOfxMultiThreadSuite, 1);
+        MultiThreadSuiteV1::try_from(sys_suite)
+    }
+    pub unsafe fn fetch_open_cl_program_suite_v1(&self) -> Option<OpenCLProgramSuiteV1> {
+        let sys_suite = self.sys_fetch_suite(sys_umbrella::kOfxOpenCLProgramSuite, 1);
+        OpenCLProgramSuiteV1::try_from(sys_suite)
+    }
+    pub unsafe fn fetch_parameter_suite_v1(&self) -> Option<ParameterSuiteV1> {
+        let sys_suite = self.sys_fetch_suite(sys_umbrella::kOfxParameterSuite, 1);
+        ParameterSuiteV1::try_from(sys_suite)
+    }
+    pub unsafe fn fetch_parametric_parameter_suite_v1(&self) -> Option<ParametricParameterSuiteV1> {
+        let sys_suite = self.sys_fetch_suite(sys_umbrella::kOfxParametricParameterSuite, 1);
+        ParametricParameterSuiteV1::try_from(sys_suite)
+    }
+    pub unsafe fn fetch_progress_suite_v1(&self) -> Option<ProgressSuiteV1> {
+        let sys_suite = self.sys_fetch_suite(sys_umbrella::kOfxProgressSuite, 1);
+        ProgressSuiteV1::try_from(sys_suite)
+    }
+    pub unsafe fn fetch_progress_suite_v2(&self) -> Option<ProgressSuiteV2> {
+        let sys_suite = self.sys_fetch_suite(sys_umbrella::kOfxProgressSuite, 2);
+        ProgressSuiteV2::try_from(sys_suite)
+    }
+    pub unsafe fn fetch_property_suite_v1(&self) -> Option<PropertySuiteV1> {
+        let sys_suite = self.sys_fetch_suite(sys_umbrella::kOfxPropertySuite, 1);
+        PropertySuiteV1::try_from(sys_suite)
+    }
+    pub unsafe fn fetch_time_line_suite_v1(&self) -> Option<TimeLineSuiteV1> {
+        let sys_suite = self.sys_fetch_suite(sys_umbrella::kOfxTimeLineSuite, 1);
+        TimeLineSuiteV1::try_from(sys_suite)
+    }
+}
