@@ -65,33 +65,6 @@ mod __ {
         # [prop (@ OfxParamPropPageChild)]
         param_page_child: [String],
     }
-    # [propset (monomorphization = { type = None , allow_list = [param_default] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
-    struct ParamParametricPropertySet {
-        # [prop (@ OfxParamPropAnimates)]
-        param_animates: Bool,
-        # [prop (@ OfxParamPropCacheInvalidation)]
-        param_cache_invalidation: ty_enum!(ParamPropCacheInvalidation),
-        # [prop (@ OfxParamPropCanUndo)]
-        param_can_undo: Bool,
-        # [prop (@ OfxParamPropEvaluateOnChange)]
-        param_evaluate_on_change: Bool,
-        # [prop (@ OfxParamPropIsAnimating)]
-        param_is_animating: Bool,
-        # [prop (@ OfxParamPropIsAutoKeying)]
-        param_is_auto_keying: Bool,
-        # [prop (@ OfxParamPropParametricDimension)]
-        param_parametric_dimension: Int,
-        # [prop (@ OfxParamPropParametricInteractBackground)]
-        param_parametric_interact_background: Pointer,
-        # [prop (@ OfxParamPropParametricRange)]
-        param_parametric_range: [Double; 2],
-        # [prop (@ OfxParamPropParametricUIColour)]
-        param_parametric_ui_colour: [Double],
-        # [prop (@ OfxParamPropPersistant)]
-        param_persistant: Bool,
-        # [prop (@ OfxParamPropPluginMayWrite)]
-        param_plugin_may_write: Bool,
-    }
     # [propset (monomorphization = { type = None , allow_list = [] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon)]
     struct ParamPushButtonPropertySet {}
     # [propset (monomorphization = { type = (Double ; 3) , allow_list = [param_default , param_display_max , param_display_min , param_max , param_min] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsNumeric + ParamsValue)]

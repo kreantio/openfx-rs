@@ -212,16 +212,16 @@ fn action_describe_in_context(
                 .set_param_double_type(s_prop, ParamPropDoubleType::Scale.into())
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_param_default_double(s_prop, &[1.0])
+                .set_param_default(s_prop, [1.0])
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_param_min_double(s_prop, &[0.0])
+                .set_param_min(s_prop, [0.0])
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_param_display_min_double(s_prop, &[0.0])
+                .set_param_display_min(s_prop, [0.0])
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_param_display_max_double(s_prop, &[10.0])
+                .set_param_display_max(s_prop, [10.0])
                 .ok_or(StatusError::Failed)?;
             param_props
                 .set_label(s_prop, Some(c"Gain"))
@@ -241,7 +241,7 @@ fn action_describe_in_context(
 
         unsafe {
             param_props
-                .set_param_default_int(s_prop, &[0])
+                .set_param_default(s_prop, [false])
                 .ok_or(StatusError::Failed)?;
             param_props
                 .set_label(s_prop, Some(c"Apply To Alpha"))
