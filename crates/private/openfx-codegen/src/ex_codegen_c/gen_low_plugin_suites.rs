@@ -119,8 +119,7 @@ pub fn gen_low_plugin_suites(
         std::fs::write(
             output_folder.join("impl_host_for_fetch_suites.rs"),
             quote! {
-                use crate::{low_plugin::suites::*, sys_umbrella};
-                #[allow(unsafe_op_in_unsafe_fn, clippy::missing_safety_doc)]
+                use crate::{low_plugin::suites::*, sys_umbrella as su};
                 impl crate::low_plugin::Host {
                     #output_inner
                 }
@@ -165,9 +164,11 @@ fn process_impl_host_for_fetch_suite(
         )
     };
 
+    let doc = "## Safety\n\n`self` must be valid.";
     Ok(quote! {
+        #[doc = #doc]
         pub unsafe fn #fn_ident(&self) -> Option<#simple_ident> {
-            let sys_suite = self.sys_fetch_suite(sys_umbrella::#k_ident, #version_number);
+            let sys_suite = unsafe { self.sys_fetch_suite(su::#k_ident, #version_number) };
             #simple_ident::try_from(sys_suite)
         }
     })
