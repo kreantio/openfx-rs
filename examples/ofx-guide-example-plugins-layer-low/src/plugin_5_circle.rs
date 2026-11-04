@@ -270,16 +270,16 @@ fn action_describe_in_context(
                 )
                 .ok();
             param_props
-                .set_param_default(s_prop, [0.25])
+                .set_param_default(s_prop, 0.25)
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_param_min(s_prop, [0.0])
+                .set_param_min(s_prop, 0.0)
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_param_display_min(s_prop, [0.0])
+                .set_param_display_min(s_prop, 0.0)
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_param_display_max(s_prop, [2.0])
+                .set_param_display_max(s_prop, 2.0)
                 .ok_or(StatusError::Failed)?;
             param_props
                 .set_label(s_prop, Some(c"Radius"))
@@ -345,7 +345,7 @@ fn action_describe_in_context(
 
         unsafe {
             param_props
-                .set_param_default(s_prop, [false])
+                .set_param_default(s_prop, false)
                 .ok_or(StatusError::Failed)?;
             param_props
                 .set_label(s_prop, Some(c"Grow RoD"))
