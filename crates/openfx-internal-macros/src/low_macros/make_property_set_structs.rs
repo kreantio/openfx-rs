@@ -81,7 +81,7 @@ fn make_property_accessors(
         && m.allow_list.contains_key(&prop.simple_name.to_string())
     {
         prop.ty.monomorphize(m, &prop.simple_name)?
-    } else if let Some(ty) = prop.ty.only() {
+    } else if let Some(ty) = prop.ty.only()? {
         ty
     } else {
         return Err(syn::Error::new_spanned(
@@ -826,7 +826,7 @@ impl InputContainerType {
                         ),
                     ));
                 };
-                if matches!(self, InputContainerType::Scalar(_)) {
+                if matches!(self, InputContainerType::Scalar(_)) || m_ty.dimensions == 1 {
                     Ok(MonomorphizedContainerType::Scalar(ty))
                 } else {
                     Ok(MonomorphizedContainerType::Array(ty, m_ty.dimensions))
@@ -839,18 +839,25 @@ impl InputContainerType {
         }
     }
 
-    fn only(&self) -> Option<MonomorphizedContainerType> {
-        match self {
+    fn only(&self) -> Result<Option<MonomorphizedContainerType>, syn::Error> {
+        let ty = match self {
             InputContainerType::Scalar(ty) if let Some(ty) = ty.only() => {
                 Some(MonomorphizedContainerType::Scalar(ty))
             }
             InputContainerType::Array(ty, d) if let Some(ty) = ty.only() => {
+                if *d == 1 {
+                    return Err(syn::Error::new_spanned(
+                        ty.ident(),
+                        "Consider using a scalar instead, since the array is 1D.",
+                    ));
+                }
                 Some(MonomorphizedContainerType::Array(ty, *d))
             }
             InputContainerType::Slice(ty) if let Some(ty) = ty.only() => {
                 Some(MonomorphizedContainerType::Slice(ty))
             }
             _ => None,
-        }
+        };
+        Ok(ty)
     }
 }
