@@ -8,7 +8,7 @@ use quote::quote;
 
 use openfx_codegen_config::CodegenConfig;
 
-use crate::utils::strip_common_prefix;
+use crate::utils::{new_ident, strip_common_prefix};
 
 mod gen_low_statuses;
 
@@ -28,22 +28,16 @@ pub fn gen_low_enums_from_c(
             .strip_prefix("Ofx")
             .ok_or("Enum name should start with \"Ofx\".")?;
 
-        let enum_name = syn::Ident::new(&enum_name, proc_macro2::Span::call_site());
-        let simple_enum_name = syn::Ident::new(simple_enum_name, proc_macro2::Span::call_site());
+        let enum_name = new_ident(&enum_name);
+        let simple_enum_name = new_ident(simple_enum_name);
 
         let mut vars = vars.into_iter().collect::<Vec<_>>();
         vars.sort();
 
         let simple_vars = strip_common_prefix(&vars);
 
-        let vars: Vec<syn::Ident> = vars
-            .iter()
-            .map(|v| syn::Ident::new(v, proc_macro2::Span::call_site()))
-            .collect();
-        let simple_vars: Vec<syn::Ident> = simple_vars
-            .iter()
-            .map(|v| syn::Ident::new(v, proc_macro2::Span::call_site()))
-            .collect();
+        let vars: Vec<syn::Ident> = vars.iter().map(new_ident).collect();
+        let simple_vars: Vec<syn::Ident> = simple_vars.iter().map(new_ident).collect();
 
         output_inner.extend(quote! {
             #[sys(#enum_name)]
@@ -86,10 +80,7 @@ pub fn gen_low_plugin_suites(
         })
         .collect::<Result<_, _>>()?;
 
-    let simple_idents: Vec<syn::Ident> = simple_names
-        .iter()
-        .map(|name| syn::Ident::new(name, proc_macro2::Span::call_site()))
-        .collect();
+    let simple_idents: Vec<syn::Ident> = simple_names.iter().map(new_ident).collect();
 
     // suites.rs
     {
@@ -98,7 +89,7 @@ pub fn gen_low_plugin_suites(
         };
 
         for (name, simple_ident) in suite_names.iter().zip(simple_idents.iter()) {
-            let full_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
+            let full_ident = new_ident(name);
             output.extend(quote! {
                 low_make_suite_struct!(#simple_ident,#full_ident);
             });
@@ -137,7 +128,7 @@ pub fn gen_low_plugin_suites(
                     fn_name = format!("sys_{fn_name}");
                 }
 
-                let fn_ident = syn::Ident::new(&fn_name, proc_macro2::Span::call_site());
+                let fn_ident = new_ident(&fn_name);
                 fns.push(fn_ident);
             }
             fns.sort();
@@ -169,8 +160,7 @@ pub fn gen_low_plugin_suites(
             let special_case = &config.suites.special_cases.get(&simple_ident.to_string());
 
             if let Some(corrected_cname) = special_case.and_then(|sc| sc.key_name.as_deref()) {
-                let corrected_cname_ident =
-                    syn::Ident::new(corrected_cname, proc_macro2::Span::call_site());
+                let corrected_cname_ident = new_ident(corrected_cname);
                 output.extend(quote! {
                     low_plugin_impl_host_for_fetch_suite!(#simple_ident @ #corrected_cname_ident);
                 });
@@ -208,8 +198,8 @@ pub fn gen_low_plugin_objects(
             if entry.omit {
                 continue;
             }
-            let object_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
-            let handle_ident = syn::Ident::new(&entry.is, proc_macro2::Span::call_site());
+            let object_ident = new_ident(name);
+            let handle_ident = new_ident(&entry.is);
             output.extend(quote! {
                 low_make_object_struct!(#object_ident,#handle_ident);
             });
@@ -254,16 +244,11 @@ pub fn gen_low_plugin_objects(
                 fns.retain(|fn_name| !omit_fns.contains(fn_name));
             }
 
-            let object_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
+            let object_ident = new_ident(name);
 
             let mut fns = fns
                 .iter()
-                .map(|v| {
-                    syn::Ident::new(
-                        &v.to_case(convert_case::Case::Snake),
-                        proc_macro2::Span::call_site(),
-                    )
-                })
+                .map(|v| new_ident(v.to_case(convert_case::Case::Snake)))
                 .collect::<Vec<_>>();
             fns.sort();
 

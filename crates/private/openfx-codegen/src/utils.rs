@@ -25,3 +25,7 @@ pub fn strip_common_prefix(strings: &[String]) -> Vec<String> {
         .map(|string| string[prefix_length..].to_string())
         .collect()
 }
+
+pub fn new_ident(string: impl AsRef<str>) -> syn::Ident {
+    syn::Ident::new(string.as_ref(), proc_macro2::Span::call_site())
+}
