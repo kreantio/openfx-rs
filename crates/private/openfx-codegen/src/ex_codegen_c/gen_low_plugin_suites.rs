@@ -27,21 +27,48 @@ pub fn gen_low_plugin_suites(
 
     let simple_idents: Vec<syn::Ident> = simple_names.iter().map(new_ident).collect();
 
-    // suites.rs
-    {
-        let mut output = quote! {
-            use openfx_internal_macros::low_make_suite_struct;
-        };
+    let mut output = quote! {
+        use openfx_internal_macros::low_make_suite_struct;
+        use crate::sys_umbrella as su;
+    };
 
+    // suites.rs: `low_make_suite_struct!`s
+    {
         for (name, simple_ident) in suite_names.iter().zip(simple_idents.iter()) {
             let full_ident = new_ident(name);
             output.extend(quote! {
                 low_make_suite_struct!(#simple_ident,#full_ident);
             });
         }
-
-        std::fs::write(output_folder.join("suites.rs"), output.to_string())?;
     }
+    // suites.rs: impl_host_for_fetch_suites
+    {
+        let mut output_inner = proc_macro2::TokenStream::new();
+
+        for simple_ident in &simple_idents {
+            let special_case = &config.suites.special_cases.get(&simple_ident.to_string());
+
+            if let Some(corrected_cname) = special_case.and_then(|sc| sc.key_name.as_deref()) {
+                output_inner.extend(process_impl_host_for_fetch_suite(
+                    simple_ident.clone(),
+                    Some(new_ident(corrected_cname)),
+                )?);
+            } else {
+                output_inner.extend(process_impl_host_for_fetch_suite(
+                    simple_ident.clone(),
+                    None,
+                )?);
+            }
+        }
+
+        output.extend(quote! {
+            impl crate::low_plugin::Host {
+                #output_inner
+            }
+        });
+    }
+
+    std::fs::write(output_folder.join("suites.rs"), output.to_string())?;
 
     // checks/suites.rs
     {
@@ -93,38 +120,6 @@ pub fn gen_low_plugin_suites(
         }
 
         std::fs::write(out_path, output.to_string())?;
-    }
-
-    // impl_host_for_fetch_suites.rs
-    {
-        let mut output_inner = proc_macro2::TokenStream::new();
-
-        for simple_ident in &simple_idents {
-            let special_case = &config.suites.special_cases.get(&simple_ident.to_string());
-
-            if let Some(corrected_cname) = special_case.and_then(|sc| sc.key_name.as_deref()) {
-                output_inner.extend(process_impl_host_for_fetch_suite(
-                    simple_ident.clone(),
-                    Some(new_ident(corrected_cname)),
-                )?);
-            } else {
-                output_inner.extend(process_impl_host_for_fetch_suite(
-                    simple_ident.clone(),
-                    None,
-                )?);
-            }
-        }
-
-        std::fs::write(
-            output_folder.join("impl_host_for_fetch_suites.rs"),
-            quote! {
-                use crate::{low_plugin::suites::*, sys_umbrella as su};
-                impl crate::low_plugin::Host {
-                    #output_inner
-                }
-            }
-            .to_string(),
-        )?;
     }
 
     Ok(())
