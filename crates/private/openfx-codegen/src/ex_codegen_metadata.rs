@@ -305,23 +305,25 @@ fn process_action_property_sets(
     let out_arg_set_ident = syn::Ident::new(out_arg_set_name, proc_macro2::Span::call_site());
 
     let mut in_arg_items: BTreeMap<&str, proc_macro2::TokenStream> = BTreeMap::new();
-    for in_arg_cname in &action.in_args {
+    for (in_arg_cname, prop) in &action.in_args {
+        let write = prop.write.as_ref();
         add_property_set_item(
             &mut in_arg_items,
             metadata,
             in_arg_cname,
-            None,
+            write,
             in_arg_set_name,
         )?;
     }
 
     let mut out_arg_items: BTreeMap<&str, proc_macro2::TokenStream> = BTreeMap::new();
-    for out_arg_cname in &action.out_args {
+    for (out_arg_cname, prop) in &action.out_args {
+        let write = prop.write.as_ref();
         add_property_set_item(
             &mut out_arg_items,
             metadata,
             out_arg_cname,
-            None,
+            write,
             out_arg_set_name,
         )?;
     }
@@ -421,6 +423,7 @@ pub fn gen_low_plugin_property_sets(
         let mut meta_items: Vec<proc_macro2::TokenStream> = vec![];
 
         meta_items.push(match set.write {
+            WriteSide::All => quote! { write = all },
             WriteSide::Host => quote! { write = host },
             WriteSide::Plugin => quote! { write = plugin },
         });
@@ -554,6 +557,7 @@ fn add_property_set_item<'a>(
 
     if let Some(write) = write {
         meta_items.push(match write {
+            WriteSide::All => quote! { write = all },
             WriteSide::Host => quote! { write = host },
             WriteSide::Plugin => quote! { write = plugin },
         });

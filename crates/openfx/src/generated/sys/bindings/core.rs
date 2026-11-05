@@ -348,7 +348,7 @@ pub const kOfxActionDestroyInstance: &::std::ffi::CStr = c"OfxActionDestroyInsta
 ///       - OfxPropChangeReason
 ///       - OfxPropTime
 ///       - OfxImageEffectPropRenderScale
-///       - OfxImageEffectPropThumbnailRender
+///       - OfxImageEffectPropThumbnailRender | optional
 ///     outArgs:
 /// ```
 pub const kOfxActionInstanceChanged: &::std::ffi::CStr = c"OfxActionInstanceChanged";
@@ -397,7 +397,7 @@ pub const kOfxActionInstanceChanged: &::std::ffi::CStr = c"OfxActionInstanceChan
 ///     @actiondef
 ///     inArgs:
 ///       - OfxPropChangeReason
-///       - OfxImageEffectPropThumbnailRender
+///       - OfxImageEffectPropThumbnailRender | optional
 ///     outArgs:
 /// ```
 pub const kOfxActionBeginInstanceChanged: &::std::ffi::CStr = c"OfxActionBeginInstanceChanged";
