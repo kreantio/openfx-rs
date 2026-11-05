@@ -15,7 +15,7 @@ use openfx_datagen::metadata_extracting::{
 
 use crate::{
     input_metadata::InputMetadata,
-    utils::{new_ident, strip_common_prefix},
+    utils::{new_ident, strip_common_prefix, to_snake_case},
 };
 
 pub fn gen_low_enums_from_metadata(
@@ -749,7 +749,7 @@ impl<'a> PropertyNames<'a> {
     fn snake_name(&mut self) -> Result<String, Box<dyn std::error::Error>> {
         if self.snake_name.is_none() {
             let super_simple_name = self.super_simple_name()?;
-            let snake_name = super_simple_name.to_case(convert_case::Case::Snake);
+            let snake_name = to_snake_case(super_simple_name);
             self.snake_name = Some(snake_name);
         }
         Ok(self.snake_name.as_ref().unwrap().clone())

@@ -3,12 +3,11 @@ use std::{
     path::Path,
 };
 
-use convert_case::Casing as _;
 use quote::quote;
 
 use openfx_codegen_config::CodegenConfig;
 
-use crate::utils::{new_ident, strip_common_prefix};
+use crate::utils::{new_ident, strip_common_prefix, to_snake_case};
 
 mod gen_low_plugin_suites;
 mod gen_low_statuses;
@@ -134,7 +133,7 @@ pub fn gen_low_plugin_objects(
 
             let mut fns = fns
                 .iter()
-                .map(|v| new_ident(v.to_case(convert_case::Case::Snake)))
+                .map(|v| new_ident(to_snake_case(v)))
                 .collect::<Vec<_>>();
             fns.sort();
 
