@@ -21,8 +21,7 @@ pub fn gen_low_plugin_parameters(
     metadata: &InputMetadata,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut output = quote! {
-        use std::ffi::CStr;
-        use crate::{low::InboundResult, low_plugin::suites::ParameterSuiteV1, sys_umbrella as su};
+        use crate::low_plugin::internal_macros::make_param_define_fns;
     };
 
     {
@@ -141,30 +140,13 @@ fn process_impl_param_set_descriptor(
         let param_define_fn_name_no_output =
             new_ident(format!("param_define_{param_name_snake}_no_output"));
 
-        const DOC: &str = "## Safety\n\n`self` and `parameter_suite` must be valid.";
-
         output_inner.extend(quote! {
-            #[doc = #DOC]
-            pub unsafe fn #param_define_fn_name(
-                &self,
-                parameter_suite: &ParameterSuiteV1,
-                name: &CStr
-            ) -> InboundResult<#set_name> {
-                unsafe {
-                    self.param_define(parameter_suite, su::#type_key, name)
-                        .map_ok(#set_name::from)
-                }
-            }
-            #[doc = #DOC]
-            pub unsafe fn #param_define_fn_name_no_output(
-                &self,
-                parameter_suite: &ParameterSuiteV1,
-                name: &CStr
-            ) -> InboundResult<()> {
-                unsafe {
-                    self.param_define_no_output(parameter_suite, su::#type_key, name)
-                }
-            }
+            make_param_define_fns!(
+                #param_define_fn_name,
+                #param_define_fn_name_no_output,
+                #set_name,
+                #type_key
+            );
         });
     }
 
