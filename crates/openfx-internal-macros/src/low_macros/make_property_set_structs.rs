@@ -165,7 +165,7 @@ fn make_property_setter(
             _ => quote! { value },
         };
 
-        let doc_see_sys = make_doc_see_sys(&cname.to_string());
+        let doc_see_sys = make_doc_see_sys(&[&cname.to_string()]);
         let mut doc = quote! {
                 #doc_see_sys
                 ///
@@ -247,7 +247,7 @@ fn make_property_getter(
             _ => quote! { value_simple },
         };
 
-        let doc_see_sys = make_doc_see_sys(&cname.to_string());
+        let doc_see_sys = make_doc_see_sys(&[&cname.to_string()]);
         let mut doc = quote! {
             #doc_see_sys
             ///
@@ -333,7 +333,7 @@ fn make_property_resetter(
         prop.simple_name.span(),
     );
 
-    let doc_see_sys = make_doc_see_sys(&cname.to_string());
+    let doc_see_sys = make_doc_see_sys(&[&cname.to_string()]);
 
     output.extend(
         quote! {
@@ -366,7 +366,7 @@ fn make_property_dimensions_getter(
         prop.simple_name.span(),
     );
 
-    let doc_see_sys = make_doc_see_sys(&cname.to_string());
+    let doc_see_sys = make_doc_see_sys(&[&cname.to_string()]);
 
     output.extend(
         quote! {

@@ -35,6 +35,11 @@ pub fn low_make_object_struct(tokens: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_attribute]
+pub fn low_impl_param_set_descriptor(attr: TokenStream, item: TokenStream) -> TokenStream {
+    low_macros::impl_param_set_descriptor::impl_param_set_descriptor(attr, item)
+}
+
+#[proc_macro_attribute]
 pub fn low_impl_suite(attr: TokenStream, item: TokenStream) -> TokenStream {
     low_macros::impl_suite::impl_suite(attr, item)
 }

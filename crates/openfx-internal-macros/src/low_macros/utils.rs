@@ -49,8 +49,19 @@ pub fn peek_attribute(input: syn::parse::ParseStream, name: &str) -> bool {
     test(&fork, name).unwrap_or(false)
 }
 
-pub fn make_doc_see_sys(cname: &str) -> proc_macro2::TokenStream {
-    let doc = format!("See: [`crate::sys_umbrella::{cname}`]");
+pub fn make_doc_see_sys(cname: &[&str]) -> proc_macro2::TokenStream {
+    let mut doc = String::from("See: ");
+    for (i, name) in cname.iter().enumerate() {
+        doc.push_str(&format!("[`crate::sys_umbrella::{name}`]"));
+        if cname.len() > 2 && i < cname.len() - 2 {
+            doc.push_str(", ");
+        } else if cname.len() >= 2 && i == cname.len() - 2 {
+            doc.push_str(" and ");
+        } else {
+            doc.push('.');
+        }
+    }
+
     quote! {
         #[doc = #doc]
     }

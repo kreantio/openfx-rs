@@ -1,4 +1,3 @@
-use crate::low_plugin::internal_macros::make_param_define_fns;
 #[openfx_internal_macros::low_make_property_set_structs]
 mod __ {
     # [propset (monomorphization = { type = (Bool ; 1) , allow_list = [param_default] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
@@ -181,107 +180,40 @@ mod __ {
         }
     }
 }
-impl crate::low_plugin::objects::ParamSetDescriptor {
-    make_param_define_fns!(
-        param_define_boolean,
-        param_define_boolean_no_output,
-        ParamBooleanPropertySet,
-        kOfxParamTypeBoolean
-    );
-    make_param_define_fns!(
-        param_define_bytes,
-        param_define_bytes_no_output,
-        ParamBytesPropertySet,
-        kOfxParamTypeBytes
-    );
-    make_param_define_fns!(
-        param_define_choice,
-        param_define_choice_no_output,
-        ParamChoicePropertySet,
-        kOfxParamTypeChoice
-    );
-    make_param_define_fns!(
-        param_define_custom,
-        param_define_custom_no_output,
-        ParamCustomPropertySet,
-        kOfxParamTypeCustom
-    );
-    make_param_define_fns!(
-        param_define_double,
-        param_define_double_no_output,
-        ParamDoublePropertySet,
-        kOfxParamTypeDouble
-    );
-    make_param_define_fns!(
-        param_define_double_2d,
-        param_define_double_2d_no_output,
-        ParamDouble2DPropertySet,
-        kOfxParamTypeDouble2D
-    );
-    make_param_define_fns!(
-        param_define_double_3d,
-        param_define_double_3d_no_output,
-        ParamDouble3DPropertySet,
-        kOfxParamTypeDouble3D
-    );
-    make_param_define_fns!(
-        param_define_group,
-        param_define_group_no_output,
-        ParamGroupPropertySet,
-        kOfxParamTypeGroup
-    );
-    make_param_define_fns!(
-        param_define_integer,
-        param_define_integer_no_output,
-        ParamIntegerPropertySet,
-        kOfxParamTypeInteger
-    );
-    make_param_define_fns!(
-        param_define_integer_2d,
-        param_define_integer_2d_no_output,
-        ParamInteger2DPropertySet,
-        kOfxParamTypeInteger2D
-    );
-    make_param_define_fns!(
-        param_define_integer_3d,
-        param_define_integer_3d_no_output,
-        ParamInteger3DPropertySet,
-        kOfxParamTypeInteger3D
-    );
-    make_param_define_fns!(
-        param_define_page,
-        param_define_page_no_output,
-        ParamPagePropertySet,
-        kOfxParamTypePage
-    );
-    make_param_define_fns!(
-        param_define_push_button,
-        param_define_push_button_no_output,
-        ParamPushButtonPropertySet,
-        kOfxParamTypePushButton
-    );
-    make_param_define_fns!(
-        param_define_rgb,
-        param_define_rgb_no_output,
-        ParamRGBPropertySet,
-        kOfxParamTypeRGB
-    );
-    make_param_define_fns!(
-        param_define_rgba,
-        param_define_rgba_no_output,
-        ParamRGBAPropertySet,
-        kOfxParamTypeRGBA
-    );
-    make_param_define_fns!(
-        param_define_str_choice,
-        param_define_str_choice_no_output,
-        ParamStrChoicePropertySet,
-        kOfxParamTypeStrChoice
-    );
-    make_param_define_fns!(
-        param_define_string,
-        param_define_string_no_output,
-        ParamStringPropertySet,
-        kOfxParamTypeString
-    );
+#[openfx_internal_macros::low_impl_param_set_descriptor]
+impl ParamSetDescriptor {
+    #[param_define(kOfxParamTypeBoolean)]
+    fn param_define_boolean() -> ParamBooleanPropertySet;
+    #[param_define(kOfxParamTypeBytes)]
+    fn param_define_bytes() -> ParamBytesPropertySet;
+    #[param_define(kOfxParamTypeChoice)]
+    fn param_define_choice() -> ParamChoicePropertySet;
+    #[param_define(kOfxParamTypeCustom)]
+    fn param_define_custom() -> ParamCustomPropertySet;
+    #[param_define(kOfxParamTypeDouble)]
+    fn param_define_double() -> ParamDoublePropertySet;
+    #[param_define(kOfxParamTypeDouble2D)]
+    fn param_define_double_2d() -> ParamDouble2DPropertySet;
+    #[param_define(kOfxParamTypeDouble3D)]
+    fn param_define_double_3d() -> ParamDouble3DPropertySet;
+    #[param_define(kOfxParamTypeGroup)]
+    fn param_define_group() -> ParamGroupPropertySet;
+    #[param_define(kOfxParamTypeInteger)]
+    fn param_define_integer() -> ParamIntegerPropertySet;
+    #[param_define(kOfxParamTypeInteger2D)]
+    fn param_define_integer_2d() -> ParamInteger2DPropertySet;
+    #[param_define(kOfxParamTypeInteger3D)]
+    fn param_define_integer_3d() -> ParamInteger3DPropertySet;
+    #[param_define(kOfxParamTypePage)]
+    fn param_define_page() -> ParamPagePropertySet;
+    #[param_define(kOfxParamTypePushButton)]
+    fn param_define_push_button() -> ParamPushButtonPropertySet;
+    #[param_define(kOfxParamTypeRGB)]
+    fn param_define_rgb() -> ParamRGBPropertySet;
+    #[param_define(kOfxParamTypeRGBA)]
+    fn param_define_rgba() -> ParamRGBAPropertySet;
+    #[param_define(kOfxParamTypeStrChoice)]
+    fn param_define_str_choice() -> ParamStrChoicePropertySet;
+    #[param_define(kOfxParamTypeString)]
+    fn param_define_string() -> ParamStringPropertySet;
 }
