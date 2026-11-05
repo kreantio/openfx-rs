@@ -42,8 +42,8 @@ to live in another repository to avoid a circular dependency.
 
 The generated code is checked into this repository, so that users of
 [the `openfx` crate] do not need to pull in the build dependencies and run
-`build.rs`. This keeps [the `openfx` crate] very lightweight (currently with 0
-external dependencies). To reduce bloat, macros (both procedural and
+`build.rs`. This keeps [the `openfx` crate] very lightweight (currently with 4
+direct external dependencies[^1]). To reduce bloat, macros (both procedural and
 declarative) are used extensively.
 
 ## Terminology
@@ -55,7 +55,7 @@ This project refers to properties in three ways:
 - **Cname** are macro names defined in the OpenFX C headers, such as
   `kOfxPropAPIVersion`.
   - They always begin with `k`.
-  - This is a term that appears in the official repository[^1].
+  - This is a term that appears in the official repository[^2].
 - **Canonical names** are cnames with the leading `k` removed, such as
   `OfxPropAPIVersion`.
   - This is not an official term.
@@ -65,7 +65,7 @@ This project refers to properties in three ways:
     property with canonical name `OfxPropKeyString` has the key constant
     `kOfxPropKeyString` rather than `OfxPropKeyString`: the `k` was included in
     the key constant.
-  - This is a term that appears in the official repository[^2].
+  - This is a term that appears in the official repository[^3].
 - **Simple names** are cnames with the leading `kOfx` removed.
   - This is not an official term.
 
@@ -151,6 +151,14 @@ either direction.
 [`openfx-data`]: https://github.com/kreantio/openfx-data
 [Tree-sitter]: https://tree-sitter.github.io/tree-sitter/
 
-[^1]: https://github.com/AcademySoftwareFoundation/openfx/blob/e40728885390ec16276d11e00025de9b4282060c/scripts/gen-props.py#L215
+[^1]: [`convert_case`], [`proc-macro2`], [`quote`] and [`syn`] (all through
+    `openfx-internal-macros`).
 
-[^2]: https://github.com/AcademySoftwareFoundation/openfx/blob/e40728885390ec16276d11e00025de9b4282060c/scripts/gen-props.py#L236
+[`convert_case`]: http://crates.io/crates/convert_case
+[`proc-macro2`]: http://crates.io/crates/proc-macro2
+[`quote`]: http://crates.io/crates/quote
+[`syn`]: http://crates.io/crates/syn
+
+[^2]: https://github.com/AcademySoftwareFoundation/openfx/blob/e40728885390ec16276d11e00025de9b4282060c/scripts/gen-props.py#L215
+
+[^3]: https://github.com/AcademySoftwareFoundation/openfx/blob/e40728885390ec16276d11e00025de9b4282060c/scripts/gen-props.py#L236
