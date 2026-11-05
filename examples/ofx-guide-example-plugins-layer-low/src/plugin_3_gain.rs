@@ -21,8 +21,9 @@ use openfx::{
             ImageEffectAction,
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
+        parameters::{ParamBoolean, ParamDouble},
     },
-    sys::{core::kOfxPropLabel, param::OfxParamHandle},
+    sys::core::kOfxPropLabel,
 };
 
 use processing::pixel_processing;
@@ -44,8 +45,8 @@ struct MyInstanceData {
     source_clip: GuaranteeSendClipInInstance,
     output_clip: GuaranteeSendClipInInstance,
 
-    gain_param: OfxParamHandle,
-    apply_to_alpha_param: OfxParamHandle,
+    gain_param: ParamDouble,
+    apply_to_alpha_param: ParamBoolean,
 }
 
 fn shared_data_lockless() -> Result<SharedData, StatusError> {
@@ -265,10 +266,10 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
         unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }.ok_or(StatusError::Failed)?;
 
     let param_set = unsafe { instance.get_param_set(s_ifx) }.ok_or(StatusError::Failed)?;
-    let gain_param = unsafe { param_set.param_get_param_handle(s_param, GAIN_PARAM_NAME) }
+    let gain_param = unsafe { param_set.param_get_param_handle_double(s_param, GAIN_PARAM_NAME) }
         .ok_or(StatusError::Failed)?;
     let apply_to_alpha_param =
-        unsafe { param_set.param_get_param_handle(s_param, APPLY_TO_ALPHA_PARAM_NAME) }
+        unsafe { param_set.param_get_param_handle_boolean(s_param, APPLY_TO_ALPHA_PARAM_NAME) }
             .ok_or(StatusError::Failed)?;
 
     let my_data = MyInstanceData {
@@ -333,7 +334,7 @@ fn action_is_identity(
 
     let time = unsafe { in_args.get_time(s_prop) }.ok_or(StatusError::Failed)?;
     let mut gain: f64 = Default::default();
-    unsafe { param_get_value_at_time!(s_param, my_data.gain_param, time, &mut gain) }
+    unsafe { param_get_value_at_time!(s_param, my_data.gain_param.sys_handle(), time, &mut gain) }
         .ok_or(StatusError::Failed)?;
 
     if (gain - 1.0).abs() < 0.000000001 {
@@ -367,13 +368,13 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
     let mut gain: f64 = Default::default();
-    unsafe { param_get_value_at_time!(s_param, my_data.gain_param, time, &mut gain) }
+    unsafe { param_get_value_at_time!(s_param, my_data.gain_param.sys_handle(), time, &mut gain) }
         .ok_or(StatusError::Failed)?;
     let mut apply_to_alpha: c_int = Default::default();
     unsafe {
         param_get_value_at_time!(
             s_param,
-            my_data.apply_to_alpha_param,
+            my_data.apply_to_alpha_param.sys_handle(),
             time,
             &mut apply_to_alpha
         )

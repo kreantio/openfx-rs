@@ -20,8 +20,14 @@ pub fn gen_low_plugin_parameters(
     output_file: &Path,
     metadata: &InputMetadata,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut output = proc_macro2::TokenStream::new();
+    let mut output = quote! {
+        use openfx_internal_macros::low_make_parameter_struct;
+    };
 
+    {
+        let output_make_structs = process_make_parameter_structs(config)?;
+        output.extend(output_make_structs);
+    }
     {
         let output_property_sets = process_parameter_property_sets(config, metadata)?;
         output.extend(output_property_sets);
@@ -34,6 +40,21 @@ pub fn gen_low_plugin_parameters(
     std::fs::write(output_file, output.to_string())?;
 
     Ok(())
+}
+
+fn process_make_parameter_structs(
+    config: &CodegenConfig,
+) -> Result<proc_macro2::TokenStream, Box<dyn std::error::Error>> {
+    let mut output = proc_macro2::TokenStream::new();
+
+    for parameter_type_name in config.parameters.mapping.keys() {
+        let struct_name = new_ident(format!("Param{parameter_type_name}"));
+        output.extend(quote! {
+            low_make_parameter_struct!(#struct_name);
+        });
+    }
+
+    Ok(output)
 }
 
 fn process_parameter_property_sets(
@@ -127,25 +148,36 @@ fn process_parameter_property_sets(
 fn process_impl_param_set_descriptor(
     config: &CodegenConfig,
 ) -> Result<proc_macro2::TokenStream, Box<dyn std::error::Error>> {
-    let mut output_inner = proc_macro2::TokenStream::new();
+    let mut output_inner_descriptor = proc_macro2::TokenStream::new();
+    let mut output_inner_instance = proc_macro2::TokenStream::new();
 
     for parameter_type_name in config.parameters.mapping.keys() {
+        let object_name = new_ident(format!("Param{parameter_type_name}"));
         let set_name = new_ident(format!("Param{parameter_type_name}PropertySet"));
         let type_key = new_ident(format!("kOfxParamType{parameter_type_name}"));
 
         let param_name_snake = to_snake_case(parameter_type_name);
         let param_define_fn_name = new_ident(format!("param_define_{param_name_snake}"));
+        let param_get_handle_fn_name = new_ident(format!("param_get_handle_{param_name_snake}"));
 
-        output_inner.extend(quote! {
+        output_inner_descriptor.extend(quote! {
             #[param_define(#type_key)]
             fn #param_define_fn_name() -> #set_name;
+        });
+        output_inner_instance.extend(quote! {
+            #[param_get_handle(#type_key)]
+            fn #param_get_handle_fn_name() -> (#object_name, #set_name);
         });
     }
 
     Ok(quote! {
         #[openfx_internal_macros::low_impl_param_set_descriptor]
         impl ParamSetDescriptor{
-            #output_inner
+            #output_inner_descriptor
+        }
+        #[openfx_internal_macros::low_impl_param_set_instance]
+        impl ParamSetInstance {
+            #output_inner_instance
         }
     })
 }

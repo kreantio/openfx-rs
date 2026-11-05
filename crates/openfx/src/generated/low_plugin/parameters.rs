@@ -1,3 +1,21 @@
+use openfx_internal_macros::low_make_parameter_struct;
+low_make_parameter_struct!(ParamBoolean);
+low_make_parameter_struct!(ParamBytes);
+low_make_parameter_struct!(ParamChoice);
+low_make_parameter_struct!(ParamCustom);
+low_make_parameter_struct!(ParamDouble);
+low_make_parameter_struct!(ParamDouble2D);
+low_make_parameter_struct!(ParamDouble3D);
+low_make_parameter_struct!(ParamGroup);
+low_make_parameter_struct!(ParamInteger);
+low_make_parameter_struct!(ParamInteger2D);
+low_make_parameter_struct!(ParamInteger3D);
+low_make_parameter_struct!(ParamPage);
+low_make_parameter_struct!(ParamPushButton);
+low_make_parameter_struct!(ParamRGB);
+low_make_parameter_struct!(ParamRGBA);
+low_make_parameter_struct!(ParamStrChoice);
+low_make_parameter_struct!(ParamString);
 #[openfx_internal_macros::low_make_property_set_structs]
 mod __ {
     # [propset (monomorphization = { type = (Bool ; 1) , allow_list = [param_default] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
@@ -216,4 +234,41 @@ impl ParamSetDescriptor {
     fn param_define_str_choice() -> ParamStrChoicePropertySet;
     #[param_define(kOfxParamTypeString)]
     fn param_define_string() -> ParamStringPropertySet;
+}
+#[openfx_internal_macros::low_impl_param_set_instance]
+impl ParamSetInstance {
+    #[param_get_handle(kOfxParamTypeBoolean)]
+    fn param_get_handle_boolean() -> (ParamBoolean, ParamBooleanPropertySet);
+    #[param_get_handle(kOfxParamTypeBytes)]
+    fn param_get_handle_bytes() -> (ParamBytes, ParamBytesPropertySet);
+    #[param_get_handle(kOfxParamTypeChoice)]
+    fn param_get_handle_choice() -> (ParamChoice, ParamChoicePropertySet);
+    #[param_get_handle(kOfxParamTypeCustom)]
+    fn param_get_handle_custom() -> (ParamCustom, ParamCustomPropertySet);
+    #[param_get_handle(kOfxParamTypeDouble)]
+    fn param_get_handle_double() -> (ParamDouble, ParamDoublePropertySet);
+    #[param_get_handle(kOfxParamTypeDouble2D)]
+    fn param_get_handle_double_2d() -> (ParamDouble2D, ParamDouble2DPropertySet);
+    #[param_get_handle(kOfxParamTypeDouble3D)]
+    fn param_get_handle_double_3d() -> (ParamDouble3D, ParamDouble3DPropertySet);
+    #[param_get_handle(kOfxParamTypeGroup)]
+    fn param_get_handle_group() -> (ParamGroup, ParamGroupPropertySet);
+    #[param_get_handle(kOfxParamTypeInteger)]
+    fn param_get_handle_integer() -> (ParamInteger, ParamIntegerPropertySet);
+    #[param_get_handle(kOfxParamTypeInteger2D)]
+    fn param_get_handle_integer_2d() -> (ParamInteger2D, ParamInteger2DPropertySet);
+    #[param_get_handle(kOfxParamTypeInteger3D)]
+    fn param_get_handle_integer_3d() -> (ParamInteger3D, ParamInteger3DPropertySet);
+    #[param_get_handle(kOfxParamTypePage)]
+    fn param_get_handle_page() -> (ParamPage, ParamPagePropertySet);
+    #[param_get_handle(kOfxParamTypePushButton)]
+    fn param_get_handle_push_button() -> (ParamPushButton, ParamPushButtonPropertySet);
+    #[param_get_handle(kOfxParamTypeRGB)]
+    fn param_get_handle_rgb() -> (ParamRGB, ParamRGBPropertySet);
+    #[param_get_handle(kOfxParamTypeRGBA)]
+    fn param_get_handle_rgba() -> (ParamRGBA, ParamRGBAPropertySet);
+    #[param_get_handle(kOfxParamTypeStrChoice)]
+    fn param_get_handle_str_choice() -> (ParamStrChoice, ParamStrChoicePropertySet);
+    #[param_get_handle(kOfxParamTypeString)]
+    fn param_get_handle_string() -> (ParamString, ParamStringPropertySet);
 }

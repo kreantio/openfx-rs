@@ -209,14 +209,12 @@ impl ParameterSuiteV1 {
 ///
 /// - Operate directly on [`OfxParamHandle`]s from [`crate::sys`] rather than
 ///   wrapped objects from [`crate::low_plugin::objects`], since the wrappers
-///   for parameters WILL live in [`crate::low_plugin::parameters`], and it
-///   doesn't make sense to create these methods for each property set wrapper
+///   for parameters live in [`crate::low_plugin::parameters`], and it doesn't
+///   make sense to create these methods for each property set wrapper
 ///   individually.
 /// - Are `pub` instead of `pub(crate)`, allowing library users to call them
 ///   freely when the parameter type that they want to interact with is not
 ///   available in [`crate::low_plugin::parameters`].
-///
-/// TO REVIEWERS: remind me if the statements above need updating.
 #[openfx_internal_macros::low_impl_suite]
 impl ParameterSuiteV1 {
     /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramCopy`]
