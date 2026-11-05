@@ -42,7 +42,7 @@ use crate::{common::OpenFXTypeSimple, low_macros::utils};
 ///     struct ImageEffectDescriptorPropertySet {
 ///         // …
 ///         #[prop(@OfxImageEffectPluginPropOverlayInteractV1)]
-///         image_effect_plugin_overlay_interact_v_1: Pointer,
+///         image_effect_plugin_overlay_interact_v1: Pointer,
 ///         // …
 ///         #[prop(write = host, @OfxPluginPropFilePath)]
 ///         plugin_file_path: String,

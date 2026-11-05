@@ -3,12 +3,11 @@ use std::{
     path::Path,
 };
 
-use convert_case::Casing as _;
 use quote::quote;
 
 use openfx_codegen_config::CodegenConfig;
 
-use crate::utils::new_ident;
+use crate::utils::{new_ident, to_snake_case};
 
 pub fn gen_low_plugin_suites(
     config: &CodegenConfig,
@@ -68,7 +67,7 @@ pub fn gen_low_plugin_suites(
                 let mut fn_name = fn_cfg
                     .and_then(|cfg| cfg.rust_name.as_ref())
                     .cloned()
-                    .unwrap_or_else(|| fn_raw_name.to_case(convert_case::Case::Snake));
+                    .unwrap_or_else(|| to_snake_case(fn_raw_name));
 
                 if fn_cfg.is_some_and(|cfg| cfg.prefer_checking_sys_name_in_suite) {
                     fn_name = format!("sys_{fn_name}");
@@ -148,9 +147,7 @@ fn process_impl_host_for_fetch_suite(
     let fn_ident = syn::Ident::new(
         &format!(
             "fetch_{}_v{}",
-            simple_ident_str[..v_index]
-                .to_owned()
-                .to_case(convert_case::Case::Snake),
+            to_snake_case(&simple_ident_str[..v_index]),
             version_number
         ),
         simple_ident.span(),

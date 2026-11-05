@@ -14,7 +14,7 @@ mod __ {
     # [propset (monomorphization = { type = (String ; 1) , allow_list = [param_default] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
     struct ParamCustomPropertySet {
         # [prop (@ OfxParamPropCustomInterpCallbackV1)]
-        param_custom_interp_callback_v_1: Pointer,
+        param_custom_interp_callback_v1: Pointer,
     }
     # [propset (monomorphization = { type = (Double ; 1) , allow_list = [param_default , param_display_max , param_display_min , param_max , param_min] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsDouble + ParamsNumeric + ParamsValue)]
     struct ParamDoublePropertySet {
@@ -106,7 +106,7 @@ mod __ {
             # [prop (@ OfxParamPropInteractSizeAspect)]
             param_interact_size_aspect: Double,
             # [prop (@ OfxParamPropInteractV1)]
-            param_interact_v_1: Pointer,
+            param_interact_v1: Pointer,
             # [prop (@ OfxParamPropUseHostOverlayHandle)]
             param_use_host_overlay_handle: Bool,
         }

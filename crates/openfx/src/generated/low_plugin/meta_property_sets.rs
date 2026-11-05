@@ -93,9 +93,9 @@ mod __ {
         # [prop (@ OfxImageEffectPluginPropObsolete)]
         image_effect_plugin_obsolete: Bool,
         # [prop (@ OfxImageEffectPluginPropOverlayInteractV1)]
-        image_effect_plugin_overlay_interact_v_1: Pointer,
+        image_effect_plugin_overlay_interact_v1: Pointer,
         # [prop (@ OfxImageEffectPluginPropOverlayInteractV2)]
-        image_effect_plugin_overlay_interact_v_2: Pointer,
+        image_effect_plugin_overlay_interact_v2: Pointer,
         # [prop (@ OfxImageEffectPluginPropSingleInstance)]
         image_effect_plugin_single_instance: Bool,
         # [prop (@ OfxImageEffectPluginRenderThreadSafety)]
