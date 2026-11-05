@@ -21,8 +21,9 @@ use openfx::{
             ImageEffectAction,
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
+        parameters::ParamDouble,
     },
-    sys::{core::kOfxPropLabel, param::OfxParamHandle},
+    sys::core::kOfxPropLabel,
 };
 
 use processing::pixel_processing;
@@ -48,7 +49,7 @@ struct MyInstanceData {
     output_clip: GuaranteeSendClipInInstance,
     mask_clip: Option<GuaranteeSendClipInInstance>,
 
-    saturation_param: OfxParamHandle,
+    saturation_param: ParamDouble,
 }
 
 fn shared_data_lockless() -> Result<SharedData, StatusError> {
@@ -273,7 +274,7 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
 
     let param_set = unsafe { instance.get_param_set(s_ifx) }.ok_or(StatusError::Failed)?;
     let saturation_param =
-        unsafe { param_set.param_get_param_handle(s_param, SATURATION_PARAM_NAME) }
+        unsafe { param_set.param_get_param_handle_double(s_param, SATURATION_PARAM_NAME) }
             .ok_or(StatusError::Failed)?;
 
     let my_data = MyInstanceData {
@@ -339,8 +340,15 @@ fn action_is_identity(
 
     let time = unsafe { in_args.get_time(s_prop) }.ok_or(StatusError::Failed)?;
     let mut saturation: f64 = Default::default();
-    unsafe { param_get_value_at_time!(s_param, my_data.saturation_param, time, &mut saturation) }
-        .ok_or(StatusError::Failed)?;
+    unsafe {
+        param_get_value_at_time!(
+            s_param,
+            my_data.saturation_param.sys_handle(),
+            time,
+            &mut saturation
+        )
+    }
+    .ok_or(StatusError::Failed)?;
 
     if (saturation - 1.0).abs() < 0.000000001 {
         (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })
@@ -373,8 +381,15 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
     let mut saturation: f64 = Default::default();
-    unsafe { param_get_value_at_time!(s_param, my_data.saturation_param, time, &mut saturation) }
-        .ok_or(StatusError::Failed)?;
+    unsafe {
+        param_get_value_at_time!(
+            s_param,
+            my_data.saturation_param.sys_handle(),
+            time,
+            &mut saturation
+        )
+    }
+    .ok_or(StatusError::Failed)?;
 
     let output_img = unsafe { my_data.output_clip.0.clip_get_image(s_ifx, time, None) }
         .ok_or(StatusError::Failed)?;

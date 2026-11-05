@@ -23,8 +23,9 @@ use openfx::{
             ActionRenderIn, ImageEffectAction,
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
+        parameters::{ParamBoolean, ParamDouble, ParamDouble2D, ParamRGBA},
     },
-    sys::{core::kOfxPropLabel, param::OfxParamHandle},
+    sys::core::kOfxPropLabel,
 };
 use processing::pixel_processing;
 
@@ -51,10 +52,10 @@ struct MyInstanceData {
     source_clip: GuaranteeSendClipInInstance,
     output_clip: GuaranteeSendClipInInstance,
 
-    radius_param: OfxParamHandle,
-    centre_param: OfxParamHandle,
-    colour_param: OfxParamHandle,
-    grow_rod_param: Option<OfxParamHandle>,
+    radius_param: ParamDouble,
+    centre_param: ParamDouble2D,
+    colour_param: ParamRGBA,
+    grow_rod_param: Option<ParamBoolean>,
 }
 
 fn shared_data_lockless() -> Result<(SharedData, Arc<AdditionalSharedData>), StatusError> {
@@ -361,15 +362,17 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
         unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }.ok_or(StatusError::Failed)?;
 
     let param_set = unsafe { instance.get_param_set(s_ifx) }.ok_or(StatusError::Failed)?;
-    let radius_param = unsafe { param_set.param_get_param_handle(s_param, RADIUS_PARAM_NAME) }
-        .ok_or(StatusError::Failed)?;
-    let centre_param = unsafe { param_set.param_get_param_handle(s_param, CENTRE_PARAM_NAME) }
-        .ok_or(StatusError::Failed)?;
-    let colour_param = unsafe { param_set.param_get_param_handle(s_param, COLOUR_PARAM_NAME) }
+    let radius_param =
+        unsafe { param_set.param_get_param_handle_double(s_param, RADIUS_PARAM_NAME) }
+            .ok_or(StatusError::Failed)?;
+    let centre_param =
+        unsafe { param_set.param_get_param_handle_double_2d(s_param, CENTRE_PARAM_NAME) }
+            .ok_or(StatusError::Failed)?;
+    let colour_param = unsafe { param_set.param_get_param_handle_rgba(s_param, COLOUR_PARAM_NAME) }
         .ok_or(StatusError::Failed)?;
     let grow_rod_param = if additional.host_supports_multi_res {
         Some(
-            unsafe { param_set.param_get_param_handle(s_param, GROW_ROD_PARAM_NAME) }
+            unsafe { param_set.param_get_param_handle_boolean(s_param, GROW_ROD_PARAM_NAME) }
                 .ok_or(StatusError::Failed)?,
         )
     } else {
@@ -447,8 +450,15 @@ fn action_get_region_of_definition(
     let mut growing_rod = false;
     if let Some(grow_rod_param) = my_data.grow_rod_param {
         let mut growing_rod_: c_int = Default::default();
-        unsafe { param_get_value_at_time!(s_param, grow_rod_param, time, &mut growing_rod_) }
-            .ok_or(StatusError::Failed)?;
+        unsafe {
+            param_get_value_at_time!(
+                s_param,
+                grow_rod_param.sys_handle(),
+                time,
+                &mut growing_rod_
+            )
+        }
+        .ok_or(StatusError::Failed)?;
         growing_rod = growing_rod_ != 0;
     };
 
@@ -457,14 +467,21 @@ fn action_get_region_of_definition(
     }
 
     let mut radius: f64 = Default::default();
-    unsafe { param_get_value_at_time!(s_param, my_data.radius_param, time, &mut radius) }
-        .ok_or(StatusError::Failed)?;
+    unsafe {
+        param_get_value_at_time!(
+            s_param,
+            my_data.radius_param.sys_handle(),
+            time,
+            &mut radius
+        )
+    }
+    .ok_or(StatusError::Failed)?;
     let mut centre_x = 0.0;
     let mut centre_y = 0.0;
     unsafe {
         param_get_value_at_time!(
             s_param,
-            my_data.centre_param,
+            my_data.centre_param.sys_handle(),
             time,
             &mut centre_x,
             &mut centre_y
@@ -514,8 +531,15 @@ fn action_is_identity(
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
     let mut radius: f64 = Default::default();
-    unsafe { param_get_value_at_time!(s_param, my_data.radius_param, time, &mut radius) }
-        .ok_or(StatusError::Failed)?;
+    unsafe {
+        param_get_value_at_time!(
+            s_param,
+            my_data.radius_param.sys_handle(),
+            time,
+            &mut radius
+        )
+    }
+    .ok_or(StatusError::Failed)?;
 
     let is_identity = if radius < 0.0001 {
         true
@@ -523,8 +547,15 @@ fn action_is_identity(
         let mut growing_rod = false;
         if let Some(grow_rod_param) = my_data.grow_rod_param {
             let mut growing_rod_: c_int = Default::default();
-            unsafe { param_get_value_at_time!(s_param, grow_rod_param, time, &mut growing_rod_) }
-                .ok_or(StatusError::Failed)?;
+            unsafe {
+                param_get_value_at_time!(
+                    s_param,
+                    grow_rod_param.sys_handle(),
+                    time,
+                    &mut growing_rod_
+                )
+            }
+            .ok_or(StatusError::Failed)?;
             growing_rod = growing_rod_ != 0;
         };
 
@@ -544,7 +575,7 @@ fn action_is_identity(
             unsafe {
                 param_get_value_at_time!(
                     s_param,
-                    my_data.centre_param,
+                    my_data.centre_param.sys_handle(),
                     time,
                     &mut centre_x,
                     &mut centre_y
@@ -592,15 +623,22 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
     let mut radius: f64 = Default::default();
-    unsafe { param_get_value_at_time!(s_param, my_data.radius_param, time, &mut radius) }
-        .ok_or(StatusError::Failed)?;
+    unsafe {
+        param_get_value_at_time!(
+            s_param,
+            my_data.radius_param.sys_handle(),
+            time,
+            &mut radius
+        )
+    }
+    .ok_or(StatusError::Failed)?;
     let centre = {
         let mut centre_x = 0.0;
         let mut centre_y = 0.0;
         unsafe {
             param_get_value_at_time!(
                 s_param,
-                my_data.centre_param,
+                my_data.centre_param.sys_handle(),
                 time,
                 &mut centre_x,
                 &mut centre_y
@@ -617,7 +655,7 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
         unsafe {
             param_get_value_at_time!(
                 s_param,
-                my_data.colour_param,
+                my_data.colour_param.sys_handle(),
                 time,
                 &mut colour_r,
                 &mut colour_g,

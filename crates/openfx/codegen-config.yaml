@@ -132,9 +132,8 @@ objects:
       omit: true
       set: true
     # Parameter Descriptor/Instance: Concrete parameter descriptors/instances
-    # ~~are~~ will be used instead.
-    # TO REVIEWERS: remind me if the statement above needs updating.
-    # TODO: Ask the upstream why there is not a corresponding instance object.
+    # are be used instead.
+    # TODO: Ask the upstream why this is called a descriptor.
     ParamDescriptor: { is: OfxParamHandle, omit: true }
     # Image Instance: This is also a property set handle, so we need to handle
     # this specifically.
