@@ -145,11 +145,7 @@ fn process_impl_host_for_fetch_suite(
     };
     let version_number = syn::LitInt::new(&version_number.to_string(), simple_ident.span());
     let fn_ident = syn::Ident::new(
-        &format!(
-            "fetch_{}_v{}",
-            to_snake_case(&simple_ident_str[..v_index]),
-            version_number
-        ),
+        &format!("fetch_{}", to_snake_case(&simple_ident_str),),
         simple_ident.span(),
     );
     let k_ident = if let Some(corrected_k_ident) = &corrected_k_ident {
