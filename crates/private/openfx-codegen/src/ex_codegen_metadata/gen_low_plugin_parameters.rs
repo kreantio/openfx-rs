@@ -20,9 +20,7 @@ pub fn gen_low_plugin_parameters(
     output_file: &Path,
     metadata: &InputMetadata,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut output = quote! {
-        use crate::low_plugin::internal_macros::make_param_define_fns;
-    };
+    let mut output = proc_macro2::TokenStream::new();
 
     {
         let output_property_sets = process_parameter_property_sets(config, metadata)?;
@@ -137,21 +135,16 @@ fn process_impl_param_set_descriptor(
 
         let param_name_snake = to_snake_case(parameter_type_name);
         let param_define_fn_name = new_ident(format!("param_define_{param_name_snake}"));
-        let param_define_fn_name_no_output =
-            new_ident(format!("param_define_{param_name_snake}_no_output"));
 
         output_inner.extend(quote! {
-            make_param_define_fns!(
-                #param_define_fn_name,
-                #param_define_fn_name_no_output,
-                #set_name,
-                #type_key
-            );
+            #[param_define(#type_key)]
+            fn #param_define_fn_name() -> #set_name;
         });
     }
 
     Ok(quote! {
-        impl crate::low_plugin::objects::ParamSetDescriptor{
+        #[openfx_internal_macros::low_impl_param_set_descriptor]
+        impl ParamSetDescriptor{
             #output_inner
         }
     })
