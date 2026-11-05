@@ -12,7 +12,7 @@ use crate::{
         PropertyNames, process_property_set, process_property_set_definitions,
     },
     input_metadata::InputMetadata,
-    utils::new_ident,
+    utils::{new_ident, to_snake_case},
 };
 
 pub fn gen_low_plugin_parameters(
@@ -20,6 +20,29 @@ pub fn gen_low_plugin_parameters(
     output_file: &Path,
     metadata: &InputMetadata,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    let mut output = quote! {
+        use std::ffi::CStr;
+        use crate::{low::InboundResult, low_plugin::suites::ParameterSuiteV1, sys_umbrella as su};
+    };
+
+    {
+        let output_property_sets = process_parameter_property_sets(config, metadata)?;
+        output.extend(output_property_sets);
+    }
+    {
+        let output_impl = process_impl_param_set_descriptor(config)?;
+        output.extend(output_impl);
+    }
+
+    std::fs::write(output_file, output.to_string())?;
+
+    Ok(())
+}
+
+fn process_parameter_property_sets(
+    config: &CodegenConfig,
+    metadata: &InputMetadata,
+) -> Result<proc_macro2::TokenStream, Box<dyn std::error::Error>> {
     let mut output_inner = proc_macro2::TokenStream::new();
 
     let mut used_refs: HashSet<String> = HashSet::new();
@@ -96,16 +119,58 @@ pub fn gen_low_plugin_parameters(
         output_inner.extend(output_def);
     }
 
-    std::fs::write(
-        output_file,
-        quote! {
-            #[openfx_internal_macros::low_make_property_set_structs]
-            mod __ {
-                #output_inner
-            }
+    Ok(quote! {
+        #[openfx_internal_macros::low_make_property_set_structs]
+        mod __ {
+            #output_inner
         }
-        .to_string(),
-    )?;
+    })
+}
 
-    Ok(())
+fn process_impl_param_set_descriptor(
+    config: &CodegenConfig,
+) -> Result<proc_macro2::TokenStream, Box<dyn std::error::Error>> {
+    let mut output_inner = proc_macro2::TokenStream::new();
+
+    for parameter_type_name in config.parameters.mapping.keys() {
+        let set_name = new_ident(format!("Param{parameter_type_name}PropertySet"));
+        let type_key = new_ident(format!("kOfxParamType{parameter_type_name}"));
+
+        let param_name_snake = to_snake_case(parameter_type_name);
+        let param_define_fn_name = new_ident(format!("param_define_{param_name_snake}"));
+        let param_define_fn_name_no_output =
+            new_ident(format!("param_define_{param_name_snake}_no_output"));
+
+        const DOC: &str = "## Safety\n\n`self` and `parameter_suite` must be valid.";
+
+        output_inner.extend(quote! {
+            #[doc = #DOC]
+            pub unsafe fn #param_define_fn_name(
+                &self,
+                parameter_suite: &ParameterSuiteV1,
+                name: &CStr
+            ) -> InboundResult<#set_name> {
+                unsafe {
+                    self.param_define(parameter_suite, su::#type_key, name)
+                        .map_ok(#set_name::from)
+                }
+            }
+            #[doc = #DOC]
+            pub unsafe fn #param_define_fn_name_no_output(
+                &self,
+                parameter_suite: &ParameterSuiteV1,
+                name: &CStr
+            ) -> InboundResult<()> {
+                unsafe {
+                    self.param_define_no_output(parameter_suite, su::#type_key, name)
+                }
+            }
+        });
+    }
+
+    Ok(quote! {
+        impl crate::low_plugin::objects::ParamSetDescriptor{
+            #output_inner
+        }
+    })
 }

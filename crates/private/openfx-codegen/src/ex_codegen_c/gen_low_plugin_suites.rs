@@ -152,9 +152,9 @@ fn process_impl_host_for_fetch_suite(
         )
     };
 
-    let doc = "## Safety\n\n`self` must be valid.";
+    const DOC: &str = "## Safety\n\n`self` must be valid.";
     Ok(quote! {
-        #[doc = #doc]
+        #[doc = #DOC]
         pub unsafe fn #fn_ident(&self) -> Option<#simple_ident> {
             let sys_suite = unsafe { self.sys_fetch_suite(su::#k_ident, #version_number) };
             #simple_ident::try_from(sys_suite)

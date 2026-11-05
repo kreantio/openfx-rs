@@ -1,3 +1,5 @@
+use crate::{low::InboundResult, low_plugin::suites::ParameterSuiteV1, sys_umbrella as su};
+use std::ffi::CStr;
 #[openfx_internal_macros::low_make_property_set_structs]
 mod __ {
     # [propset (monomorphization = { type = (Bool ; 1) , allow_list = [param_default] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
@@ -178,5 +180,330 @@ mod __ {
             # [prop (@ OfxParamPropPluginMayWrite)]
             param_plugin_may_write: Bool,
         }
+    }
+}
+impl crate::low_plugin::objects::ParamSetDescriptor {
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_boolean(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<ParamBooleanPropertySet> {
+        unsafe {
+            self.param_define(parameter_suite, su::kOfxParamTypeBoolean, name)
+                .map_ok(ParamBooleanPropertySet::from)
+        }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_boolean_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<()> {
+        unsafe { self.param_define_no_output(parameter_suite, su::kOfxParamTypeBoolean, name) }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_bytes(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<ParamBytesPropertySet> {
+        unsafe {
+            self.param_define(parameter_suite, su::kOfxParamTypeBytes, name)
+                .map_ok(ParamBytesPropertySet::from)
+        }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_bytes_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<()> {
+        unsafe { self.param_define_no_output(parameter_suite, su::kOfxParamTypeBytes, name) }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_choice(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<ParamChoicePropertySet> {
+        unsafe {
+            self.param_define(parameter_suite, su::kOfxParamTypeChoice, name)
+                .map_ok(ParamChoicePropertySet::from)
+        }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_choice_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<()> {
+        unsafe { self.param_define_no_output(parameter_suite, su::kOfxParamTypeChoice, name) }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_custom(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<ParamCustomPropertySet> {
+        unsafe {
+            self.param_define(parameter_suite, su::kOfxParamTypeCustom, name)
+                .map_ok(ParamCustomPropertySet::from)
+        }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_custom_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<()> {
+        unsafe { self.param_define_no_output(parameter_suite, su::kOfxParamTypeCustom, name) }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_double(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<ParamDoublePropertySet> {
+        unsafe {
+            self.param_define(parameter_suite, su::kOfxParamTypeDouble, name)
+                .map_ok(ParamDoublePropertySet::from)
+        }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_double_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<()> {
+        unsafe { self.param_define_no_output(parameter_suite, su::kOfxParamTypeDouble, name) }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_double_2d(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<ParamDouble2DPropertySet> {
+        unsafe {
+            self.param_define(parameter_suite, su::kOfxParamTypeDouble2D, name)
+                .map_ok(ParamDouble2DPropertySet::from)
+        }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_double_2d_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<()> {
+        unsafe { self.param_define_no_output(parameter_suite, su::kOfxParamTypeDouble2D, name) }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_double_3d(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<ParamDouble3DPropertySet> {
+        unsafe {
+            self.param_define(parameter_suite, su::kOfxParamTypeDouble3D, name)
+                .map_ok(ParamDouble3DPropertySet::from)
+        }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_double_3d_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<()> {
+        unsafe { self.param_define_no_output(parameter_suite, su::kOfxParamTypeDouble3D, name) }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_group(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<ParamGroupPropertySet> {
+        unsafe {
+            self.param_define(parameter_suite, su::kOfxParamTypeGroup, name)
+                .map_ok(ParamGroupPropertySet::from)
+        }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_group_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<()> {
+        unsafe { self.param_define_no_output(parameter_suite, su::kOfxParamTypeGroup, name) }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_integer(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<ParamIntegerPropertySet> {
+        unsafe {
+            self.param_define(parameter_suite, su::kOfxParamTypeInteger, name)
+                .map_ok(ParamIntegerPropertySet::from)
+        }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_integer_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<()> {
+        unsafe { self.param_define_no_output(parameter_suite, su::kOfxParamTypeInteger, name) }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_integer_2d(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<ParamInteger2DPropertySet> {
+        unsafe {
+            self.param_define(parameter_suite, su::kOfxParamTypeInteger2D, name)
+                .map_ok(ParamInteger2DPropertySet::from)
+        }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_integer_2d_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<()> {
+        unsafe { self.param_define_no_output(parameter_suite, su::kOfxParamTypeInteger2D, name) }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_integer_3d(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<ParamInteger3DPropertySet> {
+        unsafe {
+            self.param_define(parameter_suite, su::kOfxParamTypeInteger3D, name)
+                .map_ok(ParamInteger3DPropertySet::from)
+        }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_integer_3d_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<()> {
+        unsafe { self.param_define_no_output(parameter_suite, su::kOfxParamTypeInteger3D, name) }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_page(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<ParamPagePropertySet> {
+        unsafe {
+            self.param_define(parameter_suite, su::kOfxParamTypePage, name)
+                .map_ok(ParamPagePropertySet::from)
+        }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_page_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<()> {
+        unsafe { self.param_define_no_output(parameter_suite, su::kOfxParamTypePage, name) }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_push_button(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<ParamPushButtonPropertySet> {
+        unsafe {
+            self.param_define(parameter_suite, su::kOfxParamTypePushButton, name)
+                .map_ok(ParamPushButtonPropertySet::from)
+        }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_push_button_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<()> {
+        unsafe { self.param_define_no_output(parameter_suite, su::kOfxParamTypePushButton, name) }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_rgb(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<ParamRGBPropertySet> {
+        unsafe {
+            self.param_define(parameter_suite, su::kOfxParamTypeRGB, name)
+                .map_ok(ParamRGBPropertySet::from)
+        }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_rgb_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<()> {
+        unsafe { self.param_define_no_output(parameter_suite, su::kOfxParamTypeRGB, name) }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_rgba(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<ParamRGBAPropertySet> {
+        unsafe {
+            self.param_define(parameter_suite, su::kOfxParamTypeRGBA, name)
+                .map_ok(ParamRGBAPropertySet::from)
+        }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_rgba_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<()> {
+        unsafe { self.param_define_no_output(parameter_suite, su::kOfxParamTypeRGBA, name) }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_str_choice(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<ParamStrChoicePropertySet> {
+        unsafe {
+            self.param_define(parameter_suite, su::kOfxParamTypeStrChoice, name)
+                .map_ok(ParamStrChoicePropertySet::from)
+        }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_str_choice_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<()> {
+        unsafe { self.param_define_no_output(parameter_suite, su::kOfxParamTypeStrChoice, name) }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_string(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<ParamStringPropertySet> {
+        unsafe {
+            self.param_define(parameter_suite, su::kOfxParamTypeString, name)
+                .map_ok(ParamStringPropertySet::from)
+        }
+    }
+    #[doc = "## Safety\n\n`self` and `parameter_suite` must be valid."]
+    pub unsafe fn param_define_string_no_output(
+        &self,
+        parameter_suite: &ParameterSuiteV1,
+        name: &CStr,
+    ) -> InboundResult<()> {
+        unsafe { self.param_define_no_output(parameter_suite, su::kOfxParamTypeString, name) }
     }
 }

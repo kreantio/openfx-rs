@@ -42,11 +42,8 @@ pub fn to_snake_case(name: &str) -> String {
         if let Some(last) = last {
             let is_word_start = match () {
                 _ if c.is_uppercase() && last.is_numeric() => false,
-                _ if c.is_uppercase()
-                    && (last.is_lowercase() || !iter.peek().is_some_and(|c| c.is_uppercase())) =>
-                {
-                    true
-                }
+                _ if c.is_uppercase() && last.is_lowercase() => true,
+                _ if c.is_uppercase() && iter.peek().is_some_and(|c| !c.is_uppercase()) => true,
                 _ if c.is_numeric() && last.is_lowercase() => true,
                 _ => false,
             };
@@ -76,4 +73,5 @@ fn test_to_snake_case() {
         to_snake_case("ImageEffectOpenGLRenderSuiteV1"),
         "image_effect_open_gl_render_suite_v1"
     );
+    assert_eq!(to_snake_case("ParamTypeRGB"), "param_type_rgb");
 }

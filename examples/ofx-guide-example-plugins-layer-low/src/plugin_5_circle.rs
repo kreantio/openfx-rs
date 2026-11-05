@@ -23,18 +23,8 @@ use openfx::{
             ActionRenderIn, ImageEffectAction,
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
-        parameters::{
-            ParamBooleanPropertySet, ParamDouble2DPropertySet, ParamDoublePropertySet,
-            ParamRGBAPropertySet,
-        },
     },
-    sys::{
-        core::kOfxPropLabel,
-        param::{
-            OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble, kOfxParamTypeDouble2D,
-            kOfxParamTypeRGBA,
-        },
-    },
+    sys::{core::kOfxPropLabel, param::OfxParamHandle},
 };
 use processing::pixel_processing;
 
@@ -251,10 +241,8 @@ fn action_describe_in_context(
     let param_set = unsafe { descriptor.get_param_set(s_ifx) }.ok_or(StatusError::Failed)?;
 
     {
-        let param_props =
-            unsafe { param_set.param_define(s_param, kOfxParamTypeDouble, RADIUS_PARAM_NAME) }
-                .ok_or(StatusError::Failed)?;
-        let param_props = ParamDoublePropertySet::from(param_props);
+        let param_props = unsafe { param_set.param_define_double(s_param, RADIUS_PARAM_NAME) }
+            .ok_or(StatusError::Failed)?;
 
         unsafe {
             param_props
@@ -291,10 +279,8 @@ fn action_describe_in_context(
     }
 
     {
-        let param_props =
-            unsafe { param_set.param_define(s_param, kOfxParamTypeDouble2D, CENTRE_PARAM_NAME) }
-                .ok_or(StatusError::Failed)?;
-        let param_props = ParamDouble2DPropertySet::from(param_props);
+        let param_props = unsafe { param_set.param_define_double_2d(s_param, CENTRE_PARAM_NAME) }
+            .ok_or(StatusError::Failed)?;
 
         unsafe {
             param_props
@@ -319,10 +305,8 @@ fn action_describe_in_context(
     }
 
     {
-        let param_props =
-            unsafe { param_set.param_define(s_param, kOfxParamTypeRGBA, COLOUR_PARAM_NAME) }
-                .ok_or(StatusError::Failed)?;
-        let param_props = ParamRGBAPropertySet::from(param_props);
+        let param_props = unsafe { param_set.param_define_rgba(s_param, COLOUR_PARAM_NAME) }
+            .ok_or(StatusError::Failed)?;
 
         unsafe {
             param_props
@@ -338,10 +322,8 @@ fn action_describe_in_context(
     }
 
     if additional.host_supports_multi_res {
-        let param_props =
-            unsafe { param_set.param_define(s_param, kOfxParamTypeBoolean, GROW_ROD_PARAM_NAME) }
-                .ok_or(StatusError::Failed)?;
-        let param_props = ParamBooleanPropertySet::from(param_props);
+        let param_props = unsafe { param_set.param_define_boolean(s_param, GROW_ROD_PARAM_NAME) }
+            .ok_or(StatusError::Failed)?;
 
         unsafe {
             param_props
