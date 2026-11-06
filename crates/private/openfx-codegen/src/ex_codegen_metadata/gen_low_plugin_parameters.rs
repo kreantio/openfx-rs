@@ -5,7 +5,7 @@ use std::{
 
 use quote::quote;
 
-use openfx_codegen_config::CodegenConfig;
+use openfx_codegen_config::{CodegenConfig, CodegenConfigParameterMappingEntryType};
 
 use crate::{
     ex_codegen_metadata::common::{
@@ -47,10 +47,16 @@ fn process_make_parameter_structs(
 ) -> Result<proc_macro2::TokenStream, Box<dyn std::error::Error>> {
     let mut output = proc_macro2::TokenStream::new();
 
-    for parameter_type_name in config.parameters.mapping.keys() {
+    for (parameter_type_name, entry) in &config.parameters.mapping {
+        let ty = if let Some(ty) = &entry.r#type {
+            quote_type(ty)
+        } else {
+            quote! { None }
+        };
+
         let struct_name = new_ident(format!("Param{parameter_type_name}"));
         output.extend(quote! {
-            low_make_parameter_struct!(#struct_name);
+            low_make_parameter_struct!(#struct_name, type = #ty);
         });
     }
 
@@ -95,16 +101,7 @@ fn process_parameter_property_sets(
         }
         {
             let ty = if let Some(ty) = &entry.r#type {
-                let el_ty = match ty.element_type {
-                    openfx_codegen_config::CodegenConfigParameterMappingEntryElementType::Int => quote! { Int },
-                    openfx_codegen_config::CodegenConfigParameterMappingEntryElementType::Double => quote! { Double },
-                    openfx_codegen_config::CodegenConfigParameterMappingEntryElementType::String => quote! { String },
-                    openfx_codegen_config::CodegenConfigParameterMappingEntryElementType::Pointer => quote! { Pointer },
-                    openfx_codegen_config::CodegenConfigParameterMappingEntryElementType::Bool => quote! { Bool },
-                };
-                let dim =
-                    syn::LitInt::new(&ty.dimensions.to_string(), proc_macro2::Span::call_site());
-                quote! { (#el_ty; #dim) }
+                quote_type(ty)
             } else {
                 tracing::warn!(
                     "Valueless parameter type `{}`'s property set has generic properties: {}",
@@ -180,4 +177,24 @@ fn process_impl_param_set_descriptor(
             #output_inner_instance
         }
     })
+}
+
+fn quote_type(ty: &CodegenConfigParameterMappingEntryType) -> proc_macro2::TokenStream {
+    let el_ty = match ty.element_type {
+        openfx_codegen_config::CodegenConfigParameterMappingEntryElementType::Int => quote! { Int },
+        openfx_codegen_config::CodegenConfigParameterMappingEntryElementType::Double => {
+            quote! { Double }
+        }
+        openfx_codegen_config::CodegenConfigParameterMappingEntryElementType::String => {
+            quote! { String }
+        }
+        openfx_codegen_config::CodegenConfigParameterMappingEntryElementType::Pointer => {
+            quote! { Pointer }
+        }
+        openfx_codegen_config::CodegenConfigParameterMappingEntryElementType::Bool => {
+            quote! { Bool }
+        }
+    };
+    let dim = syn::LitInt::new(&ty.dimensions.to_string(), proc_macro2::Span::call_site());
+    quote! { (#el_ty; #dim) }
 }
