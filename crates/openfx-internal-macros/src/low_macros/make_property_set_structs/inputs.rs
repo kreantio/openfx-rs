@@ -19,7 +19,10 @@ use std::collections::HashMap;
 
 use syn::ext::IdentExt as _;
 
-use crate::{common::OpenFXTypeSimple, low_macros::utils};
+use crate::{
+    common::{ParameterType, SimpleType},
+    low_macros::utils,
+};
 
 /// ## Examples
 ///
@@ -261,21 +264,8 @@ impl InputPropertySet {
 }
 
 pub struct InputPropertySetMonomorphization {
-    pub ty: Option<InputPropertySetMonomorphizationType>,
+    pub ty: Option<ParameterType>,
     pub allow_list: HashMap<String, syn::Ident>,
-}
-
-pub struct InputPropertySetMonomorphizationType {
-    pub element_type: InputPropertySetMonomorphizationElementType,
-    pub dimensions: usize,
-}
-
-pub enum InputPropertySetMonomorphizationElementType {
-    Int,
-    Double,
-    String,
-    Pointer,
-    Bool,
 }
 
 impl InputPropertySetMonomorphization {
@@ -289,42 +279,7 @@ impl InputPropertySetMonomorphization {
         }
         content.parse::<syn::Token![=]>()?;
 
-        let ty = if content.peek(syn::token::Paren) {
-            let type_content;
-            syn::parenthesized!(type_content in content);
-            let element_type = type_content.parse::<syn::Ident>()?;
-            let element_type = match element_type.to_string().as_str() {
-                "Int" => InputPropertySetMonomorphizationElementType::Int,
-                "Double" => InputPropertySetMonomorphizationElementType::Double,
-                "String" => InputPropertySetMonomorphizationElementType::String,
-                "Pointer" => InputPropertySetMonomorphizationElementType::Pointer,
-                "Bool" => InputPropertySetMonomorphizationElementType::Bool,
-                _ => {
-                    return Err(syn::Error::new_spanned(
-                        element_type,
-                        "expected `Int`, `Double`, `String`, `Pointer` or `Bool`",
-                    ));
-                }
-            };
-            type_content.parse::<syn::Token![;]>()?;
-            let dimensions = type_content.parse::<syn::LitInt>()?.base10_parse()?;
-            if !type_content.is_empty() {
-                return Err(type_content.error("unexpected tokens in monomorphization type"));
-            }
-            Some(InputPropertySetMonomorphizationType {
-                element_type,
-                dimensions,
-            })
-        } else {
-            let none = content.parse::<syn::Ident>()?;
-            if none != "None" {
-                return Err(syn::Error::new_spanned(
-                    none,
-                    "expected `(Type; dimensions)` or `None`",
-                ));
-            }
-            None
-        };
+        let ty = ParameterType::parse_option(&content)?;
 
         content.parse::<syn::Token![,]>()?;
         let key = content.parse::<syn::Ident>()?;
@@ -352,18 +307,6 @@ impl InputPropertySetMonomorphization {
         }
 
         Ok(Self { ty, allow_list })
-    }
-}
-
-impl InputPropertySetMonomorphizationElementType {
-    pub fn name(&self) -> &'static str {
-        match self {
-            InputPropertySetMonomorphizationElementType::Int => "Int",
-            InputPropertySetMonomorphizationElementType::Double => "Double",
-            InputPropertySetMonomorphizationElementType::String => "String",
-            InputPropertySetMonomorphizationElementType::Pointer => "Pointer",
-            InputPropertySetMonomorphizationElementType::Bool => "Bool",
-        }
     }
 }
 
@@ -621,37 +564,37 @@ impl InputPossibleTypes {
     pub fn iter(&self) -> OpenFXTypeExpressiveIterator {
         let mut types = vec![];
         if let Some(int) = &self.int {
-            types.push(OpenFXTypeExpressive::Int(int.clone()));
+            types.push(ExpressiveType::Int(int.clone()));
         }
         if let Some(double) = &self.double {
-            types.push(OpenFXTypeExpressive::Double(double.clone()));
+            types.push(ExpressiveType::Double(double.clone()));
         }
         if let Some((r#enum, name)) = &self.r#enum {
-            types.push(OpenFXTypeExpressive::Enum(r#enum.clone(), name.clone()));
+            types.push(ExpressiveType::Enum(r#enum.clone(), name.clone()));
         }
         if let Some(bool) = &self.bool {
-            types.push(OpenFXTypeExpressive::Bool(bool.clone()));
+            types.push(ExpressiveType::Bool(bool.clone()));
         }
         if let Some(string) = &self.string {
-            types.push(OpenFXTypeExpressive::String(string.clone()));
+            types.push(ExpressiveType::String(string.clone()));
         }
         if let Some(pointer) = &self.pointer {
-            types.push(OpenFXTypeExpressive::Pointer(pointer.clone()));
+            types.push(ExpressiveType::Pointer(pointer.clone()));
         }
         OpenFXTypeExpressiveIterator(types)
     }
 
-    pub fn only(&self) -> Option<OpenFXTypeExpressive> {
+    pub fn only(&self) -> Option<ExpressiveType> {
         let mut iter = self.iter();
         let first = iter.next();
         if iter.next().is_some() { None } else { first }
     }
 }
 
-pub struct OpenFXTypeExpressiveIterator(Vec<OpenFXTypeExpressive>);
+pub struct OpenFXTypeExpressiveIterator(Vec<ExpressiveType>);
 
 impl Iterator for OpenFXTypeExpressiveIterator {
-    type Item = OpenFXTypeExpressive;
+    type Item = ExpressiveType;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.0.pop()
@@ -708,7 +651,7 @@ impl InputWriteSide {
     }
 }
 
-pub enum OpenFXTypeExpressive {
+pub enum ExpressiveType {
     Int(syn::Ident),
     Double(syn::Ident),
     Enum(syn::Ident, syn::Ident),
@@ -717,28 +660,28 @@ pub enum OpenFXTypeExpressive {
     Pointer(syn::Ident),
 }
 
-impl OpenFXTypeExpressive {
+impl ExpressiveType {
     pub fn ident(&self) -> &syn::Ident {
         match self {
-            OpenFXTypeExpressive::Int(ident)
-            | OpenFXTypeExpressive::Double(ident)
-            | OpenFXTypeExpressive::Bool(ident)
-            | OpenFXTypeExpressive::String(ident)
-            | OpenFXTypeExpressive::Pointer(ident) => ident,
-            OpenFXTypeExpressive::Enum(ident, _) => ident,
+            ExpressiveType::Int(ident)
+            | ExpressiveType::Double(ident)
+            | ExpressiveType::Bool(ident)
+            | ExpressiveType::String(ident)
+            | ExpressiveType::Pointer(ident) => ident,
+            ExpressiveType::Enum(ident, _) => ident,
         }
     }
 
-    pub fn simple(&self) -> OpenFXTypeSimple {
+    pub fn simple(&self) -> SimpleType {
         match self {
-            OpenFXTypeExpressive::Int(ident) | OpenFXTypeExpressive::Bool(ident) => {
-                OpenFXTypeSimple::Int(ident.clone())
+            ExpressiveType::Int(ident) | ExpressiveType::Bool(ident) => {
+                SimpleType::Int(Some(ident.clone()))
             }
-            OpenFXTypeExpressive::Double(ident) => OpenFXTypeSimple::Double(ident.clone()),
-            OpenFXTypeExpressive::String(ident) | OpenFXTypeExpressive::Enum(ident, _) => {
-                OpenFXTypeSimple::String(ident.clone())
+            ExpressiveType::Double(ident) => SimpleType::Double(Some(ident.clone())),
+            ExpressiveType::String(ident) | ExpressiveType::Enum(ident, _) => {
+                SimpleType::String(Some(ident.clone()))
             }
-            OpenFXTypeExpressive::Pointer(ident) => OpenFXTypeSimple::Pointer(ident.clone()),
+            ExpressiveType::Pointer(ident) => SimpleType::Pointer(Some(ident.clone())),
         }
     }
 }

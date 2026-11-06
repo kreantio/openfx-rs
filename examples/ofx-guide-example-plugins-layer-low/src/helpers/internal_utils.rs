@@ -57,9 +57,8 @@ macro_rules! param_get_value_at_time{
                     .sys_ref()
                     .paramGetValueAtTime
                     .unwrap_unchecked();
-            let time = $time;
             ::openfx::low::InboundResult::from_sys(
-                param_get_value_at_time($param_handle, time, $(&mut $value),+)
+                param_get_value_at_time($param_handle, $time, $(&mut $value),+)
             )
         }
     }

@@ -3,7 +3,10 @@ use std::collections::HashMap;
 use proc_macro::TokenStream;
 use quote::{quote, quote_spanned};
 
-use crate::low_macros::utils::{self, make_doc_see_sys};
+use crate::{
+    common::{ParameterElementType, SimpleType},
+    low_macros::utils::{self, make_doc_see_sys},
+};
 
 mod inputs;
 use inputs::*;
@@ -229,7 +232,7 @@ fn make_property_getter(
         );
 
         let expressive_ty = preset.expressive_type(el_type.ident());
-        let simple_type = preset.simple_type();
+        let simple_type = preset.simple_type().quote_rust_type();
 
         let simple_to_expressive_quote =
             preset.simple_type_to_expressive_type(quote! { value_simple });
@@ -386,36 +389,36 @@ fn make_property_dimensions_getter(
     );
 }
 
-impl OpenFXTypeExpressive {
+impl ExpressiveType {
     fn make_impl_setter_preset(&self) -> Vec<Box<dyn ImplSetterPreset>> {
         match self {
-            OpenFXTypeExpressive::Int(_) => vec![Box::new(ImplAccessorsPresetInt)],
-            OpenFXTypeExpressive::Double(_) => vec![Box::new(ImplAccessorsPresetDouble)],
-            OpenFXTypeExpressive::Enum(_, name) => {
+            ExpressiveType::Int(_) => vec![Box::new(ImplAccessorsPresetInt)],
+            ExpressiveType::Double(_) => vec![Box::new(ImplAccessorsPresetDouble)],
+            ExpressiveType::Enum(_, name) => {
                 vec![Box::new(ImplAccessorsPresetEnum { name: name.clone() })]
             }
-            OpenFXTypeExpressive::Bool(_) => vec![Box::new(ImplAccessorsPresetBool)],
-            OpenFXTypeExpressive::String(_) => vec![Box::new(ImplAccessorsPresetString)],
-            OpenFXTypeExpressive::Pointer(_) => vec![Box::new(ImplAccessorsPresetPointer)],
+            ExpressiveType::Bool(_) => vec![Box::new(ImplAccessorsPresetBool)],
+            ExpressiveType::String(_) => vec![Box::new(ImplAccessorsPresetString)],
+            ExpressiveType::Pointer(_) => vec![Box::new(ImplAccessorsPresetPointer)],
         }
     }
     fn make_impl_getter_preset(&self) -> Vec<Box<dyn ImplGetterPreset>> {
         match self {
-            OpenFXTypeExpressive::Int(_) => vec![Box::new(ImplAccessorsPresetInt)],
-            OpenFXTypeExpressive::Double(_) => vec![Box::new(ImplAccessorsPresetDouble)],
-            OpenFXTypeExpressive::Enum(_, name) => {
+            ExpressiveType::Int(_) => vec![Box::new(ImplAccessorsPresetInt)],
+            ExpressiveType::Double(_) => vec![Box::new(ImplAccessorsPresetDouble)],
+            ExpressiveType::Enum(_, name) => {
                 vec![
                     Box::new(ImplAccessorsPresetEnum { name: name.clone() }),
                     Box::new(ImplGetterPresetEnumKnown { name: name.clone() }),
                     Box::new(ImplGetterPresetEnumOwned { name: name.clone() }),
                 ]
             }
-            OpenFXTypeExpressive::Bool(_) => vec![Box::new(ImplAccessorsPresetBool)],
-            OpenFXTypeExpressive::String(_) => vec![
+            ExpressiveType::Bool(_) => vec![Box::new(ImplAccessorsPresetBool)],
+            ExpressiveType::String(_) => vec![
                 Box::new(ImplAccessorsPresetString),
                 Box::new(ImplGetterPresetStringOwned),
             ],
-            OpenFXTypeExpressive::Pointer(_) => vec![Box::new(ImplAccessorsPresetPointer)],
+            ExpressiveType::Pointer(_) => vec![Box::new(ImplAccessorsPresetPointer)],
         }
     }
 }
@@ -470,7 +473,7 @@ trait ImplGetterPreset {
     fn additional_safety_doc(&self) -> Option<proc_macro2::TokenStream> {
         None
     }
-    fn simple_type(&self) -> proc_macro2::TokenStream;
+    fn simple_type(&self) -> SimpleType;
     /// The expressive type used in the `low` layer, i.e., the type of the value
     /// retrieved from the getter function that this preset adds.
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream;
@@ -500,8 +503,8 @@ impl ImplSetterPreset for ImplAccessorsPresetInt {
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetInt {
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::std::os::raw::c_int }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_int()
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         self.expressive_type(ident)
@@ -521,8 +524,8 @@ impl ImplSetterPreset for ImplAccessorsPresetDouble {
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetDouble {
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::core::primitive::f64 }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_double()
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         self.expressive_type(ident)
@@ -548,8 +551,8 @@ impl ImplSetterPreset for ImplAccessorsPresetBool {
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetBool {
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::std::os::raw::c_int }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_int()
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         self.expressive_type(ident)
@@ -581,8 +584,8 @@ impl ImplGetterPreset for ImplAccessorsPresetPointer {
             /// host.
         })
     }
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_void>> }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_pointer()
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         self.expressive_type(ident)
@@ -620,8 +623,8 @@ impl ImplGetterPreset for ImplAccessorsPresetString {
             /// host.
         })
     }
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_char>> }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_string()
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let c_char = quote_spanned! { ident.span() => c_char };
@@ -637,8 +640,8 @@ impl ImplGetterPreset for ImplGetterPresetStringOwned {
     fn fn_name_suffix(&self) -> Option<&'static str> {
         Some("owned")
     }
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_char>> }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_string()
     }
     fn expressive_type(&self, _ident: &syn::Ident) -> proc_macro2::TokenStream {
         quote! { ::std::option::Option<::std::ffi::CString> }
@@ -679,8 +682,8 @@ impl ImplGetterPreset for ImplAccessorsPresetEnum {
     fn simple_type_suffix(&self) -> Option<&'static str> {
         Self::SIMPLE_TYPE_SUFFIX
     }
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_char>> }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_string()
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let name = &self.name;
@@ -709,8 +712,8 @@ impl ImplGetterPreset for ImplGetterPresetEnumKnown {
     fn fn_name_suffix(&self) -> Option<&'static str> {
         Some("known")
     }
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_char>> }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_string()
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let name = &self.name;
@@ -739,8 +742,8 @@ impl ImplGetterPreset for ImplGetterPresetEnumOwned {
     fn fn_name_suffix(&self) -> Option<&'static str> {
         Some("owned")
     }
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_char>> }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_string()
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let name = &self.name;
@@ -760,13 +763,13 @@ impl ImplGetterPreset for ImplGetterPresetEnumOwned {
 }
 
 enum MonomorphizedContainerType {
-    Scalar(OpenFXTypeExpressive),
-    Array(OpenFXTypeExpressive, usize),
-    Slice(OpenFXTypeExpressive),
+    Scalar(ExpressiveType),
+    Array(ExpressiveType, usize),
+    Slice(ExpressiveType),
 }
 
 impl MonomorphizedContainerType {
-    fn element_type(&self) -> &OpenFXTypeExpressive {
+    fn element_type(&self) -> &ExpressiveType {
         match self {
             Self::Scalar(ty) => ty,
             Self::Array(ty, _) => ty,
@@ -798,31 +801,25 @@ impl InputContainerType {
                     ));
                 };
                 let ty = match m_ty.element_type {
-                    InputPropertySetMonomorphizationElementType::Int => {
-                        ty.int.clone().map(OpenFXTypeExpressive::Int)
+                    ParameterElementType::Int => ty.int.clone().map(ExpressiveType::Int),
+                    ParameterElementType::Double => ty.double.clone().map(ExpressiveType::Double),
+                    ParameterElementType::String => ty.string.clone().map(ExpressiveType::String),
+                    ParameterElementType::Pointer => {
+                        ty.pointer.clone().map(ExpressiveType::Pointer)
                     }
-                    InputPropertySetMonomorphizationElementType::Double => {
-                        ty.double.clone().map(OpenFXTypeExpressive::Double)
-                    }
-                    InputPropertySetMonomorphizationElementType::String => {
-                        ty.string.clone().map(OpenFXTypeExpressive::String)
-                    }
-                    InputPropertySetMonomorphizationElementType::Pointer => {
-                        ty.pointer.clone().map(OpenFXTypeExpressive::Pointer)
-                    }
-                    InputPropertySetMonomorphizationElementType::Bool => ty
+                    ParameterElementType::Bool => ty
                         .bool
                         .as_ref()
                         .or(ty.int.as_ref())
                         .cloned()
-                        .map(OpenFXTypeExpressive::Bool),
+                        .map(ExpressiveType::Bool),
                 };
                 let Some(ty) = ty else {
                     return Err(syn::Error::new_spanned(
                         ident,
                         format!(
                             "This generic property cannot be monomorphized as {}",
-                            m_ty.element_type.name()
+                            m_ty.element_type
                         ),
                     ));
                 };

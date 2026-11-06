@@ -343,3 +343,56 @@ impl ParameterSuiteV1 {
             .map_ok(|()| unsafe { prop_handle.assume_init() })
     }
 }
+
+macro_rules! param_get_value {
+    (
+        $parameter_suite:expr,
+        $param_handle:expr,
+        $(&mut $value:ident),+ $(,)?
+    ) => {
+        {
+            let sys_fn = crate::low_plugin::internal_macros::sys_fn!($parameter_suite, paramGetValue);
+            crate::low::InboundResult::from_sys(unsafe {
+                sys_fn(param_handle, $(&mut $value),+)
+            })
+        }
+    }
+}
+pub(crate) use param_get_value;
+
+macro_rules! param_get_value_at_time {
+    (
+        $parameter_suite:expr,
+        $param_handle:expr,
+        $time:expr,
+        $(&mut $value:ident),+ $(,)?
+    ) => {
+        {
+            let sys_fn = crate::low_plugin::internal_macros::sys_fn!($parameter_suite, paramGetValueAtTime);
+            crate::low::InboundResult::from_sys(unsafe {
+                sys_fn(param_handle, $time, $(&mut $value),+)
+            })
+        }
+    }
+}
+pub(crate) use param_get_value_at_time;
+
+macro_rules! param_get_derivative {
+    () => {};
+}
+pub(crate) use param_get_derivative;
+
+macro_rules! param_get_integral {
+    () => {};
+}
+pub(crate) use param_get_integral;
+
+macro_rules! param_set_value {
+    () => {};
+}
+pub(crate) use param_set_value;
+
+macro_rules! param_set_value_at_time {
+    () => {};
+}
+pub(crate) use param_set_value_at_time;
