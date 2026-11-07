@@ -34,9 +34,9 @@ pub fn low_make_object_struct(tokens: TokenStream) -> TokenStream {
     low_macros::make_object_struct::make_object_struct(tokens)
 }
 
-#[proc_macro]
-pub fn low_make_parameter_struct(tokens: TokenStream) -> TokenStream {
-    low_macros::make_parameter_struct::make_parameter_struct(tokens)
+#[proc_macro_attribute]
+pub fn low_make_parameter_types(attr: TokenStream, item: TokenStream) -> TokenStream {
+    low_macros::make_parameter_types::make_parameter_types(attr, item)
 }
 
 #[proc_macro_attribute]

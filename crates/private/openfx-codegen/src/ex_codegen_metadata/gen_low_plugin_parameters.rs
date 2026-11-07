@@ -20,9 +20,7 @@ pub fn gen_low_plugin_parameters(
     output_file: &Path,
     metadata: &InputMetadata,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut output = quote! {
-        use openfx_internal_macros::low_make_parameter_struct;
-    };
+    let mut output = proc_macro2::TokenStream::new();
 
     {
         let output_make_structs = process_make_parameter_structs(config)?;
@@ -45,22 +43,36 @@ pub fn gen_low_plugin_parameters(
 fn process_make_parameter_structs(
     config: &CodegenConfig,
 ) -> Result<proc_macro2::TokenStream, Box<dyn std::error::Error>> {
-    let mut output = proc_macro2::TokenStream::new();
+    let mut output_inner = proc_macro2::TokenStream::new();
 
     for (parameter_type_name, entry) in &config.parameters.mapping {
-        let ty = if let Some(ty) = &entry.r#type {
-            quote_type(ty)
-        } else {
-            quote! { None }
-        };
-
+        // let ty = if let Some(ty) = &entry.r#type {
+        //     quote_type(ty)
+        // } else {
+        //     quote! { None }
+        // };
+        let ty = entry.r#type.as_ref().map(quote_type);
         let struct_name = new_ident(format!("Param{parameter_type_name}"));
-        output.extend(quote! {
-            low_make_parameter_struct!(#struct_name, type = #ty);
-        });
+
+        if let Some(ty) = &ty {
+            output_inner.extend(quote! {
+                #[param_type]
+                struct #struct_name(#ty);
+            });
+        } else {
+            output_inner.extend(quote! {
+                #[param_type]
+                struct #struct_name;
+            });
+        }
     }
 
-    Ok(output)
+    Ok(quote! {
+        #[openfx_internal_macros::low_make_parameter_types]
+        mod __ {
+            #output_inner
+        }
+    })
 }
 
 fn process_parameter_property_sets(

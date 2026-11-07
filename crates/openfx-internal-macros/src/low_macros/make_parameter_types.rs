@@ -3,17 +3,32 @@ use quote::{quote, quote_spanned};
 
 use crate::{
     common::{ParameterElementType, ParameterType, SimpleType},
-    low_macros::utils::make_doc_see_sys,
+    low_macros::utils::{self, make_doc_see_sys},
 };
 
-/// This is copied from [`super::make_object_struct::make_object_struct`].
-pub fn make_parameter_struct(tokens: TokenStream) -> TokenStream {
-    let Input { simple_ident, ty } = syn::parse_macro_input!(tokens as Input);
+pub fn make_parameter_types(attr: TokenStream, item: TokenStream) -> TokenStream {
+    if let Err(error) = utils::err_if_attribute_is_not_empty(attr) {
+        return error;
+    }
+
+    let input = syn::parse_macro_input!(item as Input);
+
+    let mut output = proc_macro2::TokenStream::new();
+
+    for input_param_type in &input.param_types {
+        make_parameter_struct(&mut output, input_param_type);
+    }
+
+    output.into()
+}
+
+fn make_parameter_struct(output: &mut proc_macro2::TokenStream, input: &InputParamType) {
+    let InputParamType { simple_ident, ty } = input;
 
     let doc_see_sys =
         make_doc_see_sys(&["OfxParamHandle", &format!("kOfxParamType{simple_ident}")]);
 
-    let mut output = quote! {
+    output.extend(quote! {
         #doc_see_sys
         ///
         /// ## Safety
@@ -39,7 +54,7 @@ pub fn make_parameter_struct(tokens: TokenStream) -> TokenStream {
                 value.sys_handle()
             }
         }
-    };
+    });
 
     output.extend(quote! {
         impl #simple_ident {
@@ -156,11 +171,9 @@ pub fn make_parameter_struct(tokens: TokenStream) -> TokenStream {
     });
 
     if let Some(ty) = ty {
-        make_setters(&mut output);
-        make_getters(&mut output, &simple_ident, &ty);
+        make_setters(output);
+        make_getters(output, simple_ident, ty);
     }
-
-    output.into()
 }
 
 fn make_setters(output: &mut proc_macro2::TokenStream) {
@@ -344,22 +357,6 @@ fn make_getters(
                 }
             })
         }
-    }
-}
-
-struct Input {
-    simple_ident: syn::Ident,
-    ty: Option<ParameterType>,
-}
-
-impl syn::parse::Parse for Input {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let simple_ident: syn::Ident = input.parse()?;
-        let _: syn::Token![,] = input.parse()?;
-        let _: syn::Token![type] = input.parse()?;
-        let _: syn::Token![=] = input.parse()?;
-        let ty = ParameterType::parse_option(input)?;
-        Ok(Input { simple_ident, ty })
     }
 }
 
@@ -566,5 +563,72 @@ impl ImplGetterPreset for ImplAccessorsPresetStringOwned {
         Some(
             quote! { if #simple_val.is_null() { None } else { Some(::std::ffi::CStr::from_ptr(#simple_val).to_owned()) } },
         )
+    }
+}
+
+/// ## Examples
+///
+/// ```rust,ignore
+/// #[make_parameter_structs]
+/// mod __ {
+///     #[param_type]
+///     struct ParamBoolean([Bool; 1]);
+///     // …
+///     #[param_type]
+///     struct ParamGroup;
+///     // …
+/// }
+/// ```
+struct Input {
+    param_types: Vec<InputParamType>,
+}
+
+impl syn::parse::Parse for Input {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let _: syn::Token![mod] = input.parse()?;
+        let mod_name = input.parse::<syn::Ident>()?;
+        if mod_name != "__" {
+            return Err(syn::Error::new_spanned(
+                mod_name,
+                "expected module name `__`",
+            ));
+        }
+        let body;
+        syn::braced!(body in input);
+        let mut param_types = vec![];
+        while !body.is_empty() {
+            param_types.push(body.parse()?);
+        }
+        Ok(Input { param_types })
+    }
+}
+
+struct InputParamType {
+    simple_ident: syn::Ident,
+    ty: Option<ParameterType>,
+}
+impl syn::parse::Parse for InputParamType {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let _: syn::Token![#] = input.parse()?;
+        let meta;
+        syn::bracketed!(meta in input);
+        let meta_name: syn::Ident = meta.parse()?;
+        if meta_name != "param_type" {
+            return Err(syn::Error::new_spanned(meta_name, "expected `param_type`"));
+        }
+
+        let _: syn::Token![struct] = input.parse()?;
+        let simple_ident: syn::Ident = input.parse()?;
+        let ty = if input.peek(syn::Token![;]) {
+            let _: syn::Token![;] = input.parse()?;
+            None
+        } else {
+            let struct_body;
+            syn::parenthesized!(struct_body in input);
+            let _: syn::Token![;] = input.parse()?;
+            Some(struct_body.parse()?)
+        };
+
+        Ok(InputParamType { simple_ident, ty })
     }
 }
