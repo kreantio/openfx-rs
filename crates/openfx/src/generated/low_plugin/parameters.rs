@@ -1,21 +1,40 @@
-use openfx_internal_macros::low_make_parameter_struct;
-low_make_parameter_struct ! (ParamBoolean , type = [Bool ; 1]);
-low_make_parameter_struct ! (ParamBytes , type = [Pointer ; 1]);
-low_make_parameter_struct ! (ParamChoice , type = [Int ; 1]);
-low_make_parameter_struct ! (ParamCustom , type = [String ; 1]);
-low_make_parameter_struct ! (ParamDouble , type = [Double ; 1]);
-low_make_parameter_struct ! (ParamDouble2D , type = [Double ; 2]);
-low_make_parameter_struct ! (ParamDouble3D , type = [Double ; 3]);
-low_make_parameter_struct ! (ParamGroup , type = None);
-low_make_parameter_struct ! (ParamInteger , type = [Int ; 1]);
-low_make_parameter_struct ! (ParamInteger2D , type = [Int ; 2]);
-low_make_parameter_struct ! (ParamInteger3D , type = [Int ; 3]);
-low_make_parameter_struct ! (ParamPage , type = None);
-low_make_parameter_struct ! (ParamPushButton , type = None);
-low_make_parameter_struct ! (ParamRGB , type = [Double ; 3]);
-low_make_parameter_struct ! (ParamRGBA , type = [Double ; 4]);
-low_make_parameter_struct ! (ParamStrChoice , type = [String ; 1]);
-low_make_parameter_struct ! (ParamString , type = [String ; 1]);
+#[openfx_internal_macros::low_make_parameter_types]
+mod __ {
+    #[param_type]
+    struct ParamBoolean([Bool; 1]);
+    #[param_type]
+    struct ParamBytes([Pointer; 1]);
+    #[param_type]
+    struct ParamChoice([Int; 1]);
+    #[param_type]
+    struct ParamCustom([String; 1]);
+    #[param_type]
+    struct ParamDouble([Double; 1]);
+    #[param_type]
+    struct ParamDouble2D([Double; 2]);
+    #[param_type]
+    struct ParamDouble3D([Double; 3]);
+    #[param_type]
+    struct ParamGroup;
+    #[param_type]
+    struct ParamInteger([Int; 1]);
+    #[param_type]
+    struct ParamInteger2D([Int; 2]);
+    #[param_type]
+    struct ParamInteger3D([Int; 3]);
+    #[param_type]
+    struct ParamPage;
+    #[param_type]
+    struct ParamPushButton;
+    #[param_type]
+    struct ParamRGB([Double; 3]);
+    #[param_type]
+    struct ParamRGBA([Double; 4]);
+    #[param_type]
+    struct ParamStrChoice([String; 1]);
+    #[param_type]
+    struct ParamString([String; 1]);
+}
 #[openfx_internal_macros::low_make_property_set_structs]
 mod __ {
     # [propset (monomorphization = { type = [Bool ; 1] , allow_list = [param_default] } , write = plugin , refs = ParamsAllButGroupPage + ParamsCommon + ParamsValue)]
