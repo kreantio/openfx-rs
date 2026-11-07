@@ -51,32 +51,32 @@ impl SimpleType {
 
     pub fn name_snake_case(&self) -> &str {
         match self {
-            SimpleType::Int(_) => "int",
-            SimpleType::Double(_) => "double",
-            SimpleType::String(_) => "string",
-            SimpleType::Pointer(_) => "pointer",
+            Self::Int(_) => "int",
+            Self::Double(_) => "double",
+            Self::String(_) => "string",
+            Self::Pointer(_) => "pointer",
         }
     }
 
     pub fn quote_rust_type(&self) -> proc_macro2::TokenStream {
         match self {
-            SimpleType::Int(ident) => {
+            Self::Int(ident) => {
                 let c_int = if let Some(ident) = ident {
                     quote_spanned! { ident.span() => c_int }
                 } else {
                     quote! { c_int }
                 };
-                quote! { ::std::os::raw::#c_int }
+                quote! { ::std::ffi::#c_int }
             }
-            SimpleType::Double(ident) => {
+            Self::Double(ident) => {
                 let f64 = if let Some(ident) = ident {
                     quote_spanned! { ident.span() => f64 }
                 } else {
                     quote! { f64 }
                 };
-                quote! { ::core::primitive::#f64 }
+                quote! { ::std::primitive::#f64 }
             }
-            SimpleType::String(ident) => {
+            Self::String(ident) => {
                 let c_char = if let Some(ident) = ident {
                     quote_spanned! { ident.span() => c_char }
                 } else {
@@ -84,13 +84,50 @@ impl SimpleType {
                 };
                 quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::#c_char>> }
             }
-            SimpleType::Pointer(ident) => {
+            Self::Pointer(ident) => {
                 let c_void = if let Some(ident) = ident {
                     quote_spanned! { ident.span() => c_void }
                 } else {
                     quote! { c_void }
                 };
                 quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::#c_void>> }
+            }
+        }
+    }
+
+    pub fn quote_rust_ffi_type(&self) -> proc_macro2::TokenStream {
+        match self {
+            Self::Int(ident) => {
+                let c_int = if let Some(ident) = ident {
+                    quote_spanned! { ident.span() => c_int }
+                } else {
+                    quote! { c_int }
+                };
+                quote! { ::std::ffi::#c_int }
+            }
+            Self::Double(ident) => {
+                let f64 = if let Some(ident) = ident {
+                    quote_spanned! { ident.span() => f64 }
+                } else {
+                    quote! { f64 }
+                };
+                quote! { ::std::primitive::#f64 }
+            }
+            Self::String(ident) => {
+                let c_char = if let Some(ident) = ident {
+                    quote_spanned! { ident.span() => c_char }
+                } else {
+                    quote! { c_char }
+                };
+                quote! { *mut ::std::ffi::#c_char }
+            }
+            Self::Pointer(ident) => {
+                let c_void = if let Some(ident) = ident {
+                    quote_spanned! { ident.span() => c_void }
+                } else {
+                    quote! { c_void }
+                };
+                quote! { *mut ::std::ffi::#c_void }
             }
         }
     }
@@ -102,11 +139,11 @@ pub struct ParameterType {
 }
 
 pub enum ParameterElementType {
-    Int,
-    Double,
-    String,
-    Pointer,
-    Bool,
+    Int(syn::Ident),
+    Double(syn::Ident),
+    String(syn::Ident),
+    Pointer(syn::Ident),
+    Bool(syn::Ident),
 }
 
 impl syn::parse::Parse for ParameterType {
@@ -115,11 +152,11 @@ impl syn::parse::Parse for ParameterType {
         syn::parenthesized!(type_content in input);
         let element_type = type_content.parse::<syn::Ident>()?;
         let element_type = match element_type.to_string().as_str() {
-            "Int" => ParameterElementType::Int,
-            "Double" => ParameterElementType::Double,
-            "String" => ParameterElementType::String,
-            "Pointer" => ParameterElementType::Pointer,
-            "Bool" => ParameterElementType::Bool,
+            "Int" => ParameterElementType::Int(element_type.clone()),
+            "Double" => ParameterElementType::Double(element_type.clone()),
+            "String" => ParameterElementType::String(element_type.clone()),
+            "Pointer" => ParameterElementType::Pointer(element_type.clone()),
+            "Bool" => ParameterElementType::Bool(element_type.clone()),
             _ => {
                 return Err(syn::Error::new_spanned(
                     element_type,
@@ -159,11 +196,33 @@ impl ParameterType {
 impl std::fmt::Display for ParameterElementType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ParameterElementType::Int => write!(f, "Int"),
-            ParameterElementType::Double => write!(f, "Double"),
-            ParameterElementType::String => write!(f, "String"),
-            ParameterElementType::Pointer => write!(f, "Pointer"),
-            ParameterElementType::Bool => write!(f, "Bool"),
+            Self::Int(_) => write!(f, "Int"),
+            Self::Double(_) => write!(f, "Double"),
+            Self::String(_) => write!(f, "String"),
+            Self::Pointer(_) => write!(f, "Pointer"),
+            Self::Bool(_) => write!(f, "Bool"),
+        }
+    }
+}
+
+impl ParameterElementType {
+    pub fn ident(&self) -> &syn::Ident {
+        match self {
+            Self::Int(ident) => ident,
+            Self::Double(ident) => ident,
+            Self::String(ident) => ident,
+            Self::Pointer(ident) => ident,
+            Self::Bool(ident) => ident,
+        }
+    }
+
+    pub fn simple(&self) -> SimpleType {
+        match self {
+            Self::Int(ident) => SimpleType::Int(Some(ident.clone())),
+            Self::Double(ident) => SimpleType::Double(Some(ident.clone())),
+            Self::String(ident) => SimpleType::String(Some(ident.clone())),
+            Self::Pointer(ident) => SimpleType::Pointer(Some(ident.clone())),
+            Self::Bool(ident) => SimpleType::Int(Some(ident.clone())),
         }
     }
 }

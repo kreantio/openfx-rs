@@ -1,5 +1,5 @@
 macro_rules! sys_fn {
-    ($self:ident, $ident:ident) => {
+    ($self:expr, $ident:ident) => {
         $self.sys_ref().$ident.unwrap_unchecked()
     };
 }
