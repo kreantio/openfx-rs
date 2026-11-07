@@ -193,7 +193,7 @@ parameters:
     - kOfxParamPropMax
     - kOfxParamPropMin
     - kOfxParamPropDefault
-  parametic_parameter: # NOTE: This configuration is currently unused.
+  parametric_parameter: # NOTE: This configuration is currently unused.
     # TODO: `struct ParamParametric<const N: c_int>`?
     property_set: ParamsParametric
 
