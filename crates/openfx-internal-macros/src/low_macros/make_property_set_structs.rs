@@ -643,8 +643,9 @@ impl ImplGetterPreset for ImplGetterPresetStringOwned {
     fn simple_type(&self) -> SimpleType {
         SimpleType::new_string()
     }
-    fn expressive_type(&self, _ident: &syn::Ident) -> proc_macro2::TokenStream {
-        quote! { ::std::option::Option<::std::ffi::CString> }
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        let cstring = quote_spanned! { ident.span() => CString };
+        quote! { ::std::option::Option<::std::ffi::#cstring> }
     }
     fn simple_type_to_expressive_type(
         &self,
