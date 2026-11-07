@@ -54,14 +54,28 @@ fn process_make_parameter_structs(
         let ty = entry.r#type.as_ref().map(quote_type);
         let struct_name = new_ident(format!("Param{parameter_type_name}"));
 
+        let mut meta_args: Vec<proc_macro2::TokenStream> = vec![];
+        if entry.flags.is_derivable {
+            meta_args.push(quote! { derivable });
+        }
+        if entry.flags.is_integrable {
+            meta_args.push(quote! { integrable });
+        }
+
+        let attr = if meta_args.is_empty() {
+            quote! { #[param_type] }
+        } else {
+            quote! { #[param_type( #( #meta_args ),* )] }
+        };
+
         if let Some(ty) = &ty {
             output_inner.extend(quote! {
-                #[param_type]
+                #attr
                 struct #struct_name(#ty);
             });
         } else {
             output_inner.extend(quote! {
-                #[param_type]
+                #attr
                 struct #struct_name;
             });
         }

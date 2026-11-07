@@ -8,11 +8,11 @@ mod __ {
     struct ParamChoice([Int; 1]);
     #[param_type]
     struct ParamCustom([String; 1]);
-    #[param_type]
+    #[param_type(derivable, integrable)]
     struct ParamDouble([Double; 1]);
-    #[param_type]
+    #[param_type(derivable, integrable)]
     struct ParamDouble2D([Double; 2]);
-    #[param_type]
+    #[param_type(derivable, integrable)]
     struct ParamDouble3D([Double; 3]);
     #[param_type]
     struct ParamGroup;
@@ -26,9 +26,9 @@ mod __ {
     struct ParamPage;
     #[param_type]
     struct ParamPushButton;
-    #[param_type]
+    #[param_type(derivable, integrable)]
     struct ParamRGB([Double; 3]);
-    #[param_type]
+    #[param_type(derivable, integrable)]
     struct ParamRGBA([Double; 4]);
     #[param_type]
     struct ParamStrChoice([String; 1]);

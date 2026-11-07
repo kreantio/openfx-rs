@@ -378,12 +378,37 @@ macro_rules! param_get_value_at_time {
 pub(crate) use param_get_value_at_time;
 
 macro_rules! param_get_derivative {
-    () => {};
+    (
+        $parameter_suite:expr,
+        $param_handle:expr,
+        $time:expr,
+        $(&mut $value:expr),+ $(,)?
+    ) => {
+        {
+            let sys_fn = crate::low_plugin::internal_macros::sys_fn!($parameter_suite, paramGetDerivative);
+            crate::low::InboundResult::from_sys(
+                sys_fn($param_handle.sys_handle(), $time, $(&mut $value),+)
+            )
+        }
+    }
 }
 pub(crate) use param_get_derivative;
 
 macro_rules! param_get_integral {
-    () => {};
+    (
+        $parameter_suite:expr,
+        $param_handle:expr,
+        $time1:expr,
+        $time2:expr,
+        $(&mut $value:expr),+ $(,)?
+    ) => {
+        {
+            let sys_fn = crate::low_plugin::internal_macros::sys_fn!($parameter_suite, paramGetIntegral);
+            crate::low::InboundResult::from_sys(
+                sys_fn($param_handle.sys_handle(), $time1, $time2, $(&mut $value),+)
+            )
+        }
+    }
 }
 pub(crate) use param_get_integral;
 

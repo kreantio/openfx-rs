@@ -82,6 +82,8 @@ pub struct CodegenConfigParameterMappingEntry {
     pub property_set: String,
     #[serde(rename = "ty")]
     pub r#type: Option<CodegenConfigParameterMappingEntryType>,
+    #[serde(default)]
+    pub flags: CodegenConfigParameterMappingEntryFlags,
 }
 
 pub struct CodegenConfigParameterMappingEntryType {
@@ -110,6 +112,34 @@ pub enum CodegenConfigParameterMappingEntryElementType {
     String,
     Pointer,
     Bool,
+}
+
+#[derive(Default)]
+pub struct CodegenConfigParameterMappingEntryFlags {
+    pub is_derivable: bool,
+    pub is_integrable: bool,
+}
+
+impl<'de> serde::Deserialize<'de> for CodegenConfigParameterMappingEntryFlags {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s: String = serde::Deserialize::deserialize(deserializer)?;
+        let mut flags: BTreeSet<char> = s.chars().collect();
+        let is_derivable = flags.remove(&'d');
+        let is_integrable = flags.remove(&'i');
+        if !flags.is_empty() {
+            return Err(serde::de::Error::custom(format!(
+                "Unknown flags: {:?}",
+                flags
+            )));
+        }
+        Ok(Self {
+            is_derivable,
+            is_integrable,
+        })
+    }
 }
 
 #[derive(serde::Deserialize)]

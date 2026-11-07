@@ -23,7 +23,11 @@ pub fn make_parameter_types(attr: TokenStream, item: TokenStream) -> TokenStream
 }
 
 fn make_parameter_struct(output: &mut proc_macro2::TokenStream, input: &InputParamType) {
-    let InputParamType { simple_ident, ty } = input;
+    let InputParamType {
+        simple_ident,
+        flags,
+        ty,
+    } = input;
 
     let doc_see_sys =
         make_doc_see_sys(&["OfxParamHandle", &format!("kOfxParamType{simple_ident}")]);
@@ -172,7 +176,7 @@ fn make_parameter_struct(output: &mut proc_macro2::TokenStream, input: &InputPar
 
     if let Some(ty) = ty {
         make_setters(output);
-        make_getters(output, simple_ident, ty);
+        make_getters(output, simple_ident, ty, flags);
     }
 }
 
@@ -184,6 +188,7 @@ fn make_getters(
     output: &mut proc_macro2::TokenStream,
     parameter_type_name_ident: &syn::Ident,
     ty: &ParameterType,
+    flags: &InputParamTypeFlags,
 ) {
     struct Things {
         param_ty_quote: proc_macro2::TokenStream,
@@ -357,6 +362,99 @@ fn make_getters(
                 }
             })
         }
+
+        if let Some(derivable) = &flags.derivable {
+            let fn_name = syn::Ident::new(
+                &format!(
+                    "param_get_derivative{}",
+                    preset
+                        .fn_name_suffix()
+                        .map_or(String::new(), |s| format!("_{s}"))
+                ),
+                derivable.span(),
+            );
+            let mut doc = quote! {
+                /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramGetDerivative`]
+                ///
+                /// ## Safety
+                ///
+                /// `self` and `parameter_suite` must be valid.
+            };
+            if let Some(additional_safety_doc) = preset.additional_safety_doc() {
+                doc.extend(quote! {
+                    ///
+                });
+                doc.extend(additional_safety_doc);
+            }
+
+            output.extend(quote! {
+                impl #parameter_type_name_ident {
+                    #doc
+                    pub unsafe fn #fn_name(
+                        &self,
+                        parameter_suite: &crate::low_plugin::suites::ParameterSuiteV1,
+                        time: crate::sys_umbrella::OfxTime,
+                    ) -> crate::low::InboundResult<#param_ty_quote> {
+                        #simple_value_init_quote;
+                        unsafe {
+                            crate::low_plugin::suites::parameter_suite::param_get_derivative!(
+                                parameter_suite, self, time, #simple_value_mut_refs_quote
+                            ).map_ok(|()| {
+                                #param_value_from_simple_value_quote
+                                param_value
+                            })
+                        }
+                    }
+                }
+            })
+        }
+
+        if let Some(integrable) = &flags.integrable {
+            let fn_name = syn::Ident::new(
+                &format!(
+                    "param_get_integral{}",
+                    preset
+                        .fn_name_suffix()
+                        .map_or(String::new(), |s| format!("_{s}"))
+                ),
+                integrable.span(),
+            );
+            let mut doc = quote! {
+                /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramGetIntegral`]
+                ///
+                /// ## Safety
+                ///
+                /// `self` and `parameter_suite` must be valid.
+            };
+            if let Some(additional_safety_doc) = preset.additional_safety_doc() {
+                doc.extend(quote! {
+                    ///
+                });
+                doc.extend(additional_safety_doc);
+            }
+
+            output.extend(quote! {
+                impl #parameter_type_name_ident {
+                    #doc
+                    pub unsafe fn #fn_name(
+                        &self,
+                        parameter_suite: &crate::low_plugin::suites::ParameterSuiteV1,
+                        time1: crate::sys_umbrella::OfxTime,
+                        time2: crate::sys_umbrella::OfxTime,
+                    ) -> crate::low::InboundResult<#param_ty_quote> {
+                        #simple_value_init_quote;
+                        unsafe {
+                            crate::low_plugin::suites::parameter_suite::param_get_integral!(
+                                parameter_suite, self, time1, time2, #simple_value_mut_refs_quote
+                            ).map_ok(|()| {
+                                #param_value_from_simple_value_quote
+                                param_value
+                            })
+                        }
+                    }
+                }
+            })
+        }
     }
 }
 
@@ -412,7 +510,6 @@ trait ImplGetterPreset {
     fn additional_safety_doc(&self) -> Option<proc_macro2::TokenStream> {
         None
     }
-    fn simple_type(&self) -> SimpleType;
     fn parameter_element_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream;
     fn simple_type_to_parameter_element_type(
         &self,
@@ -429,9 +526,6 @@ impl ImplSetterPreset for ImplAccessorsPresetInt {
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetInt {
-    fn simple_type(&self) -> SimpleType {
-        SimpleType::new_int()
-    }
     fn parameter_element_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let c_int = quote_spanned! { ident.span() => c_int };
         quote! { ::std::ffi::#c_int }
@@ -445,9 +539,6 @@ impl ImplSetterPreset for ImplAccessorsPresetDouble {
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetDouble {
-    fn simple_type(&self) -> SimpleType {
-        SimpleType::new_double()
-    }
     fn parameter_element_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let f64 = quote_spanned! { ident.span() => f64 };
         quote! { ::std::primitive::#f64 }
@@ -467,9 +558,6 @@ impl ImplSetterPreset for ImplAccessorsPresetBool {
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetBool {
-    fn simple_type(&self) -> SimpleType {
-        SimpleType::new_int()
-    }
     fn parameter_element_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let bool = quote_spanned! { ident.span() => bool };
         quote! { ::std::primitive::#bool }
@@ -501,9 +589,6 @@ impl ImplGetterPreset for ImplAccessorsPresetPointer {
             /// host.
         })
     }
-    fn simple_type(&self) -> SimpleType {
-        SimpleType::new_pointer()
-    }
     fn parameter_element_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let c_void = quote_spanned! { ident.span() => c_void };
         quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::#c_void>> }
@@ -529,9 +614,6 @@ impl ImplSetterPreset for ImplAccessorsPresetString {
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetString {
-    fn simple_type(&self) -> SimpleType {
-        SimpleType::new_pointer()
-    }
     fn parameter_element_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let c_char = quote_spanned! { ident.span() => c_char };
         quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::#c_char>> }
@@ -548,9 +630,6 @@ struct ImplAccessorsPresetStringOwned;
 impl ImplGetterPreset for ImplAccessorsPresetStringOwned {
     fn fn_name_suffix(&self) -> Option<&'static str> {
         Some("owned")
-    }
-    fn simple_type(&self) -> SimpleType {
-        SimpleType::new_pointer()
     }
     fn parameter_element_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let cstring = quote_spanned! { ident.span() => CString };
@@ -573,6 +652,8 @@ impl ImplGetterPreset for ImplAccessorsPresetStringOwned {
 /// mod __ {
 ///     #[param_type]
 ///     struct ParamBoolean([Bool; 1]);
+///     #[param_type(derivable, integrable)]
+///     struct ParamDouble([Double; 1]);
 ///     // …
 ///     #[param_type]
 ///     struct ParamGroup;
@@ -605,6 +686,7 @@ impl syn::parse::Parse for Input {
 
 struct InputParamType {
     simple_ident: syn::Ident,
+    flags: InputParamTypeFlags,
     ty: Option<ParameterType>,
 }
 impl syn::parse::Parse for InputParamType {
@@ -615,6 +697,24 @@ impl syn::parse::Parse for InputParamType {
         let meta_name: syn::Ident = meta.parse()?;
         if meta_name != "param_type" {
             return Err(syn::Error::new_spanned(meta_name, "expected `param_type`"));
+        }
+        let mut flags = InputParamTypeFlags::default();
+        if !meta.is_empty() {
+            let args;
+            syn::parenthesized!(args in meta);
+            while !args.is_empty() {
+                let flag: syn::Ident = args.parse()?;
+                if flag == "derivable" {
+                    flags.derivable = Some(flag);
+                } else if flag == "integrable" {
+                    flags.integrable = Some(flag);
+                } else {
+                    return Err(syn::Error::new_spanned(flag, "unknown flag"));
+                }
+                if args.peek(syn::Token![,]) {
+                    let _: syn::Token![,] = args.parse()?;
+                }
+            }
         }
 
         let _: syn::Token![struct] = input.parse()?;
@@ -629,6 +729,16 @@ impl syn::parse::Parse for InputParamType {
             Some(struct_body.parse()?)
         };
 
-        Ok(InputParamType { simple_ident, ty })
+        Ok(InputParamType {
+            simple_ident,
+            flags,
+            ty,
+        })
     }
+}
+
+#[derive(Default)]
+struct InputParamTypeFlags {
+    derivable: Option<syn::Ident>,
+    integrable: Option<syn::Ident>,
 }
