@@ -4,6 +4,8 @@ use quote::quote;
 
 use openfx_codegen_config::CodegenConfig;
 
+use crate::utils::new_ident;
+
 pub fn gen_low_statuses(
     config: &CodegenConfig,
     output_file: &Path,
@@ -14,7 +16,7 @@ pub fn gen_low_statuses(
     let mut non_main_ones: HashSet<String> = HashSet::new();
     for group in &config.statuses.identical_ones {
         if let Some((main, rest)) = group.split_first() {
-            let main_ident = syn::Ident::new(main, proc_macro2::Span::call_site());
+            let main_ident = new_ident(main);
             non_main_ones.extend(
                 rest.iter()
                     .map(|x| {
@@ -27,7 +29,7 @@ pub fn gen_low_statuses(
                     .collect::<Result<Vec<String>, _>>()?,
             );
             for non_main in rest {
-                let non_main_ident = syn::Ident::new(non_main, proc_macro2::Span::call_site());
+                let non_main_ident = new_ident(non_main);
                 output.extend(quote! {
                     const _: () = assert!(crate::sys_umbrella::#main_ident == crate::sys_umbrella::#non_main_ident);
                 });
@@ -57,7 +59,7 @@ pub fn gen_low_statuses(
                     .matches(status)
             })
             .collect();
-        let enum_name_ident = syn::Ident::new("StatusError", proc_macro2::Span::call_site());
+        let enum_name_ident = new_ident("StatusError");
         gen_group(&mut output, &enum_name_ident, statuses_errors)?;
     }
 
@@ -72,7 +74,7 @@ pub fn gen_low_statuses(
                     .matches(status)
             })
             .collect();
-        let enum_name_ident = syn::Ident::new("StatusReply", proc_macro2::Span::call_site());
+        let enum_name_ident = new_ident("StatusReply");
         gen_group(&mut output, &enum_name_ident, statuses_replies)?;
     }
 
@@ -96,17 +98,9 @@ fn gen_group(
 
     let status_sys_idents = statuses
         .iter()
-        .map(|status| {
-            syn::Ident::new(
-                &format!("kOfxStat{}", status),
-                proc_macro2::Span::call_site(),
-            )
-        })
+        .map(|status| new_ident(format!("kOfxStat{}", status)))
         .collect::<Vec<_>>();
-    let statuses = statuses
-        .iter()
-        .map(|status| syn::Ident::new(status, proc_macro2::Span::call_site()))
-        .collect::<Vec<_>>();
+    let statuses = statuses.iter().map(new_ident).collect::<Vec<_>>();
     let status_docs = status_sys_idents
         .iter()
         .map(|ident| format!("See: [`crate::sys_umbrella::{ident}`]"))

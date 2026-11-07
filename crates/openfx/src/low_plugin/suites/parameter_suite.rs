@@ -209,14 +209,12 @@ impl ParameterSuiteV1 {
 ///
 /// - Operate directly on [`OfxParamHandle`]s from [`crate::sys`] rather than
 ///   wrapped objects from [`crate::low_plugin::objects`], since the wrappers
-///   for parameters WILL live in [`crate::low_plugin::parameters`], and it
-///   doesn't make sense to create these methods for each property set wrapper
+///   for parameters live in [`crate::low_plugin::parameters`], and it doesn't
+///   make sense to create these methods for each property set wrapper
 ///   individually.
 /// - Are `pub` instead of `pub(crate)`, allowing library users to call them
 ///   freely when the parameter type that they want to interact with is not
 ///   available in [`crate::low_plugin::parameters`].
-///
-/// TO REVIEWERS: remind me if the statements above need updating.
 #[openfx_internal_macros::low_impl_suite]
 impl ParameterSuiteV1 {
     /// See: [`crate::sys_umbrella::OfxParameterSuiteV1::paramCopy`]
@@ -345,3 +343,104 @@ impl ParameterSuiteV1 {
             .map_ok(|()| unsafe { prop_handle.assume_init() })
     }
 }
+
+macro_rules! param_set_value {
+    (
+        $parameter_suite:expr,
+        $param_handle:expr,
+        $($value:expr),+ $(,)?
+    ) => {
+        {
+            let sys_fn = crate::low_plugin::internal_macros::sys_fn!($parameter_suite, paramSetValue);
+            crate::low::InboundResult::from_sys(
+                sys_fn($param_handle.sys_handle(), $($value),+)
+            )
+        }
+    }
+}
+pub(crate) use param_set_value;
+
+macro_rules! param_set_value_at_time {
+    (
+        $parameter_suite:expr,
+        $param_handle:expr,
+        $time:expr,
+        $($value:expr),+ $(,)?
+    ) => {
+        {
+            let sys_fn = crate::low_plugin::internal_macros::sys_fn!($parameter_suite, paramSetValueAtTime);
+            crate::low::InboundResult::from_sys(
+                sys_fn($param_handle.sys_handle(), $time, $($value),+)
+            )
+        }
+    }
+}
+pub(crate) use param_set_value_at_time;
+
+macro_rules! param_get_value {
+    (
+        $parameter_suite:expr,
+        $param_handle:expr,
+        $(&mut $value:expr),+ $(,)?
+    ) => {
+        {
+            let sys_fn = crate::low_plugin::internal_macros::sys_fn!($parameter_suite, paramGetValue);
+            crate::low::InboundResult::from_sys(
+                sys_fn($param_handle.sys_handle(), $(&mut $value),+)
+            )
+        }
+    }
+}
+pub(crate) use param_get_value;
+
+macro_rules! param_get_value_at_time {
+    (
+        $parameter_suite:expr,
+        $param_handle:expr,
+        $time:expr,
+        $(&mut $value:expr),+ $(,)?
+    ) => {
+        {
+            let sys_fn = crate::low_plugin::internal_macros::sys_fn!($parameter_suite, paramGetValueAtTime);
+            crate::low::InboundResult::from_sys(
+                sys_fn($param_handle.sys_handle(), $time, $(&mut $value),+)
+            )
+        }
+    }
+}
+pub(crate) use param_get_value_at_time;
+
+macro_rules! param_get_derivative {
+    (
+        $parameter_suite:expr,
+        $param_handle:expr,
+        $time:expr,
+        $(&mut $value:expr),+ $(,)?
+    ) => {
+        {
+            let sys_fn = crate::low_plugin::internal_macros::sys_fn!($parameter_suite, paramGetDerivative);
+            crate::low::InboundResult::from_sys(
+                sys_fn($param_handle.sys_handle(), $time, $(&mut $value),+)
+            )
+        }
+    }
+}
+pub(crate) use param_get_derivative;
+
+macro_rules! param_get_integral {
+    (
+        $parameter_suite:expr,
+        $param_handle:expr,
+        $time1:expr,
+        $time2:expr,
+        $(&mut $value:expr),+ $(,)?
+    ) => {
+        {
+            let sys_fn = crate::low_plugin::internal_macros::sys_fn!($parameter_suite, paramGetIntegral);
+            crate::low::InboundResult::from_sys(
+                sys_fn($param_handle.sys_handle(), $time1, $time2, $(&mut $value),+)
+            )
+        }
+    }
+}
+pub(crate) use param_get_integral;

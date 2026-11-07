@@ -17,7 +17,7 @@ pub fn make_suite_struct(tokens: TokenStream) -> TokenStream {
         full_ident,
     } = syn::parse_macro_input!(tokens as Input);
 
-    let doc_see_sys = make_doc_see_sys(&full_ident.to_string());
+    let doc_see_sys = make_doc_see_sys(&[&full_ident.to_string()]);
 
     quote! {
         #doc_see_sys

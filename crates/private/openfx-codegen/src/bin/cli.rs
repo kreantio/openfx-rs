@@ -39,6 +39,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     std::fs::create_dir_all(&args.output_code_low)?;
     std::fs::create_dir_all(&args.output_code_low_plugin)?;
 
+    // low + C
     {
         let p = args.output_code_low.join("c_statuses.rs");
         openfx_codegen::ex_codegen_c::gen_low_statuses(&codegen_config, &p, info.statuses)?;
@@ -48,6 +49,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
         openfx_codegen::ex_codegen_c::gen_low_enums_from_c(&p, info.c_enums)?;
     }
 
+    // low_plugin + C
     {
         let p = args.output_code_low_plugin.join("c_suites");
         std::fs::create_dir_all(&p)?;
@@ -63,11 +65,13 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
         )?;
     }
 
+    // low + metadata
     {
         let p = args.output_code_low.join("meta_enums.rs");
         openfx_codegen::ex_codegen_metadata::gen_low_enums_from_metadata(&p, &input_metadata)?;
     }
 
+    // low_plugin + metadata
     {
         let p = args.output_code_low_plugin.join("meta_actions.rs");
         openfx_codegen::ex_codegen_metadata::gen_low_plugin_actions(
@@ -76,10 +80,17 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
             &input_metadata,
         )?;
     }
-
     {
         let p = args.output_code_low_plugin.join("meta_property_sets.rs");
         openfx_codegen::ex_codegen_metadata::gen_low_plugin_property_sets(
+            &codegen_config,
+            &p,
+            &input_metadata,
+        )?;
+    }
+    {
+        let p = args.output_code_low_plugin.join("parameters.rs");
+        openfx_codegen::ex_codegen_metadata::gen_low_plugin_parameters(
             &codegen_config,
             &p,
             &input_metadata,

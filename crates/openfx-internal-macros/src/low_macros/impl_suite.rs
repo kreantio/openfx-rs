@@ -83,9 +83,7 @@ impl syn::visit_mut::VisitMut for Rewriter {
         let ident = syn::Ident::new(&final_name, self.ident.span());
 
         let replacement: syn::Expr = syn::parse_quote! {
-            self.sys_ref()
-                .#ident
-                .unwrap_unchecked()
+            crate::low_plugin::internal_macros::sys_fn!(self, #ident)
         };
         *i = replacement;
         self.called_times += 1;

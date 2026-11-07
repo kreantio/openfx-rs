@@ -438,8 +438,6 @@ impl ParamSetDescriptor {
     /// It is recommended to use the typed versions of this function where
     /// applicable.
     ///
-    /// TODO: Implement the typed versions of this function.
-    ///
     /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
@@ -456,8 +454,6 @@ impl ParamSetDescriptor {
     ///
     /// It is recommended to use the typed versions of this function where
     /// applicable.
-    ///
-    /// TODO: Implement the typed versions of this function.
     ///
     /// ## Safety
     ///
@@ -512,8 +508,6 @@ impl ParamSetInstance {
     /// It is recommended to use the typed versions of this function where
     /// applicable.
     ///
-    /// TODO: Implement the typed versions of this function.
-    ///
     /// ## Safety
     ///
     /// `self` and `parameter_suite` must be valid.
@@ -529,8 +523,6 @@ impl ParamSetInstance {
     ///
     /// It is recommended to use the typed versions of this function where
     /// applicable.
-    ///
-    /// TODO: Implement the typed versions of this function.
     ///
     /// ## Safety
     ///

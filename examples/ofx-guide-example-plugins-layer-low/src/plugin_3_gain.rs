@@ -1,7 +1,7 @@
 mod processing;
 
 use std::{
-    ffi::{CStr, c_int, c_void},
+    ffi::{CStr, c_void},
     sync::Mutex,
 };
 
@@ -21,12 +21,9 @@ use openfx::{
             ImageEffectAction,
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
-        property_sets::{ParamsBooleanPropertySet, ParamsDouble1DPropertySet},
+        parameters::{ParamBoolean, ParamDouble},
     },
-    sys::{
-        core::kOfxPropLabel,
-        param::{OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble},
-    },
+    sys::core::kOfxPropLabel,
 };
 
 use processing::pixel_processing;
@@ -37,7 +34,6 @@ use crate::{
         internal_utils::{rect_i_from_array, set_labels},
         shared_data::{
             BitDepth, ClipImageManaged, GuaranteeSend, GuaranteeSendClipInInstance, SharedData,
-            param_get_value_at_time,
         },
     },
 };
@@ -49,8 +45,8 @@ struct MyInstanceData {
     source_clip: GuaranteeSendClipInInstance,
     output_clip: GuaranteeSendClipInInstance,
 
-    gain_param: OfxParamHandle,
-    apply_to_alpha_param: OfxParamHandle,
+    gain_param: ParamDouble,
+    apply_to_alpha_param: ParamBoolean,
 }
 
 fn shared_data_lockless() -> Result<SharedData, StatusError> {
@@ -203,26 +199,24 @@ fn action_describe_in_context(
     let param_set = unsafe { descriptor.get_param_set(s_ifx) }.ok_or(StatusError::Failed)?;
 
     {
-        let param_props =
-            unsafe { param_set.param_define(s_param, kOfxParamTypeDouble, GAIN_PARAM_NAME) }
-                .ok_or(StatusError::Failed)?;
-        let param_props = ParamsDouble1DPropertySet::from(param_props);
+        let param_props = unsafe { param_set.param_define_double(s_param, GAIN_PARAM_NAME) }
+            .ok_or(StatusError::Failed)?;
 
         unsafe {
             param_props
                 .set_param_double_type(s_prop, ParamPropDoubleType::Scale.into())
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_param_default_double(s_prop, &[1.0])
+                .set_param_default(s_prop, 1.0)
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_param_min_double(s_prop, &[0.0])
+                .set_param_min(s_prop, 0.0)
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_param_display_min_double(s_prop, &[0.0])
+                .set_param_display_min(s_prop, 0.0)
                 .ok_or(StatusError::Failed)?;
             param_props
-                .set_param_display_max_double(s_prop, &[10.0])
+                .set_param_display_max(s_prop, 10.0)
                 .ok_or(StatusError::Failed)?;
             param_props
                 .set_label(s_prop, Some(c"Gain"))
@@ -234,15 +228,13 @@ fn action_describe_in_context(
     }
 
     {
-        let param_props = unsafe {
-            param_set.param_define(s_param, kOfxParamTypeBoolean, APPLY_TO_ALPHA_PARAM_NAME)
-        }
-        .ok_or(StatusError::Failed)?;
-        let param_props = ParamsBooleanPropertySet::from(param_props);
+        let param_props =
+            unsafe { param_set.param_define_boolean(s_param, APPLY_TO_ALPHA_PARAM_NAME) }
+                .ok_or(StatusError::Failed)?;
 
         unsafe {
             param_props
-                .set_param_default_int(s_prop, &[0])
+                .set_param_default(s_prop, false)
                 .ok_or(StatusError::Failed)?;
             param_props
                 .set_label(s_prop, Some(c"Apply To Alpha"))
@@ -274,10 +266,10 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
         unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }.ok_or(StatusError::Failed)?;
 
     let param_set = unsafe { instance.get_param_set(s_ifx) }.ok_or(StatusError::Failed)?;
-    let gain_param = unsafe { param_set.param_get_param_handle(s_param, GAIN_PARAM_NAME) }
+    let gain_param = unsafe { param_set.param_get_param_handle_double(s_param, GAIN_PARAM_NAME) }
         .ok_or(StatusError::Failed)?;
     let apply_to_alpha_param =
-        unsafe { param_set.param_get_param_handle(s_param, APPLY_TO_ALPHA_PARAM_NAME) }
+        unsafe { param_set.param_get_param_handle_boolean(s_param, APPLY_TO_ALPHA_PARAM_NAME) }
             .ok_or(StatusError::Failed)?;
 
     let my_data = MyInstanceData {
@@ -341,8 +333,8 @@ fn action_is_identity(
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
     let time = unsafe { in_args.get_time(s_prop) }.ok_or(StatusError::Failed)?;
-    let mut gain: f64 = Default::default();
-    param_get_value_at_time!(s_param, my_data.gain_param, time, &mut gain);
+    let gain = unsafe { my_data.gain_param.param_get_value_at_time(s_param, time) }
+        .ok_or(StatusError::Failed)?;
 
     if (gain - 1.0).abs() < 0.000000001 {
         (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })
@@ -374,16 +366,14 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     };
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
-    let mut gain: f64 = Default::default();
-    param_get_value_at_time!(s_param, my_data.gain_param, time, &mut gain);
-    let mut apply_to_alpha: c_int = Default::default();
-    param_get_value_at_time!(
-        s_param,
-        my_data.apply_to_alpha_param,
-        time,
-        &mut apply_to_alpha
-    );
-    let apply_to_alpha = apply_to_alpha != 0;
+    let gain = unsafe { my_data.gain_param.param_get_value_at_time(s_param, time) }
+        .ok_or(StatusError::Failed)?;
+    let apply_to_alpha = unsafe {
+        my_data
+            .apply_to_alpha_param
+            .param_get_value_at_time(s_param, time)
+    }
+    .ok_or(StatusError::Failed)?;
 
     let output_img = unsafe { my_data.output_clip.0.clip_get_image(s_ifx, time, None) }
         .ok_or(StatusError::Failed)?;

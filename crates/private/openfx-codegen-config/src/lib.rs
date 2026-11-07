@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
 use serde::Deserialize as _;
 
@@ -16,6 +16,7 @@ pub struct CodegenConfig {
     pub statuses: CodegenConfigStatuses,
     pub suites: CodegenConfigSuites,
     pub objects: CodegenConfigObjects,
+    pub parameters: CodegenConfigParameters,
     pub property_sets: CodegenConfigPropertySets,
     pub actions: CodegenConfigActions,
 }
@@ -45,13 +46,13 @@ pub struct CodegenConfigStatusesGroup {
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigSuites {
-    pub special_cases: std::collections::HashMap<String, CodegenConfigSuiteSpecialCase>,
+    pub special_cases: BTreeMap<String, CodegenConfigSuiteSpecialCase>,
 }
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigSuiteSpecialCase {
     pub key_name: Option<String>,
-    pub functions: Option<HashMap<String, CodegenConfigSuiteSpecialCaseFunction>>,
+    pub functions: Option<BTreeMap<String, CodegenConfigSuiteSpecialCaseFunction>>,
 }
 
 #[derive(serde::Deserialize)]
@@ -66,13 +67,85 @@ pub struct CodegenConfigSuiteSpecialCaseFunction {
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigObjects {
-    #[serde(deserialize_with = "CodegenConfigObjectMappingEntry::deserialize_hashmap")]
-    pub mapping: HashMap<String, CodegenConfigObjectMappingEntry>,
+    #[serde(deserialize_with = "CodegenConfigObjectMappingEntry::deserialize_mapping")]
+    pub mapping: BTreeMap<String, CodegenConfigObjectMappingEntry>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct CodegenConfigParameters {
+    pub mapping: BTreeMap<String, CodegenConfigParameterMappingEntry>,
+    pub generic_properties: BTreeSet<String>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct CodegenConfigParameterMappingEntry {
+    pub property_set: String,
+    #[serde(rename = "ty")]
+    pub r#type: Option<CodegenConfigParameterMappingEntryType>,
+    #[serde(default)]
+    pub flags: CodegenConfigParameterMappingEntryFlags,
+}
+
+pub struct CodegenConfigParameterMappingEntryType {
+    pub element_type: CodegenConfigParameterMappingEntryElementType,
+    pub dimensions: usize,
+}
+
+impl<'de> serde::Deserialize<'de> for CodegenConfigParameterMappingEntryType {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let tuple: (CodegenConfigParameterMappingEntryElementType, usize) =
+            serde::Deserialize::deserialize(deserializer)?;
+        Ok(Self {
+            element_type: tuple.0,
+            dimensions: tuple.1,
+        })
+    }
+}
+
+#[derive(serde::Deserialize)]
+pub enum CodegenConfigParameterMappingEntryElementType {
+    Int,
+    Double,
+    String,
+    Pointer,
+    Bool,
+}
+
+#[derive(Default)]
+pub struct CodegenConfigParameterMappingEntryFlags {
+    pub is_derivable: bool,
+    pub is_integrable: bool,
+}
+
+impl<'de> serde::Deserialize<'de> for CodegenConfigParameterMappingEntryFlags {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s: String = serde::Deserialize::deserialize(deserializer)?;
+        let mut flags: BTreeSet<char> = s.chars().collect();
+        let is_derivable = flags.remove(&'d');
+        let is_integrable = flags.remove(&'i');
+        if !flags.is_empty() {
+            return Err(serde::de::Error::custom(format!(
+                "Unknown flags: {:?}",
+                flags
+            )));
+        }
+        Ok(Self {
+            is_derivable,
+            is_integrable,
+        })
+    }
 }
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigPropertySets {
-    pub renaming: HashMap<String, String>,
+    pub ignore: CodegenConfigStringMatcherAnyOf,
+    pub renaming: BTreeMap<String, String>,
 }
 
 #[derive(Default, serde::Deserialize)]
@@ -85,11 +158,11 @@ pub struct CodegenConfigObjectMappingEntry {
     pub set: CodegenConfigObjectMappingEntrySet,
     #[serde(default)]
     pub omit: bool,
-    pub omit_functions: Option<HashSet<String>>,
+    pub omit_functions: Option<BTreeSet<String>>,
 }
 
 impl CodegenConfigObjectMappingEntry {
-    fn deserialize_hashmap<'de, D>(deserializer: D) -> Result<HashMap<String, Self>, D::Error>
+    fn deserialize_mapping<'de, D>(deserializer: D) -> Result<BTreeMap<String, Self>, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
@@ -101,9 +174,9 @@ impl CodegenConfigObjectMappingEntry {
             Zelf(CodegenConfigObjectMappingEntry),
         }
 
-        let hashmap: HashMap<String, OneOf> = HashMap::deserialize(deserializer)?;
+        let map: BTreeMap<String, OneOf> = BTreeMap::deserialize(deserializer)?;
 
-        Ok(hashmap
+        Ok(map
             .into_iter()
             .map(|(key, value)| {
                 (
@@ -117,7 +190,7 @@ impl CodegenConfigObjectMappingEntry {
                     },
                 )
             })
-            .collect::<HashMap<_, _>>())
+            .collect::<BTreeMap<_, _>>())
     }
 }
 
@@ -156,26 +229,26 @@ impl<'de> serde::Deserialize<'de> for CodegenConfigObjectMappingEntrySet {
 pub struct CodegenConfigActions {
     pub pseudo: CodegenConfigActionsPseudo,
     pub core: CodegenConfigActionsCore,
-    pub concretes: HashMap<String, CodegenConfigActionsConcrete>,
+    pub concretes: BTreeMap<String, CodegenConfigActionsConcrete>,
 }
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigActionsPseudo {
-    pub members: HashSet<String>,
+    pub members: BTreeSet<String>,
 }
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigActionsCore {
     pub members_prefix: String,
-    pub members: HashMap<String, CodegenConfigActionsMember>,
+    pub members: BTreeMap<String, CodegenConfigActionsMember>,
 }
 
 #[derive(serde::Deserialize)]
 pub struct CodegenConfigActionsConcrete {
     pub handle_prefix: String,
-    pub members_from_core: HashSet<String>,
+    pub members_from_core: BTreeSet<String>,
     pub members_prefix: String,
-    pub members: HashMap<String, CodegenConfigActionsMember>,
+    pub members: BTreeMap<String, CodegenConfigActionsMember>,
 }
 
 #[derive(serde::Deserialize)]
