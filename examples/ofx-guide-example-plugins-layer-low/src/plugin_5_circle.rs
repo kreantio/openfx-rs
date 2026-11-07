@@ -32,7 +32,7 @@ use processing::pixel_processing;
 use crate::{
     definitions::{PLUGIN_5_CIRCLE_IDENTIFIER, PLUGIN_5_CIRCLE_LABEL, PLUGINS_GROUPING},
     helpers::{
-        internal_utils::{param_get_value_at_time, rect_d_to_array, rect_i_from_array, set_labels},
+        internal_utils::{rect_d_to_array, rect_i_from_array, set_labels},
         shared_data::{
             BitDepth, ClipImageManaged, GuaranteeSend, GuaranteeSendClipInInstance, SharedData,
         },
@@ -449,45 +449,19 @@ fn action_get_region_of_definition(
 
     let mut growing_rod = false;
     if let Some(grow_rod_param) = my_data.grow_rod_param {
-        let mut growing_rod_: c_int = Default::default();
-        unsafe {
-            param_get_value_at_time!(
-                s_param,
-                grow_rod_param.sys_handle(),
-                time,
-                &mut growing_rod_
-            )
-        }
-        .ok_or(StatusError::Failed)?;
-        growing_rod = growing_rod_ != 0;
+        growing_rod = unsafe { grow_rod_param.param_get_value_at_time(s_param, time) }
+            .ok_or(StatusError::Failed)?;
     };
 
     if !growing_rod {
         return Ok(StatusReply::ReplyDefault.into());
     }
 
-    let mut radius: f64 = Default::default();
-    unsafe {
-        param_get_value_at_time!(
-            s_param,
-            my_data.radius_param.sys_handle(),
-            time,
-            &mut radius
-        )
-    }
-    .ok_or(StatusError::Failed)?;
-    let mut centre_x = 0.0;
-    let mut centre_y = 0.0;
-    unsafe {
-        param_get_value_at_time!(
-            s_param,
-            my_data.centre_param.sys_handle(),
-            time,
-            &mut centre_x,
-            &mut centre_y
-        )
-    }
-    .ok_or(StatusError::Failed)?;
+    let radius = unsafe { my_data.radius_param.param_get_value_at_time(s_param, time) }
+        .ok_or(StatusError::Failed)?;
+    let [centre_x, centre_y] =
+        unsafe { my_data.centre_param.param_get_value_at_time(s_param, time) }
+            .ok_or(StatusError::Failed)?;
 
     let mut rod = unsafe {
         my_data
@@ -530,33 +504,16 @@ fn action_is_identity(
     };
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
-    let mut radius: f64 = Default::default();
-    unsafe {
-        param_get_value_at_time!(
-            s_param,
-            my_data.radius_param.sys_handle(),
-            time,
-            &mut radius
-        )
-    }
-    .ok_or(StatusError::Failed)?;
+    let radius = unsafe { my_data.radius_param.param_get_value_at_time(s_param, time) }
+        .ok_or(StatusError::Failed)?;
 
     let is_identity = if radius < 0.0001 {
         true
     } else {
         let mut growing_rod = false;
         if let Some(grow_rod_param) = my_data.grow_rod_param {
-            let mut growing_rod_: c_int = Default::default();
-            unsafe {
-                param_get_value_at_time!(
-                    s_param,
-                    grow_rod_param.sys_handle(),
-                    time,
-                    &mut growing_rod_
-                )
-            }
-            .ok_or(StatusError::Failed)?;
-            growing_rod = growing_rod_ != 0;
+            growing_rod = unsafe { grow_rod_param.param_get_value_at_time(s_param, time) }
+                .ok_or(StatusError::Failed)?;
         };
 
         if growing_rod {
@@ -570,18 +527,9 @@ fn action_is_identity(
             }
             .ok_or(StatusError::Failed)?;
 
-            let mut centre_x = 0.0;
-            let mut centre_y = 0.0;
-            unsafe {
-                param_get_value_at_time!(
-                    s_param,
-                    my_data.centre_param.sys_handle(),
-                    time,
-                    &mut centre_x,
-                    &mut centre_y
-                )
-            }
-            .ok_or(StatusError::Failed)?;
+            let [centre_x, centre_y] =
+                unsafe { my_data.centre_param.param_get_value_at_time(s_param, time) }
+                    .ok_or(StatusError::Failed)?;
 
             centre_x + radius < bounds.x1
                 || centre_x - radius > bounds.x2
@@ -622,50 +570,12 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     };
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
-    let mut radius: f64 = Default::default();
-    unsafe {
-        param_get_value_at_time!(
-            s_param,
-            my_data.radius_param.sys_handle(),
-            time,
-            &mut radius
-        )
-    }
-    .ok_or(StatusError::Failed)?;
-    let centre = {
-        let mut centre_x = 0.0;
-        let mut centre_y = 0.0;
-        unsafe {
-            param_get_value_at_time!(
-                s_param,
-                my_data.centre_param.sys_handle(),
-                time,
-                &mut centre_x,
-                &mut centre_y
-            )
-        }
+    let radius = unsafe { my_data.radius_param.param_get_value_at_time(s_param, time) }
         .ok_or(StatusError::Failed)?;
-        [centre_x, centre_y]
-    };
-    let colour = {
-        let mut colour_r = 0.0;
-        let mut colour_g = 0.0;
-        let mut colour_b = 0.0;
-        let mut colour_a = 0.0;
-        unsafe {
-            param_get_value_at_time!(
-                s_param,
-                my_data.colour_param.sys_handle(),
-                time,
-                &mut colour_r,
-                &mut colour_g,
-                &mut colour_b,
-                &mut colour_a
-            )
-        }
+    let centre = unsafe { my_data.centre_param.param_get_value_at_time(s_param, time) }
         .ok_or(StatusError::Failed)?;
-        [colour_r, colour_g, colour_b, colour_a]
-    };
+    let colour = unsafe { my_data.colour_param.param_get_value_at_time(s_param, time) }
+        .ok_or(StatusError::Failed)?;
 
     let output_img = unsafe { my_data.output_clip.0.clip_get_image(s_ifx, time, None) }
         .ok_or(StatusError::Failed)?;

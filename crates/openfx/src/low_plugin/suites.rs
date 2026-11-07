@@ -49,7 +49,7 @@ use crate::{
     },
 };
 
-mod parameter_suite;
+pub(crate) mod parameter_suite;
 mod property_suite;
 
 pub use crate::generated::low_plugin::c_suites::suites::*;

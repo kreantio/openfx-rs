@@ -120,7 +120,7 @@ fn make_property_setter(
 ) {
     let el_type = ty.element_type();
 
-    for preset in el_type.make_impl_setter_preset() {
+    for preset in el_type.make_impl_setter_presets() {
         let fn_name = syn::Ident::new(
             &format!(
                 "set_{}{}",
@@ -207,7 +207,7 @@ fn make_property_getter(
 ) {
     let el_type = ty.element_type();
 
-    for preset in el_type.make_impl_getter_preset() {
+    for preset in el_type.make_impl_getter_presets() {
         let fn_name = syn::Ident::new(
             &format!(
                 "get_{}{}",
@@ -380,7 +380,7 @@ fn make_property_dimensions_getter(
             /// - `self.0` must be a valid handle of
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
             /// - `suite` must be valid.
-            pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::InboundResult<::std::os::raw::c_int> {
+            pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::InboundResult<::std::ffi::c_int> {
                 unsafe {
                     suite.prop_get_dimension(self.sys_handle(), crate::sys_umbrella::#cname)
                 }
@@ -390,7 +390,7 @@ fn make_property_dimensions_getter(
 }
 
 impl ExpressiveType {
-    fn make_impl_setter_preset(&self) -> Vec<Box<dyn ImplSetterPreset>> {
+    fn make_impl_setter_presets(&self) -> Vec<Box<dyn ImplSetterPreset>> {
         match self {
             ExpressiveType::Int(_) => vec![Box::new(ImplAccessorsPresetInt)],
             ExpressiveType::Double(_) => vec![Box::new(ImplAccessorsPresetDouble)],
@@ -402,7 +402,7 @@ impl ExpressiveType {
             ExpressiveType::Pointer(_) => vec![Box::new(ImplAccessorsPresetPointer)],
         }
     }
-    fn make_impl_getter_preset(&self) -> Vec<Box<dyn ImplGetterPreset>> {
+    fn make_impl_getter_presets(&self) -> Vec<Box<dyn ImplGetterPreset>> {
         match self {
             ExpressiveType::Int(_) => vec![Box::new(ImplAccessorsPresetInt)],
             ExpressiveType::Double(_) => vec![Box::new(ImplAccessorsPresetDouble)],
@@ -494,7 +494,7 @@ struct ImplAccessorsPresetInt;
 impl ImplAccessorsPresetInt {
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let c_int = quote_spanned! { ident.span() => c_int };
-        quote! { ::std::os::raw::#c_int }
+        quote! { ::std::ffi::#c_int }
     }
 }
 impl ImplSetterPreset for ImplAccessorsPresetInt {
@@ -515,7 +515,7 @@ struct ImplAccessorsPresetDouble;
 impl ImplAccessorsPresetDouble {
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let f64 = quote_spanned! { ident.span() => f64 };
-        quote! { ::core::primitive::#f64 }
+        quote! { ::std::primitive::#f64 }
     }
 }
 impl ImplSetterPreset for ImplAccessorsPresetDouble {
@@ -536,7 +536,7 @@ struct ImplAccessorsPresetBool;
 impl ImplAccessorsPresetBool {
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let bool = quote_spanned! { ident.span() => bool };
-        quote! { ::core::primitive::#bool }
+        quote! { ::std::primitive::#bool }
     }
 }
 impl ImplSetterPreset for ImplAccessorsPresetBool {
@@ -547,7 +547,7 @@ impl ImplSetterPreset for ImplAccessorsPresetBool {
         &self,
         expressive_val: proc_macro2::TokenStream,
     ) -> Option<proc_macro2::TokenStream> {
-        Some(quote! { #expressive_val as ::std::os::raw::c_int })
+        Some(quote! { #expressive_val as ::std::ffi::c_int })
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetBool {
@@ -801,13 +801,17 @@ impl InputContainerType {
                     ));
                 };
                 let ty = match m_ty.element_type {
-                    ParameterElementType::Int => ty.int.clone().map(ExpressiveType::Int),
-                    ParameterElementType::Double => ty.double.clone().map(ExpressiveType::Double),
-                    ParameterElementType::String => ty.string.clone().map(ExpressiveType::String),
-                    ParameterElementType::Pointer => {
+                    ParameterElementType::Int(_) => ty.int.clone().map(ExpressiveType::Int),
+                    ParameterElementType::Double(_) => {
+                        ty.double.clone().map(ExpressiveType::Double)
+                    }
+                    ParameterElementType::String(_) => {
+                        ty.string.clone().map(ExpressiveType::String)
+                    }
+                    ParameterElementType::Pointer(_) => {
                         ty.pointer.clone().map(ExpressiveType::Pointer)
                     }
-                    ParameterElementType::Bool => ty
+                    ParameterElementType::Bool(_) => ty
                         .bool
                         .as_ref()
                         .or(ty.int.as_ref())

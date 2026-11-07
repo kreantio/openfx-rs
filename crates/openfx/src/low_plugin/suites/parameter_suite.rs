@@ -348,13 +348,13 @@ macro_rules! param_get_value {
     (
         $parameter_suite:expr,
         $param_handle:expr,
-        $(&mut $value:ident),+ $(,)?
+        $(&mut $value:expr),+ $(,)?
     ) => {
         {
             let sys_fn = crate::low_plugin::internal_macros::sys_fn!($parameter_suite, paramGetValue);
-            crate::low::InboundResult::from_sys(unsafe {
-                sys_fn(param_handle, $(&mut $value),+)
-            })
+            crate::low::InboundResult::from_sys(
+                sys_fn($param_handle.sys_handle(), $(&mut $value),+)
+            )
         }
     }
 }
@@ -365,13 +365,13 @@ macro_rules! param_get_value_at_time {
         $parameter_suite:expr,
         $param_handle:expr,
         $time:expr,
-        $(&mut $value:ident),+ $(,)?
+        $(&mut $value:expr),+ $(,)?
     ) => {
         {
             let sys_fn = crate::low_plugin::internal_macros::sys_fn!($parameter_suite, paramGetValueAtTime);
-            crate::low::InboundResult::from_sys(unsafe {
-                sys_fn(param_handle, $time, $(&mut $value),+)
-            })
+            crate::low::InboundResult::from_sys(
+                sys_fn($param_handle.sys_handle(), $time, $(&mut $value),+)
+            )
         }
     }
 }
