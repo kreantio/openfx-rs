@@ -149,7 +149,7 @@ pub enum ParameterElementType {
 impl syn::parse::Parse for ParameterType {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let type_content;
-        syn::parenthesized!(type_content in input);
+        syn::bracketed!(type_content in input);
         let element_type = type_content.parse::<syn::Ident>()?;
         let element_type = match element_type.to_string().as_str() {
             "Int" => ParameterElementType::Int(element_type.clone()),
@@ -178,14 +178,14 @@ impl syn::parse::Parse for ParameterType {
 
 impl ParameterType {
     pub fn parse_option(input: syn::parse::ParseStream) -> syn::Result<Option<Self>> {
-        if input.peek(syn::token::Paren) {
+        if input.peek(syn::token::Bracket) {
             Ok(Some(input.parse()?))
         } else {
             let none = input.parse::<syn::Ident>()?;
             if none != "None" {
                 return Err(syn::Error::new_spanned(
                     none,
-                    "expected `(<type>; <dimensions>)` or `None`",
+                    "expected `[<type>; <dimensions>]` or `None`",
                 ));
             }
             Ok(None)

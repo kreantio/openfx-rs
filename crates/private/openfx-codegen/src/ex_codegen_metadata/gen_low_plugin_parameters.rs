@@ -196,5 +196,5 @@ fn quote_type(ty: &CodegenConfigParameterMappingEntryType) -> proc_macro2::Token
         }
     };
     let dim = syn::LitInt::new(&ty.dimensions.to_string(), proc_macro2::Span::call_site());
-    quote! { (#el_ty; #dim) }
+    quote! { [#el_ty; #dim] }
 }
