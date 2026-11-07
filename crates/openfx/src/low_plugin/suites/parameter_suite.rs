@@ -344,6 +344,39 @@ impl ParameterSuiteV1 {
     }
 }
 
+macro_rules! param_set_value {
+    (
+        $parameter_suite:expr,
+        $param_handle:expr,
+        $($value:expr),+ $(,)?
+    ) => {
+        {
+            let sys_fn = crate::low_plugin::internal_macros::sys_fn!($parameter_suite, paramSetValue);
+            crate::low::InboundResult::from_sys(
+                sys_fn($param_handle.sys_handle(), $($value),+)
+            )
+        }
+    }
+}
+pub(crate) use param_set_value;
+
+macro_rules! param_set_value_at_time {
+    (
+        $parameter_suite:expr,
+        $param_handle:expr,
+        $time:expr,
+        $($value:expr),+ $(,)?
+    ) => {
+        {
+            let sys_fn = crate::low_plugin::internal_macros::sys_fn!($parameter_suite, paramSetValueAtTime);
+            crate::low::InboundResult::from_sys(
+                sys_fn($param_handle.sys_handle(), $time, $($value),+)
+            )
+        }
+    }
+}
+pub(crate) use param_set_value_at_time;
+
 macro_rules! param_get_value {
     (
         $parameter_suite:expr,
@@ -411,13 +444,3 @@ macro_rules! param_get_integral {
     }
 }
 pub(crate) use param_get_integral;
-
-macro_rules! param_set_value {
-    () => {};
-}
-pub(crate) use param_set_value;
-
-macro_rules! param_set_value_at_time {
-    () => {};
-}
-pub(crate) use param_set_value_at_time;
