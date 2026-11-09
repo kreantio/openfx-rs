@@ -29,12 +29,22 @@ fn make_parameter_struct(output: &mut proc_macro2::TokenStream, input: &InputPar
         ty,
     } = input;
 
-    let doc_see_sys =
-        make_doc_see_sys(&["OfxParamHandle", &format!("kOfxParamType{simple_ident}")]);
+    if let Some(rest) = simple_ident.to_string().strip_prefix("Param") {
+        output.extend(make_doc_see_sys(&[
+            "OfxParamHandle",
+            &format!("kOfxParamType{rest}"),
+        ]));
+        output.extend(quote! {
+            ///
+        });
+    } else {
+        output.extend(
+            syn::Error::new_spanned(simple_ident, "expected this name to start with 'Param'")
+                .to_compile_error(),
+        );
+    }
 
     output.extend(quote! {
-        #doc_see_sys
-        ///
         /// ## Safety
         ///
         /// This type is not `Send`, but it is `Sync`. For details, see the
