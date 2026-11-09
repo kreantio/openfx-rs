@@ -25,12 +25,12 @@ impl<T: LifetimePlugin> Deref for GuaranteeSend<T> {
 }
 
 #[derive(Clone, Copy)]
-pub struct GuaranteeSendClipInInstance(pub ImageClipInstance);
+pub struct GuaranteeSendClipInstance(pub ImageClipInstance);
 /// ## Safety
 ///
 /// This is safe only for the lifetime of the plugin instance from which the
 /// clip instance was retrieved.
-unsafe impl Send for GuaranteeSendClipInInstance {}
+unsafe impl Send for GuaranteeSendClipInstance {}
 
 #[derive(Clone)]
 pub struct SharedData(pub Arc<SharedDataInner>);

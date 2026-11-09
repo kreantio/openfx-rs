@@ -35,7 +35,7 @@ use crate::{
         internal_utils::{
             BitDepth, ClipImageManaged, rect_d_to_array, rect_i_from_array, set_labels,
         },
-        shared_data::{GuaranteeSend, GuaranteeSendClipInInstance, SharedData},
+        shared_data::{GuaranteeSend, GuaranteeSendClipInstance, SharedData},
     },
 };
 
@@ -49,8 +49,8 @@ struct AdditionalSharedData {
 }
 
 struct MyInstanceData {
-    source_clip: GuaranteeSendClipInInstance,
-    output_clip: GuaranteeSendClipInInstance,
+    source_clip: GuaranteeSendClipInstance,
+    output_clip: GuaranteeSendClipInstance,
 
     radius_param: ParamDouble,
     centre_param: ParamDouble2D,
@@ -380,8 +380,8 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
     };
 
     let my_data = MyInstanceData {
-        source_clip: GuaranteeSendClipInInstance(source_clip),
-        output_clip: GuaranteeSendClipInInstance(output_clip),
+        source_clip: GuaranteeSendClipInstance(source_clip),
+        output_clip: GuaranteeSendClipInstance(output_clip),
         radius_param,
         centre_param,
         colour_param,

@@ -32,7 +32,7 @@ use crate::{
     definitions::{PLUGIN_4_SATURATION_IDENTIFIER, PLUGIN_4_SATURATION_LABEL, PLUGINS_GROUPING},
     helpers::{
         internal_utils::{BitDepth, ClipImageManaged, rect_i_from_array, set_labels},
-        shared_data::{GuaranteeSend, GuaranteeSendClipInInstance, SharedData},
+        shared_data::{GuaranteeSend, GuaranteeSendClipInstance, SharedData},
     },
 };
 
@@ -43,9 +43,9 @@ struct MyInstanceData {
     #[expect(unused)]
     is_general_context: bool,
 
-    source_clip: GuaranteeSendClipInInstance,
-    output_clip: GuaranteeSendClipInInstance,
-    mask_clip: Option<GuaranteeSendClipInInstance>,
+    source_clip: GuaranteeSendClipInstance,
+    output_clip: GuaranteeSendClipInstance,
+    mask_clip: Option<GuaranteeSendClipInstance>,
 
     saturation_param: ParamDouble,
 }
@@ -277,9 +277,9 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
 
     let my_data = MyInstanceData {
         is_general_context,
-        source_clip: GuaranteeSendClipInInstance(source_clip),
-        output_clip: GuaranteeSendClipInInstance(output_clip),
-        mask_clip: mask_clip.map(GuaranteeSendClipInInstance),
+        source_clip: GuaranteeSendClipInstance(source_clip),
+        output_clip: GuaranteeSendClipInstance(output_clip),
+        mask_clip: mask_clip.map(GuaranteeSendClipInstance),
         saturation_param,
     };
     let my_data_ptr = Box::into_raw(Box::new(my_data)) as *mut c_void;

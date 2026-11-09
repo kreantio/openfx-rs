@@ -32,7 +32,7 @@ use crate::{
     definitions::{PLUGIN_3_GAIN_IDENTIFIER, PLUGIN_3_GAIN_LABEL, PLUGINS_GROUPING},
     helpers::{
         internal_utils::{BitDepth, ClipImageManaged, rect_i_from_array, set_labels},
-        shared_data::{GuaranteeSend, GuaranteeSendClipInInstance, SharedData},
+        shared_data::{GuaranteeSend, GuaranteeSendClipInstance, SharedData},
     },
 };
 
@@ -40,8 +40,8 @@ static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(
 static SHARED_DATA: Mutex<Option<SharedData>> = Mutex::new(None);
 
 struct MyInstanceData {
-    source_clip: GuaranteeSendClipInInstance,
-    output_clip: GuaranteeSendClipInInstance,
+    source_clip: GuaranteeSendClipInstance,
+    output_clip: GuaranteeSendClipInstance,
 
     gain_param: ParamDouble,
     apply_to_alpha_param: ParamBoolean,
@@ -271,8 +271,8 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
             .ok_or(StatusError::Failed)?;
 
     let my_data = MyInstanceData {
-        source_clip: GuaranteeSendClipInInstance(source_clip),
-        output_clip: GuaranteeSendClipInInstance(output_clip),
+        source_clip: GuaranteeSendClipInstance(source_clip),
+        output_clip: GuaranteeSendClipInstance(output_clip),
         gain_param,
         apply_to_alpha_param,
     };
