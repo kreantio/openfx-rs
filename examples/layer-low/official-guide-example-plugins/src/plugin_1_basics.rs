@@ -156,10 +156,11 @@ fn action_unload() -> OutboundResult {
         );
     }
     // check that we had a load called first
-    assert!(
-        is_loaded(),
-        "`kOfxActionUnload` called without a preceding `kOfxActionLoad` call, or the load has not completed."
-    );
+    if !is_loaded() {
+        eprintln!(
+            "`kOfxActionUnload` called without a preceding `kOfxActionLoad` call, or the load has not completed."
+        );
+    }
     G_LOADING_STATE.store(0, atomic::Ordering::Relaxed);
 
     let mut shared_data = SHARED_DATA.lock().map_err(|_| StatusError::Failed)?;
@@ -190,6 +191,9 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
 
     unsafe {
         // set some labels and the group it belongs to
+        // NOTE: The original example only sets `kOfxPropLabel`. Instead, we set
+        // all three labels at once so that the plugin's label displays
+        // correctly in DaVinci Resolve's Cut tab.
         set_labels(&data.property_suite.0, &props, PLUGIN_1_BASICS_LABEL)?;
         props
             .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))
