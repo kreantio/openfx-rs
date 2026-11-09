@@ -30,7 +30,7 @@ pub trait Plugins {
 #[macro_export]
 macro_rules! plugin_struct {
     ($plugin_type:ty) => {
-        OfxPlugin {
+        $crate::sys::core::OfxPlugin {
             pluginApi: <$plugin_type as $crate::sys_plugin_helpers::Plugin>::PLUGIN_API.as_ptr(),
             apiVersion: <$plugin_type as $crate::sys_plugin_helpers::Plugin>::API_VERSION,
             pluginIdentifier:
@@ -50,9 +50,10 @@ pub use plugin_struct;
 macro_rules! export_plugins {
     ($plugins_type:ty) => {
         #[expect(non_upper_case_globals)]
-        static mut __OPENFX_SYS_HELPERS__HOST: *const OfxHost = std::ptr::null();
+        static mut __OPENFX_SYS_HELPERS__HOST: *const $crate::sys::core::OfxHost = std::ptr::null();
         #[expect(non_upper_case_globals)]
-        static mut __OPENFX_SYS_HELPERS__PLUGINS: *const OfxPlugin = std::ptr::null();
+        static mut __OPENFX_SYS_HELPERS__PLUGINS: *const $crate::sys::core::OfxPlugin =
+            std::ptr::null();
         #[expect(non_upper_case_globals)]
         static mut __OPENFX_SYS_HELPERS__PLUGIN_COUNT: usize = 0;
 
@@ -65,7 +66,8 @@ macro_rules! export_plugins {
                     } else {
                         Some(__OPENFX_SYS_HELPERS__HOST)
                     };
-                    let plugins = <$plugins_type as Plugins>::plugins(host);
+                    let plugins =
+                        <$plugins_type as $crate::sys_plugin_helpers::Plugins>::plugins(host);
                     __OPENFX_SYS_HELPERS__PLUGIN_COUNT = plugins.len();
                     __OPENFX_SYS_HELPERS__PLUGINS = Box::leak(plugins.into_boxed_slice()).as_ptr();
                 }
@@ -73,7 +75,7 @@ macro_rules! export_plugins {
         }
 
         #[unsafe(no_mangle)]
-        pub extern "C" fn OfxSetHost(host: *const OfxHost) {
+        pub extern "C" fn OfxSetHost(host: *const $crate::sys::core::OfxHost) {
             unsafe {
                 __OPENFX_SYS_HELPERS__HOST = host;
             }
@@ -86,7 +88,9 @@ macro_rules! export_plugins {
         }
 
         #[unsafe(no_mangle)]
-        pub extern "C" fn OfxGetPlugin(nth: ::std::ffi::c_int) -> *const OfxPlugin {
+        pub extern "C" fn OfxGetPlugin(
+            nth: ::std::ffi::c_int,
+        ) -> *const $crate::sys::core::OfxPlugin {
             __OPENFX_SYS_HELPERS__initialize_plugins();
             unsafe {
                 if nth < 0 || nth as usize >= __OPENFX_SYS_HELPERS__PLUGIN_COUNT {
