@@ -31,10 +31,8 @@ use processing::pixel_processing;
 use crate::{
     definitions::{PLUGIN_3_GAIN_IDENTIFIER, PLUGIN_3_GAIN_LABEL, PLUGINS_GROUPING},
     helpers::{
-        internal_utils::{rect_i_from_array, set_labels},
-        shared_data::{
-            BitDepth, ClipImageManaged, GuaranteeSend, GuaranteeSendClipInInstance, SharedData,
-        },
+        internal_utils::{BitDepth, ClipImageManaged, rect_i_from_array, set_labels},
+        shared_data::{GuaranteeSend, GuaranteeSendClipInInstance, SharedData},
     },
 };
 

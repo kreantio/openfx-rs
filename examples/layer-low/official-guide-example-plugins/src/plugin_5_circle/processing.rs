@@ -1,6 +1,6 @@
 use openfx::{low::StatusError, low_plugin::objects::ImageEffectInstance, sys::core::OfxRectI};
 
-use crate::helpers::shared_data::{ClipImageManaged, SharedData};
+use crate::helpers::{internal_utils::ClipImageManaged, shared_data::SharedData};
 
 #[allow(clippy::too_many_arguments)]
 pub fn pixel_processing<T>(

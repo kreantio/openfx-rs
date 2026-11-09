@@ -32,10 +32,10 @@ use processing::pixel_processing;
 use crate::{
     definitions::{PLUGIN_5_CIRCLE_IDENTIFIER, PLUGIN_5_CIRCLE_LABEL, PLUGINS_GROUPING},
     helpers::{
-        internal_utils::{rect_d_to_array, rect_i_from_array, set_labels},
-        shared_data::{
-            BitDepth, ClipImageManaged, GuaranteeSend, GuaranteeSendClipInInstance, SharedData,
+        internal_utils::{
+            BitDepth, ClipImageManaged, rect_d_to_array, rect_i_from_array, set_labels,
         },
+        shared_data::{GuaranteeSend, GuaranteeSendClipInInstance, SharedData},
     },
 };
 

@@ -36,8 +36,8 @@ use openfx::{
 use crate::{
     definitions::{PLUGIN_2_INVERT_IDENTIFIER, PLUGIN_2_INVERT_LABEL, PLUGINS_GROUPING},
     helpers::{
-        internal_utils::set_labels,
-        shared_data::{BitDepth, ClipImageManaged, GuaranteeSend, SharedData},
+        internal_utils::{BitDepth, ClipImageManaged, set_labels},
+        shared_data::{GuaranteeSend, SharedData},
     },
 };
 

@@ -31,10 +31,8 @@ use processing::pixel_processing;
 use crate::{
     definitions::{PLUGIN_4_SATURATION_IDENTIFIER, PLUGIN_4_SATURATION_LABEL, PLUGINS_GROUPING},
     helpers::{
-        internal_utils::{rect_i_from_array, set_labels},
-        shared_data::{
-            BitDepth, ClipImageManaged, GuaranteeSend, GuaranteeSendClipInInstance, SharedData,
-        },
+        internal_utils::{BitDepth, ClipImageManaged, rect_i_from_array, set_labels},
+        shared_data::{GuaranteeSend, GuaranteeSendClipInInstance, SharedData},
     },
 };
 
