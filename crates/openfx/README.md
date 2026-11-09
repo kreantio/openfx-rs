@@ -12,9 +12,6 @@
 > - Its API is expected to change.
 > - At present, only `openfx::sys` is fully implemented.
 >   `openfx::{low, low_plugin}` is still under development.
->
-> Although `openfx::{low, low_plugin}` already provides some functionality, it
-> is not currently recommended for use.
 
 This crate provides bindings for the OpenFX API in these abstraction layers:
 
@@ -46,48 +43,45 @@ crate-type = ["cdylib"]
 
 ### Examples
 
-#### WIP: writing plugins in layer `low_plugin`
+See also: [$REPO_ROOT/examples/README.md](../../examples/README.md)
 
-See also:
-[$REPO_ROOT/examples/layer-low/official-guide-example-plugins/src/lib.rs](../../examples/layer-low/official-guide-example-plugins/src/lib.rs)
+#### Skeleton
 
 <details open><summary>example code</summary>
 
 ```rs
-use openfx::{
-    low::Status,
-    low_plugin::{Action, Host, Plugin},
-    sys_plugin_helpers::{Plugins, export_plugins, plugin_struct},
-    sys::core::{OfxHost, OfxPlugin},
-};
+use std::ffi::{CStr, c_uint};
 
-// …
+use openfx::{
+    export_plugins,
+    low::{Status, StatusError},
+    low_plugin::{Host, Plugin, actions::image_effect::ImageEffectAction},
+    plugin_struct, sys, sys_plugin_helpers,
+};
 
 struct MyPlugins;
 export_plugins!(MyPlugins);
 
-impl Plugins for MyPlugins {
-    fn plugins(_host: Option<*const OfxHost>) -> Vec<OfxPlugin> {
+impl sys_plugin_helpers::Plugins for MyPlugins {
+    fn plugins(_host: Option<*const sys::core::OfxHost>) -> Vec<sys::core::OfxPlugin> {
         vec![plugin_struct!(BasicExamplePlugin)]
     }
 }
 
 struct BasicExamplePlugin;
 impl Plugin for BasicExamplePlugin {
-    const PLUGIN_IDENTIFIER: &'static CStr = c"org.openeffects:BasicExamplePlugin";
+    const PLUGIN_IDENTIFIER: &'static CStr = c"org.foo.bar";
     const PLUGIN_VERSION_MAJOR: c_uint = 1;
     const PLUGIN_VERSION_MINOR: c_uint = 0;
     fn set_host(host: Host) {
         todo!()
     }
-    fn main_entry(action: Action) -> Status {
+    fn main_entry(action: ImageEffectAction) -> std::result::Result<Status, StatusError> {
         match action {
             _ => todo!(),
         }
     }
 }
-
-// …
 ```
 
 </details>
