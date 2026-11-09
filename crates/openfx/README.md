@@ -35,7 +35,7 @@ some additional work after the binary is built. See:
 [some of the scripts I use for bundling the example plugins].
 
 [OpenFX reference / Packaging OFX Plug-ins]: https://openfx.readthedocs.io/en/latest/Reference/ofxPackaging.html
-[some of the scripts I use for bundling the example plugins]: ../../examples/ofx-guide-example-plugins-layer-low/scripts/bundle.sh
+[some of the scripts I use for bundling the example plugins]: ../../examples/layer-low/official-guide-example-plugins/scripts/bundle.sh
 
 Please don't forget that the `Cargo.toml` of your plugin crates should contain:
 
@@ -49,7 +49,7 @@ crate-type = ["cdylib"]
 #### WIP: writing plugins in layer `low_plugin`
 
 See also:
-[$REPO_ROOT/examples/ofx-guide-example-plugins-layer-low/src/lib.rs](../../examples/ofx-guide-example-plugins-layer-low/src/lib.rs)
+[$REPO_ROOT/examples/layer-low/official-guide-example-plugins/src/lib.rs](../../examples/layer-low/official-guide-example-plugins/src/lib.rs)
 
 <details open><summary>example code</summary>
 

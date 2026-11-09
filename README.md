@@ -22,6 +22,7 @@ See Also:
 - [AI_POLICY.md](./AI_POLICY.md)
 - [ATTRIBUTION.md](./ATTRIBUTION.md)
 - [CONTRIBUTING.md](./CONTRIBUTING.md)
+- [examples/README.md](./examples/README.md)
 
 ## Prerequisites
 

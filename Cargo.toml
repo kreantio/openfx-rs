@@ -5,7 +5,7 @@ members = [
   "crates/openfx",
   "crates/openfx-internal-macros",
   "crates/private/openfx-codegen",
-  "examples/ofx-guide-example-plugins-layer-low",
+  "examples/layer-low/official-guide-example-plugins",
   "crates/private/openfx-codegen-config",
 ]
 # for some reason, globs (e.g. "vendor/*", "vendor/**/*") don't work.

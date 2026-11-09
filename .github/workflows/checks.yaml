@@ -89,8 +89,8 @@ jobs:
       - name: Set up cargo cache
         uses: Swatinem/rust-cache@v2
 
-      - name: "Try building example: ofx-guide-example-plugins-layer-low"
-        run: cd examples/ofx-guide-example-plugins-layer-low && just build-preferring-dash
+      - name: "Try building example: layer-low/official-guide-example-plugins"
+        run: cd examples/layer-low/official-guide-example-plugins && just build-preferring-dash
 
   # ---------------------------------------------------------------------------
 
