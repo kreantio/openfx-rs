@@ -4,7 +4,7 @@ use openfx::{
 };
 
 use crate::{
-    plugin_1_basics::PluginExampleBasic, plugin_2_invert::PluginExampleInvert,
+    plugin_1_basics::PluginExampleBasics, plugin_2_invert::PluginExampleInvert,
     plugin_3_gain::PluginExampleGain, plugin_4_saturation::PluginExampleSaturation,
     plugin_5_circle::PluginExampleCircle,
 };
@@ -24,7 +24,7 @@ export_plugins!(ExamplePlugins);
 impl Plugins for ExamplePlugins {
     fn plugins(_host: Option<*const OfxHost>) -> Vec<OfxPlugin> {
         vec![
-            plugin_struct!(PluginExampleBasic),
+            plugin_struct!(PluginExampleBasics),
             plugin_struct!(PluginExampleInvert),
             plugin_struct!(PluginExampleGain),
             plugin_struct!(PluginExampleSaturation),

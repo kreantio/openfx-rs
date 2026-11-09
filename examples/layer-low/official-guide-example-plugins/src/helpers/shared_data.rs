@@ -48,6 +48,7 @@ unsafe impl Send for GuaranteeSendClipInInstance {}
 pub struct SharedData(pub Arc<SharedDataInner>);
 
 pub struct SharedDataInner {
+    // set of pointers provided by the host
     pub host: GuaranteeSend<Host>,
     pub property_suite: GuaranteeSend<PropertySuiteV1>,
     pub image_effect_suite: GuaranteeSend<ImageEffectSuiteV1>,

@@ -16,3 +16,6 @@ crate-type = ["cdylib"]
 
 [lints]
 workspace = true
+
+[profile.release]
+panic = "abort"
