@@ -47,6 +47,11 @@ pub fn impl_param_set_instance(attr: TokenStream, item: TokenStream) -> TokenStr
                     /// ## Safety
                     ///
                     /// `self` and `parameter_suite` must be valid."
+                    /// 
+                    /// Please ensure that the parameter type corresponding to
+                    /// `name` is correct. Although parameter type mismatches
+                    /// are safe here, calling methods on the returned
+                    /// parameter object in such cases may be problematic.
                     pub unsafe fn #fn_name(
                         &self,
                         parameter_suite: &crate::low_plugin::suites::ParameterSuiteV1,
@@ -62,6 +67,11 @@ pub fn impl_param_set_instance(attr: TokenStream, item: TokenStream) -> TokenStr
                     /// ## Safety
                     ///
                     /// `self` and `parameter_suite` must be valid."
+                    /// 
+                    /// Please ensure that the parameter type corresponding to
+                    /// `name` is correct. Although parameter type mismatches
+                    /// are safe here, calling methods on the returned
+                    /// parameter object in such cases may be problematic.
                     pub unsafe fn #fn_name_param_handle_only(
                         &self,
                         parameter_suite: &crate::low_plugin::suites::ParameterSuiteV1,

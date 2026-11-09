@@ -37,8 +37,18 @@ fn make_parameter_struct(output: &mut proc_macro2::TokenStream, input: &InputPar
         ///
         /// ## Safety
         ///
-        /// This type is not `Send`, but it is `Sync`. For details, see the Safety
-        /// section of [`crate::low_plugin::Host`], which has the same requirements.
+        /// This type is not `Send`, but it is `Sync`. For details, see the
+        /// Safety section of [`crate::low_plugin::Host`], which has the same
+        /// requirements.
+        ///
+        /// When we say that an instance of this type is valid, we mean not only
+        /// that the underlying handle is valid (i.e., that the host it came
+        /// from can handle it correctly), but also that its parameter type
+        /// matches the parameter type that this parameter object represents.
+        /// This matters because we use variadic functions to set and get
+        /// parameter values, and if either the element type (e.g., `Double` vs
+        /// `Int`) or the dimensionality (e.g., 1D vs 2D) does not match, bad
+        /// things can happen.
         #[derive(Clone, Copy)]
         pub struct #simple_ident(crate::sys_umbrella::OfxParamHandle);
         unsafe impl Sync for #simple_ident {}
