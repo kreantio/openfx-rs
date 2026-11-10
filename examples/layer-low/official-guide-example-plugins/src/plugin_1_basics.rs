@@ -13,6 +13,12 @@
 //! application to instantiate the plugin.
 //!
 //! The plugin itself does no image processing, it is a 'no-op' effect.
+//!
+//! Finally, the plugin can be used to validate whether a host application
+//! drives the OFX machinery correctly, and will print to stderr any[^1] issues
+//! it finds during the whole plugin life cycle.
+//!
+//! [^1]: not as much as the original.
 
 use std::{
     ffi::{CStr, c_void},
@@ -95,20 +101,20 @@ impl Plugin for PluginExampleBasics {
             ImageEffectAction::Load { .. } => action_load(),
             // The very last action called.
             ImageEffectAction::Unload { .. } => action_unload(),
-            // the first action called to describe what the plugin does.
+            // The first action called to describe what the plugin does.
             ImageEffectAction::Describe { handle, .. } => action_describe(handle),
-            // the second action called to describe what the plugin does.
+            // The second action called to describe what the plugin does.
             ImageEffectAction::DescribeInContext {
                 handle, in_args, ..
             } => action_describe_in_context(handle, in_args),
-            // the action called when an instance of a plugin is created.
+            // The action called when an instance of a plugin is created.
             ImageEffectAction::CreateInstance { handle, .. } => action_create_instance(handle),
-            // the action called when an instance of a plugin is destroyed.
+            // The action called when an instance of a plugin is destroyed.
             ImageEffectAction::DestroyInstance { handle, .. } => action_destroy_instance(handle),
             // The action called by the host to see if the plugin is currently
             // a "no-op". In this example we are always a no-op.
             ImageEffectAction::IsIdentity { out_args, .. } => action_is_identity(out_args),
-            // other actions to take the default value.
+            // Other actions to take the default value.
             _ => Ok(StatusReply::ReplyDefault.into()),
         }
     }
@@ -233,7 +239,7 @@ fn action_describe_in_context(
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
 
-    // get the context from the inArgs handle
+    // get the context from the `in_args`
     let context = unsafe { in_args.get_image_effect_context(s_prop) }.ok_or(StatusError::Failed)?;
     if context != ImageEffectPropContext::Filter {
         return Err(StatusError::ErrUnsupported);

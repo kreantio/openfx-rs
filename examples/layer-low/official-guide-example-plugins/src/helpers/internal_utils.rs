@@ -93,6 +93,9 @@ impl ClipImageManaged {
             return Err(StatusError::Failed);
         };
 
+        // figure out the data types
+
+        // how many components per pixel?
         let n_comps = match unsafe { props.get_image_effect_components_owned(s_prop) }
             .ok_or(StatusError::Failed)?
         {
@@ -104,6 +107,7 @@ impl ClipImageManaged {
                 return Err(StatusError::ErrUnsupported);
             }
         };
+
         let pixel_depth = match unsafe { props.get_image_effect_pixel_depth_owned(s_prop) }
             .ok_or(StatusError::Failed)?
         {
@@ -115,9 +119,12 @@ impl ClipImageManaged {
                 return Err(StatusError::ErrUnsupported);
             }
         };
+
         let row_bytes = unsafe { props.get_image_row_bytes(s_prop) }.ok_or(StatusError::Failed)?;
+
         let bounds = unsafe { props.get_image_bounds(s_prop) }.ok_or(StatusError::Failed)?;
         let bounds = rect_i_from_array(&bounds);
+
         let pixel_aspect_ratio =
             unsafe { props.get_image_pixel_aspect_ratio(s_prop) }.ok_or(StatusError::Failed)?;
 

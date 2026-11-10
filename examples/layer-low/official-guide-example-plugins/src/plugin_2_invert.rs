@@ -85,14 +85,14 @@ impl Plugin for PluginExampleInvert {
             // NOTE: This is not part of the original example. We use it to
             // explicitly drop `SHARED_DATA`.
             ImageEffectAction::Unload { .. } => action_unload(),
-            // the first action called to describe what the plugin does.
+            // The first action called to describe what the plugin does.
             ImageEffectAction::Describe { handle, .. } => action_describe(handle),
-            // the second action called to describe what the plugin does in a
+            // The second action called to describe what the plugin does in a
             // specific context.
             ImageEffectAction::DescribeInContext {
                 handle, in_args, ..
             } => action_describe_in_context(handle, in_args),
-            // action called to render a frame.
+            // The action called to render a frame.
             ImageEffectAction::Render {
                 handle, in_args, ..
             } => action_render(handle, in_args),
@@ -102,7 +102,7 @@ impl Plugin for PluginExampleInvert {
             // DaVinci Resolve would ignore the plugin.
             ImageEffectAction::CreateInstance { .. }
             | ImageEffectAction::DestroyInstance { .. } => Ok(Status::OK),
-            // other actions to take the default value.
+            // Other actions to take the default value.
             _ => Ok(StatusReply::ReplyDefault.into()),
         }
     }
@@ -357,7 +357,7 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
 
-    // get the render window and the time from the inArgs
+    // get the render window and the time from the `in_args`
     let time = unsafe { in_args.get_time(s_prop) }.ok_or(StatusError::Failed)?;
     let render_window =
         unsafe { in_args.get_image_effect_render_window(s_prop) }.ok_or(StatusError::Failed)?;
@@ -379,6 +379,7 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     let output_img_m = unsafe { ClipImageManaged::try_new(&data, output_img) }?;
     let source_img_m = unsafe { ClipImageManaged::try_new(&data, source_img) }?;
 
+    // now do our render depending on the data type
     match output_img_m.pixel_depth() {
         BitDepth::Byte => pixel_processing(
             255u8,
