@@ -11,8 +11,6 @@
 //! This plugin will take you through the basics of defining and using
 //! parameters as well as how to use instance data.
 
-mod processing;
-
 use std::{
     ffi::{CStr, c_void},
     sync::Mutex,
@@ -36,15 +34,15 @@ use openfx::{
         objects::{ImageEffectDescriptor, ImageEffectInstance},
         parameters::{ParamBoolean, ParamDouble},
     },
-    sys::core::kOfxPropLabel,
+    sys::core::{OfxRectI, kOfxPropLabel},
 };
-
-use processing::pixel_processing;
 
 use crate::{
     definitions::{PLUGIN_3_GAIN_IDENTIFIER, PLUGIN_3_GAIN_LABEL, PLUGINS_GROUPING},
     helpers::{
-        internal_utils::{BitDepth, ClipImageManaged, rect_i_from_array, set_labels},
+        internal_utils::{
+            BitDepth, ClipImageManaged, pixel_address, rect_i_from_array, set_labels,
+        },
         shared_data::{GuaranteeSend, GuaranteeSendClipInstance, SharedData},
     },
 };
@@ -496,4 +494,100 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
 
     // all was well
     Ok(Status::OK)
+}
+
+/// Iterate over our pixels and process them.
+#[allow(clippy::too_many_arguments)]
+pub fn pixel_processing<T>(
+    from_f64: fn(f64) -> T,
+    into_f64: fn(T) -> f64,
+    max: T,
+    gain: f64,
+    apply_to_alpha: bool,
+    data: &SharedData,
+    instance: ImageEffectInstance,
+    source_img: ClipImageManaged,
+    output_img: ClipImageManaged,
+    render_window: OfxRectI,
+) -> Result<(), StatusError>
+where
+    T: Copy + Default,
+{
+    let n_comps = output_img.n_comps();
+
+    let dst_row_bytes = output_img.row_bytes();
+    let dst_bounds = output_img.bounds();
+    let dst_ptr = output_img.data_ptr();
+    let dst_ptr = dst_ptr.as_ptr() as *mut T;
+
+    let src_row_bytes = source_img.row_bytes();
+    let src_bounds = source_img.bounds();
+    let src_ptr = source_img.data_ptr();
+    let src_ptr = src_ptr.as_ptr() as *mut T;
+
+    // do some processing.
+    for y in render_window.y1..render_window.y2 {
+        if y % 20 == 0
+            && unsafe {
+                data.image_effect_suite
+                    .sys_ref()
+                    .abort
+                    .is_some_and(|abort| abort(instance.sys_handle()) != 0)
+            }
+        {
+            return Ok(());
+        }
+
+        // get the row start for the output image
+        let Some(dst_pix) = pixel_address(
+            render_window.x1,
+            y,
+            dst_ptr,
+            dst_bounds,
+            dst_row_bytes,
+            n_comps,
+        ) else {
+            return Err(StatusError::Failed);
+        };
+        let mut dst_pix = dst_pix;
+
+        for x in render_window.x1..render_window.x2 {
+            // get the source pixel
+            let src_pix = pixel_address(x, y, src_ptr, src_bounds, src_row_bytes, n_comps);
+
+            if let Some(src_pix) = src_pix {
+                let mut src_pix = src_pix;
+                for i in 0..n_comps {
+                    unsafe {
+                        *dst_pix = if i != 3 || apply_to_alpha {
+                            // multiply our source component by our gain value
+                            let mut value = (into_f64)(*src_pix) * gain;
+
+                            // if it has gone out of legal bounds, clamp it.
+                            // we let floating point pixels over and underflow.
+                            if (into_f64)(max) != 1.0 {
+                                value = value.clamp(0.0, (into_f64)(max));
+                            }
+                            from_f64(value)
+                        } else {
+                            *src_pix
+                        };
+                        // increment to next component
+                        dst_pix = dst_pix.offset(1);
+                        src_pix = src_pix.offset(1);
+                    }
+                }
+            } else {
+                // we don't have a pixel in the source image, set output to zero
+                for _ in 0..n_comps {
+                    unsafe {
+                        *dst_pix = T::default();
+                        dst_pix = dst_pix.offset(1);
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(())
 }

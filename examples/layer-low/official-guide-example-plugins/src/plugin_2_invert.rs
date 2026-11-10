@@ -11,10 +11,7 @@
 //! This plugin will take you through the basics of grabbing and processing
 //! images with an OFX plugin by grabbing and input image and inverting it.
 
-use std::{
-    ffi::{CStr, c_int},
-    sync::Mutex,
-};
+use std::{ffi::CStr, sync::Mutex};
 
 use openfx::{
     low::{
@@ -36,7 +33,9 @@ use openfx::{
 use crate::{
     definitions::{PLUGIN_2_INVERT_IDENTIFIER, PLUGIN_2_INVERT_LABEL, PLUGINS_GROUPING},
     helpers::{
-        internal_utils::{BitDepth, ClipImageManaged, set_labels},
+        internal_utils::{
+            BitDepth, ClipImageManaged, pixel_address, rect_i_from_array, set_labels,
+        },
         shared_data::{GuaranteeSend, SharedData},
     },
 };
@@ -230,31 +229,65 @@ fn action_describe_in_context(
     Ok(Status::OK)
 }
 
-/// Look up a pixel in the image. Returns `None` if the pixel was not in the
-/// bounds of the image.
-fn pixel_address<T>(
-    x: c_int,
-    y: c_int,
-    base_address: *mut T,
-    bounds: OfxRectI,
-    row_bytes: c_int,
-    n_comps_per_pixel: c_int,
-) -> Option<*mut T> {
-    // Inside the bounds of this image?
-    if x < bounds.x1 || x >= bounds.x2 || y < bounds.y1 || y >= bounds.y2 {
-        return None;
-    }
+/// Render an output image.
+fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> OutboundResult {
+    let data = shared_data_lockless()?;
 
-    // turn image plane coordinates into offsets from the bottom left
-    let x_offset = (x - bounds.x1) as isize;
-    let y_offset = (y - bounds.y1) as isize;
+    let s_prop = &data.property_suite.0;
+    let s_ifx = &data.image_effect_suite.0;
 
-    // Find the start of our row, using byte arithmetic
-    let row_start_address =
-        unsafe { (base_address as *mut u8).offset(y_offset * row_bytes as isize) as *mut T };
+    // get the render window and the time from the `in_args`
+    let time = unsafe { in_args.get_time(s_prop) }.ok_or(StatusError::Failed)?;
+    let render_window =
+        unsafe { in_args.get_image_effect_render_window(s_prop) }.ok_or(StatusError::Failed)?;
+    let render_window = rect_i_from_array(&render_window);
 
-    // finally find the position of the first component of the column
-    Some(unsafe { row_start_address.offset(x_offset * n_comps_per_pixel as isize) })
+    // fetch output clip
+    let output_clip =
+        unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }.ok_or(StatusError::Failed)?;
+    // fetch main input clip
+    let source_clip =
+        unsafe { instance.clip_get_clip_handle(s_ifx, c"Source") }.ok_or(StatusError::Failed)?;
+
+    // the property sets holding our images
+    let output_img =
+        unsafe { output_clip.clip_get_image(s_ifx, time, None) }.ok_or(StatusError::Failed)?;
+    let source_img =
+        unsafe { source_clip.clip_get_image(s_ifx, time, None) }.ok_or(StatusError::Failed)?;
+
+    let output_img_m = unsafe { ClipImageManaged::try_new(&data, output_img) }?;
+    let source_img_m = unsafe { ClipImageManaged::try_new(&data, source_img) }?;
+
+    // now do our render depending on the data type
+    match output_img_m.pixel_depth() {
+        BitDepth::Byte => pixel_processing(
+            255u8,
+            &data,
+            instance,
+            source_img_m,
+            output_img_m,
+            render_window,
+        )?,
+        BitDepth::Short => pixel_processing(
+            65535u16,
+            &data,
+            instance,
+            source_img_m,
+            output_img_m,
+            render_window,
+        )?,
+        BitDepth::Float => pixel_processing(
+            1.0f32,
+            &data,
+            instance,
+            source_img_m,
+            output_img_m,
+            render_window,
+        )?,
+    };
+
+    // all was well
+    Ok(Status::OK)
 }
 
 /// Iterate over our pixels and process them.
@@ -339,74 +372,4 @@ where
     }
 
     Ok(())
-}
-
-fn rect_i_from_array(arr: &[c_int; 4]) -> OfxRectI {
-    OfxRectI {
-        x1: arr[0],
-        y1: arr[1],
-        x2: arr[2],
-        y2: arr[3],
-    }
-}
-
-/// Render an output image.
-fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> OutboundResult {
-    let data = shared_data_lockless()?;
-
-    let s_prop = &data.property_suite.0;
-    let s_ifx = &data.image_effect_suite.0;
-
-    // get the render window and the time from the `in_args`
-    let time = unsafe { in_args.get_time(s_prop) }.ok_or(StatusError::Failed)?;
-    let render_window =
-        unsafe { in_args.get_image_effect_render_window(s_prop) }.ok_or(StatusError::Failed)?;
-    let render_window = rect_i_from_array(&render_window);
-
-    // fetch output clip
-    let output_clip =
-        unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }.ok_or(StatusError::Failed)?;
-    // fetch main input clip
-    let source_clip =
-        unsafe { instance.clip_get_clip_handle(s_ifx, c"Source") }.ok_or(StatusError::Failed)?;
-
-    // the property sets holding our images
-    let output_img =
-        unsafe { output_clip.clip_get_image(s_ifx, time, None) }.ok_or(StatusError::Failed)?;
-    let source_img =
-        unsafe { source_clip.clip_get_image(s_ifx, time, None) }.ok_or(StatusError::Failed)?;
-
-    let output_img_m = unsafe { ClipImageManaged::try_new(&data, output_img) }?;
-    let source_img_m = unsafe { ClipImageManaged::try_new(&data, source_img) }?;
-
-    // now do our render depending on the data type
-    match output_img_m.pixel_depth() {
-        BitDepth::Byte => pixel_processing(
-            255u8,
-            &data,
-            instance,
-            source_img_m,
-            output_img_m,
-            render_window,
-        )?,
-        BitDepth::Short => pixel_processing(
-            65535u16,
-            &data,
-            instance,
-            source_img_m,
-            output_img_m,
-            render_window,
-        )?,
-        BitDepth::Float => pixel_processing(
-            1.0f32,
-            &data,
-            instance,
-            source_img_m,
-            output_img_m,
-            render_window,
-        )?,
-    };
-
-    // all was well
-    Ok(Status::OK)
 }

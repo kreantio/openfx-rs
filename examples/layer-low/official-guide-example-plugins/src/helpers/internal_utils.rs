@@ -57,6 +57,33 @@ pub unsafe fn set_labels(
     Ok(())
 }
 
+/// Look up a pixel in the image. Returns `None` if the pixel was not in the
+/// bounds of the image.
+pub fn pixel_address<T>(
+    x: c_int,
+    y: c_int,
+    base_address: *mut T,
+    bounds: OfxRectI,
+    row_bytes: c_int,
+    n_comps_per_pixel: c_int,
+) -> Option<*mut T> {
+    // Inside the bounds of this image?
+    if x < bounds.x1 || x >= bounds.x2 || y < bounds.y1 || y >= bounds.y2 {
+        return None;
+    }
+
+    // turn image plane coordinates into offsets from the bottom left
+    let x_offset = (x - bounds.x1) as isize;
+    let y_offset = (y - bounds.y1) as isize;
+
+    // Find the start of our row, using byte arithmetic
+    let row_start_address =
+        unsafe { (base_address as *mut u8).offset(y_offset * row_bytes as isize) as *mut T };
+
+    // finally find the position of the first component of the column
+    Some(unsafe { row_start_address.offset(x_offset * n_comps_per_pixel as isize) })
+}
+
 pub struct ClipImageManaged {
     image_effect_suite: GuaranteeSend<ImageEffectSuiteV1>,
     props: ImageInstancePropertySet,
