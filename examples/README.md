@@ -25,4 +25,44 @@ These are the ports of the example plugins in the official
 | `OFX Saturation Example` | [`plugin_4_saturation.rs`](./layer-low/official-guide-example-plugins/src/plugin_4_saturation.rs) |
 | `OFX Circle Example`     | [`plugin_5_circle.rs`](./layer-low/official-guide-example-plugins/src/plugin_5_circle.rs)         |
 
+### Plugin Making: `official-example-plugins`
+
+These are the ports of the example plugins under the official repository's
+[`Examples` folder].
+
+| Plugin Name                                    | Code (`layer-low`) |
+| ---------------------------------------------- | ------------------ |
+| Basic (`OFX Gain Example`)                     | TODO               |
+| ChoiceParams (`OFX Choice Param Example`)      | TODO               |
+| ColourSpace (…)                                | TODO               |
+| Custom (`OFX Custom Param Example`)            | TODO               |
+| DepthConverter (`OFX Depth Converter Example`) | TODO               |
+| DrawSuite (`OFX DrawSuite Example`)            | TODO               |
+| Invert (`OFX Invert Example`)                  | TODO               |
+| OpenGL (`OFX OpenGL Example`)                  | TODO               |
+| Overlay (`OFX Overlay Example`)                | TODO               |
+| Rectangle (`OFX Rectangle Example`)            | TODO               |
+| Test (`OFX Test Properties`)                   | TODO               |
+
+### Plugin Making: `official-old-support-example-plugins`
+
+These are the ports of the example plugins under the official repository's
+[`Support/Plugins` folder].
+
+| Plugin Name                               | Code (`layer-low`) |
+| ----------------------------------------- | ------------------ |
+| Basic (`Gain`)                            | TODO               |
+| ChoiceParams (`Choice Params (Support)`)  | TODO               |
+| Field (`Field`)                           | TODO               |
+| GPUGain (`GPU Gain`)                      | TODO               |
+| Generator (`Noise`)                       | TODO               |
+| Invert (`Invert`)                         | TODO               |
+| MultiBundle (`Gamma` and `Dot Generator`) | TODO               |
+| Retimer (`Retimer`)                       | TODO               |
+| Tester (`GenericTest`)                    | TODO               |
+| Transition (`Cross Fade`)                 | TODO               |
+| ../PropTester (`Prop Tester`)             | TODO               |
+
 [OpenFX Programming Guide]: https://openfx.readthedocs.io/en/main/Guide/index.html
+[`Examples` folder]: https://github.com/AcademySoftwareFoundation/openfx/tree/main/Examples
+[`Support/Plugins` folder]: https://github.com/AcademySoftwareFoundation/openfx/tree/main/Support/Plugins
