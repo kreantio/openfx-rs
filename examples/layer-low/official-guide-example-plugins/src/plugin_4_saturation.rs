@@ -40,7 +40,7 @@ use openfx::{
 use crate::{
     definitions::{PLUGIN_4_SATURATION_IDENTIFIER, PLUGIN_4_SATURATION_LABEL, PLUGINS_GROUPING},
     helpers::{
-        internal_utils::{BitDepth, ClipImageManaged, rect_i_from_array, set_labels},
+        internal_utils::{BitDepth, ClipImageManaged, blend, rect_i_from_array, set_labels},
         shared_data::{GuaranteeSend, GuaranteeSendClipInstance, SharedData},
     },
 };
@@ -54,10 +54,12 @@ struct MyInstanceData {
     #[expect(unused)]
     is_general_context: bool,
 
+    // wrapper objects to the clips we deal with
     source_clip: GuaranteeSendClipInstance,
     output_clip: GuaranteeSendClipInstance,
     mask_clip: Option<GuaranteeSendClipInstance>,
 
+    // wrapper objects to our parameter(s)
     saturation_param: ParamDouble,
 }
 
@@ -70,6 +72,9 @@ fn shared_data_lockless() -> Result<SharedData, StatusError> {
 // name of our param
 const SATURATION_PARAM_NAME: &CStr = c"saturation";
 
+/// The high-level representation of the [`openfx::sys::core::OfxPlugin`] struct
+/// that is passed back to the host application to initiate bootstrapping of
+/// plugin communications.
 pub struct PluginExampleSaturation;
 impl Plugin for PluginExampleSaturation {
     // The unique ID of this plugin.
@@ -240,14 +245,10 @@ fn action_describe_in_context(
     for name in [c"Output", c"Source"] {
         let props = unsafe { descriptor.clip_define(s_ifx, name) }.ok_or(StatusError::Failed)?;
 
+        // set the component types we can handle on our output & our main input
         (unsafe {
-            props.set_image_effect_supported_components(
-                s_prop,
-                &[
-                    ImageEffectPropSupportedComponents::RGBA.into(),
-                    ImageEffectPropSupportedComponents::RGB.into(),
-                ],
-            )
+            use ImageEffectPropSupportedComponents as C;
+            props.set_image_effect_supported_components(s_prop, &[C::RGBA.into(), C::RGB.into()])
         })
         .ok_or(StatusError::Failed)?;
     }
@@ -263,6 +264,7 @@ fn action_describe_in_context(
                     &[ImageEffectPropSupportedComponents::Alpha.into()],
                 )
                 .ok_or(StatusError::Failed)?;
+
             props
                 .set_image_clip_optional(s_prop, true)
                 .ok_or(StatusError::Failed)?;
@@ -535,11 +537,6 @@ pub fn pixel_processing<T>(
 where
     T: Copy + Default + std::ops::Add<Output = T>,
 {
-    /// Blend v2 into v1 by the given blend factor.
-    fn blend(v1: f64, v2: f64, blend: f64) -> f64 {
-        v1 + (v2 - v1) * blend
-    }
-
     // do some processing.
     for y in render_window.y1..render_window.y2 {
         if y % 20 == 0

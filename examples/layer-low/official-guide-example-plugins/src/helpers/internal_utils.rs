@@ -85,6 +85,11 @@ pub fn pixel_address<T>(
     Some(unsafe { row_start_address.offset(x_offset * n_comps_per_pixel as isize) })
 }
 
+/// Blend v2 into v1 by the given blend factor.
+pub fn blend(v1: f64, v2: f64, blend: f64) -> f64 {
+    v1 + (v2 - v1) * blend
+}
+
 /// Struct to manage OFX images.
 pub struct ClipImageManaged {
     image_effect_suite: GuaranteeSend<ImageEffectSuiteV1>,

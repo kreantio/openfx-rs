@@ -49,6 +49,9 @@ fn shared_data_lockless() -> Result<SharedData, StatusError> {
     Ok(data.clone())
 }
 
+/// The high-level representation of the [`openfx::sys::core::OfxPlugin`] struct
+/// that is passed back to the host application to initiate bootstrapping of
+/// plugin communications.
 pub struct PluginExampleInvert;
 impl Plugin for PluginExampleInvert {
     // The unique ID of this plugin.

@@ -68,6 +68,9 @@ fn is_loaded() -> bool {
     G_LOADING_STATE.load(atomic::Ordering::Relaxed) == 2
 }
 
+/// The high-level representation of the [`openfx::sys::core::OfxPlugin`] struct
+/// that is passed back to the host application to initiate bootstrapping of
+/// plugin communications.
 pub struct PluginExampleBasics;
 impl Plugin for PluginExampleBasics {
     /// The unique ID of this plugin.
@@ -103,7 +106,8 @@ impl Plugin for PluginExampleBasics {
             ImageEffectAction::Unload { .. } => action_unload(),
             // The first action called to describe what the plugin does.
             ImageEffectAction::Describe { handle, .. } => action_describe(handle),
-            // The second action called to describe what the plugin does.
+            // The second action called to describe what the plugin does in a
+            // specific context.
             ImageEffectAction::DescribeInContext {
                 handle, in_args, ..
             } => action_describe_in_context(handle, in_args),

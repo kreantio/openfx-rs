@@ -71,6 +71,9 @@ fn shared_data_lockless() -> Result<SharedData, StatusError> {
 const GAIN_PARAM_NAME: &CStr = c"gain";
 const APPLY_TO_ALPHA_PARAM_NAME: &CStr = c"applyToAlpha";
 
+/// The high-level representation of the [`openfx::sys::core::OfxPlugin`] struct
+/// that is passed back to the host application to initiate bootstrapping of
+/// plugin communications.
 pub struct PluginExampleGain;
 impl Plugin for PluginExampleGain {
     // The unique ID of this plugin.
