@@ -149,7 +149,7 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
         .ok_or(StatusError::Failed)?;
 
     unsafe {
-        // set some labels and the group it belongs to
+        // set some labels and the group it belongs to.
         // NOTE: The original example only sets `kOfxPropLabel`. Instead, we set
         // all three labels at once so that the plugin's label displays
         // correctly in DaVinci Resolve's Cut tab.
@@ -255,33 +255,33 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     let source_img =
         unsafe { source_clip.clip_get_image(s_ifx, time, None) }.ok_or(StatusError::Failed)?;
 
-    let output_img_m = unsafe { ClipImageManaged::try_new(&data, output_img) }?;
-    let source_img_m = unsafe { ClipImageManaged::try_new(&data, source_img) }?;
+    let output_img = unsafe { ClipImageManaged::try_new_from_property_set(&data, output_img) }?;
+    let source_img = unsafe { ClipImageManaged::try_new_from_property_set(&data, source_img) }?;
 
     // now do our render depending on the data type
-    match output_img_m.pixel_depth() {
+    match output_img.pixel_depth() {
         BitDepth::Byte => pixel_processing(
             255u8,
             &data,
             instance,
-            source_img_m,
-            output_img_m,
+            source_img,
+            output_img,
             render_window,
         )?,
         BitDepth::Short => pixel_processing(
             65535u16,
             &data,
             instance,
-            source_img_m,
-            output_img_m,
+            source_img,
+            output_img,
             render_window,
         )?,
         BitDepth::Float => pixel_processing(
             1.0f32,
             &data,
             instance,
-            source_img_m,
-            output_img_m,
+            source_img,
+            output_img,
             render_window,
         )?,
     };

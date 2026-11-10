@@ -9,12 +9,13 @@ use openfx::{
         enums::{ImageEffectPropComponents, ImageEffectPropPixelDepth},
     },
     low_plugin::{
+        objects::ImageClipInstance,
         property_sets::{
             ImageEffectDescriptorPropertySet, ImageInstancePropertySet, LosslessEnumPropertyOwned,
         },
         suites::{ImageEffectSuiteV1, PropertySuiteV1},
     },
-    sys::core::{OfxRectD, OfxRectI},
+    sys::core::{OfxRectD, OfxRectI, OfxTime},
 };
 
 use crate::helpers::shared_data::{GuaranteeSend, SharedData};
@@ -84,6 +85,7 @@ pub fn pixel_address<T>(
     Some(unsafe { row_start_address.offset(x_offset * n_comps_per_pixel as isize) })
 }
 
+/// Struct to manage OFX images.
 pub struct ClipImageManaged {
     image_effect_suite: GuaranteeSend<ImageEffectSuiteV1>,
     props: ImageInstancePropertySet,
@@ -105,10 +107,12 @@ pub enum BitDepth {
 }
 
 impl ClipImageManaged {
+    /// Construct from a property set that represents the image.
+    ///
     /// ## Safety
     ///
     /// The caller must ensure that the input `image_props` is valid.
-    pub unsafe fn try_new(
+    pub unsafe fn try_new_from_property_set(
         shared_data: &SharedData,
         props: ImageInstancePropertySet,
     ) -> Result<Self, StatusError> {
@@ -135,6 +139,7 @@ impl ClipImageManaged {
             }
         };
 
+        // what is the data type
         let pixel_depth = match unsafe { props.get_image_effect_pixel_depth_owned(s_prop) }
             .ok_or(StatusError::Failed)?
         {
@@ -168,12 +173,25 @@ impl ClipImageManaged {
         })
     }
 
+    /// Construct from a clip by fetching an image at the given frame.
+    pub unsafe fn try_new_from_clip(
+        shared_data: &SharedData,
+        clip: &ImageClipInstance,
+        frame: OfxTime,
+    ) -> Result<Self, StatusError> {
+        let prop_set = unsafe { clip.clip_get_image(&shared_data.image_effect_suite, frame, None) }
+            .ok_or(StatusError::Failed)?;
+        unsafe { Self::try_new_from_property_set(shared_data, prop_set) }
+    }
+
+    /// number of components.
     pub fn n_comps(&self) -> c_int {
         self.n_comps
     }
     pub fn pixel_depth(&self) -> BitDepth {
         self.pixel_depth
     }
+    /// bytes per component, 1, 2 or 4 for byte, short and float images.
     pub fn bytes_per_component(&self) -> c_int {
         match self.pixel_depth {
             BitDepth::Byte => 1,
@@ -197,24 +215,31 @@ impl ClipImageManaged {
         self.data_ptr
     }
 
+    /// Look up a pixel in the image. Returns `None` if the pixel was not in the
+    /// bounds of the image.
     pub fn raw_address(&self, x: c_int, y: c_int) -> Option<*mut c_void> {
+        // Inside the bounds of this image?
         if x < self.bounds.x1 || x >= self.bounds.x2 || y < self.bounds.y1 || y >= self.bounds.y2 {
             return None;
         }
 
+        // turn image plane coordinates into offsets from the bottom left
         let x_offset = x - self.bounds.x1;
         let y_offset = y - self.bounds.y1;
 
+        // Find the start of our row, using byte arithmetic
         let row_start = unsafe {
             (self.data_ptr.as_ptr() as *mut u8).offset(y_offset as isize * self.row_bytes as isize)
         };
 
+        // finally find the position of the first component of the column
         Some(unsafe {
             row_start.offset(x_offset as isize * self.bytes_per_pixel() as isize) as *mut c_void
         })
     }
 }
 
+/// Destructor.
 impl Drop for ClipImageManaged {
     fn drop(&mut self) {
         let _ = unsafe { self.image_effect_suite.0.clip_release_image(&self.props) };

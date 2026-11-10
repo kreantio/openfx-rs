@@ -196,7 +196,7 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
         .ok_or(StatusError::Failed)?;
 
     unsafe {
-        // set some labels and the group it belongs to
+        // set some labels and the group it belongs to.
         // NOTE: The original example only sets `kOfxPropLabel`. Instead, we set
         // all three labels at once so that the plugin's label displays
         // correctly in DaVinci Resolve's Cut tab.

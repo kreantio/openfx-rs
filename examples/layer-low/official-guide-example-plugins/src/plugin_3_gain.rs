@@ -50,6 +50,7 @@ use crate::{
 static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(None);
 static SHARED_DATA: Mutex<Option<SharedData>> = Mutex::new(None);
 
+/// Our instance data, where we are caching away clip and param objects.
 struct MyInstanceData {
     // wrapper objects to the clips we deal with
     source_clip: GuaranteeSendClipInstance,
@@ -66,6 +67,7 @@ fn shared_data_lockless() -> Result<SharedData, StatusError> {
     Ok(data.clone())
 }
 
+// name of our two params
 const GAIN_PARAM_NAME: &CStr = c"gain";
 const APPLY_TO_ALPHA_PARAM_NAME: &CStr = c"applyToAlpha";
 
@@ -171,7 +173,7 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
     let props = unsafe { descriptor.get_property_set(s_ifx) }.ok_or(StatusError::Failed)?;
 
     unsafe {
-        // set some labels and the group it belongs to
+        // set some labels and the group it belongs to.
         // NOTE: The original example only sets `kOfxPropLabel`. Instead, we set
         // all three labels at once so that the plugin's label displays
         // correctly in DaVinci Resolve's Cut tab.
@@ -249,15 +251,14 @@ fn action_describe_in_context(
         .ok_or(StatusError::Failed)?;
     }
 
-    // first get the handle to the parameter set
+    // first get the wrapper object to the parameter set
     let param_set = unsafe { descriptor.get_param_set(s_ifx) }.ok_or(StatusError::Failed)?;
 
     {
-        // properties on our parameter
+        // now define a 'gain' parameter and set its properties
         let param_props = unsafe { param_set.param_define_double(s_param, GAIN_PARAM_NAME) }
             .ok_or(StatusError::Failed)?;
 
-        // now define a 'gain' parameter and set its properties
         unsafe {
             param_props
                 .set_param_double_type(s_prop, ParamPropDoubleType::Scale.into())
@@ -325,7 +326,7 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
         unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }.ok_or(StatusError::Failed)?;
 
     let param_set = unsafe { instance.get_param_set(s_ifx) }.ok_or(StatusError::Failed)?;
-    //the param objects wrapping the respective handles
+    // the param objects wrapping the respective handles
     let gain_param = unsafe { param_set.param_get_param_handle_double(s_param, GAIN_PARAM_NAME) }
         .ok_or(StatusError::Failed)?;
     let apply_to_alpha_param =
@@ -342,7 +343,7 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
     };
     let my_data_ptr = Box::into_raw(Box::new(my_data)) as *mut c_void;
 
-    // Set my private instance data
+    // Set my private instance data.
     // SAFETY: the pointee is kept alive by `Box::into_raw` until it is
     // reclaimed with `Box::from_raw` in `action_destroy_instance`.
     if let r =
@@ -449,11 +450,11 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     let source_img = unsafe { my_data.source_clip.0.clip_get_image(s_ifx, time, None) }
         .ok_or(StatusError::Failed)?;
 
-    let output_img_m = unsafe { ClipImageManaged::try_new(&data, output_img) }?;
-    let source_img_m = unsafe { ClipImageManaged::try_new(&data, source_img) }?;
+    let output_img = unsafe { ClipImageManaged::try_new_from_property_set(&data, output_img) }?;
+    let source_img = unsafe { ClipImageManaged::try_new_from_property_set(&data, source_img) }?;
 
     // now do our render depending on the data type
-    match output_img_m.pixel_depth() {
+    match output_img.pixel_depth() {
         BitDepth::Byte => pixel_processing(
             |f| f as u8,
             |v| v as f64,
@@ -462,8 +463,8 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
             apply_to_alpha,
             &data,
             instance,
-            source_img_m,
-            output_img_m,
+            source_img,
+            output_img,
             render_window,
         )?,
         BitDepth::Short => pixel_processing(
@@ -474,8 +475,8 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
             apply_to_alpha,
             &data,
             instance,
-            source_img_m,
-            output_img_m,
+            source_img,
+            output_img,
             render_window,
         )?,
         BitDepth::Float => pixel_processing(
@@ -486,8 +487,8 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
             apply_to_alpha,
             &data,
             instance,
-            source_img_m,
-            output_img_m,
+            source_img,
+            output_img,
             render_window,
         )?,
     }

@@ -582,8 +582,8 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     let source_img = unsafe { my_data.source_clip.0.clip_get_image(s_ifx, time, None) }
         .ok_or(StatusError::Failed)?;
 
-    let output_img_m = unsafe { ClipImageManaged::try_new(&data, output_img) }?;
-    let source_img_m = unsafe { ClipImageManaged::try_new(&data, source_img) }?;
+    let output_img_m = unsafe { ClipImageManaged::try_new_from_property_set(&data, output_img) }?;
+    let source_img_m = unsafe { ClipImageManaged::try_new_from_property_set(&data, source_img) }?;
 
     match output_img_m.pixel_depth() {
         BitDepth::Byte => pixel_processing(
