@@ -195,7 +195,7 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
 
     let s_prop = &data.property_suite.0;
 
-    // get the property set handle for the plugin
+    // get the property set object for the plugin
     let props = unsafe { descriptor.get_property_set(&data.image_effect_suite.0) }
         .ok_or(StatusError::Failed)?;
 
