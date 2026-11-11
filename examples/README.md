@@ -30,39 +30,53 @@ These are the ports of the example plugins in the official
 These are the ports of the example plugins under the official repository's
 [`Examples` folder].
 
-| Plugin Name                                    | Code (`layer-low`)                                                                   |
-| ---------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Basic (`OFX Gain Example`)                     | TODO                                                                                 |
-| ChoiceParams (`OFX Choice Param Example`)      | TODO                                                                                 |
-| ColourSpace (…)                                | TODO                                                                                 |
-| Custom (`OFX Custom Param Example`)            | TODO                                                                                 |
-| DepthConverter (`OFX Depth Converter Example`) | TODO                                                                                 |
-| DrawSuite (`OFX DrawSuite Example`)            | TODO                                                                                 |
-| Invert (`OFX Invert Example`)                  | TODO                                                                                 |
-| OpenGL (`OFX OpenGL Example`)                  | WIP: [`plugin_opengl.rs`](./layer-low/official-example-plugins/src/plugin_opengl.rs) |
-| Overlay (`OFX Overlay Example`)                | TODO                                                                                 |
-| Rectangle (`OFX Rectangle Example`)            | TODO                                                                                 |
-| Test (`OFX Test Properties`)                   | TODO                                                                                 |
+| Plugin Name                                    | Code (`layer-low`)                                                                   | Keywords                                                     |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| Basic (`OFX Gain Example`)                     | TODO                                                                                 | (TBD)                                                        |
+| ChoiceParams (`OFX Choice Param Example`)      | TODO                                                                                 | `kOfxParamTypeChoice`                                        |
+| ColourSpace (…)                                | TODO                                                                                 | (TBD)                                                        |
+| Custom (`OFX Custom Param Example`)            | TODO                                                                                 | `kOfxParamTypeCustom`                                        |
+| DepthConverter (`OFX Depth Converter Example`) | TODO                                                                                 | (TBD)                                                        |
+| DrawSuite (`OFX DrawSuite Example`)            | TODO                                                                                 | `OfxInteractSuiteV1`, `…OverlayInteractV2`, `OfxDrawSuiteV1` |
+| Invert (`OFX Invert Example`)                  | TODO                                                                                 | (TBD)                                                        |
+| OpenGL (`OFX OpenGL Example`)                  | WIP: [`plugin_opengl.rs`](./layer-low/official-example-plugins/src/plugin_opengl.rs) | OpenGL                                                       |
+| Overlay (`OFX Overlay Example`)                | TODO                                                                                 | `OfxInteractSuiteV1`, `…OverlayInteractV1`                   |
+| Rectangle (`OFX Rectangle Example`)            | TODO                                                                                 | `kOfxImageEffectContextGenerator`                            |
+| Test (`OFX Test Properties`)                   | TODO                                                                                 | (TBD)                                                        |
 
 ### Plugin Making: `official-old-support-example-plugins`
 
 These are the ports of the example plugins under the official repository's
 [`Support/Plugins` folder].
 
-| Plugin Name                               | Code (`layer-low`) |
-| ----------------------------------------- | ------------------ |
-| Basic (`Gain`)                            | TODO               |
-| ChoiceParams (`Choice Params (Support)`)  | TODO               |
-| Field (`Field`)                           | TODO               |
-| GPUGain (`GPU Gain`)                      | TODO               |
-| Generator (`Noise`)                       | TODO               |
-| Invert (`Invert`)                         | TODO               |
-| MultiBundle (`Gamma` and `Dot Generator`) | TODO               |
-| Retimer (`Retimer`)                       | TODO               |
-| Tester (`GenericTest`)                    | TODO               |
-| Transition (`Cross Fade`)                 | TODO               |
-| ../PropTester (`Prop Tester`)             | TODO               |
+| Plugin Name                                   | Code (`layer-low`) | Keywords                           |
+| --------------------------------------------- | ------------------ | ---------------------------------- |
+| Basic (`Gain`)                                | TODO               | (TBD)                              |
+| ChoiceParams (`Choice Params (Support)`)      | TODO               | `kOfxParamTypeChoice`              |
+| Field (`Field`)                               | WON'T DO           | [Field]                            |
+| GPUGain (`GPU Gain`)                          | TODO               | ~~CUDA, OpenCL,~~ Metal[^1]        |
+| Generator (`Noise`)                           | TODO               | `kOfxImageEffectContextGenerator`  |
+| Invert (`Invert`)                             | TODO               | (TBD)                              |
+| MultiBundle[^2] (`Gamma` and `Dot Generator`) | TODO               | (TBD)                              |
+| Retimer (`Retimer`)                           | TODO               | `kOfxImageEffectContextRetimer`    |
+| Tester (`GenericTest`)                        | TODO               | (TBD)                              |
+| Transition (`Cross Fade`)                     | TODO               | `kOfxImageEffectContextTransition` |
+| ../PropTester (`Prop Tester`)                 | TODO               | (TBD)                              |
+
+[^1]: Due to limitations of the maintainer(s), only the Metal part of the
+    example is implemented.
+
+[^2]: The official version of this example is intended to showcase a single
+    OpenFX bundle containing multiple plugins. We already do this: example
+    plugins for the same project with the same topic are bundled together into
+    one bundle.
+
+### Plugin Making: `our-layer-low-exclusive-example-plugins`
+
+| Plugin Name | Code (`layer-low`) | Keywords |
+| ----------- | ------------------ | -------- |
 
 [OpenFX Programming Guide]: https://openfx.readthedocs.io/en/main/Guide/index.html
 [`Examples` folder]: https://github.com/AcademySoftwareFoundation/openfx/tree/main/Examples
 [`Support/Plugins` folder]: https://github.com/AcademySoftwareFoundation/openfx/tree/main/Support/Plugins
+[Field]: https://en.wikipedia.org/wiki/Field_(video)
