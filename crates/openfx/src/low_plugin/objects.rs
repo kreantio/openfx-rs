@@ -178,8 +178,8 @@ impl ImageClipInstance {
         &self,
         image_effect_open_gl_render_suite: &ImageEffectOpenGLRenderSuiteV1,
         time: OfxTime,
-        format: &CStr,
-        region: &OfxRectD,
+        format: Option<&CStr>,
+        region: Option<&OfxRectD>,
     ) -> InboundResult<OpenGLTexturePropertySet> {
         unsafe { image_effect_open_gl_render_suite.clip_load_texture(self, time, format, region) }
     }
