@@ -83,7 +83,7 @@ struct MyInstanceData {
     grow_rod_param: Option<ParamBoolean>,
 }
 
-fn shared_data_lockless() -> Result<(SharedData, Arc<AdditionalSharedData>), StatusError> {
+fn global_data_lockless() -> Result<(SharedData, Arc<AdditionalSharedData>), StatusError> {
     let data = GLOBAL_DATA.lock().map_err(|_| StatusError::Failed)?;
     let data = data.as_ref().ok_or(StatusError::Failed)?;
     Ok((data.0.clone(), data.1.clone()))
@@ -220,7 +220,7 @@ fn action_unload() -> OutboundResult {
 
 /// The plugin's basic description routine.
 fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
-    let (data, _additional) = shared_data_lockless()?;
+    let (data, _additional) = global_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
@@ -281,7 +281,7 @@ fn action_describe_in_context(
     descriptor: ImageEffectDescriptor,
     in_args: ActionDescribeInContextIn,
 ) -> OutboundResult {
-    let (data, additional) = shared_data_lockless()?;
+    let (data, additional) = global_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
@@ -423,7 +423,7 @@ fn action_describe_in_context(
 
 /// Instance construction.
 fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
-    let (data, additional) = shared_data_lockless()?;
+    let (data, additional) = global_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
@@ -484,7 +484,7 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
 
 /// Instance destruction.
 fn action_destroy_instance(instance: ImageEffectInstance) -> OutboundResult {
-    let (data, _additional) = shared_data_lockless()?;
+    let (data, _additional) = global_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
@@ -508,7 +508,7 @@ fn action_get_region_of_definition(
     in_args: ActionGetRegionOfDefinitionIn,
     out_args: ActionGetRegionOfDefinitionOut,
 ) -> OutboundResult {
-    let (data, additional) = shared_data_lockless()?;
+    let (data, additional) = global_data_lockless()?;
 
     if !additional.host_supports_multi_res {
         return Ok(StatusReply::ReplyDefault.into());
@@ -575,7 +575,7 @@ fn action_is_identity(
     in_args: ActionIsIdentityIn,
     out_args: ActionIsIdentityOut,
 ) -> OutboundResult {
-    let (data, _additional) = shared_data_lockless()?;
+    let (data, _additional) = global_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
@@ -645,7 +645,7 @@ fn action_is_identity(
 
 /// Render an output image.
 fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> OutboundResult {
-    let (data, _additional) = shared_data_lockless()?;
+    let (data, _additional) = global_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
