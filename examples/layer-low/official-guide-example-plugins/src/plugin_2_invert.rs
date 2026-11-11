@@ -253,13 +253,8 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
         unsafe { instance.clip_get_clip_handle(s_ifx, c"Source") }.ok_or(StatusError::Failed)?;
 
     // the property sets holding our images
-    let output_img =
-        unsafe { output_clip.clip_get_image(s_ifx, time, None) }.ok_or(StatusError::Failed)?;
-    let source_img =
-        unsafe { source_clip.clip_get_image(s_ifx, time, None) }.ok_or(StatusError::Failed)?;
-
-    let output_img = unsafe { ClipImageManaged::try_new_from_property_set(&data, output_img) }?;
-    let source_img = unsafe { ClipImageManaged::try_new_from_property_set(&data, source_img) }?;
+    let output_img = unsafe { ClipImageManaged::try_new_from_clip(&data, &output_clip, time) }?;
+    let source_img = unsafe { ClipImageManaged::try_new_from_clip(&data, &source_clip, time) }?;
 
     // now do our render depending on the data type
     match output_img.pixel_depth() {

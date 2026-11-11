@@ -5,7 +5,7 @@ use std::{
 
 use openfx::{
     low::{
-        StatusError,
+        InboundResult, StatusError,
         enums::{ImageEffectPropComponents, ImageEffectPropPixelDepth},
     },
     low_plugin::{
@@ -112,12 +112,54 @@ pub enum BitDepth {
 }
 
 impl ClipImageManaged {
+    /// Construct from a clip by fetching an image at the given frame.
+    ///
+    /// ## TODO
+    ///
+    /// There was a theoretical potential for a resource leak if the image data
+    /// was acquired but construction failed later. That has been fixed here.
+    /// The issue exists in the original example and may be worth reporting
+    /// upstream.
+    pub unsafe fn try_new_from_clip(
+        shared_data: &SharedData,
+        clip: &ImageClipInstance,
+        frame: OfxTime,
+    ) -> Result<Self, StatusError> {
+        let prop_set = unsafe { clip.clip_get_image(&shared_data.image_effect_suite, frame, None) }
+            .ok_or(StatusError::Failed)?;
+
+        let ret = unsafe { Self::try_new_from_property_set(shared_data, prop_set) };
+        if !ret.is_ok() {
+            unsafe { Self::release_image(&shared_data.image_effect_suite, &prop_set) };
+        }
+        ret
+    }
+
+    pub unsafe fn try_new_from_clip_if_available(
+        shared_data: &SharedData,
+        clip: &ImageClipInstance,
+        frame: OfxTime,
+    ) -> Result<Option<Self>, StatusError> {
+        let prop_set =
+            match unsafe { clip.clip_get_image(&shared_data.image_effect_suite, frame, None) } {
+                InboundResult::Ok(img) => img,
+                InboundResult::KnownError(StatusError::Failed) => return Ok(None), // (perhaps) unconnected
+                _ => return Err(StatusError::Failed),
+            };
+
+        let ret = unsafe { Self::try_new_from_property_set(shared_data, prop_set) };
+        if !ret.is_ok() {
+            unsafe { Self::release_image(&shared_data.image_effect_suite, &prop_set) };
+        }
+        ret.map(Some)
+    }
+
     /// Construct from a property set that represents the image.
     ///
     /// ## Safety
     ///
     /// The caller must ensure that the input `image_props` is valid.
-    pub unsafe fn try_new_from_property_set(
+    unsafe fn try_new_from_property_set(
         shared_data: &SharedData,
         props: ImageInstancePropertySet,
     ) -> Result<Self, StatusError> {
@@ -178,17 +220,6 @@ impl ClipImageManaged {
         })
     }
 
-    /// Construct from a clip by fetching an image at the given frame.
-    pub unsafe fn try_new_from_clip(
-        shared_data: &SharedData,
-        clip: &ImageClipInstance,
-        frame: OfxTime,
-    ) -> Result<Self, StatusError> {
-        let prop_set = unsafe { clip.clip_get_image(&shared_data.image_effect_suite, frame, None) }
-            .ok_or(StatusError::Failed)?;
-        unsafe { Self::try_new_from_property_set(shared_data, prop_set) }
-    }
-
     /// number of components.
     pub fn n_comps(&self) -> c_int {
         self.n_comps
@@ -220,6 +251,16 @@ impl ClipImageManaged {
         self.data_ptr
     }
 
+    /// ## TODO
+    ///
+    /// Figure out how to properly handle non-OK statuses.
+    unsafe fn release_image(
+        image_effect_suite: &ImageEffectSuiteV1,
+        props: &ImageInstancePropertySet,
+    ) {
+        let _ = unsafe { image_effect_suite.clip_release_image(props) };
+    }
+
     /// Look up a pixel in the image. Returns `None` if the pixel was not in the
     /// bounds of the image.
     pub fn raw_address(&self, x: c_int, y: c_int) -> Option<*mut c_void> {
@@ -247,6 +288,6 @@ impl ClipImageManaged {
 /// Destructor.
 impl Drop for ClipImageManaged {
     fn drop(&mut self) {
-        let _ = unsafe { self.image_effect_suite.0.clip_release_image(&self.props) };
+        unsafe { Self::release_image(&self.image_effect_suite.0, &self.props) };
     }
 }

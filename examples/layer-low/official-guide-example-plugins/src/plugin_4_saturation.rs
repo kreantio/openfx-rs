@@ -18,7 +18,7 @@ use std::{
 
 use openfx::{
     low::{
-        InboundResult, OutboundResult, Status, StatusError, StatusReply,
+        OutboundResult, Status, StatusError, StatusReply,
         enums::{
             ImageEffectPluginRenderThreadSafety, ImageEffectPropContext,
             ImageEffectPropSupportedComponents, ImageEffectPropSupportedContexts,
@@ -465,13 +465,7 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     // there as we might in the filter context or it might not be attached as it
     // is optional, so don't worry if we don't have one.
     let mask_img = if let Some(mask_clip) = my_data.mask_clip {
-        match unsafe { mask_clip.0.clip_get_image(s_ifx, time, None) } {
-            InboundResult::Ok(mask_img) => {
-                Some(unsafe { ClipImageManaged::try_new_from_property_set(&data, mask_img) }?)
-            }
-            InboundResult::KnownError(StatusError::Failed) => None, // unconnected
-            _ => return Err(StatusError::Failed),
-        }
+        unsafe { ClipImageManaged::try_new_from_clip_if_available(&data, &mask_clip.0, time) }?
     } else {
         None
     };
