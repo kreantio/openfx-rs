@@ -1,5 +1,5 @@
 [package]
-name = "guide-example-plugins-layer-low"
+name = "layer-low-official-guide-example-plugins"
 publish = false
 edition.workspace = true
 rust-version.workspace = true

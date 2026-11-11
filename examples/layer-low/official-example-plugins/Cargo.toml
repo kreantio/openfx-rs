@@ -1,0 +1,22 @@
+[package]
+name = "layer-low-official-example-plugins"
+publish = false
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+openfx.workspace = true
+
+# tracing.workspace = true
+
+[build-dependencies]
+gl_generator.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[lints]
+workspace = true
