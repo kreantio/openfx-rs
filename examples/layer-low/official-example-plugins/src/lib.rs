@@ -20,6 +20,7 @@ static TRACING_DISPATCH: OnceLock<tracing::Dispatch> = OnceLock::new();
 struct ExamplePlugins;
 export_plugins!(ExamplePlugins);
 
+#[allow(dead_code)]
 enum PendingLogLevel {
     Info,
     Error,
@@ -27,6 +28,7 @@ enum PendingLogLevel {
 
 impl Plugins for ExamplePlugins {
     fn plugins(_host: Option<*const OfxHost>) -> Vec<OfxPlugin> {
+        #[allow(unused_mut)]
         let mut layers: Vec<Box<dyn Layer<Registry> + Send + Sync>> = vec![Box::new(
             tracing_subscriber::fmt::layer().with_writer(std::io::stderr),
         )];

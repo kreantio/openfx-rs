@@ -8,6 +8,7 @@ use std::{
 #[cfg(target_os = "macos")]
 use libloading::Library;
 
+#[allow(unused_imports)]
 use crate::plugin_opengl::gl;
 
 #[cfg(target_os = "macos")]
