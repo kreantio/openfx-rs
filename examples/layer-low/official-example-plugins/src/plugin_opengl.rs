@@ -47,6 +47,7 @@ use openfx::{
 };
 
 use crate::{
+    TRACING_DISPATCH,
     definitions::{PLUGIN_OPENGL_IDENTIFIER, PLUGIN_OPENGL_LABEL, PLUGINS_GROUPING},
     helpers::{
         internal_utils::{rect_i_from_array, set_labels},
@@ -87,6 +88,28 @@ impl Plugin for PluginExampleOpenGL {
     const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
 
     fn set_host(host: Host) {
+        match TRACING_DISPATCH.get() {
+            Some(dispatch) => {
+                let _guard = tracing::dispatcher::set_default(dispatch);
+                Self::_set_host(host);
+            }
+            None => Self::_set_host(host),
+        }
+    }
+
+    fn main_entry(action: ImageEffectAction) -> OutboundResult {
+        match TRACING_DISPATCH.get() {
+            Some(dispatch) => {
+                let _guard = tracing::dispatcher::set_default(dispatch);
+                Self::_main_entry(action)
+            }
+            None => Self::_main_entry(action),
+        }
+    }
+}
+
+impl PluginExampleOpenGL {
+    fn _set_host(host: Host) {
         let mut lock = HOST_BEFORE_ACTION_LOAD
             .lock()
             .expect("Failed to lock HOST_BEFORE_ACTION_LOAD.");
@@ -96,7 +119,7 @@ impl Plugin for PluginExampleOpenGL {
         lock.replace(GuaranteeSend(host));
     }
 
-    fn main_entry(action: ImageEffectAction) -> OutboundResult {
+    fn _main_entry(action: ImageEffectAction) -> OutboundResult {
         match action {
             ImageEffectAction::Load { .. } => action_load(),
             ImageEffectAction::Unload { .. } => action_unload(),
@@ -158,15 +181,19 @@ fn action_unload() -> OutboundResult {
 
 fn action_opengl_context_attached(_handle: ImageEffectInstance) -> OutboundResult {
     gl_loader::load().map_err(|error| {
-        eprintln!("Failed to initialize OpenGL: {error}");
+        tracing::error!("action_opengl_context_attached: Failed to initialize OpenGL: {error}");
         StatusError::Failed
     })?;
 
     let missing_fns = gl::missing_functions();
     if !missing_fns.is_empty() {
-        eprintln!("Missing OpenGL functions: {:?}", missing_fns);
+        tracing::error!(
+            "action_opengl_context_attached: Missing OpenGL functions: {missing_fns:?}",
+        );
         return Err(StatusError::Failed);
     }
+
+    tracing::info!("action_opengl_context_attached: Success");
 
     Ok(Status::OK)
 }
