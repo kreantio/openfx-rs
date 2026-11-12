@@ -7,6 +7,14 @@
 //! ```
 //!
 //! Direct GPU processing using OpenGL.
+//!
+//! Divergences from the original example:
+//! - The original example linked directly against the OpenGL library on macOS,
+//!   whereas we use dynamic loading instead.
+//!
+//! Known issues:
+//! - Currently, due to limitations of the maintainer(s), only macOS (15, Apple
+//!   Silicon) is verified to work with this plugin.
 
 use std::{
     ffi::{CStr, c_void},
@@ -15,7 +23,7 @@ use std::{
 
 use openfx::{
     low::{
-        InboundResult, OutboundResult, Status, StatusError, StatusReply,
+        OutboundResult, Status, StatusError, StatusReply,
         enums::{
             ImageEffectPropCPURenderSupported, ImageEffectPropOpenGLRenderSupported,
             ImageEffectPropSupportedComponents, ImageEffectPropSupportedContexts,
@@ -47,6 +55,7 @@ use crate::{
 };
 
 mod gl;
+mod gl_loader;
 
 static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(None);
 static GLOBAL_DATA: Mutex<Option<(SharedData, Arc<AdditionalSharedData>)>> = Mutex::new(None);
@@ -91,6 +100,9 @@ impl Plugin for PluginExampleOpenGL {
         match action {
             ImageEffectAction::Load { .. } => action_load(),
             ImageEffectAction::Unload { .. } => action_unload(),
+            ImageEffectAction::OpenGLContextAttached { handle, .. } => {
+                action_opengl_context_attached(handle)
+            }
             ImageEffectAction::Describe { handle, .. } => action_describe(handle),
             ImageEffectAction::DescribeInContext {
                 handle, in_args, ..
@@ -144,6 +156,21 @@ fn action_unload() -> OutboundResult {
     }
 }
 
+fn action_opengl_context_attached(_handle: ImageEffectInstance) -> OutboundResult {
+    gl_loader::load().map_err(|error| {
+        eprintln!("Failed to initialize OpenGL: {error}");
+        StatusError::Failed
+    })?;
+
+    let missing_fns = gl::missing_functions();
+    if !missing_fns.is_empty() {
+        eprintln!("Missing OpenGL functions: {:?}", missing_fns);
+        return Err(StatusError::Failed);
+    }
+
+    Ok(Status::OK)
+}
+
 fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
     let (data, _additional) = global_data_lockless()?;
 
@@ -167,8 +194,8 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
 
         props
             .set_image_effect_cpu_render_supported(
-            s_prop,
-            ImageEffectPropCPURenderSupported::False.into(),
+                s_prop,
+                ImageEffectPropCPURenderSupported::False.into(),
             )
             .ok(); // `ErrUnknown` on Natron.
         props
@@ -427,11 +454,11 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     let h = (render_window.y2 - render_window.y1) as f32;
 
     unsafe {
-        gl::PushAttrib(gl::ALL_ATTRIB_BITS);
-        gl::Disable(gl::BLEND);
+        gl::PushAttrib(gl::inner::ALL_ATTRIB_BITS);
+        gl::Disable(gl::inner::BLEND);
 
         // Draw black into dest to start
-        gl::Begin(gl::QUADS);
+        gl::Begin(gl::inner::QUADS);
         gl::Color4f(0.0, 0.0, 0.0, 1.0); // Set the colour to opaque black
         gl::Vertex2f(0.0, 0.0);
         gl::Vertex2f(0.0, h);
@@ -446,25 +473,29 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
         gl::BindTexture(source_img.texture_target, source_img.texture_index);
         gl::TexParameteri(
             source_img.texture_target,
-            gl::TEXTURE_WRAP_S,
-            gl::REPEAT as i32,
+            gl::inner::TEXTURE_WRAP_S,
+            gl::inner::REPEAT as i32,
         );
         gl::TexParameteri(
             source_img.texture_target,
-            gl::TEXTURE_WRAP_T,
-            gl::REPEAT as i32,
+            gl::inner::TEXTURE_WRAP_T,
+            gl::inner::REPEAT as i32,
         );
         gl::TexParameteri(
             source_img.texture_target,
-            gl::TEXTURE_MAG_FILTER,
-            gl::LINEAR as i32,
+            gl::inner::TEXTURE_MAG_FILTER,
+            gl::inner::LINEAR as i32,
         );
         gl::TexParameteri(
             source_img.texture_target,
-            gl::TEXTURE_MIN_FILTER,
-            gl::LINEAR as i32,
+            gl::inner::TEXTURE_MIN_FILTER,
+            gl::inner::LINEAR as i32,
         );
-        gl::TexEnvf(gl::TEXTURE_ENV, gl::TEXTURE_ENV_MODE, gl::MODULATE as f32);
+        gl::TexEnvf(
+            gl::inner::TEXTURE_ENV,
+            gl::inner::TEXTURE_ENV_MODE,
+            gl::inner::MODULATE as f32,
+        );
 
         // textures are oriented with Y up (standard orientation)
         let tymin = 0.0f32;
@@ -473,7 +504,7 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
         // now draw the textured quad containing the source
         //gl::Begin(gl::QUADS); // <- in the original example code
         gl::Color4f(1.0, 1.0, 1.0, 1.0);
-        gl::Begin(gl::QUADS);
+        gl::Begin(gl::inner::QUADS);
         gl::TexCoord2f(0.0, tymin);
         gl::Vertex2f(0.0, 0.0);
         gl::TexCoord2f(1.0, tymin);
@@ -489,7 +520,7 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
         // Now draw some stuff on top of it to show we really did something
         const WIDTH: f32 = 200.0;
         const HEIGHT: f32 = 100.0;
-        gl::Begin(gl::QUADS);
+        gl::Begin(gl::inner::QUADS);
         gl::Color3f(1.0, 0.0, 0.0); //Set the colour to red
         gl::Vertex2f(10.0, 10.0);
         gl::Vertex2f(10.0, HEIGHT * scale);
@@ -498,6 +529,7 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
         gl::End();
 
         // done.
+        gl::PopAttrib();
     }
 
     Ok(Status::OK)

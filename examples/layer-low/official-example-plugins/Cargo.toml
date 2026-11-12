@@ -12,6 +12,9 @@ openfx.workspace = true
 
 # tracing.workspace = true
 
+[target.'cfg(target_os = "macos")'.dependencies]
+libloading.workspace = true
+
 [build-dependencies]
 gl_generator.workspace = true
 
