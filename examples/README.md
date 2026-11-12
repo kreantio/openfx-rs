@@ -39,7 +39,7 @@ These are the ports of the example plugins under the official repository's
 | DepthConverter (`OFX Depth Converter Example`) | TODO                                                                            | (TBD)                                                        |
 | DrawSuite (`OFX DrawSuite Example`)            | TODO                                                                            | `OfxInteractSuiteV1`, `…OverlayInteractV2`, `OfxDrawSuiteV1` |
 | Invert (`OFX Invert Example`)                  | TODO                                                                            | (TBD)                                                        |
-| OpenGL (`OFX OpenGL Example`)                  | [`plugin_opengl.rs`](./layer-low/official-example-plugins/src/plugin_opengl.rs) | OpenGL                                                       |
+| OpenGL (`OFX OpenGL Example`)                  | [`plugin_opengl.rs`](./layer-low/official-example-plugins/src/plugin_opengl.rs) | `OfxImageEffectOpenGLRenderSuiteV1`                          |
 | Overlay (`OFX Overlay Example`)                | TODO                                                                            | `OfxInteractSuiteV1`, `…OverlayInteractV1`                   |
 | Rectangle (`OFX Rectangle Example`)            | TODO                                                                            | `kOfxImageEffectContextGenerator`                            |
 | Test (`OFX Test Properties`)                   | TODO                                                                            | (TBD)                                                        |
