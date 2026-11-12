@@ -8,15 +8,29 @@
 //!
 //! Direct GPU processing using OpenGL.
 //!
-//! Divergences from the original example:
-//! - The original example linked directly against the OpenGL library on macOS,
-//!   whereas we use dynamic loading instead.
+//! ## Divergences from the original example
 //!
-//! Known issues:
-//! - Currently, due to limitations of the maintainer(s), only macOS (15, Apple
-//!   Silicon) is verified to work with this plugin.
-//! - DaVinci Resolve (21.0.4 BUILD 5, App Store) on macOS doesn't provide
-//!   the OpenGL Render Suite, therefore, this example doesn't work with it.
+//! The original example linked directly against the OpenGL library on macOS,
+//! whereas we use dynamic loading instead.
+//!
+//! ## Known issues
+//!
+//! Currently, due to limitations of the maintainer(s), only macOS (15, Apple
+//! Silicon) is verified to work with this plugin.
+//!
+//! DaVinci Resolve (21.0.4 BUILD 5, App Store) on macOS doesn't provide the
+//! OpenGL Render Suite, therefore, this example doesn't work with it.
+//!
+//! This example doesn't account for projection and render scale, therefore:
+//!
+//! - In a host that doesn't defensively set up projection for plugins (e.g.,
+//!   Natron), the rectangle may not be rendered correctly.
+//! - If a host expects a render scale other than 1.0 (e.g., zooming a viewer in
+//!   or out in Natron), the rectangle may not be rendered at the correct size.
+//!   
+//! These 2 bugs (the projection and render scale issues) exist in the original
+//! example and are kept here to stay in sync with it. Please keep them in mind
+//! when referring to this example while writing your own plugin.
 //!
 //! ## TODO
 //!
