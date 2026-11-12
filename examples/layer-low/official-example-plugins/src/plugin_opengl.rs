@@ -15,6 +15,15 @@
 //! Known issues:
 //! - Currently, due to limitations of the maintainer(s), only macOS (15, Apple
 //!   Silicon) is verified to work with this plugin.
+//! - DaVinci Resolve (21.0.4 BUILD 5, App Store) on macOS doesn't provide
+//!   the OpenGL Render Suite, therefore, this example doesn't work with it.
+//!
+//! ## TODO
+//!
+//! - Port the comments from the original example.
+//! - Exchange images through the CPU path while still rendering with OpenGL?
+//! - Modernize the OpenGL rendering code? (If so, both the legacy path and the
+//!   modern path should be provided.)
 
 use std::{
     ffi::{CStr, c_void},
@@ -154,8 +163,13 @@ fn action_load() -> OutboundResult {
 
     *data = Some({
         let additional = {
-            let opengl_suite = unsafe { host.fetch_image_effect_open_gl_render_suite_v1() }
-                .ok_or(StatusError::ErrMissingHostFeature)?;
+            let opengl_suite = match unsafe { host.fetch_image_effect_open_gl_render_suite_v1() } {
+                Some(suite) => suite,
+                None => {
+                    tracing::error!("action_load: No OpenGL render suite available from host!");
+                    return Err(StatusError::ErrMissingHostFeature);
+                }
+            };
 
             AdditionalSharedData {
                 opengl_suite: GuaranteeSend(opengl_suite),
