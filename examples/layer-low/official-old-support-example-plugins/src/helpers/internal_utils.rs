@@ -47,8 +47,6 @@ macro_rules! set_labels {
                 .set_long_label($s_prop, Some($label))
                 .ok_or(StatusError::Failed)
         }?;
-
-        Ok(())
     }};
 }
 pub(crate) use set_labels;

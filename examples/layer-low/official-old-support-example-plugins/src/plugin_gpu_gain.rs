@@ -223,7 +223,7 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
 
     unsafe {
         // Basic labels
-        set_labels!(&data.property_suite.0, &props, PLUGIN_GPU_GAIN_LABEL)?;
+        set_labels!(&data.property_suite.0, &props, PLUGIN_GPU_GAIN_LABEL);
         props
             .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))
             .ok_or(StatusError::Failed)?;
@@ -355,7 +355,7 @@ fn action_describe_in_context(
             param_props
                 .set_param_hint(s_prop, Some(c"Scales on the individual component"))
                 .ok_or(StatusError::Failed)?;
-            set_labels!(&data.property_suite.0, &param_props, c"Components")?;
+            set_labels!(&data.property_suite.0, &param_props, c"Components");
         }
 
         // Make overall scale params
@@ -381,7 +381,7 @@ fn action_describe_in_context(
             param_props
                 .set_param_hint(s_prop, Some(c"Enables scales on individual components"))
                 .ok_or(StatusError::Failed)?;
-            set_labels!(&data.property_suite.0, &param_props, c"Scale Components")?;
+            set_labels!(&data.property_suite.0, &param_props, c"Scale Components");
             param_props
                 .set_param_parent(s_prop, Some(COMPONENT_SCALES_GROUP_NAME))
                 .ok_or(StatusError::Failed)?;
@@ -444,8 +444,15 @@ unsafe fn define_scale_param(
         unsafe { effect_params.param_define_double(s_param, name) }.ok_or(StatusError::Failed)?;
 
     unsafe {
+        set_labels!(s_prop, props, label);
         props
             .set_param_double_type(s_prop, ParamPropDoubleType::Scale.into())
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_param_script_name(s_prop, Some(name))
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_param_hint(s_prop, Some(hint))
             .ok_or(StatusError::Failed)?;
         props
             .set_param_default(s_prop, 1.0)
@@ -454,17 +461,18 @@ unsafe fn define_scale_param(
             .set_param_min(s_prop, 0.0)
             .ok_or(StatusError::Failed)?;
         props
+            .set_param_max(s_prop, 10.0)
+            .ok_or(StatusError::Failed)?;
+        props
+            .set_param_increment(s_prop, 0.1)
+            .ok_or(StatusError::Failed)?;
+        props
             .set_param_display_min(s_prop, 0.0)
             .ok_or(StatusError::Failed)?;
         props
-            .set_param_increment(s_prop, 0.01)
+            .set_param_display_max(s_prop, 10.0)
             .ok_or(StatusError::Failed)?;
-        props
-            .set_param_hint(s_prop, Some(hint))
-            .ok_or(StatusError::Failed)?;
-        props
-            .set_label(s_prop, Some(label))
-            .ok_or(StatusError::Failed)?;
+
         if let Some(parent_name) = parent_name {
             props
                 .set_param_parent(s_prop, Some(parent_name))
