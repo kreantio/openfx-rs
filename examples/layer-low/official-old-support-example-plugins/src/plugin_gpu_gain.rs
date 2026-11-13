@@ -134,7 +134,10 @@ impl Plugin for PluginExampleGpuGain {
         match TRACING_DISPATCH.get() {
             Some(dispatch) => {
                 let _guard = tracing::dispatcher::set_default(dispatch);
-                Self::_main_entry(action)
+                tracing::info!("main_entry: Entering Action {:?}", action.sys_action());
+                let ret = Self::_main_entry(action);
+                tracing::info!("main_entry: Exiting Action with {ret:?}");
+                ret
             }
             None => Self::_main_entry(action),
         }
@@ -224,9 +227,14 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
         props
             .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))
             .ok_or(StatusError::Failed)?;
-        props
-            .set_plugin_description(s_prop, Some(PLUGIN_GPU_GAIN_DESCRIPTION))
-            .ok_or(StatusError::Failed)?;
+        if let stat = props.set_plugin_description(s_prop, Some(PLUGIN_GPU_GAIN_DESCRIPTION))
+            && !stat.is_ok()
+        {
+            // Apparently DaVinci Resolve fails this (`ErrUnknown`), even though
+            // this example originated from DaVinci Resolve's SDK (according to
+            // git history). What?
+            tracing::warn!("Failed to set plugin description: {stat:?}",);
+        }
 
         // Add the supported contexts, only filter at the moment
         {
@@ -278,13 +286,14 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
             };
 
             // TODO: Add the missing metadata upstream.
-            s_prop
-                .prop_set_string(
-                    props.sys_handle(),
-                    kOfxImageEffectPropMetalRenderSupported,
-                    Some(ImageEffectPropMetalRenderSupported::True.as_c_str()),
-                )
-                .ok_or(StatusError::Failed)?;
+            if let stat = s_prop.prop_set_string(
+                props.sys_handle(),
+                kOfxImageEffectPropMetalRenderSupported,
+                Some(ImageEffectPropMetalRenderSupported::True.as_c_str()),
+            ) && !stat.is_ok()
+            {
+                tracing::warn!("Failed to set Metal render support: {stat:?}");
+            }
         }
     }
 
