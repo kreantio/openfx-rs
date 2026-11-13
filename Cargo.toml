@@ -5,8 +5,9 @@ members = [
   "crates/openfx",
   "crates/openfx-internal-macros",
   "crates/private/openfx-codegen",
-  "examples/layer-low/official-guide-example-plugins",
   "examples/layer-low/official-example-plugins",
+  "examples/layer-low/official-guide-example-plugins",
+  "examples/layer-low/official-old-support-example-plugins",
   "crates/private/openfx-codegen-config",
 ]
 # for some reason, globs (e.g. "vendor/*", "vendor/**/*") don't work.
@@ -50,4 +51,6 @@ tracing-subscriber = "0.3.23"
 # used in the examples:
 gl_generator = "0.14.0"
 libloading = "0.9.0"
+objc2 = "0.6.5"
 objc2-foundation = "0.3.2"
+objc2-metal = "0.3.2"

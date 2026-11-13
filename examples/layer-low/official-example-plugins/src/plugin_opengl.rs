@@ -10,6 +10,11 @@
 //!
 //! ## Divergences from the original example
 //!
+//! The original example declares support for the general context, but since it
+//! strictly uses only a single source clip, general context support is
+//! unnecessary. Therefore, this port does not declare support for the general
+//! context.
+//!
 //! The original example linked directly against the OpenGL library on macOS,
 //! whereas we use dynamic loading instead.
 //!
@@ -311,7 +316,7 @@ fn action_describe_in_context(
         .ok_or(StatusError::Failed)?;
     }
 
-    fn define_param(
+    unsafe fn define_param(
         s_prop: &PropertySuiteV1,
         s_param: &ParameterSuiteV1,
         effect_params: &ParamSetDescriptor,
@@ -355,30 +360,30 @@ fn action_describe_in_context(
 
     let param_set = unsafe { descriptor.get_param_set(s_ifx) }.ok_or(StatusError::Failed)?;
 
-    define_param(
-        s_prop,
-        s_param,
-        &param_set,
-        c"scale",
-        c"scale",
-        c"scale",
-        c"Scales the red rect",
-    )?;
-    define_param(
-        s_prop,
-        s_param,
-        &param_set,
-        c"source_scale",
-        c"source_scale",
-        c"source_scale",
-        c"Scales the source image",
-    )?;
-
     unsafe {
-        let props = param_set
+        define_param(
+            s_prop,
+            s_param,
+            &param_set,
+            c"scale",
+            c"scale",
+            c"scale",
+            c"Scales the red rect",
+        )?;
+        define_param(
+            s_prop,
+            s_param,
+            &param_set,
+            c"source_scale",
+            c"source_scale",
+            c"source_scale",
+            c"Scales the source image",
+        )?;
+
+        let page_param_props = param_set
             .param_define_page(s_param, c"Main")
             .ok_or(StatusError::Failed)?;
-        props
+        page_param_props
             .set_param_page_child(s_prop, &[Some(c"scale"), Some(c"source_scale")])
             .ok_or(StatusError::Failed)?;
     }
@@ -396,9 +401,11 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
     let instance_props = unsafe { instance.get_property_set(s_ifx) }.ok_or(StatusError::Failed)?;
 
     let source_clip =
-        unsafe { instance.clip_get_clip_handle(s_ifx, c"Source") }.ok_or(StatusError::Failed)?;
+        unsafe { instance.clip_get_clip_handle(s_ifx, kOfxImageEffectSimpleSourceClipName) }
+            .ok_or(StatusError::Failed)?;
     let output_clip =
-        unsafe { instance.clip_get_clip_handle(s_ifx, c"Output") }.ok_or(StatusError::Failed)?;
+        unsafe { instance.clip_get_clip_handle(s_ifx, kOfxImageEffectOutputClipName) }
+            .ok_or(StatusError::Failed)?;
 
     let param_set = unsafe { instance.get_param_set(s_ifx) }.ok_or(StatusError::Failed)?;
     let scale_param = unsafe { param_set.param_get_param_handle_double(s_param, c"scale") }

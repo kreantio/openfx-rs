@@ -49,19 +49,37 @@ These are the ports of the example plugins under the official repository's
 These are the ports of the example plugins under the official repository's
 [`Support/Plugins` folder].
 
-| Plugin Name                                   | Code (`layer-low`) | Keywords                           |
-| --------------------------------------------- | ------------------ | ---------------------------------- |
-| Basic (`Gain`)                                | TODO               | (TBD)                              |
-| ChoiceParams (`Choice Params (Support)`)      | TODO               | `kOfxParamTypeChoice`              |
-| Field (`Field`)                               | WON'T DO           | [Field]                            |
-| GPUGain (`GPU Gain`)                          | TODO               | ~~CUDA, OpenCL,~~ Metal[^1]        |
-| Generator (`Noise`)                           | TODO               | `kOfxImageEffectContextGenerator`  |
-| Invert (`Invert`)                             | TODO               | (TBD)                              |
-| MultiBundle[^2] (`Gamma` and `Dot Generator`) | TODO               | (TBD)                              |
-| Retimer (`Retimer`)                           | TODO               | `kOfxImageEffectContextRetimer`    |
-| Tester (`GenericTest`)                        | TODO               | (TBD)                              |
-| Transition (`Cross Fade`)                     | TODO               | `kOfxImageEffectContextTransition` |
-| ../PropTester (`Prop Tester`)                 | TODO               | (TBD)                              |
+“old” doesn't mean that these examples are outdated. Quite the opposite: The
+original versions of the examples here are more “modern” than those of the
+examples in `official-example-plugins`, since they interact with a higher-level
+C++ support library rather than with the primitive OpenFX C API directly. It is
+just that, as of 2026, a new official C++ support library is in the process of
+being introduced (under the official repository's [`openfx-cpp` folder]), and
+the C++ support library these examples rely on is considered "old" compared to
+the new one.
+
+For an example ported here, apart from categorization, it doesn't matter whether
+the original version uses a support library, or which support library it uses.
+They are all Rust code utilizing `openfx::{low, low_plugin}` now.
+
+| Plugin Name                                   | Code (`layer-low`)                                                                                 | Keywords                           |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| Basic (`Gain`)                                | TODO                                                                                               | (TBD)                              |
+| ChoiceParams (`Choice Params (Support)`)      | TODO                                                                                               | `kOfxParamTypeChoice`              |
+| Field (`Field`)                               | WON'T DO                                                                                           | [Field]                            |
+| GPUGain (`GPU Gain`)                          | WIP: [plugin_gpu_gain.rs](./layer-low/official-old-support-example-plugins/src/plugin_gpu_gain.rs) | ~~CUDA, OpenCL,~~ Metal Buffer[^1] |
+| Generator (`Noise`)                           | TODO                                                                                               | `kOfxImageEffectContextGenerator`  |
+| Invert (`Invert`)                             | TODO                                                                                               | (TBD)                              |
+| MultiBundle[^2] (`Gamma` and `Dot Generator`) | TODO                                                                                               | (TBD)                              |
+| Retimer (`Retimer`)                           | TODO                                                                                               | `kOfxImageEffectContextRetimer`    |
+| Tester (`GenericTest`)                        | TODO                                                                                               | (TBD)                              |
+| Transition (`Cross Fade`)                     | TODO                                                                                               | `kOfxImageEffectContextTransition` |
+| ../PropTester (`Prop Tester`)                 | TODO                                                                                               | (TBD)                              |
+
+### Plugin Making: `our-layer-low-exclusive-example-plugins`
+
+| Plugin Name | Code (`layer-low`) | Keywords |
+| ----------- | ------------------ | -------- |
 
 [^1]: Due to limitations of the maintainer(s), only the Metal part of the
     example is implemented.
@@ -71,12 +89,8 @@ These are the ports of the example plugins under the official repository's
     plugins for the same project with the same topic are bundled together into
     one bundle.
 
-### Plugin Making: `our-layer-low-exclusive-example-plugins`
-
-| Plugin Name | Code (`layer-low`) | Keywords |
-| ----------- | ------------------ | -------- |
-
 [OpenFX Programming Guide]: https://openfx.readthedocs.io/en/main/Guide/index.html
 [`Examples` folder]: https://github.com/AcademySoftwareFoundation/openfx/tree/main/Examples
 [`Support/Plugins` folder]: https://github.com/AcademySoftwareFoundation/openfx/tree/main/Support/Plugins
+[`openfx-cpp` folder]: https://github.com/AcademySoftwareFoundation/openfx/tree/main/openfx-cpp
 [Field]: https://en.wikipedia.org/wiki/Field_(video)
