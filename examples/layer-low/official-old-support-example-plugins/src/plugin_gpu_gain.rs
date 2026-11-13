@@ -723,10 +723,6 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
         unsafe { in_args.get_image_effect_render_window(s_prop) }.ok_or(StatusError::Failed)?;
     let _render_window = rect_i_from_array(&render_window);
 
-    if !unsafe { in_args.get_image_effect_open_gl_enabled(s_prop) }.ok_or(StatusError::Failed)? {
-        return Err(StatusError::ErrImageFormat);
-    }
-
     let Some(my_data_ptr) =
         unsafe { instance_props.get_instance_data(s_prop) }.ok_or(StatusError::Failed)?
     else {
