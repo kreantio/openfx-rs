@@ -69,7 +69,6 @@ use crate::{
         internal_utils::{ClipImageManaged, rect_i_from_array, set_labels},
         shared_data::{GuaranteeSend, GuaranteeSendClipInstance, SharedData},
     },
-    plugin_gpu_gain::metal_kernel::run_metal_kernel,
 };
 
 #[cfg(target_os = "macos")]
@@ -776,6 +775,8 @@ fn process_images_metal(
     output_img: ClipImageManaged,
     cmd_q: NonNull<c_void>,
 ) -> Result<(), StatusError> {
+    use crate::plugin_gpu_gain::metal_kernel::run_metal_kernel;
+
     let bounds = source_img.bounds();
     let width = bounds.x2 - bounds.x1;
     let height = bounds.y2 - bounds.y1;
