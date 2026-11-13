@@ -134,9 +134,9 @@ impl Plugin for PluginExampleGpuGain {
         match TRACING_DISPATCH.get() {
             Some(dispatch) => {
                 let _guard = tracing::dispatcher::set_default(dispatch);
-                tracing::info!("main_entry: Entering Action {:?}", action.sys_action());
+                tracing::debug!("main_entry: Entering Action {:?}", action.sys_action());
                 let ret = Self::_main_entry(action);
-                tracing::info!("main_entry: Exiting Action with {ret:?}");
+                tracing::debug!("main_entry: Exiting Action with {ret:?}");
                 ret
             }
             None => Self::_main_entry(action),
