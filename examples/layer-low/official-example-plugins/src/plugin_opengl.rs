@@ -76,7 +76,7 @@ use openfx::{
 
 use crate::{
     TRACING_DISPATCH,
-    definitions::{PLUGIN_OPENGL_IDENTIFIER, PLUGIN_OPENGL_LABEL, PLUGINS_GROUPING},
+    definitions::{PLUGIN_OPENGL_INFO, PLUGINS_GROUPING},
     helpers::{
         internal_utils::{rect_i_from_array, set_labels},
         shared_data::{GuaranteeSend, GuaranteeSendClipInstance, SharedData},
@@ -111,7 +111,7 @@ fn global_data_lockless() -> Result<(SharedData, Arc<AdditionalSharedData>), Sta
 
 pub struct PluginExampleOpenGL;
 impl Plugin for PluginExampleOpenGL {
-    const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_OPENGL_IDENTIFIER;
+    const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_OPENGL_INFO.identifier;
     const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
     const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
 
@@ -240,7 +240,7 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
     let props = unsafe { descriptor.get_property_set(s_ifx) }.ok_or(StatusError::Failed)?;
 
     unsafe {
-        set_labels(&data.property_suite.0, &props, PLUGIN_OPENGL_LABEL)?;
+        set_labels(&data.property_suite.0, &props, PLUGIN_OPENGL_INFO.label)?;
         props
             .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))
             .ok_or(StatusError::Failed)?;

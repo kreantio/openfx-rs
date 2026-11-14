@@ -66,10 +66,7 @@ use openfx::{
 
 use crate::{
     TRACING_DISPATCH,
-    definitions::{
-        PLUGIN_GPU_GAIN_DESCRIPTION, PLUGIN_GPU_GAIN_IDENTIFIER, PLUGIN_GPU_GAIN_LABEL,
-        PLUGINS_GROUPING,
-    },
+    definitions::{PLUGIN_GPU_GAIN_INFO, PLUGINS_GROUPING},
     helpers::{
         internal_utils::{ClipImageManaged, rect_i_from_array, set_labels},
         shared_data::{GuaranteeSend, GuaranteeSendClipInstance, SharedData},
@@ -125,7 +122,7 @@ fn global_data_lockless() -> Result<(SharedData, Arc<AdditionalSharedData>), Sta
 
 pub struct PluginExampleGpuGain;
 impl Plugin for PluginExampleGpuGain {
-    const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_GPU_GAIN_IDENTIFIER;
+    const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_GPU_GAIN_INFO.identifier;
     const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
     const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
 
@@ -238,11 +235,11 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
 
     unsafe {
         // Basic labels
-        set_labels!(&data.property_suite.0, &props, PLUGIN_GPU_GAIN_LABEL);
+        set_labels!(&data.property_suite.0, &props, PLUGIN_GPU_GAIN_INFO.label);
         props
             .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))
             .ok_or(StatusError::Failed)?;
-        if let stat = props.set_plugin_description(s_prop, Some(PLUGIN_GPU_GAIN_DESCRIPTION))
+        if let stat = props.set_plugin_description(s_prop, Some(PLUGIN_GPU_GAIN_INFO.description))
             && !stat.is_ok()
         {
             // Apparently DaVinci Resolve fails this (`ErrUnknown`), even though

@@ -47,7 +47,7 @@ use openfx::{
 };
 
 use crate::{
-    definitions::{PLUGIN_1_BASICS_IDENTIFIER, PLUGIN_1_BASICS_LABEL, PLUGINS_GROUPING},
+    definitions::{PLUGIN_1_BASICS_INFO, PLUGINS_GROUPING},
     helpers::{
         internal_utils::set_labels,
         shared_data::{GuaranteeSend, SharedData},
@@ -74,7 +74,7 @@ fn is_loaded() -> bool {
 pub struct PluginExampleBasics;
 impl Plugin for PluginExampleBasics {
     /// The unique ID of this plugin.
-    const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_1_BASICS_IDENTIFIER;
+    const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_1_BASICS_INFO.identifier;
     /// The major version number of this plugin.
     const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
     /// The minor version number of this plugin.
@@ -204,7 +204,7 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
         // NOTE: The original example only sets `kOfxPropLabel`. Instead, we set
         // all three labels at once so that the plugin's label displays
         // correctly in DaVinci Resolve's Cut tab.
-        set_labels(&data.property_suite.0, &props, PLUGIN_1_BASICS_LABEL)?;
+        set_labels(&data.property_suite.0, &props, PLUGIN_1_BASICS_INFO.label)?;
         props
             .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))
             .ok_or(StatusError::Failed)?;

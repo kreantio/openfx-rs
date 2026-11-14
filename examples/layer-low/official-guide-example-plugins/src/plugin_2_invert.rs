@@ -31,7 +31,7 @@ use openfx::{
 };
 
 use crate::{
-    definitions::{PLUGIN_2_INVERT_IDENTIFIER, PLUGIN_2_INVERT_LABEL, PLUGINS_GROUPING},
+    definitions::{PLUGIN_2_INVERT_INFO, PLUGINS_GROUPING},
     helpers::{
         internal_utils::{
             BitDepth, ClipImageManaged, pixel_address, rect_i_from_array, set_labels,
@@ -55,7 +55,7 @@ fn shared_data_lockless() -> Result<SharedData, StatusError> {
 pub struct PluginExampleInvert;
 impl Plugin for PluginExampleInvert {
     // The unique ID of this plugin.
-    const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_2_INVERT_IDENTIFIER;
+    const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_2_INVERT_INFO.identifier;
     // The major version number of this plugin.
     const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
     // The minor version number of this plugin.
@@ -156,7 +156,7 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
         // NOTE: The original example only sets `kOfxPropLabel`. Instead, we set
         // all three labels at once so that the plugin's label displays
         // correctly in DaVinci Resolve's Cut tab.
-        set_labels(&data.property_suite.0, &props, PLUGIN_2_INVERT_LABEL)?;
+        set_labels(&data.property_suite.0, &props, PLUGIN_2_INVERT_INFO.label)?;
         props
             .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))
             .ok_or(StatusError::Failed)?;

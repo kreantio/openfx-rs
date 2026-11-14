@@ -44,7 +44,7 @@ use openfx::{
 };
 
 use crate::{
-    definitions::{PLUGIN_5_CIRCLE_IDENTIFIER, PLUGIN_5_CIRCLE_LABEL, PLUGINS_GROUPING},
+    definitions::{PLUGIN_5_CIRCLE_INFO, PLUGINS_GROUPING},
     helpers::{
         internal_utils::{
             BitDepth, ClipImageManaged, blend, rect_d_to_array, rect_i_from_array, set_labels,
@@ -95,7 +95,7 @@ fn global_data_lockless() -> Result<(SharedData, Arc<AdditionalSharedData>), Sta
 pub struct PluginExampleCircle;
 impl Plugin for PluginExampleCircle {
     // The unique ID of this plugin.
-    const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_5_CIRCLE_IDENTIFIER;
+    const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_5_CIRCLE_INFO.identifier;
     // The major version number of this plugin.
     const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
     // The minor version number of this plugin.
@@ -233,7 +233,7 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
         // NOTE: The original example only sets `kOfxPropLabel`. Instead, we set
         // all three labels at once so that the plugin's label displays
         // correctly in DaVinci Resolve's Cut tab.
-        set_labels(&data.property_suite.0, &props, PLUGIN_5_CIRCLE_LABEL)?;
+        set_labels(&data.property_suite.0, &props, PLUGIN_5_CIRCLE_INFO.label)?;
         props
             .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))
             .ok_or(StatusError::Failed)?;
