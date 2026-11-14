@@ -13,6 +13,8 @@
 //! unnecessary. Therefore, this port does not declare support for the general
 //! context.
 //!
+//! A `renderer_info` parameter is added to help debugging.
+//!
 //! ## Known issues
 //!
 //! Due to limitations of the maintainer(s), only the Metal part of the
@@ -23,9 +25,12 @@
 //! - Port the comments from the original example.
 
 use std::{
-    ffi::{CStr, c_void},
+    ffi::{CStr, CString, c_void},
     ptr::NonNull,
-    sync::{Arc, Mutex},
+    sync::{
+        Arc, Mutex,
+        atomic::{self, AtomicU32},
+    },
 };
 
 use openfx::{
@@ -34,7 +39,7 @@ use openfx::{
         enums::{
             ImageEffectPropComponents, ImageEffectPropSupportedComponents,
             ImageEffectPropSupportedContexts, ImageEffectPropSupportedPixelDepths,
-            ParamPropDoubleType,
+            ParamPropDoubleType, PropChangeReason,
         },
     },
     low_plugin::{
@@ -42,12 +47,12 @@ use openfx::{
         actions::{
             core::ActionInstanceChangedIn,
             image_effect::{
-                ActionDescribeInContextIn, ActionIsIdentityIn, ActionIsIdentityOut, ActionRenderIn,
-                ImageEffectAction,
+                ActionBeginSequenceRenderIn, ActionDescribeInContextIn, ActionEndSequenceRenderIn,
+                ActionIsIdentityIn, ActionIsIdentityOut, ActionRenderIn, ImageEffectAction,
             },
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance, ParamSetDescriptor},
-        parameters::{ParamBoolean, ParamDouble, ParamDoublePropertySet},
+        parameters::{ParamBoolean, ParamDouble, ParamDoublePropertySet, ParamString},
         suites::{ParameterSuiteV1, PropertySuiteV1},
     },
     sys::{
@@ -85,6 +90,7 @@ const SCALE_R_PARAM_NAME: &CStr = c"scaleR";
 const SCALE_G_PARAM_NAME: &CStr = c"scaleG";
 const SCALE_B_PARAM_NAME: &CStr = c"scaleB";
 const SCALE_A_PARAM_NAME: &CStr = c"scaleA";
+const RENDERER_INFO_PARAM_NAME: &CStr = c"rendererInfo";
 
 static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(None);
 static GLOBAL_DATA: Mutex<Option<(SharedData, Arc<AdditionalSharedData>)>> = Mutex::new(None);
@@ -105,6 +111,10 @@ struct MyInstanceData {
     scale_a_param: ParamDouble,
     scale_a_param_props: ParamDoublePropertySet,
     component_scales_enabled_param: ParamBoolean,
+
+    used_renderer: UsedRenderer,
+    last_used_renderer: UsedRenderer,
+    renderer_info_param: ParamString,
 }
 
 fn global_data_lockless() -> Result<(SharedData, Arc<AdditionalSharedData>), StatusError> {
@@ -172,6 +182,12 @@ impl PluginExampleGpuGain {
                 in_args,
                 out_args,
             } => action_is_identity(handle, in_args, out_args),
+            ImageEffectAction::BeginSequenceRender {
+                handle, in_args, ..
+            } => action_begin_sequence_render(handle, in_args),
+            ImageEffectAction::EndSequenceRender {
+                handle, in_args, ..
+            } => action_end_sequence_render(handle, in_args),
             ImageEffectAction::Render {
                 handle, in_args, ..
             } => action_render(handle, in_args),
@@ -422,6 +438,17 @@ fn action_describe_in_context(
             page_children.push(Some(name));
         }
 
+        {
+            let param_props = param_set
+                .param_define_string(s_param, RENDERER_INFO_PARAM_NAME)
+                .ok_or(StatusError::Failed)?;
+            param_props
+                .set_param_enabled(s_prop, false)
+                .ok_or(StatusError::Failed)?;
+            set_labels!(&data.property_suite.0, &param_props, c"Renderer Info");
+        }
+        page_children.push(Some(RENDERER_INFO_PARAM_NAME));
+
         page_param_props
             .set_param_page_child(s_prop, &page_children)
             .ok_or(StatusError::Failed)?;
@@ -518,6 +545,10 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
     }
     .ok_or(StatusError::Failed)?;
 
+    let renderer_info_param =
+        unsafe { param_set.param_get_param_handle_string(s_param, RENDERER_INFO_PARAM_NAME) }
+            .ok_or(StatusError::Failed)?;
+
     let my_data = MyInstanceData {
         source_clip: GuaranteeSendClipInstance(source_clip),
         output_clip: GuaranteeSendClipInstance(output_clip),
@@ -531,6 +562,9 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
         scale_a_param,
         scale_a_param_props,
         component_scales_enabled_param,
+        used_renderer: Default::default(),
+        last_used_renderer: Default::default(),
+        renderer_info_param,
     };
     let my_data_ptr = Box::into_raw(Box::new(my_data)) as *mut c_void;
 
@@ -572,6 +606,13 @@ fn action_instance_changed(
     let (data, _additional) = global_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
+
+    if matches!(
+        unsafe { in_args.get_change_reason_known(s_prop) }.ok_or(StatusError::Failed)?,
+        Some(PropChangeReason::PluginEdited)
+    ) {
+        return Ok(StatusReply::ReplyDefault.into());
+    }
 
     enum ChangedType {
         Parameter,
@@ -715,12 +756,67 @@ fn action_is_identity(
     }
 }
 
+fn action_begin_sequence_render(
+    instance: ImageEffectInstance,
+    _in_args: ActionBeginSequenceRenderIn,
+) -> OutboundResult {
+    let (data, _additional) = global_data_lockless()?;
+
+    let s_prop = &data.property_suite.0;
+    let s_ifx = &data.image_effect_suite.0;
+
+    let instance_props = unsafe { instance.get_property_set(s_ifx) }.ok_or(StatusError::Failed)?;
+
+    let Some(my_data_ptr) =
+        unsafe { instance_props.get_instance_data(s_prop) }.ok_or(StatusError::Failed)?
+    else {
+        return Err(StatusError::Failed);
+    };
+    let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
+
+    my_data.last_used_renderer.assign(&my_data.used_renderer);
+    my_data.used_renderer.store_no_info();
+
+    Ok(Status::OK)
+}
+
+fn action_end_sequence_render(
+    instance: ImageEffectInstance,
+    _in_args: ActionEndSequenceRenderIn,
+) -> OutboundResult {
+    let (data, _additional) = global_data_lockless()?;
+
+    let s_prop = &data.property_suite.0;
+    let s_ifx = &data.image_effect_suite.0;
+    let s_param = &data.parameter_suite.0;
+
+    let instance_props = unsafe { instance.get_property_set(s_ifx) }.ok_or(StatusError::Failed)?;
+
+    let Some(my_data_ptr) =
+        unsafe { instance_props.get_instance_data(s_prop) }.ok_or(StatusError::Failed)?
+    else {
+        return Err(StatusError::Failed);
+    };
+    let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
+
+    if my_data.used_renderer != my_data.last_used_renderer {
+        let renderer_description = my_data.used_renderer.describe();
+        unsafe {
+            my_data
+                .renderer_info_param
+                .param_set_value(s_param, &renderer_description)
+        }
+        .ok_or(StatusError::Failed)?;
+    }
+
+    Ok(Status::OK)
+}
+
 fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> OutboundResult {
     let (data, _additional) = global_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
-    let _s_param = &data.parameter_suite.0;
 
     let instance_props = unsafe { instance.get_property_set(s_ifx) }.ok_or(StatusError::Failed)?;
 
@@ -759,12 +855,13 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
         let Some(cmd_q) = cmd_q else {
             return Err(StatusError::Failed);
         };
-        processing_metal::process_images_metal(scales, source_img, output_img, cmd_q)?;
+        processing_metal::process_images_metal(my_data, scales, source_img, output_img, cmd_q)?;
         return Ok(Status::OK);
     }
 
     processing_cpu::process_images(
         &data,
+        my_data,
         &instance,
         scales,
         source_img,
@@ -781,9 +878,13 @@ mod processing_metal {
 
     use openfx::low::StatusError;
 
-    use crate::{helpers::internal_utils::ClipImageManaged, plugin_gpu_gain::Scales};
+    use crate::{
+        helpers::internal_utils::ClipImageManaged,
+        plugin_gpu_gain::{MyInstanceData, Scales},
+    };
 
     pub fn process_images_metal(
+        my_data: &MyInstanceData,
         scales: Scales,
         source_img: ClipImageManaged,
         output_img: ClipImageManaged,
@@ -792,6 +893,7 @@ mod processing_metal {
         use crate::plugin_gpu_gain::metal_kernel::run_metal_kernel;
 
         tracing::debug!("Processing via Metal");
+        my_data.used_renderer.store_metal_buffer();
 
         let bounds = source_img.bounds();
         let width = bounds.x2 - bounds.x1;
@@ -813,11 +915,12 @@ mod processing_cpu {
 
     use crate::{
         helpers::{internal_utils::ClipImageManaged, shared_data::SharedData},
-        plugin_gpu_gain::Scales,
+        plugin_gpu_gain::{MyInstanceData, Scales},
     };
 
     pub fn process_images(
         data: &SharedData,
+        my_data: &MyInstanceData,
         instance: &ImageEffectInstance,
         scales: Scales,
         source_img: ClipImageManaged,
@@ -851,7 +954,10 @@ mod processing_cpu {
                 * (proc_window.y2 - proc_window.y1)) as c_uint
                 / 4096)
                 .min(unsafe { s_mt.multi_thread_num_cpus() }.unwrap_or(1));
-            tracing::debug!("Processing via CPU (with {n_cpus} threads)");
+            tracing::debug!("Processing via CPU (with {n_cpus} thread(s))");
+            my_data
+                .used_renderer
+                .store_cpu_multi_thread_suite(n_cpus.try_into().unwrap_or(u16::MAX));
             if n_cpus > 1 {
                 unsafe { s_mt.multi_thread(process_thread, n_cpus, &arg) }
                     .ok_or(StatusError::Failed)?;
@@ -860,6 +966,7 @@ mod processing_cpu {
             }
         } else {
             tracing::debug!("Processing via CPU (No `MultiThreadSuiteV1`)");
+            my_data.used_renderer.store_cpu();
             process_tile(arg);
         }
 
@@ -1016,5 +1123,62 @@ impl Scales {
             self.b_scale as f32,
             self.a_scale as f32,
         ]
+    }
+}
+
+#[derive(Default)]
+struct UsedRenderer(AtomicU32);
+
+impl UsedRenderer {
+    const RENDERER_NO_INFO: u16 = 0;
+    const RENDERER_CPU_MULTI_THREAD_SUITE: u16 = 1;
+    const RENDERER_CPU: u16 = 2;
+    const RENDERER_METAL_BUFFER: u16 = 3;
+
+    fn store_no_info(&self) {
+        self.0
+            .store(Self::RENDERER_NO_INFO as u32, atomic::Ordering::Relaxed);
+    }
+    fn store_cpu_multi_thread_suite(&self, n_cpus: u16) {
+        self.0.store(
+            (Self::RENDERER_CPU_MULTI_THREAD_SUITE as u32) | ((n_cpus as u32) << 16),
+            atomic::Ordering::Relaxed,
+        );
+    }
+    fn store_cpu(&self) {
+        self.0
+            .store(Self::RENDERER_CPU as u32, atomic::Ordering::Relaxed);
+    }
+    fn store_metal_buffer(&self) {
+        self.0.store(
+            Self::RENDERER_METAL_BUFFER as u32,
+            atomic::Ordering::Relaxed,
+        );
+    }
+
+    fn assign(&self, another: &UsedRenderer) {
+        let value = another.0.load(atomic::Ordering::Relaxed);
+        self.0.store(value, atomic::Ordering::Relaxed);
+    }
+
+    fn describe(&self) -> CString {
+        let value = self.0.load(atomic::Ordering::Relaxed);
+        let renderer = (value & 0xFFFF) as u16;
+        let n_cpus = (value >> 16) as u16;
+        match renderer {
+            Self::RENDERER_NO_INFO => c"--".to_owned(),
+            Self::RENDERER_CPU_MULTI_THREAD_SUITE => {
+                CString::new(format!("CPU (with {n_cpus} thread(s))")).unwrap()
+            }
+            Self::RENDERER_CPU => c"CPU (No `MultiThreadSuiteV1`)".to_owned(),
+            Self::RENDERER_METAL_BUFFER => c"Metal (Buffer)".to_owned(),
+            _ => c"?".to_owned(),
+        }
+    }
+}
+
+impl PartialEq for UsedRenderer {
+    fn eq(&self, other: &Self) -> bool {
+        self.0.load(atomic::Ordering::Relaxed) == other.0.load(atomic::Ordering::Relaxed)
     }
 }
