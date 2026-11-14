@@ -3,7 +3,10 @@ use std::collections::HashMap;
 use proc_macro::TokenStream;
 use quote::{quote, quote_spanned};
 
-use crate::low_macros::utils::{self, make_doc_see_sys};
+use crate::{
+    common::{ParameterElementType, SimpleType},
+    low_macros::utils::{self, make_doc_see_sys},
+};
 
 mod inputs;
 use inputs::*;
@@ -38,7 +41,7 @@ fn make_property_set_struct(
     let mut output_inner = proc_macro2::TokenStream::new();
 
     for (prop, write) in set.resolved_props(propsetdefs)? {
-        make_property_accessors(&mut output_inner, prop, write);
+        make_property_accessors(&mut output_inner, set, prop, write)?;
     }
 
     let struct_name = &set.name;
@@ -68,56 +71,56 @@ fn make_property_set_struct(
 
 fn make_property_accessors(
     output: &mut proc_macro2::TokenStream,
+    set: &InputPropertySet,
     prop: &InputPropertyItem,
     write: &InputWriteSide,
-) {
-    let tys: Vec<_> = prop.ty.possible_types().iter().collect();
-    let is_ambiguous = tys.len() > 1;
-
+) -> syn::Result<()> {
     let cname = syn::Ident::new(
         &format!("k{}", prop.canonical_name),
         prop.canonical_name.span(),
     );
 
-    for ty in prop.ty.possible_types().iter() {
-        let simple_ty = ty.simple();
-        let fn_name_suffix = if is_ambiguous {
-            format!(
-                "{}_{}",
-                prop.simple_name.to_string().trim_start_matches("r#"),
-                simple_ty.to_string().to_lowercase()
-            )
-        } else {
-            prop.simple_name
-                .to_string()
-                .trim_start_matches("r#")
-                .to_owned()
-        };
+    let ty = if let Some(ref m) = set.monomorphization
+        && m.allow_list.contains_key(&prop.simple_name.to_string())
+    {
+        prop.ty.monomorphize(m, &prop.simple_name)?
+    } else if let Some(ty) = prop.ty.only()? {
+        ty
+    } else {
+        return Err(syn::Error::new_spanned(
+            &prop.simple_name,
+            "This generic property is not in the monomorphization allow list.",
+        ));
+    };
 
-        if write.is_plugin() {
-            make_property_setter(output, prop, &cname, &ty, &fn_name_suffix);
-        }
-        if write.is_host() {
-            make_property_getter(output, prop, &cname, &ty, &fn_name_suffix);
-        }
-    }
+    let fn_name_suffix = prop
+        .simple_name
+        .to_string()
+        .trim_start_matches("r#")
+        .to_owned();
 
     if write.is_plugin() {
+        make_property_setter(output, &prop.simple_name, &cname, &ty, &fn_name_suffix);
         make_property_resetter(output, prop, &cname);
     }
-    if write.is_host() && matches!(prop.ty, InputContainerType::Slice(_)) {
+    if write.is_host() {
+        make_property_getter(output, &prop.simple_name, &cname, &ty, &fn_name_suffix);
         make_property_dimensions_getter(output, prop, &cname);
     }
+
+    Ok(())
 }
 
 fn make_property_setter(
     output: &mut proc_macro2::TokenStream,
-    prop: &InputPropertyItem,
+    simple_name: &syn::Ident,
     cname: &syn::Ident,
-    ty: &OpenFXTypeExpressive,
+    ty: &MonomorphizedContainerType,
     fn_name_suffix: &str,
 ) {
-    for preset in ty.make_impl_setter_preset() {
+    let el_type = ty.element_type();
+
+    for preset in el_type.make_impl_setter_presets() {
         let fn_name = syn::Ident::new(
             &format!(
                 "set_{}{}",
@@ -126,46 +129,46 @@ fn make_property_setter(
                     .fn_name_suffix()
                     .map_or(String::new(), |s| format!("_{s}"))
             ),
-            prop.simple_name.span(),
+            simple_name.span(),
         );
 
         let fn_name_on_suite = syn::Ident::new(
             &format!(
                 "prop_set_{}{}{}",
-                ty.simple().name_snake_case().to_owned(),
+                el_type.simple().name_snake_case().to_owned(),
                 preset
                     .simple_type_suffix()
                     .map_or(String::new(), |s| format!("_{s}")),
-                prop.ty.as_name_suffix(),
+                ty.as_name_suffix(),
             ),
             proc_macro2::Span::call_site(),
         );
 
-        let expressive_ty = preset.expressive_type(ty.ident());
-        let expressive_container_ty = match &prop.ty {
-            InputContainerType::Scalar(_) => expressive_ty.clone(),
-            InputContainerType::Array(_, size) => {
+        let expressive_ty = preset.expressive_type(el_type.ident());
+        let expressive_container_ty = match ty {
+            MonomorphizedContainerType::Scalar(_) => expressive_ty.clone(),
+            MonomorphizedContainerType::Array(_, size) => {
                 quote! { [#expressive_ty; #size] }
             }
-            InputContainerType::Slice(_) => quote! { &[#expressive_ty] },
+            MonomorphizedContainerType::Slice(_) => quote! { &[#expressive_ty] },
         };
 
         let expressive_value_to_simple_quote = match preset
             .expressive_type_to_simple_type(quote! { value })
         {
-            Some(expressive_to_simple_quote) => match &prop.ty {
-                InputContainerType::Scalar(_) => expressive_to_simple_quote,
-                InputContainerType::Array(_, _) => {
+            Some(expressive_to_simple_quote) => match ty {
+                MonomorphizedContainerType::Scalar(_) => expressive_to_simple_quote,
+                MonomorphizedContainerType::Array(_, _) => {
                     quote! { value.map(|value| #expressive_to_simple_quote) }
                 }
-                InputContainerType::Slice(_) => {
+                MonomorphizedContainerType::Slice(_) => {
                     quote! { &value.iter().map(|value| #expressive_to_simple_quote).collect::<Vec<_>>() }
                 }
             },
             _ => quote! { value },
         };
 
-        let doc_see_sys = make_doc_see_sys(&cname.to_string());
+        let doc_see_sys = make_doc_see_sys(&[&cname.to_string()]);
         let mut doc = quote! {
                 #doc_see_sys
                 ///
@@ -197,12 +200,14 @@ fn make_property_setter(
 
 fn make_property_getter(
     output: &mut proc_macro2::TokenStream,
-    prop: &InputPropertyItem,
+    simple_name: &syn::Ident,
     cname: &syn::Ident,
-    ty: &OpenFXTypeExpressive,
+    ty: &MonomorphizedContainerType,
     fn_name_suffix: &str,
 ) {
-    for preset in ty.make_impl_getter_preset() {
+    let el_type = ty.element_type();
+
+    for preset in el_type.make_impl_getter_presets() {
         let fn_name = syn::Ident::new(
             &format!(
                 "get_{}{}",
@@ -211,41 +216,41 @@ fn make_property_getter(
                     .fn_name_suffix()
                     .map_or(String::new(), |s| format!("_{s}"))
             ),
-            prop.simple_name.span(),
+            simple_name.span(),
         );
 
         let fn_name_on_suite = syn::Ident::new(
             &format!(
                 "prop_get_{}{}{}",
-                ty.simple().name_snake_case().to_owned(),
+                el_type.simple().name_snake_case().to_owned(),
                 preset
                     .simple_type_suffix()
                     .map_or(String::new(), |s| format!("_{s}")),
-                prop.ty.as_name_suffix(),
+                ty.as_name_suffix(),
             ),
             proc_macro2::Span::call_site(),
         );
 
-        let expressive_ty = preset.expressive_type(ty.ident());
-        let simple_type = preset.simple_type();
+        let expressive_ty = preset.expressive_type(el_type.ident());
+        let simple_type = preset.simple_type().quote_rust_type();
 
         let simple_to_expressive_quote =
             preset.simple_type_to_expressive_type(quote! { value_simple });
         let is_conversion_unnecessary = simple_to_expressive_quote.is_none();
         let simple_value_to_expressive_quote = match simple_to_expressive_quote {
-            Some(simple_to_expressive_quote) => match &prop.ty {
-                InputContainerType::Scalar(_) => quote! { #simple_to_expressive_quote },
-                InputContainerType::Array(_, _) => {
+            Some(simple_to_expressive_quote) => match &ty {
+                MonomorphizedContainerType::Scalar(_) => quote! { #simple_to_expressive_quote },
+                MonomorphizedContainerType::Array(_, _) => {
                     quote! { value_simple.map(|value_simple| #simple_to_expressive_quote) }
                 }
-                InputContainerType::Slice(_) => {
+                MonomorphizedContainerType::Slice(_) => {
                     quote! { value_simple.into_iter().map(|value_simple| #simple_to_expressive_quote).collect() }
                 }
             },
             _ => quote! { value_simple },
         };
 
-        let doc_see_sys = make_doc_see_sys(&cname.to_string());
+        let doc_see_sys = make_doc_see_sys(&[&cname.to_string()]);
         let mut doc = quote! {
             #doc_see_sys
             ///
@@ -263,8 +268,8 @@ fn make_property_getter(
             doc.extend(additional_safety_doc);
         }
 
-        match &prop.ty {
-            InputContainerType::Scalar(_) => output.extend(
+        match &ty {
+            MonomorphizedContainerType::Scalar(_) => output.extend(
                 quote! {
                     #doc
                     pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::InboundResult<#expressive_ty> {
@@ -273,7 +278,7 @@ fn make_property_getter(
                     }
                 },
             ),
-            InputContainerType::Array(_, size) if is_conversion_unnecessary => output.extend(
+            MonomorphizedContainerType::Array(_, size) if is_conversion_unnecessary => output.extend(
                 quote! {
                     #doc
                     pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::InboundResult<[#expressive_ty; #size]> {
@@ -281,7 +286,7 @@ fn make_property_getter(
                     }
                 }
             ),
-            InputContainerType::Array(_, size) => output.extend(
+            MonomorphizedContainerType::Array(_, size) => output.extend(
                 quote! {
                     #doc
                     pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::InboundResult<[#expressive_ty; #size]> {
@@ -290,7 +295,7 @@ fn make_property_getter(
                     }
                 },
             ),
-            InputContainerType::Slice(_) => output.extend(
+            MonomorphizedContainerType::Slice(_) => output.extend(
                 quote! {
                     #doc
                     pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::InboundResult<::std::vec::Vec<#expressive_ty>> {
@@ -331,7 +336,7 @@ fn make_property_resetter(
         prop.simple_name.span(),
     );
 
-    let doc_see_sys = make_doc_see_sys(&cname.to_string());
+    let doc_see_sys = make_doc_see_sys(&[&cname.to_string()]);
 
     output.extend(
         quote! {
@@ -364,7 +369,7 @@ fn make_property_dimensions_getter(
         prop.simple_name.span(),
     );
 
-    let doc_see_sys = make_doc_see_sys(&cname.to_string());
+    let doc_see_sys = make_doc_see_sys(&[&cname.to_string()]);
 
     output.extend(
         quote! {
@@ -375,7 +380,7 @@ fn make_property_dimensions_getter(
             /// - `self.0` must be a valid handle of
             ///   [`crate::sys_umbrella::OfxPropertySetHandle`].
             /// - `suite` must be valid.
-            pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::InboundResult<::std::os::raw::c_int> {
+            pub unsafe fn #fn_name(&self, suite: &crate::low_plugin::suites::PropertySuiteV1) -> crate::low::InboundResult<::std::ffi::c_int> {
                 unsafe {
                     suite.prop_get_dimension(self.sys_handle(), crate::sys_umbrella::#cname)
                 }
@@ -384,36 +389,36 @@ fn make_property_dimensions_getter(
     );
 }
 
-impl OpenFXTypeExpressive {
-    fn make_impl_setter_preset(&self) -> Vec<Box<dyn ImplSetterPreset>> {
+impl ExpressiveType {
+    fn make_impl_setter_presets(&self) -> Vec<Box<dyn ImplSetterPreset>> {
         match self {
-            OpenFXTypeExpressive::Int(_) => vec![Box::new(ImplAccessorsPresetInt)],
-            OpenFXTypeExpressive::Double(_) => vec![Box::new(ImplAccessorsPresetDouble)],
-            OpenFXTypeExpressive::Enum(_, name) => {
+            ExpressiveType::Int(_) => vec![Box::new(ImplAccessorsPresetInt)],
+            ExpressiveType::Double(_) => vec![Box::new(ImplAccessorsPresetDouble)],
+            ExpressiveType::Enum(_, name) => {
                 vec![Box::new(ImplAccessorsPresetEnum { name: name.clone() })]
             }
-            OpenFXTypeExpressive::Bool(_) => vec![Box::new(ImplAccessorsPresetBool)],
-            OpenFXTypeExpressive::String(_) => vec![Box::new(ImplAccessorsPresetString)],
-            OpenFXTypeExpressive::Pointer(_) => vec![Box::new(ImplAccessorsPresetPointer)],
+            ExpressiveType::Bool(_) => vec![Box::new(ImplAccessorsPresetBool)],
+            ExpressiveType::String(_) => vec![Box::new(ImplAccessorsPresetString)],
+            ExpressiveType::Pointer(_) => vec![Box::new(ImplAccessorsPresetPointer)],
         }
     }
-    fn make_impl_getter_preset(&self) -> Vec<Box<dyn ImplGetterPreset>> {
+    fn make_impl_getter_presets(&self) -> Vec<Box<dyn ImplGetterPreset>> {
         match self {
-            OpenFXTypeExpressive::Int(_) => vec![Box::new(ImplAccessorsPresetInt)],
-            OpenFXTypeExpressive::Double(_) => vec![Box::new(ImplAccessorsPresetDouble)],
-            OpenFXTypeExpressive::Enum(_, name) => {
+            ExpressiveType::Int(_) => vec![Box::new(ImplAccessorsPresetInt)],
+            ExpressiveType::Double(_) => vec![Box::new(ImplAccessorsPresetDouble)],
+            ExpressiveType::Enum(_, name) => {
                 vec![
                     Box::new(ImplAccessorsPresetEnum { name: name.clone() }),
                     Box::new(ImplGetterPresetEnumKnown { name: name.clone() }),
                     Box::new(ImplGetterPresetEnumOwned { name: name.clone() }),
                 ]
             }
-            OpenFXTypeExpressive::Bool(_) => vec![Box::new(ImplAccessorsPresetBool)],
-            OpenFXTypeExpressive::String(_) => vec![
+            ExpressiveType::Bool(_) => vec![Box::new(ImplAccessorsPresetBool)],
+            ExpressiveType::String(_) => vec![
                 Box::new(ImplAccessorsPresetString),
                 Box::new(ImplGetterPresetStringOwned),
             ],
-            OpenFXTypeExpressive::Pointer(_) => vec![Box::new(ImplAccessorsPresetPointer)],
+            ExpressiveType::Pointer(_) => vec![Box::new(ImplAccessorsPresetPointer)],
         }
     }
 }
@@ -468,7 +473,7 @@ trait ImplGetterPreset {
     fn additional_safety_doc(&self) -> Option<proc_macro2::TokenStream> {
         None
     }
-    fn simple_type(&self) -> proc_macro2::TokenStream;
+    fn simple_type(&self) -> SimpleType;
     /// The expressive type used in the `low` layer, i.e., the type of the value
     /// retrieved from the getter function that this preset adds.
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream;
@@ -489,7 +494,7 @@ struct ImplAccessorsPresetInt;
 impl ImplAccessorsPresetInt {
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let c_int = quote_spanned! { ident.span() => c_int };
-        quote! { ::std::os::raw::#c_int }
+        quote! { ::std::ffi::#c_int }
     }
 }
 impl ImplSetterPreset for ImplAccessorsPresetInt {
@@ -498,8 +503,8 @@ impl ImplSetterPreset for ImplAccessorsPresetInt {
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetInt {
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::std::os::raw::c_int }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_int()
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         self.expressive_type(ident)
@@ -510,7 +515,7 @@ struct ImplAccessorsPresetDouble;
 impl ImplAccessorsPresetDouble {
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let f64 = quote_spanned! { ident.span() => f64 };
-        quote! { ::core::primitive::#f64 }
+        quote! { ::std::primitive::#f64 }
     }
 }
 impl ImplSetterPreset for ImplAccessorsPresetDouble {
@@ -519,8 +524,8 @@ impl ImplSetterPreset for ImplAccessorsPresetDouble {
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetDouble {
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::core::primitive::f64 }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_double()
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         self.expressive_type(ident)
@@ -531,7 +536,7 @@ struct ImplAccessorsPresetBool;
 impl ImplAccessorsPresetBool {
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let bool = quote_spanned! { ident.span() => bool };
-        quote! { ::core::primitive::#bool }
+        quote! { ::std::primitive::#bool }
     }
 }
 impl ImplSetterPreset for ImplAccessorsPresetBool {
@@ -542,12 +547,12 @@ impl ImplSetterPreset for ImplAccessorsPresetBool {
         &self,
         expressive_val: proc_macro2::TokenStream,
     ) -> Option<proc_macro2::TokenStream> {
-        Some(quote! { #expressive_val as ::std::os::raw::c_int })
+        Some(quote! { #expressive_val as ::std::ffi::c_int })
     }
 }
 impl ImplGetterPreset for ImplAccessorsPresetBool {
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::std::os::raw::c_int }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_int()
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         self.expressive_type(ident)
@@ -579,8 +584,8 @@ impl ImplGetterPreset for ImplAccessorsPresetPointer {
             /// host.
         })
     }
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_void>> }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_pointer()
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         self.expressive_type(ident)
@@ -618,8 +623,8 @@ impl ImplGetterPreset for ImplAccessorsPresetString {
             /// host.
         })
     }
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_char>> }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_string()
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let c_char = quote_spanned! { ident.span() => c_char };
@@ -635,11 +640,12 @@ impl ImplGetterPreset for ImplGetterPresetStringOwned {
     fn fn_name_suffix(&self) -> Option<&'static str> {
         Some("owned")
     }
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_char>> }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_string()
     }
-    fn expressive_type(&self, _ident: &syn::Ident) -> proc_macro2::TokenStream {
-        quote! { ::std::option::Option<::std::ffi::CString> }
+    fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
+        let cstring = quote_spanned! { ident.span() => CString };
+        quote! { ::std::option::Option<::std::ffi::#cstring> }
     }
     fn simple_type_to_expressive_type(
         &self,
@@ -677,8 +683,8 @@ impl ImplGetterPreset for ImplAccessorsPresetEnum {
     fn simple_type_suffix(&self) -> Option<&'static str> {
         Self::SIMPLE_TYPE_SUFFIX
     }
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_char>> }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_string()
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let name = &self.name;
@@ -707,8 +713,8 @@ impl ImplGetterPreset for ImplGetterPresetEnumKnown {
     fn fn_name_suffix(&self) -> Option<&'static str> {
         Some("known")
     }
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_char>> }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_string()
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let name = &self.name;
@@ -737,8 +743,8 @@ impl ImplGetterPreset for ImplGetterPresetEnumOwned {
     fn fn_name_suffix(&self) -> Option<&'static str> {
         Some("owned")
     }
-    fn simple_type(&self) -> proc_macro2::TokenStream {
-        quote! { ::std::option::Option<::std::ptr::NonNull<::std::ffi::c_char>> }
+    fn simple_type(&self) -> SimpleType {
+        SimpleType::new_string()
     }
     fn expressive_type(&self, ident: &syn::Ident) -> proc_macro2::TokenStream {
         let name = &self.name;
@@ -754,5 +760,106 @@ impl ImplGetterPreset for ImplGetterPresetEnumOwned {
         Some(
             quote! { unsafe { crate::low_plugin::property_sets::LosslessEnumPropertyOwned::<#known>::from_ptr(#simple_val) } },
         )
+    }
+}
+
+enum MonomorphizedContainerType {
+    Scalar(ExpressiveType),
+    Array(ExpressiveType, usize),
+    Slice(ExpressiveType),
+}
+
+impl MonomorphizedContainerType {
+    fn element_type(&self) -> &ExpressiveType {
+        match self {
+            Self::Scalar(ty) => ty,
+            Self::Array(ty, _) => ty,
+            Self::Slice(ty) => ty,
+        }
+    }
+
+    fn as_name_suffix(&self) -> &str {
+        match self {
+            Self::Scalar(_) => "",
+            Self::Array(_, _) => "_array",
+            Self::Slice(_) => "_n",
+        }
+    }
+}
+
+impl InputContainerType {
+    fn monomorphize(
+        &self,
+        m: &InputPropertySetMonomorphization,
+        ident: &syn::Ident,
+    ) -> Result<MonomorphizedContainerType, syn::Error> {
+        match self {
+            InputContainerType::Scalar(ty) | InputContainerType::Slice(ty) => {
+                let Some(m_ty) = &m.ty else {
+                    return Err(syn::Error::new_spanned(
+                        ident,
+                        "Properites on typeless parameters cannot be monomorphized.",
+                    ));
+                };
+                let ty = match m_ty.element_type {
+                    ParameterElementType::Int(_) => ty.int.clone().map(ExpressiveType::Int),
+                    ParameterElementType::Double(_) => {
+                        ty.double.clone().map(ExpressiveType::Double)
+                    }
+                    ParameterElementType::String(_) => {
+                        ty.string.clone().map(ExpressiveType::String)
+                    }
+                    ParameterElementType::Pointer(_) => {
+                        ty.pointer.clone().map(ExpressiveType::Pointer)
+                    }
+                    ParameterElementType::Bool(_) => ty
+                        .bool
+                        .as_ref()
+                        .or(ty.int.as_ref())
+                        .cloned()
+                        .map(ExpressiveType::Bool),
+                };
+                let Some(ty) = ty else {
+                    return Err(syn::Error::new_spanned(
+                        ident,
+                        format!(
+                            "This generic property cannot be monomorphized as {}",
+                            m_ty.element_type
+                        ),
+                    ));
+                };
+                if matches!(self, InputContainerType::Scalar(_)) || m_ty.dimensions == 1 {
+                    Ok(MonomorphizedContainerType::Scalar(ty))
+                } else {
+                    Ok(MonomorphizedContainerType::Array(ty, m_ty.dimensions))
+                }
+            }
+            InputContainerType::Array(..) => Err(syn::Error::new_spanned(
+                ident,
+                "Monomorphization for array properties is currently not supported.",
+            )),
+        }
+    }
+
+    fn only(&self) -> Result<Option<MonomorphizedContainerType>, syn::Error> {
+        let ty = match self {
+            InputContainerType::Scalar(ty) if let Some(ty) = ty.only() => {
+                Some(MonomorphizedContainerType::Scalar(ty))
+            }
+            InputContainerType::Array(ty, d) if let Some(ty) = ty.only() => {
+                if *d == 1 {
+                    return Err(syn::Error::new_spanned(
+                        ty.ident(),
+                        "Consider using a scalar instead, since the array is 1D.",
+                    ));
+                }
+                Some(MonomorphizedContainerType::Array(ty, *d))
+            }
+            InputContainerType::Slice(ty) if let Some(ty) = ty.only() => {
+                Some(MonomorphizedContainerType::Slice(ty))
+            }
+            _ => None,
+        };
+        Ok(ty)
     }
 }

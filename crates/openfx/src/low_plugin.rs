@@ -10,8 +10,11 @@ pub mod actions {
 }
 
 pub mod objects;
+pub mod parameters;
 pub mod property_sets;
 pub mod suites;
+
+pub(crate) mod internal_macros;
 
 pub trait Plugin {
     const PLUGIN_IDENTIFIER: &'static CStr;

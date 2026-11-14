@@ -132,9 +132,8 @@ objects:
       omit: true
       set: true
     # Parameter Descriptor/Instance: Concrete parameter descriptors/instances
-    # ~~are~~ will be used instead.
-    # TO REVIEWERS: remind me if the statement above needs updating.
-    # TODO: Ask the upstream why there is not a corresponding instance object.
+    # are be used instead.
+    # TODO: Ask the upstream why this is called a descriptor.
     ParamDescriptor: { is: OfxParamHandle, omit: true }
     # Image Instance: This is also a property set handle, so we need to handle
     # this specifically.
@@ -152,32 +151,56 @@ objects:
     OpenGLTexture: { is: OfxPropertySetHandle, omit: true }
 
 parameters:
-  mapping: # NOTE: This configuration is currently unused.
+  mapping:
     # sources:
     # - See “CONTRIBUTING.md § Origins of the Type Names” for the origin of
     #   these names.
     # - Value types are based on the documentation for `kOfxParamPropDefault`
     #   in `openfx/include/ofxParam.h`.
-    Integer: { property_set: ParamsInt1D, ty: [1, Int] }
-    Double: { property_set: ParamsDouble1D, ty: [1, Double] }
-    Boolean: { property_set: ParamsBoolean, ty: [1, Bool] }
-    Choice: { property_set: ParamsChoice, ty: [1, Int] }
-    StrChoice: { property_set: ParamsStrChoice, ty: [1, String] }
-    RGBA: { property_set: ParamsRGBA, ty: [4, Double] }
-    RGB: { property_set: ParamsRGB, ty: [3, Double] }
-    Double2D: { property_set: ParamsDouble2D3D, ty: [2, Double] }
-    Integer2D: { property_set: ParamsInt2D3D, ty: [2, Int] }
-    Double3D: { property_set: ParamsDouble2D3D, ty: [3, Double] }
-    Integer3D: { property_set: ParamsInt2D3D, ty: [3, Int] }
-    String: { property_set: ParamsString, ty: [1, String] }
-    Custom: { property_set: ParamsCustom, ty: [1, String] }
-    Bytes: { property_set: ParamsBytes, ty: [1, Pointer] }
+    #
+    # flags:
+    # - 'd': is_derivable
+    # - 'i': is_integrable
+    #
+    # Since the reference states that “Only double and colour params can have
+    # their derivatives found / be integrated.”, we mark them as such explicitly
+    # rather than assuming that all parameter types with a double element type
+    # are implicitly derivable/integrable.
+    Integer: { property_set: ParamsInt1D, ty: [Int, 1] }
+    Double: { property_set: ParamsDouble1D, ty: [Double, 1], flags: di }
+    Boolean: { property_set: ParamsBoolean, ty: [Bool, 1] }
+    Choice: { property_set: ParamsChoice, ty: [Int, 1] }
+    StrChoice: { property_set: ParamsStrChoice, ty: [String, 1] }
+    RGBA: { property_set: ParamsRGBA, ty: [Double, 4], flags: di }
+    RGB: { property_set: ParamsRGB, ty: [Double, 3], flags: di }
+    Double2D: { property_set: ParamsDouble2D3D, ty: [Double, 2], flags: di }
+    Integer2D: { property_set: ParamsInt2D3D, ty: [Int, 2] }
+    Double3D: { property_set: ParamsDouble2D3D, ty: [Double, 3], flags: di }
+    Integer3D: { property_set: ParamsInt2D3D, ty: [Int, 3] }
+    String: { property_set: ParamsString, ty: [String, 1] }
+    Custom: { property_set: ParamsCustom, ty: [String, 1] }
+    Bytes: { property_set: ParamsBytes, ty: [Pointer, 1] }
     Group: { property_set: ParamsGroup, ty: null }
     Page: { property_set: ParamsPage, ty: null }
     PushButton: { property_set: ParamsPushButton, ty: null }
-    # Parametric: { property_set: ParamsParametric, ty: null }
+  # Properties in a parameter's property set whose type is specified with
+  # `ty_one_of!` and that are missing from this list are treated as errors.
+  # This ensures that we don't blindly monomorphize properties without
+  # understanding what they represent.
+  generic_properties:
+    - kOfxParamPropDisplayMax
+    - kOfxParamPropDisplayMin
+    - kOfxParamPropMax
+    - kOfxParamPropMin
+    - kOfxParamPropDefault
+  parametric_parameter: # NOTE: This configuration is currently unused.
+    # TODO: `struct ParamParametric<const N: c_int>`?
+    property_set: ParamsParametric
 
 property_sets:
+  ignore:
+    # Instead, they are generated together with the parameters.
+    - { regex: "^Params.+$" }
   renaming:
     ImageEffectHost: ImageEffectHostDescriptor
     Image: ImageInstance

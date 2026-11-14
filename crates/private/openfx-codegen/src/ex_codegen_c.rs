@@ -3,15 +3,16 @@ use std::{
     path::Path,
 };
 
-use convert_case::Casing as _;
 use quote::quote;
 
 use openfx_codegen_config::CodegenConfig;
 
-use crate::utils::strip_common_prefix;
+use crate::utils::{new_ident, strip_common_prefix, to_snake_case};
 
+mod gen_low_plugin_suites;
 mod gen_low_statuses;
 
+pub use gen_low_plugin_suites::gen_low_plugin_suites;
 pub use gen_low_statuses::gen_low_statuses;
 
 pub fn gen_low_enums_from_c(
@@ -28,22 +29,16 @@ pub fn gen_low_enums_from_c(
             .strip_prefix("Ofx")
             .ok_or("Enum name should start with \"Ofx\".")?;
 
-        let enum_name = syn::Ident::new(&enum_name, proc_macro2::Span::call_site());
-        let simple_enum_name = syn::Ident::new(simple_enum_name, proc_macro2::Span::call_site());
+        let enum_name = new_ident(&enum_name);
+        let simple_enum_name = new_ident(simple_enum_name);
 
         let mut vars = vars.into_iter().collect::<Vec<_>>();
         vars.sort();
 
         let simple_vars = strip_common_prefix(&vars);
 
-        let vars: Vec<syn::Ident> = vars
-            .iter()
-            .map(|v| syn::Ident::new(v, proc_macro2::Span::call_site()))
-            .collect();
-        let simple_vars: Vec<syn::Ident> = simple_vars
-            .iter()
-            .map(|v| syn::Ident::new(v, proc_macro2::Span::call_site()))
-            .collect();
+        let vars: Vec<syn::Ident> = vars.iter().map(new_ident).collect();
+        let simple_vars: Vec<syn::Ident> = simple_vars.iter().map(new_ident).collect();
 
         output_inner.extend(quote! {
             #[sys(#enum_name)]
@@ -70,126 +65,6 @@ pub fn gen_low_enums_from_c(
     Ok(())
 }
 
-pub fn gen_low_plugin_suites(
-    config: &CodegenConfig,
-    output_folder: &Path,
-    suites: HashMap<String, HashSet<String>>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let mut suite_names: Vec<String> = suites.keys().cloned().collect();
-    suite_names.sort();
-    let simple_names: Vec<String> = suite_names
-        .iter()
-        .map(|name| {
-            name.strip_prefix("Ofx")
-                .ok_or("Suite name should start with \"Ofx\".")
-                .map(str::to_owned)
-        })
-        .collect::<Result<_, _>>()?;
-
-    let simple_idents: Vec<syn::Ident> = simple_names
-        .iter()
-        .map(|name| syn::Ident::new(name, proc_macro2::Span::call_site()))
-        .collect();
-
-    // suites.rs
-    {
-        let mut output = quote! {
-            use openfx_internal_macros::low_make_suite_struct;
-        };
-
-        for (name, simple_ident) in suite_names.iter().zip(simple_idents.iter()) {
-            let full_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
-            output.extend(quote! {
-                low_make_suite_struct!(#simple_ident,#full_ident);
-            });
-        }
-
-        std::fs::write(output_folder.join("suites.rs"), output.to_string())?;
-    }
-
-    // checks/suites.rs
-    {
-        let out_folder = output_folder.join("checks");
-        std::fs::create_dir_all(&out_folder)?;
-        let out_path = out_folder.join("suites.rs");
-
-        let mut output = proc_macro2::TokenStream::new();
-
-        for (name, simple_ident) in suite_names.iter().zip(simple_idents.iter()) {
-            let special_case = &config.suites.special_cases.get(&simple_ident.to_string());
-
-            let mut fns: Vec<syn::Ident> = vec![];
-            for fn_raw_name in &suites[name] {
-                let fn_cfg = special_case
-                    .and_then(|sc| sc.functions.as_ref())
-                    .and_then(|fs| fs.get(fn_raw_name));
-
-                if fn_cfg.is_some_and(|cfg| cfg.omit) {
-                    continue;
-                }
-
-                let mut fn_name = fn_cfg
-                    .and_then(|cfg| cfg.rust_name.as_ref())
-                    .cloned()
-                    .unwrap_or_else(|| fn_raw_name.to_case(convert_case::Case::Snake));
-
-                if fn_cfg.is_some_and(|cfg| cfg.prefer_checking_sys_name_in_suite) {
-                    fn_name = format!("sys_{fn_name}");
-                }
-
-                let fn_ident = syn::Ident::new(&fn_name, proc_macro2::Span::call_site());
-                fns.push(fn_ident);
-            }
-            fns.sort();
-
-            if fns.is_empty() {
-                continue;
-            }
-
-            output.extend(quote! {
-                const _: () = {
-                    use crate::low_plugin::suites::#simple_ident;
-                    #(
-                        let _ = #simple_ident::#fns;
-                    )*
-                };
-            });
-        }
-
-        std::fs::write(out_path, output.to_string())?;
-    }
-
-    // impl_host_for_fetch_suites.rs
-    {
-        let mut output = quote! {
-            use openfx_internal_macros::low_plugin_impl_host_for_fetch_suite;
-        };
-
-        for simple_ident in &simple_idents {
-            let special_case = &config.suites.special_cases.get(&simple_ident.to_string());
-
-            if let Some(corrected_cname) = special_case.and_then(|sc| sc.key_name.as_deref()) {
-                let corrected_cname_ident =
-                    syn::Ident::new(corrected_cname, proc_macro2::Span::call_site());
-                output.extend(quote! {
-                    low_plugin_impl_host_for_fetch_suite!(#simple_ident @ #corrected_cname_ident);
-                });
-            } else {
-                output.extend(quote! {
-                    low_plugin_impl_host_for_fetch_suite!(#simple_ident);
-                });
-            }
-        }
-
-        std::fs::write(
-            output_folder.join("impl_host_for_fetch_suites.rs"),
-            output.to_string(),
-        )?;
-    }
-
-    Ok(())
-}
-
 pub fn gen_low_plugin_objects(
     config: &CodegenConfig,
     output_folder: &Path,
@@ -208,8 +83,8 @@ pub fn gen_low_plugin_objects(
             if entry.omit {
                 continue;
             }
-            let object_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
-            let handle_ident = syn::Ident::new(&entry.is, proc_macro2::Span::call_site());
+            let object_ident = new_ident(name);
+            let handle_ident = new_ident(&entry.is);
             output.extend(quote! {
                 low_make_object_struct!(#object_ident,#handle_ident);
             });
@@ -254,16 +129,11 @@ pub fn gen_low_plugin_objects(
                 fns.retain(|fn_name| !omit_fns.contains(fn_name));
             }
 
-            let object_ident = syn::Ident::new(name, proc_macro2::Span::call_site());
+            let object_ident = new_ident(name);
 
             let mut fns = fns
                 .iter()
-                .map(|v| {
-                    syn::Ident::new(
-                        &v.to_case(convert_case::Case::Snake),
-                        proc_macro2::Span::call_site(),
-                    )
-                })
+                .map(|v| new_ident(to_snake_case(v)))
                 .collect::<Vec<_>>();
             fns.sort();
 

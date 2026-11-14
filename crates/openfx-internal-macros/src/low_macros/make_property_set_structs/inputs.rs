@@ -1,19 +1,28 @@
 //! ## Agentic activities
 //!
-//! - The syntax of `make_property_set_structs!` was changed from a highly
-//!   customized DSL to a pseudo-Rust syntax. The parsing logic for it was
-//!   adapted by AI:
+//! - The syntax of the macro was changed from a highly customized DSL to a
+//!   pseudo-Rust syntax. The parsing logic for it was adapted by AI:
 //!   - Author: OpenCode 2 / GLM 5.3 (provider: Z.AI, thinking: Max)
 //!   - Reviewed-by: Umaĵo (reviewing and refining)
-//! - The syntax of `make_property_set_structs!` was changed to support
-//!   `@propsetdef` directly. The parsing logic for it was adapted by AI:
+//! - The syntax of the macro was changed to support `@propsetdef` directly. The
+//!   parsing logic for it was adapted by AI:
 //!   - Author: OpenCode 2 / GLM 5.3 (provider: Z.AI, thinking: Max)
 //!   - Author: OpenCode 2 / GLM 5.3 (provider: OpenCode Go, thinking: Max)
 //!   - Reviewed-by: Umaĵo (reviewing and refining)
+//! - `monomorphization` support was added to the macro syntax. The parsing
+//!   logic for it was adapted by AI:
+//!   - Author: OpenCode 2 / Kimi K3.1 Pro (provider: Moonshot (CN), thinking:
+//!     Default)
+//!   - Reviewed-by: Umaĵo
 
 use std::collections::HashMap;
 
-use crate::{common::OpenFXTypeSimple, low_macros::utils};
+use syn::ext::IdentExt as _;
+
+use crate::{
+    common::{ParameterType, SimpleType},
+    low_macros::utils,
+};
 
 /// ## Examples
 ///
@@ -36,7 +45,7 @@ use crate::{common::OpenFXTypeSimple, low_macros::utils};
 ///     struct ImageEffectDescriptorPropertySet {
 ///         // …
 ///         #[prop(@OfxImageEffectPluginPropOverlayInteractV1)]
-///         image_effect_plugin_overlay_interact_v_1: Pointer,
+///         image_effect_plugin_overlay_interact_v1: Pointer,
 ///         // …
 ///         #[prop(write = host, @OfxPluginPropFilePath)]
 ///         plugin_file_path: String,
@@ -46,10 +55,14 @@ use crate::{common::OpenFXTypeSimple, low_macros::utils};
 ///         // …
 ///     }
 ///     #[propset(
+///         monomorphization = {
+///             type = (Double; 1),
+///             allow_list = [param_default , param_display_max , param_display_min , param_max , param_min]
+///         },
 ///         write = plugin,
 ///         refs = ParamsAllButGroupPage+ParamsCommon+ParamsDouble+ParamsNumeric+ParamsValue
 ///     )]
-///     struct ParamDouble1DPropertySet {
+///     struct ParamDoublePropertySet {
 ///         // …
 ///     }
 ///     // …
@@ -94,9 +107,10 @@ impl syn::parse::Parse for Input {
     }
 }
 
-/// A `#[propset(write = …[, refs = …])] struct … { … }` item.
+/// A `#[propset([monomorphization = { … }, ]write = …[, refs = …])] struct … { … }` item.
 pub struct InputPropertySet {
     pub name: syn::Ident,
+    pub monomorphization: Option<InputPropertySetMonomorphization>,
     /// The default `write` side for properties which do not specify one.
     pub write: InputWriteSide,
     /// The `refs = …` propsetdef names, in order.
@@ -106,7 +120,7 @@ pub struct InputPropertySet {
 
 impl syn::parse::Parse for InputPropertySet {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        // `#[propset(write = …[, refs = A+B+…])]`
+        // `#[propset([monomorphization = { … }, ]write = …[, refs = A+B+…])]`
         input.parse::<syn::Token![#]>()?;
         let content;
         syn::bracketed!(content in input);
@@ -120,7 +134,16 @@ impl syn::parse::Parse for InputPropertySet {
             return Err(content.error("unexpected tokens in attribute"));
         }
 
-        let key = inner.parse::<syn::Ident>()?;
+        let mut key = inner.parse::<syn::Ident>()?;
+        let monomorphization = if key == "monomorphization" {
+            inner.parse::<syn::Token![=]>()?;
+            let monomorphization = InputPropertySetMonomorphization::parse(&inner)?;
+            inner.parse::<syn::Token![,]>()?;
+            key = inner.parse::<syn::Ident>()?;
+            Some(monomorphization)
+        } else {
+            None
+        };
         if key != "write" {
             return Err(syn::Error::new_spanned(key, "expected `write`"));
         }
@@ -150,6 +173,7 @@ impl syn::parse::Parse for InputPropertySet {
 
         Ok(InputPropertySet {
             name,
+            monomorphization,
             write,
             refs,
             items,
@@ -236,6 +260,53 @@ impl InputPropertySet {
                 Ok((item, write))
             })
             .collect()
+    }
+}
+
+pub struct InputPropertySetMonomorphization {
+    pub ty: Option<ParameterType>,
+    pub allow_list: HashMap<String, syn::Ident>,
+}
+
+impl InputPropertySetMonomorphization {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let content;
+        syn::braced!(content in input);
+
+        let key = content.call(syn::Ident::parse_any)?;
+        if key != "type" {
+            return Err(syn::Error::new_spanned(key, "expected `type`"));
+        }
+        content.parse::<syn::Token![=]>()?;
+
+        let ty = ParameterType::parse_option(&content)?;
+
+        content.parse::<syn::Token![,]>()?;
+        let key = content.parse::<syn::Ident>()?;
+        if key != "allow_list" {
+            return Err(syn::Error::new_spanned(key, "expected `allow_list`"));
+        }
+        content.parse::<syn::Token![=]>()?;
+        let allow_list_content;
+        syn::bracketed!(allow_list_content in content);
+        let idents = syn::punctuated::Punctuated::<syn::Ident, syn::Token![,]>::parse_terminated(
+            &allow_list_content,
+        )?;
+        let mut allow_list = HashMap::new();
+        for ident in idents {
+            let name = ident.to_string();
+            if allow_list.insert(name, ident.clone()).is_some() {
+                return Err(syn::Error::new_spanned(
+                    ident,
+                    "duplicate property in monomorphization allow list",
+                ));
+            }
+        }
+        if !content.is_empty() {
+            return Err(content.error("unexpected tokens in monomorphization"));
+        }
+
+        Ok(Self { ty, allow_list })
     }
 }
 
@@ -398,24 +469,6 @@ impl syn::parse::Parse for InputContainerType {
     }
 }
 
-impl InputContainerType {
-    pub fn possible_types(&self) -> &InputPossibleTypes {
-        match self {
-            InputContainerType::Scalar(ty) => ty,
-            InputContainerType::Array(ty, _) => ty,
-            InputContainerType::Slice(ty) => ty,
-        }
-    }
-
-    pub fn as_name_suffix(&self) -> &str {
-        match self {
-            InputContainerType::Scalar(_) => "",
-            InputContainerType::Array(_, _) => "_array",
-            InputContainerType::Slice(_) => "_n",
-        }
-    }
-}
-
 pub struct InputPossibleTypes {
     pub int: Option<syn::Ident>,
     pub double: Option<syn::Ident>,
@@ -511,31 +564,37 @@ impl InputPossibleTypes {
     pub fn iter(&self) -> OpenFXTypeExpressiveIterator {
         let mut types = vec![];
         if let Some(int) = &self.int {
-            types.push(OpenFXTypeExpressive::Int(int.clone()));
+            types.push(ExpressiveType::Int(int.clone()));
         }
         if let Some(double) = &self.double {
-            types.push(OpenFXTypeExpressive::Double(double.clone()));
+            types.push(ExpressiveType::Double(double.clone()));
         }
         if let Some((r#enum, name)) = &self.r#enum {
-            types.push(OpenFXTypeExpressive::Enum(r#enum.clone(), name.clone()));
+            types.push(ExpressiveType::Enum(r#enum.clone(), name.clone()));
         }
         if let Some(bool) = &self.bool {
-            types.push(OpenFXTypeExpressive::Bool(bool.clone()));
+            types.push(ExpressiveType::Bool(bool.clone()));
         }
         if let Some(string) = &self.string {
-            types.push(OpenFXTypeExpressive::String(string.clone()));
+            types.push(ExpressiveType::String(string.clone()));
         }
         if let Some(pointer) = &self.pointer {
-            types.push(OpenFXTypeExpressive::Pointer(pointer.clone()));
+            types.push(ExpressiveType::Pointer(pointer.clone()));
         }
         OpenFXTypeExpressiveIterator(types)
     }
+
+    pub fn only(&self) -> Option<ExpressiveType> {
+        let mut iter = self.iter();
+        let first = iter.next();
+        if iter.next().is_some() { None } else { first }
+    }
 }
 
-pub struct OpenFXTypeExpressiveIterator(Vec<OpenFXTypeExpressive>);
+pub struct OpenFXTypeExpressiveIterator(Vec<ExpressiveType>);
 
 impl Iterator for OpenFXTypeExpressiveIterator {
-    type Item = OpenFXTypeExpressive;
+    type Item = ExpressiveType;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.0.pop()
@@ -592,7 +651,7 @@ impl InputWriteSide {
     }
 }
 
-pub enum OpenFXTypeExpressive {
+pub enum ExpressiveType {
     Int(syn::Ident),
     Double(syn::Ident),
     Enum(syn::Ident, syn::Ident),
@@ -601,28 +660,28 @@ pub enum OpenFXTypeExpressive {
     Pointer(syn::Ident),
 }
 
-impl OpenFXTypeExpressive {
+impl ExpressiveType {
     pub fn ident(&self) -> &syn::Ident {
         match self {
-            OpenFXTypeExpressive::Int(ident)
-            | OpenFXTypeExpressive::Double(ident)
-            | OpenFXTypeExpressive::Bool(ident)
-            | OpenFXTypeExpressive::String(ident)
-            | OpenFXTypeExpressive::Pointer(ident) => ident,
-            OpenFXTypeExpressive::Enum(ident, _) => ident,
+            ExpressiveType::Int(ident)
+            | ExpressiveType::Double(ident)
+            | ExpressiveType::Bool(ident)
+            | ExpressiveType::String(ident)
+            | ExpressiveType::Pointer(ident) => ident,
+            ExpressiveType::Enum(ident, _) => ident,
         }
     }
 
-    pub fn simple(&self) -> OpenFXTypeSimple {
+    pub fn simple(&self) -> SimpleType {
         match self {
-            OpenFXTypeExpressive::Int(ident) | OpenFXTypeExpressive::Bool(ident) => {
-                OpenFXTypeSimple::Int(ident.clone())
+            ExpressiveType::Int(ident) | ExpressiveType::Bool(ident) => {
+                SimpleType::Int(Some(ident.clone()))
             }
-            OpenFXTypeExpressive::Double(ident) => OpenFXTypeSimple::Double(ident.clone()),
-            OpenFXTypeExpressive::String(ident) | OpenFXTypeExpressive::Enum(ident, _) => {
-                OpenFXTypeSimple::String(ident.clone())
+            ExpressiveType::Double(ident) => SimpleType::Double(Some(ident.clone())),
+            ExpressiveType::String(ident) | ExpressiveType::Enum(ident, _) => {
+                SimpleType::String(Some(ident.clone()))
             }
-            OpenFXTypeExpressive::Pointer(ident) => OpenFXTypeSimple::Pointer(ident.clone()),
+            ExpressiveType::Pointer(ident) => SimpleType::Pointer(Some(ident.clone())),
         }
     }
 }

@@ -95,7 +95,7 @@ fn make_variant(output: &mut proc_macro2::TokenStream, enum_name: &str, var: &In
         quote! { sys_out_args: crate::sys::core::OfxPropertySetHandle }
     };
 
-    let doc_see_sys = make_doc_see_sys(&cname);
+    let doc_see_sys = make_doc_see_sys(&[&cname]);
 
     output.extend(quote! {
         #doc_see_sys
@@ -262,17 +262,17 @@ fn get_cname(var: &InputItem, enum_name: &str) -> String {
 /// ## Examples
 ///
 /// ```rust,ignore
-/// make_action_enum! {
-///     pub ImageEffectAction {
-///         _/_ core::Load,
-///         // …
-///         _/_ core::Describe: crate::low_plugin::objects::ImageEffectDescriptor,
-///         // …
-///         i/_ EndSequenceRender: crate::low_plugin::objects::ImageEffectInstance,
-///         _/o GetClipPreferences: crate::low_plugin::objects::ImageEffectInstance,
-///         i/o GetFramesNeeded: crate::low_plugin::objects::ImageEffectInstance,
-///         // …
-///     }
+/// #[make_action_enum]
+/// enum ImageEffectAction {
+///     // …
+///     #[action(core, handle = ImageEffectInstance, in_args)]
+///     InstanceChanged,
+///     #[action(core)]
+///     Load,
+///     // …
+///     #[action(handle = ImageEffectInstance, in_args, out_args)]
+///     IsIdentity,
+///     // …
 /// }
 /// ```
 struct Input {
