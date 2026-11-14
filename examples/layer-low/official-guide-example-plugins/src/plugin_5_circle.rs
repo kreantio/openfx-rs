@@ -770,14 +770,7 @@ where
 
     // now do some processing
     for y in render_window.y1..render_window.y2 {
-        if y % 20 == 0
-            && unsafe {
-                data.image_effect_suite
-                    .sys_ref()
-                    .abort
-                    .is_some_and(|abort| abort(instance.sys_handle()) != 0)
-            }
-        {
+        if y % 20 == 0 && unsafe { instance.abort(&data.image_effect_suite) } {
             return Ok(());
         }
 
