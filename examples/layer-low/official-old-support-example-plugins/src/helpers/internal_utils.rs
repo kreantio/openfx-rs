@@ -20,6 +20,8 @@ use openfx::{
 
 use crate::helpers::shared_data::{GuaranteeSend, SharedData};
 
+pub mod renderer_info;
+
 pub fn rect_i_from_array(arr: &[c_int; 4]) -> OfxRectI {
     OfxRectI {
         x1: arr[0],
