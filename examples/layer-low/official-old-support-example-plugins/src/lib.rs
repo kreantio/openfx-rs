@@ -8,7 +8,12 @@ use openfx::{
     sys_plugin_helpers::Plugins,
 };
 
-use crate::{definitions::ROOT_IDENTIFIER, plugin_gpu_gain::PluginExampleGpuGain};
+use crate::{
+    definitions::ROOT_IDENTIFIER,
+    plugin_gpu_gain::{
+        PluginExampleGpuGain, PluginExampleGpuGainForceCpu, PluginExampleGpuGainForceMetalBuffers,
+    },
+};
 
 mod definitions;
 
@@ -28,41 +33,49 @@ enum PendingLogLevel {
 
 impl Plugins for ExamplePlugins {
     fn plugins(_host: Option<*const OfxHost>) -> Vec<OfxPlugin> {
-        #[allow(unused_mut)]
-        let mut layers: Vec<Box<dyn Layer<Registry> + Send + Sync>> = vec![Box::new(
-            tracing_subscriber::fmt::layer().with_writer(std::io::stderr),
-        )];
-        let mut pending_logs: Vec<(PendingLogLevel, String)> = vec![];
+        set_up_tracing();
 
-        cfg_select! {
-            target_os = "macos" => {
-                add_tracing_layers(&mut layers, &mut pending_logs);
-            }
-            _ => {}
-        };
-
-        let subscriber = tracing_subscriber::registry().with(layers);
-
-        let dispatch = tracing::Dispatch::new(subscriber);
-
-        if let Err(err) = TRACING_DISPATCH.set(dispatch.clone()) {
-            pending_logs.push((
-                PendingLogLevel::Error,
-                format!("Failed to set the tracing dispatch for `{ROOT_IDENTIFIER}`: {err:?}"),
-            ));
-        }
-
-        tracing::dispatcher::with_default(&dispatch, || {
-            for (level, message) in pending_logs {
-                match level {
-                    PendingLogLevel::Info => tracing::info!("{}", message),
-                    PendingLogLevel::Error => tracing::error!("{}", message),
-                }
-            }
-        });
-
-        vec![plugin_struct!(PluginExampleGpuGain)]
+        vec![
+            plugin_struct!(PluginExampleGpuGain),
+            plugin_struct!(PluginExampleGpuGainForceMetalBuffers),
+            plugin_struct!(PluginExampleGpuGainForceCpu),
+        ]
     }
+}
+
+fn set_up_tracing() {
+    #[allow(unused_mut)]
+    let mut layers: Vec<Box<dyn Layer<Registry> + Send + Sync>> = vec![Box::new(
+        tracing_subscriber::fmt::layer().with_writer(std::io::stderr),
+    )];
+    let mut pending_logs: Vec<(PendingLogLevel, String)> = vec![];
+
+    cfg_select! {
+        target_os = "macos" => {
+            add_tracing_layers(&mut layers, &mut pending_logs);
+        }
+        _ => {}
+    };
+
+    let subscriber = tracing_subscriber::registry().with(layers);
+
+    let dispatch = tracing::Dispatch::new(subscriber);
+
+    if let Err(err) = TRACING_DISPATCH.set(dispatch.clone()) {
+        pending_logs.push((
+            PendingLogLevel::Error,
+            format!("Failed to set the tracing dispatch for `{ROOT_IDENTIFIER}`: {err:?}"),
+        ));
+    }
+
+    tracing::dispatcher::with_default(&dispatch, || {
+        for (level, message) in pending_logs {
+            match level {
+                PendingLogLevel::Info => tracing::info!("{}", message),
+                PendingLogLevel::Error => tracing::error!("{}", message),
+            }
+        }
+    });
 }
 
 #[cfg(target_os = "macos")]

@@ -15,6 +15,9 @@
 //!
 //! A `renderer_info` parameter is added to help debugging.
 //!
+//! We have plugin variants that force the use of specific renderers, such as
+//! Metal (with Buffers).
+//!
 //! ## Known issues
 //!
 //! Due to limitations of the maintainer(s), only the Metal part of the
@@ -63,10 +66,12 @@ use openfx::{
 
 use crate::{
     TRACING_DISPATCH,
-    definitions::{PLUGIN_GPU_GAIN_INFO, PLUGINS_GROUPING},
+    definitions::{PLUGINS_GROUPING, PluginInfo},
     helpers::{
         internal_utils::{
-            ClipImageManaged, rect_i_from_array, renderer_info::UsedRenderer, set_labels,
+            ClipImageManaged, rect_i_from_array,
+            renderer_info::{Renderer, UsedRenderer},
+            set_labels,
         },
         shared_data::{GuaranteeSend, GuaranteeSendClipInstance, SharedData},
     },
@@ -87,9 +92,6 @@ const SCALE_G_PARAM_NAME: &CStr = c"scaleG";
 const SCALE_B_PARAM_NAME: &CStr = c"scaleB";
 const SCALE_A_PARAM_NAME: &CStr = c"scaleA";
 const RENDERER_INFO_PARAM_NAME: &CStr = c"rendererInfo";
-
-static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(None);
-static GLOBAL_DATA: Mutex<Option<(SharedData, Arc<AdditionalSharedData>)>> = Mutex::new(None);
 
 struct AdditionalSharedData {}
 
@@ -113,45 +115,26 @@ struct MyInstanceData {
     renderer_info_param: ParamString,
 }
 
-fn global_data_lockless() -> Result<(SharedData, Arc<AdditionalSharedData>), StatusError> {
-    let data = GLOBAL_DATA.lock().map_err(|_| StatusError::Failed)?;
-    let data = data.as_ref().ok_or(StatusError::Failed)?;
-    Ok((data.0.clone(), data.1.clone()))
+struct PluginVariant {
+    info: PluginInfo,
+    force_renderer: Option<Renderer>,
+
+    host_before_action_load: Mutex<Option<GuaranteeSend<Host>>>,
+    global_data: Mutex<Option<(SharedData, Arc<AdditionalSharedData>)>>,
 }
-
-pub struct PluginExampleGpuGain;
-impl Plugin for PluginExampleGpuGain {
-    const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_GPU_GAIN_INFO.identifier;
-    const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
-    const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
-
-    fn set_host(host: Host) {
-        match TRACING_DISPATCH.get() {
-            Some(dispatch) => {
-                let _guard = tracing::dispatcher::set_default(dispatch);
-                Self::_set_host(host);
-            }
-            None => Self::_set_host(host),
+impl PluginVariant {
+    const fn new(info: PluginInfo, force_renderer: Option<Renderer>) -> Self {
+        Self {
+            info,
+            force_renderer,
+            host_before_action_load: Mutex::new(None),
+            global_data: Mutex::new(None),
         }
     }
 
-    fn main_entry(action: ImageEffectAction) -> OutboundResult {
-        match TRACING_DISPATCH.get() {
-            Some(dispatch) => {
-                let _guard = tracing::dispatcher::set_default(dispatch);
-                tracing::debug!("main_entry: Entering Action {:?}", action.sys_action());
-                let ret = Self::_main_entry(action);
-                tracing::debug!("main_entry: Exiting Action with {ret:?}");
-                ret
-            }
-            None => Self::_main_entry(action),
-        }
-    }
-}
-
-impl PluginExampleGpuGain {
-    fn _set_host(host: Host) {
-        let mut lock = HOST_BEFORE_ACTION_LOAD
+    fn set_host(&self, host: Host) {
+        let mut lock = self
+            .host_before_action_load
             .lock()
             .expect("Failed to lock HOST_BEFORE_ACTION_LOAD.");
         if lock.is_some() {
@@ -160,46 +143,145 @@ impl PluginExampleGpuGain {
         lock.replace(GuaranteeSend(host));
     }
 
-    fn _main_entry(action: ImageEffectAction) -> OutboundResult {
+    fn global_data_lockless(&self) -> Result<(SharedData, Arc<AdditionalSharedData>), StatusError> {
+        let data = self.global_data.lock().map_err(|_| StatusError::Failed)?;
+        let data = data.as_ref().ok_or(StatusError::Failed)?;
+        Ok((data.0.clone(), data.1.clone()))
+    }
+}
+
+mod plugin_variant_normal {
+    use super::*;
+    use crate::definitions::PLUGIN_GPU_GAIN_INFO as PLUGIN_INFO;
+
+    pub struct PluginExampleGpuGain;
+    static PLUGIN_VARIANT: PluginVariant = PluginVariant::new(PLUGIN_INFO, None);
+    impl Plugin for PluginExampleGpuGain {
+        const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_INFO.identifier;
+        const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
+        const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
+
+        fn set_host(host: Host) {
+            set_host(&PLUGIN_VARIANT, host);
+        }
+
+        fn main_entry(action: ImageEffectAction) -> OutboundResult {
+            main_entry(&PLUGIN_VARIANT, action)
+        }
+    }
+}
+pub use plugin_variant_normal::PluginExampleGpuGain;
+
+mod plugin_variant_force_metal_buffers {
+    use super::*;
+    use crate::definitions::PLUGIN_GPU_GAIN_FORCE_METAL_BUFFERS_INFO as PLUGIN_INFO;
+
+    pub struct PluginExampleGpuGainForceMetalBuffers;
+    static PLUGIN_VARIANT: PluginVariant =
+        PluginVariant::new(PLUGIN_INFO, Some(Renderer::MetalWithBuffers));
+    impl Plugin for PluginExampleGpuGainForceMetalBuffers {
+        const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_INFO.identifier;
+        const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
+        const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
+
+        fn set_host(host: Host) {
+            set_host(&PLUGIN_VARIANT, host);
+        }
+
+        fn main_entry(action: ImageEffectAction) -> OutboundResult {
+            main_entry(&PLUGIN_VARIANT, action)
+        }
+    }
+}
+pub use plugin_variant_force_metal_buffers::PluginExampleGpuGainForceMetalBuffers;
+
+mod plugin_variant_force_cpu {
+    use super::*;
+    use crate::definitions::PLUGIN_GPU_GAIN_FORCE_CPU_INFO as PLUGIN_INFO;
+
+    pub struct PluginExampleGpuGainForceCpu;
+    static PLUGIN_VARIANT: PluginVariant = PluginVariant::new(PLUGIN_INFO, Some(Renderer::Cpu));
+    impl Plugin for PluginExampleGpuGainForceCpu {
+        const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_INFO.identifier;
+        const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
+        const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
+
+        fn set_host(host: Host) {
+            set_host(&PLUGIN_VARIANT, host);
+        }
+
+        fn main_entry(action: ImageEffectAction) -> OutboundResult {
+            main_entry(&PLUGIN_VARIANT, action)
+        }
+    }
+}
+pub use plugin_variant_force_cpu::PluginExampleGpuGainForceCpu;
+
+fn set_host(var: &PluginVariant, host: Host) {
+    match TRACING_DISPATCH.get() {
+        Some(dispatch) => {
+            let _guard = tracing::dispatcher::set_default(dispatch);
+            var.set_host(host);
+        }
+        None => var.set_host(host),
+    }
+}
+
+fn main_entry(var: &PluginVariant, action: ImageEffectAction) -> OutboundResult {
+    return match TRACING_DISPATCH.get() {
+        Some(dispatch) => {
+            let _guard = tracing::dispatcher::set_default(dispatch);
+            tracing::debug!("main_entry: Entering Action {:?}", action.sys_action());
+            let ret = _main_entry(var, action);
+            tracing::debug!("main_entry: Exiting Action with {ret:?}");
+            ret
+        }
+        None => _main_entry(var, action),
+    };
+
+    fn _main_entry(var: &PluginVariant, action: ImageEffectAction) -> OutboundResult {
         match action {
-            ImageEffectAction::Load { .. } => action_load(),
-            ImageEffectAction::Unload { .. } => action_unload(),
-            ImageEffectAction::Describe { handle, .. } => action_describe(handle),
+            ImageEffectAction::Load { .. } => action_load(var),
+            ImageEffectAction::Unload { .. } => action_unload(var),
+            ImageEffectAction::Describe { handle, .. } => action_describe(var, handle),
             ImageEffectAction::DescribeInContext {
                 handle, in_args, ..
-            } => action_describe_in_context(handle, in_args),
-            ImageEffectAction::CreateInstance { handle, .. } => action_create_instance(handle),
-            ImageEffectAction::DestroyInstance { handle, .. } => action_destroy_instance(handle),
+            } => action_describe_in_context(var, handle, in_args),
+            ImageEffectAction::CreateInstance { handle, .. } => action_create_instance(var, handle),
+            ImageEffectAction::DestroyInstance { handle, .. } => {
+                action_destroy_instance(var, handle)
+            }
             ImageEffectAction::InstanceChanged {
                 handle, in_args, ..
-            } => action_instance_changed(handle, in_args),
+            } => action_instance_changed(var, handle, in_args),
             ImageEffectAction::IsIdentity {
                 handle,
                 in_args,
                 out_args,
-            } => action_is_identity(handle, in_args, out_args),
+            } => action_is_identity(var, handle, in_args, out_args),
             ImageEffectAction::BeginSequenceRender {
                 handle, in_args, ..
-            } => action_begin_sequence_render(handle, in_args),
+            } => action_begin_sequence_render(var, handle, in_args),
             ImageEffectAction::EndSequenceRender {
                 handle, in_args, ..
-            } => action_end_sequence_render(handle, in_args),
+            } => action_end_sequence_render(var, handle, in_args),
             ImageEffectAction::Render {
                 handle, in_args, ..
-            } => action_render(handle, in_args),
+            } => action_render(var, handle, in_args),
             _ => Ok(StatusReply::ReplyDefault.into()),
         }
     }
 }
 
-fn action_load() -> OutboundResult {
-    let host = HOST_BEFORE_ACTION_LOAD
+fn action_load(var: &PluginVariant) -> OutboundResult {
+    let host = var
+        .host_before_action_load
         .lock()
         .map_err(|_| StatusError::Failed)?
         .take()
         .ok_or(StatusError::Failed)?;
 
-    let mut data = GLOBAL_DATA.lock().map_err(|_| StatusError::Failed)?;
+    let mut data = var.global_data.lock().map_err(|_| StatusError::Failed)?;
     if data.is_some() {
         return Err(StatusError::Failed);
     }
@@ -215,8 +297,8 @@ fn action_load() -> OutboundResult {
     Ok(Status::OK)
 }
 
-fn action_unload() -> OutboundResult {
-    let mut data = GLOBAL_DATA.lock().map_err(|_| StatusError::Failed)?;
+fn action_unload(var: &PluginVariant) -> OutboundResult {
+    let mut data = var.global_data.lock().map_err(|_| StatusError::Failed)?;
     if data.take().is_none() {
         Err(StatusError::Failed)
     } else {
@@ -224,8 +306,8 @@ fn action_unload() -> OutboundResult {
     }
 }
 
-fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
-    let (data, _additional) = global_data_lockless()?;
+fn action_describe(var: &PluginVariant, descriptor: ImageEffectDescriptor) -> OutboundResult {
+    let (data, _additional) = var.global_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
@@ -234,11 +316,11 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
 
     unsafe {
         // Basic labels
-        set_labels!(&data.property_suite.0, &props, PLUGIN_GPU_GAIN_INFO.label);
+        set_labels!(&data.property_suite.0, &props, var.info.label);
         props
             .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))
             .ok_or(StatusError::Failed)?;
-        if let stat = props.set_plugin_description(s_prop, Some(PLUGIN_GPU_GAIN_INFO.description))
+        if let stat = props.set_plugin_description(s_prop, Some(var.info.description))
             && !stat.is_ok()
         {
             // Apparently DaVinci Resolve fails this (`ErrUnknown`), even though
@@ -289,6 +371,9 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
 
         // Setup Metal render capability flags only on Apple system
         #[cfg(target_os = "macos")]
+        if var
+            .force_renderer
+            .is_none_or(|r| r == Renderer::MetalWithBuffers)
         {
             use openfx::{
                 low::enums::ImageEffectPropMetalRenderSupported,
@@ -312,10 +397,11 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
 }
 
 fn action_describe_in_context(
+    var: &PluginVariant,
     descriptor: ImageEffectDescriptor,
     _in_args: ActionDescribeInContextIn,
 ) -> OutboundResult {
-    let (data, _additional) = global_data_lockless()?;
+    let (data, _additional) = var.global_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
@@ -505,8 +591,8 @@ unsafe fn define_scale_param(
     Ok(())
 }
 
-fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
-    let (data, _additional) = global_data_lockless()?;
+fn action_create_instance(var: &PluginVariant, instance: ImageEffectInstance) -> OutboundResult {
+    let (data, _additional) = var.global_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
@@ -576,8 +662,8 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
     Ok(Status::OK)
 }
 
-fn action_destroy_instance(instance: ImageEffectInstance) -> OutboundResult {
-    let (data, _additional) = global_data_lockless()?;
+fn action_destroy_instance(var: &PluginVariant, instance: ImageEffectInstance) -> OutboundResult {
+    let (data, _additional) = var.global_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
@@ -596,10 +682,11 @@ fn action_destroy_instance(instance: ImageEffectInstance) -> OutboundResult {
 }
 
 fn action_instance_changed(
+    var: &PluginVariant,
     instance: ImageEffectInstance,
     in_args: ActionInstanceChangedIn,
 ) -> OutboundResult {
-    let (data, _additional) = global_data_lockless()?;
+    let (data, _additional) = var.global_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
 
@@ -710,11 +797,12 @@ fn set_enabledness(data: &SharedData, instance: &ImageEffectInstance) -> Result<
 }
 
 fn action_is_identity(
+    var: &PluginVariant,
     instance: ImageEffectInstance,
     in_args: ActionIsIdentityIn,
     out_args: ActionIsIdentityOut,
 ) -> OutboundResult {
-    let (data, _additional) = global_data_lockless()?;
+    let (data, _additional) = var.global_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
@@ -753,10 +841,11 @@ fn action_is_identity(
 }
 
 fn action_begin_sequence_render(
+    var: &PluginVariant,
     instance: ImageEffectInstance,
     _in_args: ActionBeginSequenceRenderIn,
 ) -> OutboundResult {
-    let (data, _additional) = global_data_lockless()?;
+    let (data, _additional) = var.global_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
@@ -777,10 +866,11 @@ fn action_begin_sequence_render(
 }
 
 fn action_end_sequence_render(
+    var: &PluginVariant,
     instance: ImageEffectInstance,
     _in_args: ActionEndSequenceRenderIn,
 ) -> OutboundResult {
-    let (data, _additional) = global_data_lockless()?;
+    let (data, _additional) = var.global_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
@@ -808,8 +898,12 @@ fn action_end_sequence_render(
     Ok(Status::OK)
 }
 
-fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> OutboundResult {
-    let (data, _additional) = global_data_lockless()?;
+fn action_render(
+    var: &PluginVariant,
+    instance: ImageEffectInstance,
+    in_args: ActionRenderIn,
+) -> OutboundResult {
+    let (data, _additional) = var.global_data_lockless()?;
 
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
@@ -842,7 +936,11 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     let scales = Scales::retrieve_at_time(&data, my_data, time)?;
 
     #[cfg(target_os = "macos")]
-    if unsafe { in_args.get_image_effect_metal_enabled(s_prop) }.unwrap_or(false) {
+    if var
+        .force_renderer
+        .is_none_or(|r| r == Renderer::MetalWithBuffers)
+        && unsafe { in_args.get_image_effect_metal_enabled(s_prop) }.unwrap_or(false)
+    {
         let cmd_q = unsafe {
             in_args
                 .get_image_effect_metal_command_queue(s_prop)
@@ -855,17 +953,21 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
         return Ok(Status::OK);
     }
 
-    processing_cpu::process_images(
-        &data,
-        my_data,
-        &instance,
-        scales,
-        source_img,
-        output_img,
-        render_window,
-    )?;
+    if var.force_renderer.is_none_or(|r| r == Renderer::Cpu) {
+        processing_cpu::process_images(
+            &data,
+            my_data,
+            &instance,
+            scales,
+            source_img,
+            output_img,
+            render_window,
+        )?;
 
-    Ok(Status::OK)
+        Ok(Status::OK)
+    } else {
+        Err(StatusError::ErrImageFormat)
+    }
 }
 
 #[cfg(target_os = "macos")]
@@ -888,7 +990,7 @@ mod processing_metal {
     ) -> Result<(), StatusError> {
         use crate::plugin_gpu_gain::metal_kernel::run_metal_kernel;
 
-        tracing::debug!("Processing via Metal");
+        tracing::debug!("Processing via Metal (Buffers)");
         my_data.used_renderer.store_metal_buffer();
 
         let bounds = source_img.bounds();

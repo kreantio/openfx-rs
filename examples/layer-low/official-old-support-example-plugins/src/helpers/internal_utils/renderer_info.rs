@@ -3,6 +3,12 @@ use std::{
     sync::atomic::{self, AtomicU32},
 };
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum Renderer {
+    Cpu,
+    MetalWithBuffers,
+}
+
 #[derive(Default)]
 pub struct UsedRenderer(AtomicU32);
 
@@ -10,7 +16,7 @@ impl UsedRenderer {
     const RENDERER_NO_INFO: u16 = 0;
     const RENDERER_CPU_MULTI_THREAD_SUITE: u16 = 1;
     const RENDERER_CPU: u16 = 2;
-    const RENDERER_METAL_BUFFER: u16 = 3;
+    const RENDERER_METAL_WITH_BUFFERS: u16 = 3;
 
     pub fn store_no_info(&self) {
         self.0
@@ -28,7 +34,7 @@ impl UsedRenderer {
     }
     pub fn store_metal_buffer(&self) {
         self.0.store(
-            Self::RENDERER_METAL_BUFFER as u32,
+            Self::RENDERER_METAL_WITH_BUFFERS as u32,
             atomic::Ordering::Relaxed,
         );
     }
@@ -48,7 +54,7 @@ impl UsedRenderer {
                 CString::new(format!("CPU (with {n_cpus} thread(s))")).unwrap()
             }
             Self::RENDERER_CPU => c"CPU (No `MultiThreadSuiteV1`)".to_owned(),
-            Self::RENDERER_METAL_BUFFER => c"Metal (Buffer)".to_owned(),
+            Self::RENDERER_METAL_WITH_BUFFERS => c"Metal (Buffers)".to_owned(),
             _ => c"?".to_owned(),
         }
     }
