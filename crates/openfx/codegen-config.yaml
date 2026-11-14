@@ -152,40 +152,30 @@ objects:
     OpenGLTexture: { is: OfxPropertySetHandle, omit: true }
 
 parameters:
-  # Some of the property sets are wrong. There is a PR that fixes them, but it
-  # has not been merged yet:
-  # https://github.com/AcademySoftwareFoundation/openfx/pull/279
   mapping: # NOTE: This configuration is currently unused.
     # sources:
-    # - `openfx/openfx-cpp/include/openfx/ofxPropsBySet.h`'s `prop_sets`
-    # - `openfx/include/ofxParam.h`'s defines that start with `kOfxParamType`
-    # - `openfx/include/ofxParametricParam.h`'s defines that start with
-    #   `kOfxParamType`.
-    #
-    # The keys follows the defines mentioned in the sources above (with the
-    # prefix `"kOfx"` and the infix `"Type"` removed).
-
-    # The property set is wrong.
-    ParamInteger: { property_set: ParamsByte, ty: [1, Int] }
-    ParamDouble: { property_set: ParamsDouble1D, ty: [1, Double] }
-    # The property set is wrong.
-    ParamBoolean: { property_set: ParamsByte, ty: [1, Bool] }
-    ParamChoice: { property_set: ParamsChoice, ty: [1, Int] }
-    ParamStrChoice: { property_set: ParamsStrChoice, ty: [1, String] }
-    ParamRGBA: { property_set: ParamsDouble2D3D, ty: [4, Double] }
-    ParamRGB: { property_set: ParamsDouble2D3D, ty: [3, Double] }
-    ParamDouble2D: { property_set: ParamsDouble2D3D, ty: [2, Double] }
-    ParamInteger2D: { property_set: ParamsInteger2D3D, ty: [2, Int] }
-    ParamDouble3D: { property_set: ParamsDouble2D3D, ty: [3, Double] }
-    ParamInteger3D: { property_set: ParamsInteger2D3D, ty: [3, Int] }
-    ParamString: { property_set: ParamsString, ty: [1, String] }
-    ParamCustom: { property_set: ParamsCustom, ty: [1, Custom] }
-    ParamBytes: { property_set: ParamsByte, ty: [1, Pointer] }
-    ParamGroup: { property_set: ParamsGroup, ty: null }
-    ParamPage: { property_set: ParamsPage, ty: null }
-    # The property set is wrong.
-    ParamPushButton: { property_set: ParamsByte, ty: null }
-    ParamParametric: { property_set: ParamsParametric, ty: null }
+    # - See “CONTRIBUTING.md § Origins of the Type Names” for the origin of
+    #   these names.
+    # - Value types are based on the documentation for `kOfxParamPropDefault`
+    #   in `openfx/include/ofxParam.h`.
+    Integer: { property_set: ParamsInt1D, ty: [1, Int] }
+    Double: { property_set: ParamsDouble1D, ty: [1, Double] }
+    Boolean: { property_set: ParamsBoolean, ty: [1, Bool] }
+    Choice: { property_set: ParamsChoice, ty: [1, Int] }
+    StrChoice: { property_set: ParamsStrChoice, ty: [1, String] }
+    RGBA: { property_set: ParamsRGBA, ty: [4, Double] }
+    RGB: { property_set: ParamsRGB, ty: [3, Double] }
+    Double2D: { property_set: ParamsDouble2D3D, ty: [2, Double] }
+    Integer2D: { property_set: ParamsInt2D3D, ty: [2, Int] }
+    Double3D: { property_set: ParamsDouble2D3D, ty: [3, Double] }
+    Integer3D: { property_set: ParamsInt2D3D, ty: [3, Int] }
+    String: { property_set: ParamsString, ty: [1, String] }
+    Custom: { property_set: ParamsCustom, ty: [1, String] }
+    Bytes: { property_set: ParamsBytes, ty: [1, Pointer] }
+    Group: { property_set: ParamsGroup, ty: null }
+    Page: { property_set: ParamsPage, ty: null }
+    PushButton: { property_set: ParamsPushButton, ty: null }
+    # Parametric: { property_set: ParamsParametric, ty: null }
 
 property_sets:
   renaming:

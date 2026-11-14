@@ -127,7 +127,7 @@ pub const kOfxTypeImage: &::std::ffi::CStr = c"OfxTypeImage";
 ///     inArgs:
 ///       - OfxPropTime
 ///       - OfxImageEffectPropRenderScale
-///       - OfxImageEffectPropThumbnailRender
+///       - OfxImageEffectPropThumbnailRender | optional
 ///     outArgs:
 ///       - OfxImageEffectPropRegionOfDefinition
 /// ```
@@ -175,7 +175,7 @@ pub const kOfxImageEffectActionGetRegionOfDefinition: &::std::ffi::CStr =
 ///       - OfxPropTime
 ///       - OfxImageEffectPropRenderScale
 ///       - OfxImageEffectPropRegionOfInterest
-///       - OfxImageEffectPropThumbnailRender
+///       - OfxImageEffectPropThumbnailRender | optional
 ///     outArgs:
 ///     # - OfxImageClipPropRoI_ # with clip name
 /// ```
@@ -286,7 +286,7 @@ pub const kOfxImageEffectActionGetTimeDomain: &::std::ffi::CStr =
 ///     @actiondef
 ///     inArgs:
 ///       - OfxPropTime
-///       - OfxImageEffectPropThumbnailRender
+///       - OfxImageEffectPropThumbnailRender | optional
 ///     outArgs:
 ///     # - OfxImageEffectPropFrameRange_ # with clip name
 /// ```
@@ -422,7 +422,7 @@ pub const kOfxImageEffectActionGetClipPreferences: &::std::ffi::CStr =
 ///       - OfxImageEffectPropFieldToRender
 ///       - OfxImageEffectPropRenderWindow
 ///       - OfxImageEffectPropRenderScale
-///       - OfxImageEffectPropThumbnailRender
+///       - OfxImageEffectPropThumbnailRender | optional
 ///     outArgs:
 ///       - OfxPropName
 ///       - OfxPropTime
@@ -479,25 +479,25 @@ pub const kOfxImageEffectActionIsIdentity: &::std::ffi::CStr = c"OfxImageEffectA
 ///       - OfxImageEffectPropRenderScale
 ///       - OfxImageEffectPropSequentialRenderStatus
 ///       - OfxImageEffectPropInteractiveRenderStatus
-///       - OfxImageEffectPropRenderQualityDraft
-///       - OfxImageEffectPropCudaEnabled
-///       - OfxImageEffectPropCudaRenderSupported
-///       - OfxImageEffectPropCudaStream
-///       - OfxImageEffectPropCudaStreamSupported
-///       - OfxImageEffectPropMetalCommandQueue
-///       - OfxImageEffectPropMetalEnabled
-///       - OfxImageEffectPropMetalRenderSupported
-///       - OfxImageEffectPropOpenCLCommandQueue
-///       - OfxImageEffectPropOpenCLEnabled
-///       - OfxImageEffectPropOpenCLImage
-///       - OfxImageEffectPropOpenCLRenderSupported
-///       - OfxImageEffectPropOpenCLSupported
-///       - OfxImageEffectPropOpenGLEnabled
-///       - OfxImageEffectPropOpenGLTextureIndex
-///       - OfxImageEffectPropOpenGLTextureTarget
-///       - OfxImageEffectPropNoSpatialAwareness
-///       - OfxImageEffectPropThumbnailRender
-///       - OfxImageEffectPropBehaviourWhenUnlicensed
+///       - OfxImageEffectPropRenderQualityDraft | optional
+///       - OfxImageEffectPropCudaEnabled | optional
+///       - OfxImageEffectPropCudaRenderSupported | optional
+///       - OfxImageEffectPropCudaStream | optional
+///       - OfxImageEffectPropCudaStreamSupported | optional
+///       - OfxImageEffectPropMetalCommandQueue | optional
+///       - OfxImageEffectPropMetalEnabled | optional
+///       - OfxImageEffectPropMetalRenderSupported | optional
+///       - OfxImageEffectPropOpenCLCommandQueue | optional
+///       - OfxImageEffectPropOpenCLEnabled | optional
+///       - OfxImageEffectPropOpenCLImage | optional
+///       - OfxImageEffectPropOpenCLRenderSupported | optional
+///       - OfxImageEffectPropOpenCLSupported | optional
+///       - OfxImageEffectPropOpenGLEnabled | optional
+///       - OfxImageEffectPropOpenGLTextureIndex | optional
+///       - OfxImageEffectPropOpenGLTextureTarget | optional
+///       - OfxImageEffectPropNoSpatialAwareness | optional
+///       - OfxImageEffectPropThumbnailRender | optional
+///       - OfxImageEffectPropBehaviourWhenUnlicensed | optional
 ///     outArgs:
 /// ```
 pub const kOfxImageEffectActionRender: &::std::ffi::CStr = c"OfxImageEffectActionRender";
@@ -549,24 +549,24 @@ pub const kOfxImageEffectActionRender: &::std::ffi::CStr = c"OfxImageEffectActio
 ///       - OfxImageEffectPropRenderScale
 ///       - OfxImageEffectPropSequentialRenderStatus
 ///       - OfxImageEffectPropInteractiveRenderStatus
-///       - OfxImageEffectPropCudaEnabled
-///       - OfxImageEffectPropCudaRenderSupported
-///       - OfxImageEffectPropCudaStream
-///       - OfxImageEffectPropCudaStreamSupported
-///       - OfxImageEffectPropMetalCommandQueue
-///       - OfxImageEffectPropMetalEnabled
-///       - OfxImageEffectPropMetalRenderSupported
-///       - OfxImageEffectPropOpenCLCommandQueue
-///       - OfxImageEffectPropOpenCLEnabled
-///       - OfxImageEffectPropOpenCLImage
-///       - OfxImageEffectPropOpenCLRenderSupported
-///       - OfxImageEffectPropOpenCLSupported
-///       - OfxImageEffectPropOpenGLEnabled
-///       - OfxImageEffectPropOpenGLTextureIndex
-///       - OfxImageEffectPropOpenGLTextureTarget
-///       - OfxImageEffectPropNoSpatialAwareness
-///       - OfxImageEffectPropThumbnailRender
-///       - OfxImageEffectPropBehaviourWhenUnlicensed
+///       - OfxImageEffectPropCudaEnabled | optional
+///       - OfxImageEffectPropCudaRenderSupported | optional
+///       - OfxImageEffectPropCudaStream | optional
+///       - OfxImageEffectPropCudaStreamSupported | optional
+///       - OfxImageEffectPropMetalCommandQueue | optional
+///       - OfxImageEffectPropMetalEnabled | optional
+///       - OfxImageEffectPropMetalRenderSupported | optional
+///       - OfxImageEffectPropOpenCLCommandQueue | optional
+///       - OfxImageEffectPropOpenCLEnabled | optional
+///       - OfxImageEffectPropOpenCLImage | optional
+///       - OfxImageEffectPropOpenCLRenderSupported | optional
+///       - OfxImageEffectPropOpenCLSupported | optional
+///       - OfxImageEffectPropOpenGLEnabled | optional
+///       - OfxImageEffectPropOpenGLTextureIndex | optional
+///       - OfxImageEffectPropOpenGLTextureTarget | optional
+///       - OfxImageEffectPropNoSpatialAwareness | optional
+///       - OfxImageEffectPropThumbnailRender | optional
+///       - OfxImageEffectPropBehaviourWhenUnlicensed | optional
 ///     outArgs:
 /// ```
 pub const kOfxImageEffectActionBeginSequenceRender: &::std::ffi::CStr =
@@ -616,21 +616,21 @@ pub const kOfxImageEffectActionBeginSequenceRender: &::std::ffi::CStr =
 ///       - OfxImageEffectPropRenderScale
 ///       - OfxImageEffectPropSequentialRenderStatus
 ///       - OfxImageEffectPropInteractiveRenderStatus
-///       - OfxImageEffectPropCudaEnabled
-///       - OfxImageEffectPropCudaRenderSupported
-///       - OfxImageEffectPropCudaStream
-///       - OfxImageEffectPropCudaStreamSupported
-///       - OfxImageEffectPropMetalCommandQueue
-///       - OfxImageEffectPropMetalEnabled
-///       - OfxImageEffectPropMetalRenderSupported
-///       - OfxImageEffectPropOpenCLCommandQueue
-///       - OfxImageEffectPropOpenCLEnabled
-///       - OfxImageEffectPropOpenCLImage
-///       - OfxImageEffectPropOpenCLRenderSupported
-///       - OfxImageEffectPropOpenCLSupported
-///       - OfxImageEffectPropOpenGLEnabled
-///       - OfxImageEffectPropOpenGLTextureIndex
-///       - OfxImageEffectPropOpenGLTextureTarget
+///       - OfxImageEffectPropCudaEnabled | optional
+///       - OfxImageEffectPropCudaRenderSupported | optional
+///       - OfxImageEffectPropCudaStream | optional
+///       - OfxImageEffectPropCudaStreamSupported | optional
+///       - OfxImageEffectPropMetalCommandQueue | optional
+///       - OfxImageEffectPropMetalEnabled | optional
+///       - OfxImageEffectPropMetalRenderSupported | optional
+///       - OfxImageEffectPropOpenCLCommandQueue | optional
+///       - OfxImageEffectPropOpenCLEnabled | optional
+///       - OfxImageEffectPropOpenCLImage | optional
+///       - OfxImageEffectPropOpenCLRenderSupported | optional
+///       - OfxImageEffectPropOpenCLSupported | optional
+///       - OfxImageEffectPropOpenGLEnabled | optional
+///       - OfxImageEffectPropOpenGLTextureIndex | optional
+///       - OfxImageEffectPropOpenGLTextureTarget | optional
 ///     outArgs:
 /// ```
 pub const kOfxImageEffectActionEndSequenceRender: &::std::ffi::CStr =
@@ -873,7 +873,7 @@ pub const kOfxImageEffectPropSetableFielding: &::std::ffi::CStr =
 ///      - 1 - for a plugin, indicates that it needs to be sequentially rendered to be correct, for a host, indicates that it can always support sequential rendering of plugins that are sequentially rendered,
 ///      - 2 - for a plugin, indicates that it is best to render sequentially, but will still produce correct results if not, for a host, indicates that it can sometimes render sequentially, and will have set ::kOfxImageEffectPropSequentialRenderStatus on the relevant actions
 ///    @propdef
-///    type: bool
+///    type: int
 ///    dimension: 1
 /// ```
 pub const kOfxImageEffectInstancePropSequentialRender: &::std::ffi::CStr =

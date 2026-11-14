@@ -1,5 +1,19 @@
 # OpenFX bindings and tools for Rust
 
+> [!NOTE]
+>
+> As of 2026/11/14, the pinned commit for the `vendor/openfx-data` submodule is
+> the latest commit of
+> [`kreantio/openfx-data#7`](https://github.com/kreantio/openfx-data/pull/7)
+> rather than a commit on the main line. This is because the ongoing development
+> requires the changes from that PR, but the PR is further blocked by an
+> external upstream PR not having been merged into its main branch.
+>
+> Although I'd like to keep all submodules in this repository on their main
+> lines, as is the case for `openfx-data`, this situation hinders the
+> development process of this project. Considering this, I decided to loosen
+> this “rule”.
+
 See Also:
 
 - Official OpenFX links:

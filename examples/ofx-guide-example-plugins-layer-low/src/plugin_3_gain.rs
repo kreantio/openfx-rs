@@ -21,10 +21,10 @@ use openfx::{
             ImageEffectAction,
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
-        property_sets::{ParamsBytePropertySet, ParamsDouble1DPropertySet},
+        property_sets::{ParamsBooleanPropertySet, ParamsDouble1DPropertySet},
     },
     sys::{
-        core::{kOfxPropInstanceData, kOfxPropLabel},
+        core::kOfxPropLabel,
         param::{OfxParamHandle, kOfxParamTypeBoolean, kOfxParamTypeDouble},
     },
 };
@@ -238,7 +238,7 @@ fn action_describe_in_context(
             param_set.param_define(s_param, kOfxParamTypeBoolean, APPLY_TO_ALPHA_PARAM_NAME)
         }
         .ok_or(StatusError::Failed)?;
-        let param_props = ParamsBytePropertySet::from(param_props);
+        let param_props = ParamsBooleanPropertySet::from(param_props);
 
         unsafe {
             param_props
@@ -290,13 +290,9 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
 
     // SAFETY: the pointee is kept alive by `Box::into_raw` until it is
     // reclaimed with `Box::from_raw` in `action_destroy_instance`.
-    if let r = unsafe {
-        s_prop.prop_set_pointer(
-            instance_props.sys_handle(),
-            kOfxPropInstanceData,
-            std::ptr::NonNull::new(my_data_ptr),
-        )
-    } && !r.is_ok()
+    if let r =
+        unsafe { instance_props.set_instance_data(s_prop, std::ptr::NonNull::new(my_data_ptr)) }
+        && !r.is_ok()
     {
         drop(unsafe { Box::from_raw(my_data_ptr as *mut MyInstanceData) });
         return Err(StatusError::Failed);
