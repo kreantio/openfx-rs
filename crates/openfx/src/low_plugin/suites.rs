@@ -232,8 +232,8 @@ impl ImageEffectOpenGLRenderSuiteV1 {
         &self,
         clip: &ImageClipInstance,
         time: OfxTime,
-        format: &CStr,
-        region: &OfxRectD,
+        format: Option<&CStr>,
+        region: Option<&OfxRectD>,
     ) -> InboundResult<OpenGLTexturePropertySet> {
         let sys_fn = unsafe { sys_fn!() };
 
@@ -243,8 +243,8 @@ impl ImageEffectOpenGLRenderSuiteV1 {
             sys_fn(
                 clip.sys_handle(),
                 time,
-                format.as_ptr(),
-                region,
+                format.map_or(std::ptr::null(), |f| f.as_ptr()),
+                region.map_or(std::ptr::null(), |r| r as *const _),
                 texture_handle.as_mut_ptr(),
             )
         })
