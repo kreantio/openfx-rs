@@ -54,6 +54,11 @@ pub(crate) use set_labels;
 /// Struct to manage OFX images.
 ///
 /// Originally copied from: `$REPO_HOME/examples/layer-low/official-guide-example-plugins/src/helpers/internal_utils.rs``
+///
+/// FIXME: `ClipImageManaged` should have distinct variants depending on
+/// whether it is used for CPU rendering or non-OpenGL GPU rendering. Methods
+/// such as `ClipImageManaged::raw_address` should not be available for GPU
+/// rendering.
 pub struct ClipImageManaged {
     image_effect_suite: GuaranteeSend<ImageEffectSuiteV1>,
     props: ImageInstancePropertySet,
@@ -65,6 +70,8 @@ pub struct ClipImageManaged {
     pixel_aspect_ratio: f64,
     data_ptr: NonNull<c_void>,
 }
+
+unsafe impl Sync for ClipImageManaged {}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]

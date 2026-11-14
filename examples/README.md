@@ -62,19 +62,19 @@ For an example ported here, apart from categorization, it doesn't matter whether
 the original version uses a support library, or which support library it uses.
 They are all Rust code utilizing `openfx::{low, low_plugin}` now.
 
-| Plugin Name                                   | Code (`layer-low`)                                                                                 | Keywords                           |
-| --------------------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| Basic (`Gain`)                                | TODO                                                                                               | (TBD)                              |
-| ChoiceParams (`Choice Params (Support)`)      | TODO                                                                                               | `kOfxParamTypeChoice`              |
-| Field (`Field`)                               | WON'T DO                                                                                           | [Field]                            |
-| GPUGain (`GPU Gain`)                          | WIP: [plugin_gpu_gain.rs](./layer-low/official-old-support-example-plugins/src/plugin_gpu_gain.rs) | ~~CUDA, OpenCL,~~ Metal Buffer[^1] |
-| Generator (`Noise`)                           | TODO                                                                                               | `kOfxImageEffectContextGenerator`  |
-| Invert (`Invert`)                             | TODO                                                                                               | (TBD)                              |
-| MultiBundle[^2] (`Gamma` and `Dot Generator`) | TODO                                                                                               | (TBD)                              |
-| Retimer (`Retimer`)                           | TODO                                                                                               | `kOfxImageEffectContextRetimer`    |
-| Tester (`GenericTest`)                        | TODO                                                                                               | (TBD)                              |
-| Transition (`Cross Fade`)                     | TODO                                                                                               | `kOfxImageEffectContextTransition` |
-| ../PropTester (`Prop Tester`)                 | TODO                                                                                               | (TBD)                              |
+| Plugin Name                                   | Code (`layer-low`)                                                                            | Keywords                           |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------- |
+| Basic (`Gain`)                                | TODO                                                                                          | (TBD)                              |
+| ChoiceParams (`Choice Params (Support)`)      | TODO                                                                                          | `kOfxParamTypeChoice`              |
+| Field (`Field`)                               | WON'T DO                                                                                      | [Field]                            |
+| GPUGain (`GPU Gain`)                          | [plugin_gpu_gain.rs](./layer-low/official-old-support-example-plugins/src/plugin_gpu_gain.rs) | ~~CUDA, OpenCL,~~ Metal Buffer[^1] |
+| Generator (`Noise`)                           | TODO                                                                                          | `kOfxImageEffectContextGenerator`  |
+| Invert (`Invert`)                             | TODO                                                                                          | (TBD)                              |
+| MultiBundle[^2] (`Gamma` and `Dot Generator`) | TODO                                                                                          | (TBD)                              |
+| Retimer (`Retimer`)                           | TODO                                                                                          | `kOfxImageEffectContextRetimer`    |
+| Tester (`GenericTest`)                        | TODO                                                                                          | (TBD)                              |
+| Transition (`Cross Fade`)                     | TODO                                                                                          | `kOfxImageEffectContextTransition` |
+| ../PropTester (`Prop Tester`)                 | TODO                                                                                          | (TBD)                              |
 
 ### Plugin Making: `our-layer-low-exclusive-example-plugins`
 

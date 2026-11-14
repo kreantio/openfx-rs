@@ -5,7 +5,7 @@ use openfx::{
     low_plugin::{
         Host, LifetimePlugin,
         objects::ImageClipInstance,
-        suites::{ImageEffectSuiteV1, ParameterSuiteV1, PropertySuiteV1},
+        suites::{ImageEffectSuiteV1, MultiThreadSuiteV1, ParameterSuiteV1, PropertySuiteV1},
     },
 };
 
@@ -42,6 +42,7 @@ pub struct SharedDataInner {
     pub property_suite: GuaranteeSend<PropertySuiteV1>,
     pub image_effect_suite: GuaranteeSend<ImageEffectSuiteV1>,
     pub parameter_suite: GuaranteeSend<ParameterSuiteV1>,
+    pub multi_thread_suite: Option<GuaranteeSend<MultiThreadSuiteV1>>,
 }
 
 impl SharedData {
@@ -52,12 +53,14 @@ impl SharedData {
             .ok_or(StatusError::ErrMissingHostFeature)?;
         let parameter_suite =
             unsafe { host.fetch_parameter_suite_v1() }.ok_or(StatusError::ErrMissingHostFeature)?;
+        let multi_thread_suite = unsafe { host.fetch_multi_thread_suite_v1() };
 
         Ok(SharedData(Arc::new(SharedDataInner {
             host,
             property_suite: GuaranteeSend(property_suite),
             image_effect_suite: GuaranteeSend(image_effect_suite),
             parameter_suite: GuaranteeSend(parameter_suite),
+            multi_thread_suite: multi_thread_suite.map(GuaranteeSend),
         })))
     }
 }

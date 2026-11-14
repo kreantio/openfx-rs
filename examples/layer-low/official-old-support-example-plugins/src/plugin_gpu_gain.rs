@@ -536,8 +536,7 @@ fn action_create_instance(instance: ImageEffectInstance) -> OutboundResult {
 
     // SAFETY: the pointee is kept alive by `Box::into_raw` until it is
     // reclaimed with `Box::from_raw` in `action_destroy_instance`.
-    if let r =
-        unsafe { instance_props.set_instance_data(s_prop, std::ptr::NonNull::new(my_data_ptr)) }
+    if let r = unsafe { instance_props.set_instance_data(s_prop, NonNull::new(my_data_ptr)) }
         && !r.is_ok()
     {
         drop(unsafe { Box::from_raw(my_data_ptr as *mut MyInstanceData) });
@@ -728,7 +727,7 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     let time = unsafe { in_args.get_time(s_prop) }.ok_or(StatusError::Failed)?;
     let render_window =
         unsafe { in_args.get_image_effect_render_window(s_prop) }.ok_or(StatusError::Failed)?;
-    let _render_window = rect_i_from_array(&render_window);
+    let render_window = rect_i_from_array(&render_window);
 
     let Some(my_data_ptr) =
         unsafe { instance_props.get_instance_data(s_prop) }.ok_or(StatusError::Failed)?
@@ -751,7 +750,7 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     let scales = Scales::retrieve_at_time(&data, my_data, time)?;
 
     #[cfg(target_os = "macos")]
-    if unsafe { in_args.get_image_effect_metal_enabled(s_prop) }.ok_or(StatusError::Failed)? {
+    if unsafe { in_args.get_image_effect_metal_enabled(s_prop) }.unwrap_or(false) {
         let cmd_q = unsafe {
             in_args
                 .get_image_effect_metal_command_queue(s_prop)
@@ -760,33 +759,193 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
         let Some(cmd_q) = cmd_q else {
             return Err(StatusError::Failed);
         };
-        process_images_metal(scales, source_img, output_img, cmd_q)?;
+        processing_metal::process_images_metal(scales, source_img, output_img, cmd_q)?;
         return Ok(Status::OK);
     }
 
-    // TODO!!: CPU fallback
-    Err(StatusError::ErrImageFormat)
+    processing_cpu::process_images(
+        &data,
+        &instance,
+        scales,
+        source_img,
+        output_img,
+        render_window,
+    )?;
+
+    Ok(Status::OK)
 }
 
 #[cfg(target_os = "macos")]
-fn process_images_metal(
-    scales: Scales,
-    source_img: ClipImageManaged,
-    output_img: ClipImageManaged,
-    cmd_q: NonNull<c_void>,
-) -> Result<(), StatusError> {
-    use crate::plugin_gpu_gain::metal_kernel::run_metal_kernel;
+mod processing_metal {
+    use std::{ffi::c_void, ptr::NonNull};
 
-    let bounds = source_img.bounds();
-    let width = bounds.x2 - bounds.x1;
-    let height = bounds.y2 - bounds.y1;
+    use openfx::low::StatusError;
 
-    let input = source_img.data_ptr();
-    let output = output_img.data_ptr();
+    use crate::{helpers::internal_utils::ClipImageManaged, plugin_gpu_gain::Scales};
 
-    unsafe { run_metal_kernel(cmd_q, width, height, scales.as_array(), input, output) }?;
+    pub fn process_images_metal(
+        scales: Scales,
+        source_img: ClipImageManaged,
+        output_img: ClipImageManaged,
+        cmd_q: NonNull<c_void>,
+    ) -> Result<(), StatusError> {
+        use crate::plugin_gpu_gain::metal_kernel::run_metal_kernel;
 
-    Ok(())
+        tracing::debug!("Processing via Metal");
+
+        let bounds = source_img.bounds();
+        let width = bounds.x2 - bounds.x1;
+        let height = bounds.y2 - bounds.y1;
+
+        let input = source_img.data_ptr();
+        let output = output_img.data_ptr();
+
+        unsafe { run_metal_kernel(cmd_q, width, height, scales.as_array(), input, output) }?;
+
+        Ok(())
+    }
+}
+
+mod processing_cpu {
+    use std::ffi::{c_int, c_uint};
+
+    use openfx::{low::StatusError, low_plugin::objects::ImageEffectInstance, sys::core::OfxRectI};
+
+    use crate::{
+        helpers::{internal_utils::ClipImageManaged, shared_data::SharedData},
+        plugin_gpu_gain::Scales,
+    };
+
+    pub fn process_images(
+        data: &SharedData,
+        instance: &ImageEffectInstance,
+        scales: Scales,
+        source_img: ClipImageManaged,
+        output_img: ClipImageManaged,
+        proc_window: OfxRectI,
+    ) -> Result<(), StatusError> {
+        let dst_bounds = output_img.bounds();
+        // exit gracefully in case of error
+        if !(dst_bounds.x1 <= proc_window.x1
+            && proc_window.x2 <= dst_bounds.x2
+            && dst_bounds.y1 <= proc_window.y1
+            && proc_window.y2 <= dst_bounds.y2)
+            || proc_window.x1 >= proc_window.x2
+            || proc_window.y1 >= proc_window.y2
+        {
+            return Err(StatusError::Failed);
+        }
+
+        let arg = ProcessArgument {
+            data,
+            instance,
+            scales: &scales,
+            source_img: &source_img,
+            output_img: &output_img,
+            proc_window,
+        };
+
+        if let Some(multi_thread_suite) = &data.multi_thread_suite {
+            let s_mt = &multi_thread_suite.0;
+            let n_cpus = (((proc_window.x2 - proc_window.x1).min(4096)
+                * (proc_window.y2 - proc_window.y1)) as c_uint
+                / 4096)
+                .min(unsafe { s_mt.multi_thread_num_cpus() }.unwrap_or(1));
+            tracing::debug!("Processing via CPU (with {n_cpus} threads)");
+            if n_cpus > 1 {
+                unsafe { s_mt.multi_thread(process_thread, n_cpus, &arg) }
+                    .ok_or(StatusError::Failed)?;
+            } else {
+                process_tile(arg);
+            }
+        } else {
+            tracing::debug!("Processing via CPU (No `MultiThreadSuiteV1`)");
+            process_tile(arg);
+        }
+
+        Ok(())
+    }
+
+    struct ProcessArgument<'a> {
+        data: &'a SharedData,
+        instance: &'a ImageEffectInstance,
+        scales: &'a Scales,
+        source_img: &'a ClipImageManaged,
+        output_img: &'a ClipImageManaged,
+        proc_window: OfxRectI,
+    }
+
+    extern "C" fn process_thread(thread_index: c_uint, thread_max: c_uint, arg: &ProcessArgument) {
+        // slice the y range into the number of threads it has
+        let dy = (arg.proc_window.y2 - arg.proc_window.y1) as c_uint;
+        // the following is equivalent to std::ceil(dy/(double)nThreads);
+        let mut h = dy.div_ceil(thread_max);
+        if h == 0 {
+            // there are more threads than lines to process
+            h = 1;
+        }
+        if thread_index * h >= dy {
+            // empty render subwindow
+            return;
+        }
+        let y1 = arg.proc_window.y1 + (thread_index * h) as c_int;
+        let step = (thread_index + 1) * h;
+        let y2 = arg.proc_window.y1 + (if step < dy { step } else { dy } as c_int);
+
+        let mut win = arg.proc_window;
+        win.y1 = y1;
+        win.y2 = y2;
+
+        process_tile(ProcessArgument {
+            data: arg.data,
+            instance: arg.instance,
+            scales: arg.scales,
+            source_img: arg.source_img,
+            output_img: arg.output_img,
+            proc_window: win,
+        });
+    }
+
+    fn process_tile(
+        ProcessArgument {
+            data,
+            instance,
+            scales,
+            source_img,
+            output_img,
+            proc_window,
+        }: ProcessArgument,
+    ) {
+        let scales = scales.as_array();
+
+        for y in proc_window.y1..proc_window.y2 {
+            if unsafe { instance.abort(&data.image_effect_suite) } {
+                return;
+            }
+
+            let Some(dst_pix) = output_img.raw_address(proc_window.x1, y) else {
+                continue;
+            };
+            let mut dst_pix = dst_pix as *mut f32;
+
+            for x in proc_window.x1..proc_window.x2 {
+                // do we have a source image to scale up
+                if let Some(src_pix) = source_img.raw_address(x, y) {
+                    let src_pix = src_pix as *const f32;
+                    for (i, scale) in scales.iter().enumerate() {
+                        unsafe { *dst_pix.add(i) = *src_pix.add(i) * *scale };
+                    }
+                } else {
+                    // no src pixel here, be black and transparent
+                    for i in 0..4 {
+                        unsafe { *dst_pix.add(i) = 0.0 };
+                    }
+                };
+                // increment the dst pixel
+                dst_pix = unsafe { dst_pix.add(4) };
+            }
+        }
+    }
 }
 
 struct Scales {
@@ -849,6 +1008,7 @@ impl Scales {
         })
     }
 
+    #[allow(dead_code)]
     fn as_array(&self) -> [f32; 4] {
         [
             self.r_scale as f32,
