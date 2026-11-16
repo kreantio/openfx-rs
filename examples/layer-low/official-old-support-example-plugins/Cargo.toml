@@ -13,6 +13,8 @@ openfx.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
 
+cl3.workspace = true
+
 [target.'cfg(target_os = "macos")'.dependencies]
 libloading.workspace = true
 objc2.workspace = true

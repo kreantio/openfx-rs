@@ -15,7 +15,10 @@ use openfx::{
         property_sets::{ImageInstancePropertySet, LosslessEnumPropertyOwned},
         suites::ImageEffectSuiteV1,
     },
-    sys::core::{OfxRectI, OfxTime},
+    sys::{
+        core::{OfxRectI, OfxTime},
+        gpu_render::kOfxImageEffectPropOpenCLImage,
+    },
 };
 
 use crate::helpers::shared_data::{GuaranteeSend, SharedData};
@@ -328,6 +331,82 @@ impl ManagedClipImageForCpu {
         Some(unsafe {
             row_start.offset(x_offset as isize * self.bytes_per_pixel() as isize) as *mut c_void
         })
+    }
+}
+
+pub struct ManagedClipImageForOpencl {
+    base: ManagedClipImageBase,
+
+    data: ManagedClipImageForOpenclData,
+}
+
+pub enum ManagedClipImageForOpenclData {
+    Image(NonNull<c_void>),
+    Buffer(NonNull<c_void>),
+}
+
+impl_base_functions!(ManagedClipImageForOpencl);
+
+impl ManagedClipImageForOpencl {
+    pub unsafe fn try_new_from_clip_if_available(
+        shared_data: &SharedData,
+        clip: &ImageClipInstance,
+        frame: OfxTime,
+    ) -> Result<Option<Self>, StatusError> {
+        let base = unsafe {
+            ManagedClipImageBase::try_new_from_clip_if_available(shared_data, clip, frame)
+        }?;
+        if let Some(b) = base {
+            Ok(Some(unsafe { Self::try_new_from_base(shared_data, b) }?))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// Construct from a clip by fetching an image at the given frame.
+    pub unsafe fn try_new_from_clip(
+        shared_data: &SharedData,
+        clip: &ImageClipInstance,
+        frame: OfxTime,
+    ) -> Result<Self, StatusError> {
+        let base = unsafe { ManagedClipImageBase::try_new_from_clip(shared_data, clip, frame) }?;
+        unsafe { Self::try_new_from_base(shared_data, base) }
+    }
+
+    unsafe fn try_new_from_base(
+        shared_data: &SharedData,
+        base: ManagedClipImageBase,
+    ) -> Result<Self, StatusError> {
+        let s_prop = &shared_data.property_suite.0;
+
+        let props = &base.props;
+
+        let data = if let Some(ptr) =
+            // TODO: The upstream appears to mistakenly associate
+            // `kOfxImageEffectPropOpenCLImage` with the Render action's
+            // `inArgs` property set rather than with the image's property set.
+            // Report this upstream.
+            unsafe {
+                s_prop.prop_get_pointer(props.sys_handle(), kOfxImageEffectPropOpenCLImage)
+            }
+            // TODO: Only allow some of the errors to be ignored?
+            .unwrap_or(None)
+        {
+            ManagedClipImageForOpenclData::Image(ptr)
+        } else {
+            let Some(data_ptr) =
+                (unsafe { props.get_image_data(s_prop) }).ok_or(StatusError::Failed)?
+            else {
+                return Err(StatusError::Failed);
+            };
+            ManagedClipImageForOpenclData::Buffer(data_ptr)
+        };
+
+        Ok(Self { base, data })
+    }
+
+    pub fn data(&self) -> &ManagedClipImageForOpenclData {
+        &self.data
     }
 }
 

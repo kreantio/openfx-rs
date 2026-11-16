@@ -20,8 +20,8 @@
 //!
 //! ## Known issues
 //!
-//! Due to limitations of the maintainer(s), only the Metal part of the
-//! example is implemented.
+//! Due to limitations of the maintainer(s), the CUDA part of the example is not
+//! implemented.
 //!
 //! ## TODO
 //!
@@ -37,9 +37,9 @@ use openfx::{
     low::{
         OutboundResult, Status, StatusError, StatusReply,
         enums::{
-            ImageEffectPropComponents, ImageEffectPropSupportedComponents,
-            ImageEffectPropSupportedContexts, ImageEffectPropSupportedPixelDepths,
-            ParamPropDoubleType, PropChangeReason,
+            ImageEffectPropComponents, ImageEffectPropOpenCLSupported,
+            ImageEffectPropSupportedComponents, ImageEffectPropSupportedContexts,
+            ImageEffectPropSupportedPixelDepths, ParamPropDoubleType, PropChangeReason,
         },
     },
     low_plugin::{
@@ -69,13 +69,15 @@ use crate::{
     definitions::{PLUGINS_GROUPING, PluginInfo},
     helpers::{
         internal_utils::{
-            ManagedClipImageForCpu, rect_i_from_array,
+            ManagedClipImageForCpu, ManagedClipImageForOpencl, rect_i_from_array,
             renderer_info::{Renderer, UsedRenderer},
             set_labels,
         },
         shared_data::{GuaranteeSend, GuaranteeSendClipInstance, SharedData},
     },
 };
+
+mod opencl_kernel_buffers;
 
 #[cfg(target_os = "macos")]
 mod metal_kernel;
@@ -171,6 +173,29 @@ mod plugin_variant_normal {
     }
 }
 pub use plugin_variant_normal::PluginExampleGpuGain;
+
+mod plugin_variant_force_opencl_buffers {
+    use super::*;
+    use crate::definitions::PLUGIN_GPU_GAIN_FORCE_OPENCL_BUFFERS_INFO as PLUGIN_INFO;
+
+    pub struct PluginExampleGpuGainForceOpenclBuffers;
+    static PLUGIN_VARIANT: PluginVariant =
+        PluginVariant::new(PLUGIN_INFO, Some(Renderer::OpenclWithBuffers));
+    impl Plugin for PluginExampleGpuGainForceOpenclBuffers {
+        const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_INFO.identifier;
+        const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
+        const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
+
+        fn set_host(host: Host) {
+            set_host(&PLUGIN_VARIANT, host);
+        }
+
+        fn main_entry(action: ImageEffectAction) -> OutboundResult {
+            main_entry(&PLUGIN_VARIANT, action)
+        }
+    }
+}
+pub use plugin_variant_force_opencl_buffers::PluginExampleGpuGainForceOpenclBuffers;
 
 mod plugin_variant_force_metal_buffers {
     use super::*;
@@ -368,6 +393,21 @@ fn action_describe(var: &PluginVariant, descriptor: ImageEffectDescriptor) -> Ou
         props
             .set_image_effect_supports_multiple_clip_pa_rs(s_prop, SUPPORTS_MULTIPLE_CLIP_PARS)
             .ok_or(StatusError::Failed)?;
+
+        // Setup OpenCL render capability flags
+        if var
+            .force_renderer
+            .is_none_or(|r| r == Renderer::OpenclWithBuffers)
+        {
+            #[allow(clippy::collapsible_if)]
+            if let stat = props.set_image_effect_open_cl_supported(
+                s_prop,
+                ImageEffectPropOpenCLSupported::True.into(),
+            ) && !stat.is_ok()
+            {
+                tracing::warn!("Failed to set OpenCL render support: {stat:?}");
+            }
+        }
 
         // Setup Metal render capability flags only on Apple system
         #[cfg(target_os = "macos")]
@@ -924,6 +964,36 @@ fn action_render(
 
     let scales = Scales::retrieve_at_time(&data, my_data, time)?;
 
+    if var
+        .force_renderer
+        .is_none_or(|r| r == Renderer::OpenclWithBuffers)
+        && unsafe { in_args.get_image_effect_open_cl_enabled(s_prop) }.unwrap_or(false)
+    {
+        let output_img = unsafe {
+            ManagedClipImageForOpencl::try_new_from_clip(&data, &my_data.output_clip.0, time)
+        }?;
+        let source_img = unsafe {
+            ManagedClipImageForOpencl::try_new_from_clip(&data, &my_data.source_clip.0, time)
+        }?;
+
+        if output_img.pixel_depth() != source_img.pixel_depth()
+            || output_img.n_comps() != source_img.n_comps()
+        {
+            return Err(StatusError::ErrValue); // Follow the official example.
+        }
+
+        let cmd_q = unsafe {
+            in_args
+                .get_image_effect_open_cl_command_queue(s_prop)
+                .ok_or(StatusError::Failed)?
+        };
+        let Some(cmd_q) = cmd_q else {
+            return Err(StatusError::Failed);
+        };
+        processing_opencl::process_images_opencl(my_data, scales, source_img, output_img, cmd_q)?;
+        return Ok(Status::OK);
+    }
+
     #[cfg(target_os = "macos")]
     if var
         .force_renderer
@@ -942,7 +1012,7 @@ fn action_render(
         if output_img.pixel_depth() != source_img.pixel_depth()
             || output_img.n_comps() != source_img.n_comps()
         {
-            return Err(StatusError::ErrValue);
+            return Err(StatusError::ErrValue); // Follow the official example.
         }
 
         let cmd_q = unsafe {
@@ -968,7 +1038,7 @@ fn action_render(
         if output_img.pixel_depth() != source_img.pixel_depth()
             || output_img.n_comps() != source_img.n_comps()
         {
-            return Err(StatusError::ErrValue);
+            return Err(StatusError::ErrValue); // Follow the official example.
         }
 
         processing_cpu::process_images(
@@ -983,7 +1053,56 @@ fn action_render(
 
         Ok(Status::OK)
     } else {
+        // This follows the official OpenGL example's handling of the case where
+        // no renderer is available. It is not part of the original GPU Gain
+        // example. It was added to deal with a failure to force a specific
+        // renderer. I really don't know whether `ErrValue` or `ErrImageFormat`
+        // would be more appropriate here.
         Err(StatusError::ErrImageFormat)
+    }
+}
+
+mod processing_opencl {
+    use std::{ffi::c_void, ptr::NonNull};
+
+    use openfx::low::StatusError;
+
+    use crate::{
+        helpers::internal_utils::{ManagedClipImageForOpencl, ManagedClipImageForOpenclData},
+        plugin_gpu_gain::{MyInstanceData, Scales},
+    };
+
+    pub fn process_images_opencl(
+        my_data: &MyInstanceData,
+        scales: Scales,
+        source_img: ManagedClipImageForOpencl,
+        output_img: ManagedClipImageForOpencl,
+        cmd_q: NonNull<c_void>,
+    ) -> Result<(), StatusError> {
+        use crate::plugin_gpu_gain::opencl_kernel_buffers::run_opencl_kernel_buffers;
+
+        let bounds = source_img.bounds();
+        let width = bounds.x2 - bounds.x1;
+        let height = bounds.y2 - bounds.y1;
+
+        if let ManagedClipImageForOpenclData::Image(_input) = source_img.data()
+            && let ManagedClipImageForOpenclData::Image(_output) = output_img.data()
+        {
+            todo!()
+        } else if let ManagedClipImageForOpenclData::Buffer(input) = source_img.data()
+            && let ManagedClipImageForOpenclData::Buffer(output) = output_img.data()
+        {
+            tracing::debug!("Processing via OpenCL (Buffers)");
+            my_data.used_renderer.store_opencl_buffer();
+
+            unsafe {
+                run_opencl_kernel_buffers(cmd_q, width, height, scales.as_array(), *input, *output)
+            }?;
+        } else {
+            return Err(StatusError::Failed);
+        }
+
+        Ok(())
     }
 }
 

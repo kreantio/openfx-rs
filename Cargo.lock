@@ -131,6 +131,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
 
 [[package]]
+name = "cl3"
+version = "0.13.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a742f287d99be2d7b66db81728cf0c8f7d09468d9c720431d09f89c511fd0208"
+dependencies = [
+ "dlopen2",
+ "libc",
+ "opencl-sys",
+ "thiserror",
+]
+
+[[package]]
 name = "clap"
 version = "4.6.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -224,6 +236,28 @@ checksum = "1e0e367e4e7da84520dedcac1901e4da967309406d1e51017ae1abfb97adbd38"
 dependencies = [
  "bitflags",
  "objc2",
+]
+
+[[package]]
+name = "dlopen2"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "60768c353d76ba6dd1b6332a5dbbdd3bc2dddadc2935f4cc6a9d0f17ca8ecb6a"
+dependencies = [
+ "dlopen2_derive",
+ "libc",
+ "windows-sys",
+]
+
+[[package]]
+name = "dlopen2_derive"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1aacdd87ba97c2f83ff479e881e547f776b0a7c42921be22d4391f32b6284050"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 3.0.3",
 ]
 
 [[package]]
@@ -359,6 +393,7 @@ dependencies = [
 name = "layer-low-official-old-support-example-plugins"
 version = "0.8.0"
 dependencies = [
+ "cl3",
  "gl_generator",
  "libloading",
  "objc2",
@@ -507,6 +542,15 @@ name = "once_cell_polyfill"
 version = "1.70.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
+
+[[package]]
+name = "opencl-sys"
+version = "0.6.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "55e1202dff32db448cef22cd6d866a18eca87c51c7dc4aa25f11753aa65e6ef7"
+dependencies = [
+ "libc",
+]
 
 [[package]]
 name = "openfx"

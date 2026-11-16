@@ -7,6 +7,7 @@ use std::{
 pub enum Renderer {
     Cpu,
     MetalWithBuffers,
+    OpenclWithBuffers,
 }
 
 #[derive(Default)]
@@ -16,7 +17,9 @@ impl UsedRenderer {
     const RENDERER_NO_INFO: u16 = 0;
     const RENDERER_CPU_MULTI_THREAD_SUITE: u16 = 1;
     const RENDERER_CPU: u16 = 2;
-    const RENDERER_METAL_WITH_BUFFERS: u16 = 3;
+    const RENDERER_OPENCL_WITH_BUFFERS: u16 = 3;
+    const RENDERER_OPENCL_WITH_IMAGES: u16 = 4;
+    const RENDERER_METAL_WITH_BUFFERS: u16 = 5;
 
     pub fn store_no_info(&self) {
         self.0
@@ -25,6 +28,18 @@ impl UsedRenderer {
     pub fn store_cpu_multi_thread_suite(&self, n_cpus: u16) {
         self.0.store(
             (Self::RENDERER_CPU_MULTI_THREAD_SUITE as u32) | ((n_cpus as u32) << 16),
+            atomic::Ordering::Relaxed,
+        );
+    }
+    pub fn store_opencl_buffer(&self) {
+        self.0.store(
+            Self::RENDERER_OPENCL_WITH_BUFFERS as u32,
+            atomic::Ordering::Relaxed,
+        );
+    }
+    pub fn store_opencl_image(&self) {
+        self.0.store(
+            Self::RENDERER_OPENCL_WITH_IMAGES as u32,
             atomic::Ordering::Relaxed,
         );
     }
@@ -54,6 +69,8 @@ impl UsedRenderer {
                 CString::new(format!("CPU (with {n_cpus} thread(s))")).unwrap()
             }
             Self::RENDERER_CPU => c"CPU (No `MultiThreadSuiteV1`)".to_owned(),
+            Self::RENDERER_OPENCL_WITH_BUFFERS => c"OpenCL (Buffers)".to_owned(),
+            Self::RENDERER_OPENCL_WITH_IMAGES => c"OpenCL (Images)".to_owned(),
             Self::RENDERER_METAL_WITH_BUFFERS => c"Metal (Buffers)".to_owned(),
             _ => c"?".to_owned(),
         }

@@ -67,7 +67,7 @@ They are all Rust code utilizing `openfx::{low, low_plugin}` now.
 | Basic (`Gain`)                                | TODO                                                                                          | (TBD)                              |
 | ChoiceParams (`Choice Params (Support)`)      | TODO                                                                                          | `kOfxParamTypeChoice`              |
 | Field (`Field`)                               | WON'T DO                                                                                      | [Field]                            |
-| GPUGain (`GPU Gain`)                          | [plugin_gpu_gain.rs](./layer-low/official-old-support-example-plugins/src/plugin_gpu_gain.rs) | ~~CUDA, OpenCL,~~ Metal Buffer[^1] |
+| GPUGain (`GPU Gain`)                          | [plugin_gpu_gain.rs](./layer-low/official-old-support-example-plugins/src/plugin_gpu_gain.rs) | ~~CUDA,~~ OpenCL, Metal Buffer[^1] |
 | Generator (`Noise`)                           | TODO                                                                                          | `kOfxImageEffectContextGenerator`  |
 | Invert (`Invert`)                             | TODO                                                                                          | (TBD)                              |
 | MultiBundle[^2] (`Gamma` and `Dot Generator`) | TODO                                                                                          | (TBD)                              |
@@ -81,8 +81,8 @@ They are all Rust code utilizing `openfx::{low, low_plugin}` now.
 | Plugin Name | Code (`layer-low`) | Keywords |
 | ----------- | ------------------ | -------- |
 
-[^1]: Due to limitations of the maintainer(s), only the Metal part of the
-    example is implemented.
+[^1]: Due to limitations of the maintainer(s), the CUDA part of the example is
+    not implemented.
 
 [^2]: The official version of this example is intended to showcase a single
     OpenFX bundle containing multiple plugins. We already do this: example

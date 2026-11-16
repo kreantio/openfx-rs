@@ -82,8 +82,7 @@ pub unsafe fn run_metal_kernel(
                     }
                 };
 
-            v.insert(pipeline_state.clone());
-            pipeline_state
+            v.insert(pipeline_state.clone()).clone()
         }
         hash_map::Entry::Occupied(entry) => entry.get().clone(),
     };
