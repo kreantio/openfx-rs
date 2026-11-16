@@ -69,7 +69,7 @@ use crate::{
     definitions::{PLUGINS_GROUPING, PluginInfo},
     helpers::{
         internal_utils::{
-            ClipImageManaged, rect_i_from_array,
+            ManagedClipImageForCpu, rect_i_from_array,
             renderer_info::{Renderer, UsedRenderer},
             set_labels,
         },
@@ -922,17 +922,6 @@ fn action_render(
     };
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
-    let output_img =
-        unsafe { ClipImageManaged::try_new_from_clip(&data, &my_data.output_clip.0, time) }?;
-    let source_img =
-        unsafe { ClipImageManaged::try_new_from_clip(&data, &my_data.source_clip.0, time) }?;
-
-    if output_img.pixel_depth() != source_img.pixel_depth()
-        || output_img.n_comps() != source_img.n_comps()
-    {
-        return Err(StatusError::ErrValue);
-    }
-
     let scales = Scales::retrieve_at_time(&data, my_data, time)?;
 
     #[cfg(target_os = "macos")]
@@ -941,6 +930,21 @@ fn action_render(
         .is_none_or(|r| r == Renderer::MetalWithBuffers)
         && unsafe { in_args.get_image_effect_metal_enabled(s_prop) }.unwrap_or(false)
     {
+        use crate::helpers::internal_utils::ManagedClipImageForMetal;
+
+        let output_img = unsafe {
+            ManagedClipImageForMetal::try_new_from_clip(&data, &my_data.output_clip.0, time)
+        }?;
+        let source_img = unsafe {
+            ManagedClipImageForMetal::try_new_from_clip(&data, &my_data.source_clip.0, time)
+        }?;
+
+        if output_img.pixel_depth() != source_img.pixel_depth()
+            || output_img.n_comps() != source_img.n_comps()
+        {
+            return Err(StatusError::ErrValue);
+        }
+
         let cmd_q = unsafe {
             in_args
                 .get_image_effect_metal_command_queue(s_prop)
@@ -954,6 +958,19 @@ fn action_render(
     }
 
     if var.force_renderer.is_none_or(|r| r == Renderer::Cpu) {
+        let output_img = unsafe {
+            ManagedClipImageForCpu::try_new_from_clip(&data, &my_data.output_clip.0, time)
+        }?;
+        let source_img = unsafe {
+            ManagedClipImageForCpu::try_new_from_clip(&data, &my_data.source_clip.0, time)
+        }?;
+
+        if output_img.pixel_depth() != source_img.pixel_depth()
+            || output_img.n_comps() != source_img.n_comps()
+        {
+            return Err(StatusError::ErrValue);
+        }
+
         processing_cpu::process_images(
             &data,
             my_data,
@@ -977,15 +994,15 @@ mod processing_metal {
     use openfx::low::StatusError;
 
     use crate::{
-        helpers::internal_utils::ClipImageManaged,
+        helpers::internal_utils::ManagedClipImageForMetal,
         plugin_gpu_gain::{MyInstanceData, Scales},
     };
 
     pub fn process_images_metal(
         my_data: &MyInstanceData,
         scales: Scales,
-        source_img: ClipImageManaged,
-        output_img: ClipImageManaged,
+        source_img: ManagedClipImageForMetal,
+        output_img: ManagedClipImageForMetal,
         cmd_q: NonNull<c_void>,
     ) -> Result<(), StatusError> {
         use crate::plugin_gpu_gain::metal_kernel::run_metal_kernel;
@@ -1012,7 +1029,7 @@ mod processing_cpu {
     use openfx::{low::StatusError, low_plugin::objects::ImageEffectInstance, sys::core::OfxRectI};
 
     use crate::{
-        helpers::{internal_utils::ClipImageManaged, shared_data::SharedData},
+        helpers::{internal_utils::ManagedClipImageForCpu, shared_data::SharedData},
         plugin_gpu_gain::{MyInstanceData, Scales},
     };
 
@@ -1021,8 +1038,8 @@ mod processing_cpu {
         my_data: &MyInstanceData,
         instance: &ImageEffectInstance,
         scales: Scales,
-        source_img: ClipImageManaged,
-        output_img: ClipImageManaged,
+        source_img: ManagedClipImageForCpu,
+        output_img: ManagedClipImageForCpu,
         proc_window: OfxRectI,
     ) -> Result<(), StatusError> {
         let dst_bounds = output_img.bounds();
@@ -1075,8 +1092,8 @@ mod processing_cpu {
         data: &'a SharedData,
         instance: &'a ImageEffectInstance,
         scales: &'a Scales,
-        source_img: &'a ClipImageManaged,
-        output_img: &'a ClipImageManaged,
+        source_img: &'a ManagedClipImageForCpu,
+        output_img: &'a ManagedClipImageForCpu,
         proc_window: OfxRectI,
     }
 

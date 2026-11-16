@@ -53,28 +53,6 @@ macro_rules! set_labels {
 }
 pub(crate) use set_labels;
 
-/// Struct to manage OFX images.
-///
-/// Originally copied from: `$REPO_HOME/examples/layer-low/official-guide-example-plugins/src/helpers/internal_utils.rs``
-///
-/// FIXME: `ClipImageManaged` should have distinct variants depending on
-/// whether it is used for CPU rendering or non-OpenGL GPU rendering. Methods
-/// such as `ClipImageManaged::raw_address` should not be available for GPU
-/// rendering.
-pub struct ClipImageManaged {
-    image_effect_suite: GuaranteeSend<ImageEffectSuiteV1>,
-    props: ImageInstancePropertySet,
-
-    n_comps: c_int,
-    pixel_depth: BitDepth,
-    row_bytes: c_int,
-    bounds: OfxRectI,
-    pixel_aspect_ratio: f64,
-    data_ptr: NonNull<c_void>,
-}
-
-unsafe impl Sync for ClipImageManaged {}
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum BitDepth {
@@ -83,24 +61,23 @@ pub enum BitDepth {
     Float,
 }
 
-impl ClipImageManaged {
-    /// Construct from a clip by fetching an image at the given frame.
-    pub unsafe fn try_new_from_clip(
-        shared_data: &SharedData,
-        clip: &ImageClipInstance,
-        frame: OfxTime,
-    ) -> Result<Self, StatusError> {
-        let prop_set = unsafe { clip.clip_get_image(&shared_data.image_effect_suite, frame, None) }
-            .ok_or(StatusError::Failed)?;
+/// Struct to manage OFX images.
+///
+/// Originally copied from: `$REPO_HOME/examples/layer-low/official-guide-example-plugins/src/helpers/internal_utils.rs``
+struct ManagedClipImageBase {
+    image_effect_suite: GuaranteeSend<ImageEffectSuiteV1>,
+    props: ImageInstancePropertySet,
 
-        let ret = unsafe { Self::try_new_from_property_set(shared_data, prop_set) };
-        if !ret.is_ok() {
-            unsafe { Self::release_image(&shared_data.image_effect_suite, &prop_set) };
-        }
-        ret
-    }
+    n_comps: c_int,
+    pixel_depth: BitDepth,
+    bounds: OfxRectI,
+    pixel_aspect_ratio: f64,
+}
 
-    pub unsafe fn try_new_from_clip_if_available(
+unsafe impl Sync for ManagedClipImageBase {}
+
+impl ManagedClipImageBase {
+    unsafe fn try_new_from_clip_if_available(
         shared_data: &SharedData,
         clip: &ImageClipInstance,
         frame: OfxTime,
@@ -119,6 +96,22 @@ impl ClipImageManaged {
         ret.map(Some)
     }
 
+    /// Construct from a clip by fetching an image at the given frame.
+    unsafe fn try_new_from_clip(
+        shared_data: &SharedData,
+        clip: &ImageClipInstance,
+        frame: OfxTime,
+    ) -> Result<Self, StatusError> {
+        let prop_set = unsafe { clip.clip_get_image(&shared_data.image_effect_suite, frame, None) }
+            .ok_or(StatusError::Failed)?;
+
+        let ret = unsafe { Self::try_new_from_property_set(shared_data, prop_set) };
+        if !ret.is_ok() {
+            unsafe { Self::release_image(&shared_data.image_effect_suite, &prop_set) };
+        }
+        ret
+    }
+
     /// Construct from a property set that represents the image.
     ///
     /// ## Safety
@@ -129,12 +122,6 @@ impl ClipImageManaged {
         props: ImageInstancePropertySet,
     ) -> Result<Self, StatusError> {
         let s_prop = &shared_data.property_suite.0;
-
-        let Some(data_ptr) =
-            (unsafe { props.get_image_data(s_prop) }).ok_or(StatusError::Failed)?
-        else {
-            return Err(StatusError::Failed);
-        };
 
         // figure out the data types
 
@@ -164,8 +151,6 @@ impl ClipImageManaged {
             }
         };
 
-        let row_bytes = unsafe { props.get_image_row_bytes(s_prop) }.ok_or(StatusError::Failed)?;
-
         let bounds = unsafe { props.get_image_bounds(s_prop) }.ok_or(StatusError::Failed)?;
         let bounds = rect_i_from_array(&bounds);
 
@@ -178,10 +163,8 @@ impl ClipImageManaged {
 
             n_comps,
             pixel_depth,
-            row_bytes,
             bounds,
             pixel_aspect_ratio,
-            data_ptr,
         })
     }
 
@@ -203,17 +186,11 @@ impl ClipImageManaged {
     pub fn bytes_per_pixel(&self) -> c_int {
         self.bytes_per_component() * self.n_comps
     }
-    pub fn row_bytes(&self) -> c_int {
-        self.row_bytes
-    }
     pub fn bounds(&self) -> OfxRectI {
         self.bounds
     }
     pub fn pixel_aspect_ratio(&self) -> f64 {
         self.pixel_aspect_ratio
-    }
-    pub fn data_ptr(&self) -> NonNull<c_void> {
-        self.data_ptr
     }
 
     /// ## TODO
@@ -225,18 +202,122 @@ impl ClipImageManaged {
     ) {
         let _ = unsafe { image_effect_suite.clip_release_image(props) };
     }
+}
+
+/// Destructor.
+impl Drop for ManagedClipImageBase {
+    fn drop(&mut self) {
+        unsafe { Self::release_image(&self.image_effect_suite.0, &self.props) };
+    }
+}
+
+macro_rules! impl_base_functions {
+    ($struct:ident) => {
+        impl $struct {
+            pub fn n_comps(&self) -> c_int {
+                self.base.n_comps()
+            }
+            pub fn pixel_depth(&self) -> BitDepth {
+                self.base.pixel_depth()
+            }
+            pub fn bytes_per_component(&self) -> c_int {
+                self.base.bytes_per_component()
+            }
+            pub fn bytes_per_pixel(&self) -> c_int {
+                self.base.bytes_per_pixel()
+            }
+            pub fn bounds(&self) -> OfxRectI {
+                self.base.bounds()
+            }
+            pub fn pixel_aspect_ratio(&self) -> f64 {
+                self.base.pixel_aspect_ratio()
+            }
+        }
+    };
+}
+
+pub struct ManagedClipImageForCpu {
+    base: ManagedClipImageBase,
+
+    row_bytes: c_int,
+    data_ptr: NonNull<c_void>,
+}
+
+unsafe impl Sync for ManagedClipImageForCpu {}
+
+impl_base_functions!(ManagedClipImageForCpu);
+
+impl ManagedClipImageForCpu {
+    pub unsafe fn try_new_from_clip_if_available(
+        shared_data: &SharedData,
+        clip: &ImageClipInstance,
+        frame: OfxTime,
+    ) -> Result<Option<Self>, StatusError> {
+        let base = unsafe {
+            ManagedClipImageBase::try_new_from_clip_if_available(shared_data, clip, frame)
+        }?;
+        if let Some(b) = base {
+            Ok(Some(unsafe { Self::try_new_from_base(shared_data, b) }?))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// Construct from a clip by fetching an image at the given frame.
+    pub unsafe fn try_new_from_clip(
+        shared_data: &SharedData,
+        clip: &ImageClipInstance,
+        frame: OfxTime,
+    ) -> Result<Self, StatusError> {
+        let base = unsafe { ManagedClipImageBase::try_new_from_clip(shared_data, clip, frame) }?;
+        unsafe { Self::try_new_from_base(shared_data, base) }
+    }
+
+    unsafe fn try_new_from_base(
+        shared_data: &SharedData,
+        base: ManagedClipImageBase,
+    ) -> Result<Self, StatusError> {
+        let s_prop = &shared_data.property_suite.0;
+
+        let props = &base.props;
+
+        let Some(data_ptr) =
+            (unsafe { props.get_image_data(s_prop) }).ok_or(StatusError::Failed)?
+        else {
+            return Err(StatusError::Failed);
+        };
+
+        let row_bytes = unsafe { props.get_image_row_bytes(s_prop) }.ok_or(StatusError::Failed)?;
+
+        Ok(Self {
+            base,
+            row_bytes,
+            data_ptr,
+        })
+    }
+
+    pub fn row_bytes(&self) -> c_int {
+        self.row_bytes
+    }
+    pub fn data_ptr(&self) -> NonNull<c_void> {
+        self.data_ptr
+    }
 
     /// Look up a pixel in the image. Returns `None` if the pixel was not in the
     /// bounds of the image.
     pub fn raw_address(&self, x: c_int, y: c_int) -> Option<*mut c_void> {
         // Inside the bounds of this image?
-        if x < self.bounds.x1 || x >= self.bounds.x2 || y < self.bounds.y1 || y >= self.bounds.y2 {
+        if x < self.base.bounds.x1
+            || x >= self.base.bounds.x2
+            || y < self.base.bounds.y1
+            || y >= self.base.bounds.y2
+        {
             return None;
         }
 
         // turn image plane coordinates into offsets from the bottom left
-        let x_offset = x - self.bounds.x1;
-        let y_offset = y - self.bounds.y1;
+        let x_offset = x - self.base.bounds.x1;
+        let y_offset = y - self.base.bounds.y1;
 
         // Find the start of our row, using byte arithmetic
         let row_start = unsafe {
@@ -250,9 +331,58 @@ impl ClipImageManaged {
     }
 }
 
-/// Destructor.
-impl Drop for ClipImageManaged {
-    fn drop(&mut self) {
-        unsafe { Self::release_image(&self.image_effect_suite.0, &self.props) };
+pub struct ManagedClipImageForMetal {
+    base: ManagedClipImageBase,
+
+    data_ptr: NonNull<c_void>,
+}
+
+impl_base_functions!(ManagedClipImageForMetal);
+
+impl ManagedClipImageForMetal {
+    pub unsafe fn try_new_from_clip_if_available(
+        shared_data: &SharedData,
+        clip: &ImageClipInstance,
+        frame: OfxTime,
+    ) -> Result<Option<Self>, StatusError> {
+        let base = unsafe {
+            ManagedClipImageBase::try_new_from_clip_if_available(shared_data, clip, frame)
+        }?;
+        if let Some(b) = base {
+            Ok(Some(unsafe { Self::try_new_from_base(shared_data, b) }?))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// Construct from a clip by fetching an image at the given frame.
+    pub unsafe fn try_new_from_clip(
+        shared_data: &SharedData,
+        clip: &ImageClipInstance,
+        frame: OfxTime,
+    ) -> Result<Self, StatusError> {
+        let base = unsafe { ManagedClipImageBase::try_new_from_clip(shared_data, clip, frame) }?;
+        unsafe { Self::try_new_from_base(shared_data, base) }
+    }
+
+    unsafe fn try_new_from_base(
+        shared_data: &SharedData,
+        base: ManagedClipImageBase,
+    ) -> Result<Self, StatusError> {
+        let s_prop = &shared_data.property_suite.0;
+
+        let props = &base.props;
+
+        let Some(data_ptr) =
+            (unsafe { props.get_image_data(s_prop) }).ok_or(StatusError::Failed)?
+        else {
+            return Err(StatusError::Failed);
+        };
+
+        Ok(Self { base, data_ptr })
+    }
+
+    pub fn data_ptr(&self) -> NonNull<c_void> {
+        self.data_ptr
     }
 }
