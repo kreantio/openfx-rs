@@ -336,7 +336,7 @@ checksum = "e2db585e1d738fc771bf08a151420d3ed193d9d895a36df7f6f8a9456b911ddc"
 
 [[package]]
 name = "layer-low-official-example-plugins"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "gl_generator",
  "libloading",
@@ -349,7 +349,7 @@ dependencies = [
 
 [[package]]
 name = "layer-low-official-guide-example-plugins"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "openfx",
  "tracing",
@@ -357,7 +357,7 @@ dependencies = [
 
 [[package]]
 name = "layer-low-official-old-support-example-plugins"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "gl_generator",
  "libloading",
@@ -510,14 +510,14 @@ checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
 
 [[package]]
 name = "openfx"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "openfx-internal-macros",
 ]
 
 [[package]]
 name = "openfx-codegen"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "clap",
  "convert_case",
@@ -538,7 +538,7 @@ dependencies = [
 
 [[package]]
 name = "openfx-codegen-config"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "regex",
  "serde",
@@ -566,7 +566,7 @@ dependencies = [
 
 [[package]]
 name = "openfx-internal-macros"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "convert_case",
  "proc-macro2",
@@ -1099,7 +1099,7 @@ checksum = "e450f9b2ed1dff33c94c12589a87338689467b9c4f5d8a5710bd09a847d2c8a7"
 
 [[package]]
 name = "xtask"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "clap",
  "openfx-codegen-config",
