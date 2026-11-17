@@ -32,7 +32,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -z "$ARG_TARGET_TRIPLE" ]; then
-  ARG_TARGET_TRIPLE=$(rustc +nightly-2026-10-10 -vV | sed -n 's/host: //p')
+  ARG_TARGET_TRIPLE=$(rustc +nightly-2026-11-17 -vV | sed -n 's/host: //p')
 fi
 
 if [ -z "$ARG_BASE_NAME" ]; then
@@ -64,7 +64,7 @@ EOF
     exit 1
   fi
 
-  CRATE_MANIFEST_DIR=$(dirname "$(cargo +nightly-2026-10-10 locate-project --message-format plain)")
+  CRATE_MANIFEST_DIR=$(dirname "$(cargo +nightly-2026-11-17 locate-project --message-format plain)")
   if [ -z "$CRATE_MANIFEST_DIR" ]; then
     echo "Error: \$CRATE_MANIFEST_DIR is empty!" >&2
     exit 1
@@ -72,7 +72,7 @@ EOF
   echo CRATE_MANIFEST_DIR="$CRATE_MANIFEST_DIR"
 
   rm -rf "$CRATE_MANIFEST_DIR/artifact"
-  cargo +nightly-2026-10-10 build -Z unstable-options --release --target "$ARG_TARGET_TRIPLE" --artifact-dir artifact
+  cargo +nightly-2026-11-17 build -Z unstable-options --release --target "$ARG_TARGET_TRIPLE" --artifact-dir artifact
 
   set -- "$CRATE_MANIFEST_DIR/artifact"/*
   case $# in

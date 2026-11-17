@@ -25,7 +25,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly-2026-10-10 # after 1.99.0
+          toolchain: nightly-2026-11-17 # after 1.100.0
           components: rustfmt, clippy
 
       - name: Set up cargo cache
@@ -33,14 +33,14 @@ jobs:
 
       # NOTE: `ignore` in `rustfmt-ci.toml` is unstable.
       - name: Rustfmt
-        run: cargo +nightly-2026-10-10 fmt --all -- --config-path rustfmt-ci.toml --check
+        run: cargo +nightly-2026-11-17 fmt --all -- --config-path rustfmt-ci.toml --check
 
-      - run: cargo +nightly-2026-10-10 clippy --locked --all-features --all-targets
+      - run: cargo +nightly-2026-11-17 clippy --locked --all-features --all-targets
 
-      - run: cargo +nightly-2026-10-10 doc --lib --no-deps --all-features
+      - run: cargo +nightly-2026-11-17 doc --lib --no-deps --all-features
 
       - name: clippy release
-        run: cargo +nightly-2026-10-10 clippy --all-targets --all-features --release -- -D warnings
+        run: cargo +nightly-2026-11-17 clippy --all-targets --all-features --release -- -D warnings
 
   # ---------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: "1.99.0"
+          toolchain: "1.100.0"
 
       - name: Set up cargo cache
         uses: Swatinem/rust-cache@v2
@@ -82,7 +82,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly-2026-10-10 # after 1.99.0
+          toolchain: nightly-2026-11-17 # after 1.100.0
 
       - uses: extractions/setup-just@v4
 
@@ -106,7 +106,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: "1.99.0"
+          toolchain: "1.100.0"
           components: rustfmt
 
       - uses: extractions/setup-just@v4
