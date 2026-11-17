@@ -15,16 +15,23 @@ pub struct UsedRenderer(AtomicU32);
 
 impl UsedRenderer {
     const RENDERER_NO_INFO: u16 = 0;
+    const RENDERER_NO_ELIGIBLE: u16 = u16::MAX;
+
     const RENDERER_CPU_MULTI_THREAD_SUITE: u16 = 1;
     const RENDERER_CPU: u16 = 2;
-    const RENDERER_OPENCL_WITH_BUFFERS: u16 = 3;
-    const RENDERER_OPENCL_WITH_IMAGES: u16 = 4;
-    const RENDERER_METAL_WITH_BUFFERS: u16 = 5;
+    const RENDERER_OPENCL_WITH_BUFFERS: u16 = 11;
+    const RENDERER_OPENCL_WITH_IMAGES: u16 = 12;
+    const RENDERER_METAL_WITH_BUFFERS: u16 = 21;
 
     pub fn store_no_info(&self) {
         self.0
             .store(Self::RENDERER_NO_INFO as u32, atomic::Ordering::Relaxed);
     }
+    pub fn store_no_eligible(&self) {
+        self.0
+            .store(Self::RENDERER_NO_ELIGIBLE as u32, atomic::Ordering::Relaxed);
+    }
+
     pub fn store_cpu_multi_thread_suite(&self, n_cpus: u16) {
         self.0.store(
             (Self::RENDERER_CPU_MULTI_THREAD_SUITE as u32) | ((n_cpus as u32) << 16),
@@ -72,6 +79,7 @@ impl UsedRenderer {
             Self::RENDERER_OPENCL_WITH_BUFFERS => c"OpenCL (Buffers)".to_owned(),
             Self::RENDERER_OPENCL_WITH_IMAGES => c"OpenCL (Images)".to_owned(),
             Self::RENDERER_METAL_WITH_BUFFERS => c"Metal (Buffers)".to_owned(),
+            Self::RENDERER_NO_ELIGIBLE => c"No Eligible".to_owned(),
             _ => c"?".to_owned(),
         }
     }

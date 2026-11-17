@@ -35,9 +35,9 @@ use std::{
 
 use openfx::{
     low::{
-        OutboundResult, Status, StatusError, StatusReply,
+        InboundResult, OutboundResult, Status, StatusError, StatusReply,
         enums::{
-            ImageEffectPropComponents, ImageEffectPropOpenCLSupported,
+            ImageEffectPropComponents, ImageEffectPropOpenCLRenderSupported,
             ImageEffectPropSupportedComponents, ImageEffectPropSupportedContexts,
             ImageEffectPropSupportedPixelDepths, ParamPropDoubleType, PropChangeReason,
         },
@@ -53,10 +53,12 @@ use openfx::{
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance, ParamSetDescriptor},
         parameters::{ParamBoolean, ParamDouble, ParamDoublePropertySet, ParamString},
+        property_sets::KnownEnumProperty,
         suites::{ParameterSuiteV1, PropertySuiteV1},
     },
     sys::{
         core::{OfxTime, kOfxPropLabel},
+        gpu_render::kOfxImageEffectPropOpenCLRenderSupported,
         image_effect::{
             kOfxImageEffectOutputClipName, kOfxImageEffectSimpleSourceClipName, kOfxTypeClip,
         },
@@ -399,14 +401,26 @@ fn action_describe(var: &PluginVariant, descriptor: ImageEffectDescriptor) -> Ou
             .force_renderer
             .is_none_or(|r| r == Renderer::OpenclWithBuffers)
         {
-            #[allow(clippy::collapsible_if)]
-            if let stat = props.set_image_effect_open_cl_supported(
-                s_prop,
-                ImageEffectPropOpenCLSupported::True.into(),
+            // for OpenCL Buffers render
+            //
+            // TODO: Add the missing metadata upstream.
+            if let stat = s_prop.prop_set_string(
+                props.sys_handle(),
+                kOfxImageEffectPropOpenCLRenderSupported,
+                Some(ImageEffectPropOpenCLRenderSupported::True.as_c_str()),
             ) && !stat.is_ok()
             {
-                tracing::warn!("Failed to set OpenCL render support: {stat:?}");
+                tracing::warn!("Failed to set OpenCL Buffers render support: {stat:?}");
             }
+
+            // // TODO: for OpenCL Images render
+            // if let stat = props.set_image_effect_open_cl_supported(
+            //     s_prop,
+            //     ImageEffectPropOpenCLSupported::True.into(),
+            // ) && !stat.is_ok()
+            // {
+            //     tracing::warn!("Failed to set OpenCL Images render support: {stat:?}");
+            // }
         }
 
         // Setup Metal render capability flags only on Apple system
@@ -417,7 +431,6 @@ fn action_describe(var: &PluginVariant, descriptor: ImageEffectDescriptor) -> Ou
         {
             use openfx::{
                 low::enums::ImageEffectPropMetalRenderSupported,
-                low_plugin::property_sets::KnownEnumProperty as _,
                 sys::gpu_render::kOfxImageEffectPropMetalRenderSupported,
             };
 
@@ -967,64 +980,84 @@ fn action_render(
     if var
         .force_renderer
         .is_none_or(|r| r == Renderer::OpenclWithBuffers)
-        && unsafe { in_args.get_image_effect_open_cl_enabled(s_prop) }.unwrap_or(false)
     {
-        let output_img = unsafe {
-            ManagedClipImageForOpencl::try_new_from_clip(&data, &my_data.output_clip.0, time)
-        }?;
-        let source_img = unsafe {
-            ManagedClipImageForOpencl::try_new_from_clip(&data, &my_data.source_clip.0, time)
-        }?;
+        let is_enabled = match unsafe { in_args.get_image_effect_open_cl_enabled(s_prop) } {
+            InboundResult::Ok(v) => v,
+            other => {
+                tracing::warn!("Failed to invoke `get_image_effect_open_cl_enabled`: {other:?}");
+                false
+            }
+        };
 
-        if output_img.pixel_depth() != source_img.pixel_depth()
-            || output_img.n_comps() != source_img.n_comps()
-        {
-            return Err(StatusError::ErrValue); // Follow the official example.
+        if is_enabled {
+            let output_img = unsafe {
+                ManagedClipImageForOpencl::try_new_from_clip(&data, &my_data.output_clip.0, time)
+            }?;
+            let source_img = unsafe {
+                ManagedClipImageForOpencl::try_new_from_clip(&data, &my_data.source_clip.0, time)
+            }?;
+
+            if output_img.pixel_depth() != source_img.pixel_depth()
+                || output_img.n_comps() != source_img.n_comps()
+            {
+                return Err(StatusError::ErrValue); // Follow the official example.
+            }
+
+            let cmd_q = unsafe {
+                in_args
+                    .get_image_effect_open_cl_command_queue(s_prop)
+                    .ok_or(StatusError::Failed)?
+            };
+            let Some(cmd_q) = cmd_q else {
+                return Err(StatusError::Failed);
+            };
+            processing_opencl::process_images_opencl(
+                my_data, scales, source_img, output_img, cmd_q,
+            )?;
+            return Ok(Status::OK);
         }
-
-        let cmd_q = unsafe {
-            in_args
-                .get_image_effect_open_cl_command_queue(s_prop)
-                .ok_or(StatusError::Failed)?
-        };
-        let Some(cmd_q) = cmd_q else {
-            return Err(StatusError::Failed);
-        };
-        processing_opencl::process_images_opencl(my_data, scales, source_img, output_img, cmd_q)?;
-        return Ok(Status::OK);
     }
 
     #[cfg(target_os = "macos")]
     if var
         .force_renderer
         .is_none_or(|r| r == Renderer::MetalWithBuffers)
-        && unsafe { in_args.get_image_effect_metal_enabled(s_prop) }.unwrap_or(false)
     {
         use crate::helpers::internal_utils::ManagedClipImageForMetal;
 
-        let output_img = unsafe {
-            ManagedClipImageForMetal::try_new_from_clip(&data, &my_data.output_clip.0, time)
-        }?;
-        let source_img = unsafe {
-            ManagedClipImageForMetal::try_new_from_clip(&data, &my_data.source_clip.0, time)
-        }?;
+        let is_enabled = match unsafe { in_args.get_image_effect_metal_enabled(s_prop) } {
+            InboundResult::Ok(v) => v,
+            other => {
+                tracing::warn!("Failed to invoke `get_image_effect_metal_enabled`: {other:?}");
+                false
+            }
+        };
 
-        if output_img.pixel_depth() != source_img.pixel_depth()
-            || output_img.n_comps() != source_img.n_comps()
-        {
-            return Err(StatusError::ErrValue); // Follow the official example.
+        if is_enabled {
+            let output_img = unsafe {
+                ManagedClipImageForMetal::try_new_from_clip(&data, &my_data.output_clip.0, time)
+            }?;
+            let source_img = unsafe {
+                ManagedClipImageForMetal::try_new_from_clip(&data, &my_data.source_clip.0, time)
+            }?;
+
+            if output_img.pixel_depth() != source_img.pixel_depth()
+                || output_img.n_comps() != source_img.n_comps()
+            {
+                return Err(StatusError::ErrValue); // Follow the official example.
+            }
+
+            let cmd_q = unsafe {
+                in_args
+                    .get_image_effect_metal_command_queue(s_prop)
+                    .ok_or(StatusError::Failed)?
+            };
+            let Some(cmd_q) = cmd_q else {
+                return Err(StatusError::Failed);
+            };
+            processing_metal::process_images_metal(my_data, scales, source_img, output_img, cmd_q)?;
+            return Ok(Status::OK);
         }
-
-        let cmd_q = unsafe {
-            in_args
-                .get_image_effect_metal_command_queue(s_prop)
-                .ok_or(StatusError::Failed)?
-        };
-        let Some(cmd_q) = cmd_q else {
-            return Err(StatusError::Failed);
-        };
-        processing_metal::process_images_metal(my_data, scales, source_img, output_img, cmd_q)?;
-        return Ok(Status::OK);
     }
 
     if var.force_renderer.is_none_or(|r| r == Renderer::Cpu) {
@@ -1051,15 +1084,17 @@ fn action_render(
             render_window,
         )?;
 
-        Ok(Status::OK)
-    } else {
-        // This follows the official OpenGL example's handling of the case where
-        // no renderer is available. It is not part of the original GPU Gain
-        // example. It was added to deal with a failure to force a specific
-        // renderer. I really don't know whether `ErrValue` or `ErrImageFormat`
-        // would be more appropriate here.
-        Err(StatusError::ErrImageFormat)
+        return Ok(Status::OK);
     }
+
+    // This follows the official OpenGL example's handling of the case where
+    // no renderer is available. It is not part of the original GPU Gain
+    // example. It was added to deal with a failure to force a specific
+    // renderer. I really don't know whether `ErrValue` or `ErrImageFormat`
+    // would be more appropriate here.
+    tracing::error!("No eligible renderer available!");
+    my_data.used_renderer.store_no_eligible();
+    Err(StatusError::ErrImageFormat)
 }
 
 mod processing_opencl {
@@ -1088,7 +1123,8 @@ mod processing_opencl {
         if let ManagedClipImageForOpenclData::Image(_input) = source_img.data()
             && let ManagedClipImageForOpenclData::Image(_output) = output_img.data()
         {
-            todo!()
+            tracing::error!("TODO: Processing via OpenCL (Images)");
+            return Err(StatusError::Failed);
         } else if let ManagedClipImageForOpenclData::Buffer(input) = source_img.data()
             && let ManagedClipImageForOpenclData::Buffer(output) = output_img.data()
         {
@@ -1099,6 +1135,7 @@ mod processing_opencl {
                 run_opencl_kernel_buffers(cmd_q, width, height, scales.as_array(), *input, *output)
             }?;
         } else {
+            tracing::error!("Unable to process via OpenCL: image configuration not supported!");
             return Err(StatusError::Failed);
         }
 
