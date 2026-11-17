@@ -16,7 +16,7 @@ exclude = [
 
 [workspace.package]
 edition = "2024"
-rust-version = "1.99"
+rust-version = "1.100"
 version = "0.8.0"
 license = "BSD-3-Clause"
 repository = "https://github.com/kreantio/openfx-rs"

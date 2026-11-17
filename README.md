@@ -29,7 +29,7 @@ The following tools are required:
 
 | Tool(s) \\ To                           | Use crate `openfx` | Build Examples           | Update Generated Code in Crate `openfx` |
 | --------------------------------------- | ------------------ | ------------------------ | --------------------------------------- |
-| The [Rust] programming language         | `stable`           | `nightly-2026-10-10`[^1] | `stable`                                |
+| The [Rust] programming language         | `1.100.0`          | `nightly-2026-11-17`[^1] | `1.100.0`                               |
 | POSIX tools (`sh`, `rm`, `mkdir`, etc.) | no                 | yes                      | not strictly                            |
 | [`just`]                                | no                 | not strictly             | not strictly                            |
 

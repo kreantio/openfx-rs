@@ -6,7 +6,7 @@ See [AI_POLICY.md](./AI_POLICY.md).
 
 ## MSRV Policy
 
-The current Minimum Supported Rust Version of this project is 1.99.
+The current Minimum Supported Rust Version of this project is 1.100.0.
 
 ## Decisions
 
