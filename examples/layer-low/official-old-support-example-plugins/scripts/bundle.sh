@@ -74,7 +74,11 @@ EOF
   rm -rf "$CRATE_MANIFEST_DIR/artifact"
   cargo +nightly-2026-11-17 build -Z unstable-options --release --target "$ARG_TARGET_TRIPLE" --artifact-dir artifact
 
-  set -- "$CRATE_MANIFEST_DIR/artifact"/*
+  if [ -z "$LIBRARY_EXTENSION" ]; then
+    set -- "$CRATE_MANIFEST_DIR/artifact"/*
+  else
+    set -- "$CRATE_MANIFEST_DIR/artifact"/*."$LIBRARY_EXTENSION"
+  fi
   case $# in
     0)
       echo "Error: No artifacts were found in: $CRATE_MANIFEST_DIR/artifact" >&2
@@ -126,7 +130,17 @@ get_target_info() {
       LIBRARY_EXTENSION="dll"
       LIBRARY_PREFIX=""
       ;;
+    "x86_64-pc-windows-gnu")
+      OFX_ARCHITECTURE="Win64"
+      LIBRARY_EXTENSION="dll"
+      LIBRARY_PREFIX=""
+      ;;
     "i686-pc-windows-msvc")
+      OFX_ARCHITECTURE="Win32"
+      LIBRARY_EXTENSION="dll"
+      LIBRARY_PREFIX=""
+      ;;
+    "i686-pc-windows-gnu")
       OFX_ARCHITECTURE="Win32"
       LIBRARY_EXTENSION="dll"
       LIBRARY_PREFIX=""
