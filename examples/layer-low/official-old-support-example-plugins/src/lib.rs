@@ -12,7 +12,7 @@ use crate::{
     definitions::ROOT_IDENTIFIER,
     plugin_gpu_gain::{
         PluginExampleGpuGain, PluginExampleGpuGainForceCpu, PluginExampleGpuGainForceMetalBuffers,
-        PluginExampleGpuGainForceOpenclBuffers,
+        PluginExampleGpuGainForceOpenclBuffers, PluginExampleGpuGainForceOpenclImages,
     },
 };
 
@@ -39,6 +39,7 @@ impl Plugins for ExamplePlugins {
         vec![
             plugin_struct!(PluginExampleGpuGain),
             plugin_struct!(PluginExampleGpuGainForceOpenclBuffers),
+            plugin_struct!(PluginExampleGpuGainForceOpenclImages),
             plugin_struct!(PluginExampleGpuGainForceMetalBuffers),
             plugin_struct!(PluginExampleGpuGainForceCpu),
         ]

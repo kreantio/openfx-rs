@@ -3,11 +3,12 @@ use std::{
     sync::atomic::{self, AtomicU32},
 };
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Renderer {
     Cpu,
-    MetalWithBuffers,
     OpenclWithBuffers,
+    OpenclWithImages,
+    MetalWithBuffers,
 }
 
 #[derive(Default)]

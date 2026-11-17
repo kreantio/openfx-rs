@@ -23,6 +23,10 @@
 //! Due to limitations of the maintainer(s), the CUDA part of the example is not
 //! implemented.
 //!
+//! The OpenCL image rendering logic is unverified, because the maintainer(s)
+//! don't have a host that supports it. In fact, the maintainer(s) don't even
+//! know which hosts support it.
+//!
 //! ## TODO
 //!
 //! - Port the comments from the original example.
@@ -38,8 +42,9 @@ use openfx::{
         InboundResult, OutboundResult, Status, StatusError, StatusReply,
         enums::{
             ImageEffectPropComponents, ImageEffectPropOpenCLRenderSupported,
-            ImageEffectPropSupportedComponents, ImageEffectPropSupportedContexts,
-            ImageEffectPropSupportedPixelDepths, ParamPropDoubleType, PropChangeReason,
+            ImageEffectPropOpenCLSupported, ImageEffectPropSupportedComponents,
+            ImageEffectPropSupportedContexts, ImageEffectPropSupportedPixelDepths,
+            ParamPropDoubleType, PropChangeReason,
         },
     },
     low_plugin::{
@@ -79,7 +84,7 @@ use crate::{
     },
 };
 
-mod opencl_kernel_buffers;
+mod opencl_kernels;
 
 #[cfg(target_os = "macos")]
 mod metal_kernel;
@@ -154,95 +159,66 @@ impl PluginVariant {
     }
 }
 
-mod plugin_variant_normal {
-    use super::*;
-    use crate::definitions::PLUGIN_GPU_GAIN_INFO as PLUGIN_INFO;
+macro_rules! plugin_variant {
+    ($mod_name:ident, $struct_name:ident, $info_path:path, $force_renderer:expr) => {
+        mod $mod_name {
+            use super::*;
+            use $info_path as PLUGIN_INFO;
 
-    pub struct PluginExampleGpuGain;
-    static PLUGIN_VARIANT: PluginVariant = PluginVariant::new(PLUGIN_INFO, None);
-    impl Plugin for PluginExampleGpuGain {
-        const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_INFO.identifier;
-        const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
-        const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
+            pub struct $struct_name;
+            static PLUGIN_VARIANT: PluginVariant = PluginVariant::new(PLUGIN_INFO, $force_renderer);
+            impl Plugin for $struct_name {
+                const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_INFO.identifier;
+                const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
+                const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
 
-        fn set_host(host: Host) {
-            set_host(&PLUGIN_VARIANT, host);
+                fn set_host(host: Host) {
+                    set_host(&PLUGIN_VARIANT, host);
+                }
+
+                fn main_entry(action: ImageEffectAction) -> OutboundResult {
+                    main_entry(&PLUGIN_VARIANT, action)
+                }
+            }
         }
-
-        fn main_entry(action: ImageEffectAction) -> OutboundResult {
-            main_entry(&PLUGIN_VARIANT, action)
-        }
-    }
+        pub use $mod_name::$struct_name;
+    };
 }
-pub use plugin_variant_normal::PluginExampleGpuGain;
 
-mod plugin_variant_force_opencl_buffers {
-    use super::*;
-    use crate::definitions::PLUGIN_GPU_GAIN_FORCE_OPENCL_BUFFERS_INFO as PLUGIN_INFO;
+plugin_variant!(
+    plugin_variant_normal,
+    PluginExampleGpuGain,
+    crate::definitions::PLUGIN_GPU_GAIN_INFO,
+    None
+);
 
-    pub struct PluginExampleGpuGainForceOpenclBuffers;
-    static PLUGIN_VARIANT: PluginVariant =
-        PluginVariant::new(PLUGIN_INFO, Some(Renderer::OpenclWithBuffers));
-    impl Plugin for PluginExampleGpuGainForceOpenclBuffers {
-        const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_INFO.identifier;
-        const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
-        const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
+plugin_variant!(
+    plugin_variant_force_opencl_buffers,
+    PluginExampleGpuGainForceOpenclBuffers,
+    crate::definitions::PLUGIN_GPU_GAIN_FORCE_OPENCL_BUFFERS_INFO,
+    Some(Renderer::OpenclWithBuffers)
+);
 
-        fn set_host(host: Host) {
-            set_host(&PLUGIN_VARIANT, host);
-        }
+plugin_variant!(
+    plugin_variant_force_opencl_images,
+    PluginExampleGpuGainForceOpenclImages,
+    crate::definitions::PLUGIN_GPU_GAIN_FORCE_OPENCL_IMAGES_INFO,
+    Some(Renderer::OpenclWithImages)
+);
 
-        fn main_entry(action: ImageEffectAction) -> OutboundResult {
-            main_entry(&PLUGIN_VARIANT, action)
-        }
-    }
-}
-pub use plugin_variant_force_opencl_buffers::PluginExampleGpuGainForceOpenclBuffers;
+plugin_variant!(
+    plugin_variant_force_metal_buffers,
+    PluginExampleGpuGainForceMetalBuffers,
+    crate::definitions::PLUGIN_GPU_GAIN_FORCE_METAL_BUFFERS_INFO,
+    Some(Renderer::MetalWithBuffers)
+);
 
-mod plugin_variant_force_metal_buffers {
-    use super::*;
-    use crate::definitions::PLUGIN_GPU_GAIN_FORCE_METAL_BUFFERS_INFO as PLUGIN_INFO;
-
-    pub struct PluginExampleGpuGainForceMetalBuffers;
-    static PLUGIN_VARIANT: PluginVariant =
-        PluginVariant::new(PLUGIN_INFO, Some(Renderer::MetalWithBuffers));
-    impl Plugin for PluginExampleGpuGainForceMetalBuffers {
-        const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_INFO.identifier;
-        const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
-        const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
-
-        fn set_host(host: Host) {
-            set_host(&PLUGIN_VARIANT, host);
-        }
-
-        fn main_entry(action: ImageEffectAction) -> OutboundResult {
-            main_entry(&PLUGIN_VARIANT, action)
-        }
-    }
-}
-pub use plugin_variant_force_metal_buffers::PluginExampleGpuGainForceMetalBuffers;
-
-mod plugin_variant_force_cpu {
-    use super::*;
-    use crate::definitions::PLUGIN_GPU_GAIN_FORCE_CPU_INFO as PLUGIN_INFO;
-
-    pub struct PluginExampleGpuGainForceCpu;
-    static PLUGIN_VARIANT: PluginVariant = PluginVariant::new(PLUGIN_INFO, Some(Renderer::Cpu));
-    impl Plugin for PluginExampleGpuGainForceCpu {
-        const PLUGIN_IDENTIFIER: &'static CStr = PLUGIN_INFO.identifier;
-        const PLUGIN_VERSION_MAJOR: std::ffi::c_uint = 1;
-        const PLUGIN_VERSION_MINOR: std::ffi::c_uint = 0;
-
-        fn set_host(host: Host) {
-            set_host(&PLUGIN_VARIANT, host);
-        }
-
-        fn main_entry(action: ImageEffectAction) -> OutboundResult {
-            main_entry(&PLUGIN_VARIANT, action)
-        }
-    }
-}
-pub use plugin_variant_force_cpu::PluginExampleGpuGainForceCpu;
+plugin_variant!(
+    plugin_variant_force_cpu,
+    PluginExampleGpuGainForceCpu,
+    crate::definitions::PLUGIN_GPU_GAIN_FORCE_CPU_INFO,
+    Some(Renderer::Cpu)
+);
 
 fn set_host(var: &PluginVariant, host: Host) {
     match TRACING_DISPATCH.get() {
@@ -401,7 +377,7 @@ fn action_describe(var: &PluginVariant, descriptor: ImageEffectDescriptor) -> Ou
             .force_renderer
             .is_none_or(|r| r == Renderer::OpenclWithBuffers)
         {
-            // for OpenCL Buffers render
+            // for OpenCL buffer rendering
             //
             // TODO: Add the missing metadata upstream.
             if let stat = s_prop.prop_set_string(
@@ -412,15 +388,20 @@ fn action_describe(var: &PluginVariant, descriptor: ImageEffectDescriptor) -> Ou
             {
                 tracing::warn!("Failed to set OpenCL Buffers render support: {stat:?}");
             }
+        }
 
-            // // TODO: for OpenCL Images render
-            // if let stat = props.set_image_effect_open_cl_supported(
-            //     s_prop,
-            //     ImageEffectPropOpenCLSupported::True.into(),
-            // ) && !stat.is_ok()
-            // {
-            //     tracing::warn!("Failed to set OpenCL Images render support: {stat:?}");
-            // }
+        if var
+            .force_renderer
+            .is_none_or(|r| r == Renderer::OpenclWithImages)
+        {
+            // for OpenCL image rendering
+            if let stat = props.set_image_effect_open_cl_supported(
+                s_prop,
+                ImageEffectPropOpenCLSupported::True.into(),
+            ) && !stat.is_ok()
+            {
+                tracing::warn!("Failed to set OpenCL Images render support: {stat:?}");
+            }
         }
 
         // Setup Metal render capability flags only on Apple system
@@ -979,7 +960,7 @@ fn action_render(
 
     if var
         .force_renderer
-        .is_none_or(|r| r == Renderer::OpenclWithBuffers)
+        .is_none_or(|r| matches!(r, Renderer::OpenclWithBuffers | Renderer::OpenclWithImages))
     {
         let is_enabled = match unsafe { in_args.get_image_effect_open_cl_enabled(s_prop) } {
             InboundResult::Ok(v) => v,
@@ -1012,7 +993,12 @@ fn action_render(
                 return Err(StatusError::Failed);
             };
             processing_opencl::process_images_opencl(
-                my_data, scales, source_img, output_img, cmd_q,
+                my_data,
+                scales,
+                source_img,
+                output_img,
+                cmd_q,
+                var.force_renderer.as_ref(),
             )?;
             return Ok(Status::OK);
         }
@@ -1103,7 +1089,9 @@ mod processing_opencl {
     use openfx::low::StatusError;
 
     use crate::{
-        helpers::internal_utils::{ManagedClipImageForOpencl, ManagedClipImageForOpenclData},
+        helpers::internal_utils::{
+            ManagedClipImageForOpencl, ManagedClipImageForOpenclData, renderer_info::Renderer,
+        },
         plugin_gpu_gain::{MyInstanceData, Scales},
     };
 
@@ -1113,22 +1101,47 @@ mod processing_opencl {
         source_img: ManagedClipImageForOpencl,
         output_img: ManagedClipImageForOpencl,
         cmd_q: NonNull<c_void>,
+        force_renderer: Option<&Renderer>,
     ) -> Result<(), StatusError> {
-        use crate::plugin_gpu_gain::opencl_kernel_buffers::run_opencl_kernel_buffers;
+        use crate::plugin_gpu_gain::opencl_kernels::{
+            run_opencl_kernel_buffers, run_opencl_kernel_images,
+        };
 
         let bounds = source_img.bounds();
         let width = bounds.x2 - bounds.x1;
         let height = bounds.y2 - bounds.y1;
 
-        if let ManagedClipImageForOpenclData::Image(_input) = source_img.data()
-            && let ManagedClipImageForOpenclData::Image(_output) = output_img.data()
+        if let ManagedClipImageForOpenclData::Image(input) = source_img.data()
+            && let ManagedClipImageForOpenclData::Image(output) = output_img.data()
         {
-            tracing::error!("TODO: Processing via OpenCL (Images)");
-            return Err(StatusError::Failed);
+            tracing::debug!("Processing via OpenCL (Images)");
+            if let Some(r) = force_renderer
+                && r != &Renderer::OpenclWithImages
+            {
+                tracing::warn!(
+                    "`force_renderer` not enforced: expected to render with {:?}, but this is the path for {:?}",
+                    r,
+                    Renderer::OpenclWithImages
+                );
+            }
+            my_data.used_renderer.store_opencl_image();
+
+            unsafe {
+                run_opencl_kernel_images(cmd_q, width, height, scales.as_array(), *input, *output)
+            }?;
         } else if let ManagedClipImageForOpenclData::Buffer(input) = source_img.data()
             && let ManagedClipImageForOpenclData::Buffer(output) = output_img.data()
         {
             tracing::debug!("Processing via OpenCL (Buffers)");
+            if let Some(r) = force_renderer
+                && r != &Renderer::OpenclWithBuffers
+            {
+                tracing::warn!(
+                    "`force_renderer` not enforced: expected to render with {:?}, but this is the path for {:?}",
+                    r,
+                    Renderer::OpenclWithBuffers
+                );
+            }
             my_data.used_renderer.store_opencl_buffer();
 
             unsafe {
