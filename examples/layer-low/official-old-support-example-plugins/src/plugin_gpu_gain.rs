@@ -13,6 +13,12 @@
 //! unnecessary. Therefore, this port does not declare support for the general
 //! context.
 //!
+//! The mutex's lifespan in the Metal implementation is shorter than in the
+//! original example. Here, it is released immediately after the pipeline state
+//! is retrieved, rather than being held for the entire duration of the
+//! `run_metal_kernel` function. The original implementation and the OpenCL port
+//! work similarly in this regard.
+//!
 //! A `renderer_info` parameter is added to help debugging.
 //!
 //! We have plugin variants that force the use of specific renderers, such as

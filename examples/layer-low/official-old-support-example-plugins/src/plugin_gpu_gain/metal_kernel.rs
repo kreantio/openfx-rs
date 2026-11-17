@@ -43,48 +43,51 @@ pub unsafe fn run_metal_kernel(
         unsafe { Retained::retain(cmd_q.as_ptr().cast::<IdCommandQueue>()).unwrap_unchecked() };
     let device = queue.device();
 
-    let mut pipeline_queue_map = match PIPELINE_QUEUE_MUTEX.lock() {
-        Ok(map) => map,
-        Err(err) => {
-            tracing::error!("Failed to lock pipeline queue mutex, {err}");
-            return Err(StatusError::Failed);
-        }
-    };
+    let pipeline_state = {
+        let mut pipeline_queue_map = match PIPELINE_QUEUE_MUTEX.lock() {
+            Ok(map) => map,
+            Err(err) => {
+                tracing::error!("Failed to lock pipeline queue mutex, {err}");
+                return Err(StatusError::Failed);
+            }
+        };
 
-    let pipeline_state = match pipeline_queue_map.entry(queue.clone()) {
-        hash_map::Entry::Vacant(v) => {
-            let options = MTLCompileOptions::new();
-            #[expect(deprecated)]
-            options.setFastMathEnabled(true);
-            let metal_library = match device
-                .newLibraryWithSource_options_error(ns_string!(KERNEL_SOURCE), Some(&options))
-            {
-                Ok(lib) => lib,
-                Err(err) => {
-                    tracing::error!("Failed to load metal library, {err}");
-                    return Err(StatusError::Failed);
-                }
-            };
-            drop(options);
-            let kernel_function = match metal_library.newFunctionWithName(ns_string!(KERNEL_NAME)) {
-                Some(func) => func,
-                None => {
-                    tracing::error!("Failed to retrieve kernel");
-                    return Err(StatusError::Failed);
-                }
-            };
-            let pipeline_state =
-                match device.newComputePipelineStateWithFunction_error(&kernel_function) {
-                    Ok(state) => state,
+        match pipeline_queue_map.entry(queue.clone()) {
+            hash_map::Entry::Vacant(v) => {
+                let options = MTLCompileOptions::new();
+                #[expect(deprecated)]
+                options.setFastMathEnabled(true);
+                let metal_library = match device
+                    .newLibraryWithSource_options_error(ns_string!(KERNEL_SOURCE), Some(&options))
+                {
+                    Ok(lib) => lib,
                     Err(err) => {
-                        tracing::error!("Unable to compile, {err}");
+                        tracing::error!("Failed to load metal library, {err}");
                         return Err(StatusError::Failed);
                     }
                 };
+                drop(options);
+                let kernel_function =
+                    match metal_library.newFunctionWithName(ns_string!(KERNEL_NAME)) {
+                        Some(func) => func,
+                        None => {
+                            tracing::error!("Failed to retrieve kernel");
+                            return Err(StatusError::Failed);
+                        }
+                    };
+                let pipeline_state =
+                    match device.newComputePipelineStateWithFunction_error(&kernel_function) {
+                        Ok(state) => state,
+                        Err(err) => {
+                            tracing::error!("Unable to compile, {err}");
+                            return Err(StatusError::Failed);
+                        }
+                    };
 
-            v.insert(pipeline_state.clone()).clone()
+                v.insert(pipeline_state.clone()).clone()
+            }
+            hash_map::Entry::Occupied(entry) => entry.get().clone(),
         }
-        hash_map::Entry::Occupied(entry) => entry.get().clone(),
     };
 
     let src_device_buf =
