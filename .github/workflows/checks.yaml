@@ -33,14 +33,14 @@ jobs:
 
       # NOTE: `ignore` in `rustfmt-ci.toml` is unstable.
       - name: Rustfmt
-        run: cargo +nightly-2026-10-10 fmt --all -- --config-path rustfmt-ci.toml --check
+        run: cargo +nightly-2026-11-17 fmt --all -- --config-path rustfmt-ci.toml --check
 
-      - run: cargo +nightly-2026-10-10 clippy --locked --all-features --all-targets
+      - run: cargo +nightly-2026-11-17 clippy --locked --all-features --all-targets
 
-      - run: cargo +nightly-2026-10-10 doc --lib --no-deps --all-features
+      - run: cargo +nightly-2026-11-17 doc --lib --no-deps --all-features
 
       - name: clippy release
-        run: cargo +nightly-2026-10-10 clippy --all-targets --all-features --release -- -D warnings
+        run: cargo +nightly-2026-11-17 clippy --all-targets --all-features --release -- -D warnings
 
   # ---------------------------------------------------------------------------
 
