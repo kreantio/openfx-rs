@@ -11,11 +11,16 @@ use openfx::{
 use crate::{
     definitions::ROOT_IDENTIFIER,
     plugin_gpu_gain::{
-        PluginExampleGpuGain, PluginExampleGpuGainForceCpu, PluginExampleGpuGainForceCuda,
-        PluginExampleGpuGainForceMetalBuffers, PluginExampleGpuGainForceOpenclBuffers,
+        PluginExampleGpuGain, PluginExampleGpuGainForceCpu, PluginExampleGpuGainForceOpenclBuffers,
         PluginExampleGpuGainForceOpenclImages,
     },
 };
+
+#[cfg(not(target_os = "macos"))]
+use crate::plugin_gpu_gain::PluginExampleGpuGainForceCuda;
+
+#[cfg(target_os = "macos")]
+use crate::plugin_gpu_gain::PluginExampleGpuGainForceMetalBuffers;
 
 mod definitions;
 
@@ -41,7 +46,9 @@ impl Plugins for ExamplePlugins {
             plugin_struct!(PluginExampleGpuGain),
             plugin_struct!(PluginExampleGpuGainForceOpenclBuffers),
             plugin_struct!(PluginExampleGpuGainForceOpenclImages),
+            #[cfg(target_os = "macos")]
             plugin_struct!(PluginExampleGpuGainForceMetalBuffers),
+            #[cfg(not(target_os = "macos"))]
             plugin_struct!(PluginExampleGpuGainForceCuda),
             plugin_struct!(PluginExampleGpuGainForceCpu),
         ]

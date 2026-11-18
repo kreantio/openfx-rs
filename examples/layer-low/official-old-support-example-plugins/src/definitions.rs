@@ -29,12 +29,14 @@ pub const PLUGIN_GPU_GAIN_FORCE_OPENCL_IMAGES_INFO: PluginInfo = PluginInfo {
     description: c"Apply separate RGB gain adjustments to each channels; Force OpenCL Images",
 };
 
+#[cfg(target_os = "macos")]
 pub const PLUGIN_GPU_GAIN_FORCE_METAL_BUFFERS_INFO: PluginInfo = PluginInfo {
     identifier:  c"umajho.kreantio.openfx-rs.official-old-support-example-plugin-ports.layer-low:GPUGain.metal-buffers",
     label:  c"GPU Gain (Force Metal Buffers)",
     description: c"Apply separate RGB gain adjustments to each channels; Force Metal Buffers",
 };
 
+#[cfg(not(target_os = "macos"))]
 pub const PLUGIN_GPU_GAIN_FORCE_CUDA_INFO: PluginInfo = PluginInfo {
     identifier:  c"umajho.kreantio.openfx-rs.official-old-support-example-plugin-ports.layer-low:GPUGain.cuda",
     label:  c"GPU Gain (Force CUDA)",

@@ -70,8 +70,7 @@ use openfx::{
     low::{
         InboundResult, OutboundResult, Status, StatusError, StatusReply,
         enums::{
-            ImageEffectPropComponents, ImageEffectPropCudaRenderSupported,
-            ImageEffectPropCudaStreamSupported, ImageEffectPropOpenCLRenderSupported,
+            ImageEffectPropComponents, ImageEffectPropOpenCLRenderSupported,
             ImageEffectPropOpenCLSupported, ImageEffectPropSupportedComponents,
             ImageEffectPropSupportedContexts, ImageEffectPropSupportedPixelDepths,
             ParamPropDoubleType, PropChangeReason,
@@ -93,10 +92,7 @@ use openfx::{
     },
     sys::{
         core::{OfxTime, kOfxPropLabel},
-        gpu_render::{
-            kOfxImageEffectPropCudaRenderSupported, kOfxImageEffectPropCudaStreamSupported,
-            kOfxImageEffectPropOpenCLRenderSupported,
-        },
+        gpu_render::kOfxImageEffectPropOpenCLRenderSupported,
         image_effect::{
             kOfxImageEffectOutputClipName, kOfxImageEffectSimpleSourceClipName, kOfxTypeClip,
         },
@@ -242,6 +238,7 @@ plugin_variant!(
     Some(Renderer::OpenclWithImages)
 );
 
+#[cfg(target_os = "macos")]
 plugin_variant!(
     plugin_variant_force_metal_buffers,
     PluginExampleGpuGainForceMetalBuffers,
@@ -249,6 +246,7 @@ plugin_variant!(
     Some(Renderer::MetalWithBuffers)
 );
 
+#[cfg(not(target_os = "macos"))]
 plugin_variant!(
     plugin_variant_force_cuda,
     PluginExampleGpuGainForceCuda,
@@ -448,8 +446,17 @@ fn action_describe(var: &PluginVariant, descriptor: ImageEffectDescriptor) -> Ou
         }
 
         // Setup CUDA render capability flags on non-Apple system
-        // TODO!!: following the comment.
+        #[cfg(not(target_os = "macos"))]
         if var.force_renderer.is_none_or(|r| r == Renderer::Cuda) {
+            use openfx::{
+                low::enums::{
+                    ImageEffectPropCudaRenderSupported, ImageEffectPropCudaStreamSupported,
+                },
+                sys::gpu_render::{
+                    kOfxImageEffectPropCudaRenderSupported, kOfxImageEffectPropCudaStreamSupported,
+                },
+            };
+
             // TODO: Add the missing metadata upstream.
             if let stat = s_prop.prop_set_string(
                 props.sys_handle(),
