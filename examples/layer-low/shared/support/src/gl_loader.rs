@@ -9,7 +9,7 @@ use std::{
 use libloading::Library;
 
 #[allow(unused_imports)]
-use crate::plugin_opengl::gl;
+use crate::gl;
 
 #[cfg(target_os = "macos")]
 const OPENGL_LIBRARY_PATH: &str = "/System/Library/Frameworks/OpenGL.framework/OpenGL";

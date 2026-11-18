@@ -74,20 +74,21 @@ use openfx::{
     },
 };
 
+use openfx_layer_low_examples_support::{
+    gl, gl_loader,
+    guarantee_send::{GuaranteeSend, GuaranteeSendClipInstance},
+    plugin_data::{PluginData, PluginDataaFeatures},
+    set_labels,
+    sys_type_utils::rect_i_from_array,
+};
+
 use crate::{
     TRACING_DISPATCH,
     definitions::{PLUGIN_OPENGL_INFO, PLUGINS_GROUPING},
-    helpers::{
-        internal_utils::{rect_i_from_array, set_labels},
-        shared_data::{GuaranteeSend, GuaranteeSendClipInstance, SharedData},
-    },
 };
 
-mod gl;
-mod gl_loader;
-
 static HOST_BEFORE_ACTION_LOAD: Mutex<Option<GuaranteeSend<Host>>> = Mutex::new(None);
-static GLOBAL_DATA: Mutex<Option<(SharedData, Arc<AdditionalSharedData>)>> = Mutex::new(None);
+static GLOBAL_DATA: Mutex<Option<(PluginData, Arc<AdditionalSharedData>)>> = Mutex::new(None);
 
 struct AdditionalSharedData {
     opengl_suite: GuaranteeSend<ImageEffectOpenGLRenderSuiteV1>,
@@ -103,7 +104,7 @@ struct MyInstanceData {
     source_scale_param: ParamDouble,
 }
 
-fn global_data_lockless() -> Result<(SharedData, Arc<AdditionalSharedData>), StatusError> {
+fn global_data_lockless() -> Result<(PluginData, Arc<AdditionalSharedData>), StatusError> {
     let data = GLOBAL_DATA.lock().map_err(|_| StatusError::Failed)?;
     let data = data.as_ref().ok_or(StatusError::Failed)?;
     Ok((data.0.clone(), data.1.clone()))
@@ -195,7 +196,7 @@ fn action_load() -> OutboundResult {
             }
         };
 
-        let data = SharedData::try_new(host)?;
+        let data = PluginData::try_new(host, PluginDataaFeatures::default())?;
 
         (data, Arc::new(additional))
     });
@@ -240,7 +241,7 @@ fn action_describe(descriptor: ImageEffectDescriptor) -> OutboundResult {
     let props = unsafe { descriptor.get_property_set(s_ifx) }.ok_or(StatusError::Failed)?;
 
     unsafe {
-        set_labels(&data.property_suite.0, &props, PLUGIN_OPENGL_INFO.label)?;
+        set_labels!(&data.property_suite.0, &props, PLUGIN_OPENGL_INFO.label);
         props
             .set_image_effect_plugin_grouping(s_prop, Some(PLUGINS_GROUPING))
             .ok_or(StatusError::Failed)?;
@@ -606,7 +607,7 @@ struct ImageManaged {
 }
 impl ImageManaged {
     pub unsafe fn try_new_from_clip(
-        shared_data: &SharedData,
+        data: &PluginData,
         opengl_suite: GuaranteeSend<ImageEffectOpenGLRenderSuiteV1>,
         clip: &ImageClipInstance,
         frame: OfxTime,
@@ -614,8 +615,7 @@ impl ImageManaged {
         let prop_set = unsafe { clip.clip_load_texture(&opengl_suite.0, frame, None, None) }
             .ok_or(StatusError::Failed)?;
 
-        let ret =
-            unsafe { Self::try_new_from_property_set(shared_data, &opengl_suite.0, prop_set) };
+        let ret = unsafe { Self::try_new_from_property_set(data, &opengl_suite.0, prop_set) };
         if !ret.is_ok() {
             unsafe { Self::release_image(&opengl_suite.0, &prop_set) };
         }
@@ -623,11 +623,11 @@ impl ImageManaged {
     }
 
     unsafe fn try_new_from_property_set(
-        shared_data: &SharedData,
+        data: &PluginData,
         opengl_suite: &ImageEffectOpenGLRenderSuiteV1,
         props: OpenGLTexturePropertySet,
     ) -> Result<Self, StatusError> {
-        let s_prop = &shared_data.property_suite.0;
+        let s_prop = &data.property_suite.0;
 
         let texture_index = unsafe { props.get_image_effect_open_gl_texture_index(s_prop) }
             .ok_or(StatusError::Failed)?;

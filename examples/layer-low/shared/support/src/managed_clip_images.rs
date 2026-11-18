@@ -25,6 +25,8 @@ pub mod for_cuda;
 pub mod for_metal;
 #[cfg(feature = "opencl")]
 pub mod for_opencl;
+#[cfg(feature = "opengl")]
+pub mod for_opengl;
 
 /// Struct to manage OFX images.
 ///

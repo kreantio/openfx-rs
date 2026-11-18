@@ -12,7 +12,6 @@ use crate::{definitions::ROOT_IDENTIFIER, plugin_opengl::PluginExampleOpenGL};
 
 mod definitions;
 
-mod helpers;
 mod plugin_opengl;
 
 static TRACING_DISPATCH: OnceLock<tracing::Dispatch> = OnceLock::new();

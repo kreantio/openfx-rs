@@ -10,11 +10,17 @@ repository.workspace = true
 cuda = []
 metal = []
 opencl = []
+opengl = ["dep:libloading"]
 
 [dependencies]
 openfx.workspace = true
 
 tracing.workspace = true
+
+libloading = { workspace = true, optional = true }
+
+[build-dependencies]
+gl_generator.workspace = true
 
 [lints]
 workspace = true

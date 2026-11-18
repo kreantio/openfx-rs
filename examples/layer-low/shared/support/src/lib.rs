@@ -5,6 +5,11 @@ pub mod renderer_info;
 pub mod sys_type_utils;
 pub mod types;
 
+#[cfg(feature = "opengl")]
+pub mod gl;
+#[cfg(feature = "opengl")]
+pub mod gl_loader;
+
 #[macro_export]
 macro_rules! set_labels {
     ($s_prop:expr, $props:expr, $label:expr) => {{

@@ -381,10 +381,9 @@ checksum = "e2db585e1d738fc771bf08a151420d3ed193d9d895a36df7f6f8a9456b911ddc"
 name = "layer-low-official-example-plugins"
 version = "0.8.0"
 dependencies = [
- "gl_generator",
- "libloading",
  "objc2-foundation",
  "openfx",
+ "openfx-layer-low-examples-support",
  "tracing",
  "tracing-oslog",
  "tracing-subscriber",
@@ -632,6 +631,8 @@ dependencies = [
 name = "openfx-layer-low-examples-support"
 version = "0.8.0"
 dependencies = [
+ "gl_generator",
+ "libloading",
  "openfx",
  "tracing",
 ]
