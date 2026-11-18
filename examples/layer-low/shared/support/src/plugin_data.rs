@@ -3,41 +3,23 @@ use std::{ops::Deref, sync::Arc};
 use openfx::{
     low::StatusError,
     low_plugin::{
-        Host, LifetimePlugin,
-        objects::ImageClipInstance,
+        Host,
         suites::{ImageEffectSuiteV1, MultiThreadSuiteV1, ParameterSuiteV1, PropertySuiteV1},
     },
 };
 
-#[derive(Clone, Copy)]
-pub struct GuaranteeSend<T: LifetimePlugin>(pub T);
-/// ## Safety
-///
-/// This plugin does not spawn threads, so the host exclusively controls its
-/// lifecycle.
-unsafe impl<T: LifetimePlugin> Send for GuaranteeSend<T> {}
-impl<T: LifetimePlugin> Deref for GuaranteeSend<T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-#[derive(Clone, Copy)]
-pub struct GuaranteeSendClipInstance(pub ImageClipInstance);
-/// ## Safety
-///
-/// This is safe only for the lifetime of the plugin instance from which the
-/// clip instance was retrieved.
-unsafe impl Send for GuaranteeSendClipInstance {}
+use crate::guarantee_send::GuaranteeSend;
 
 #[derive(Clone)]
-pub struct SharedData(pub Arc<SharedDataInner>);
+pub struct PluginData(pub Arc<PluginDataInner>);
 
-pub struct SharedDataInner {
+#[derive(Default, Clone)]
+pub struct PluginDataaFeatures {
+    pub multi_thread_suite: bool,
+}
+
+pub struct PluginDataInner {
     // set of pointers provided by the host
-    #[expect(unused)]
     pub host: GuaranteeSend<Host>,
     pub property_suite: GuaranteeSend<PropertySuiteV1>,
     pub image_effect_suite: GuaranteeSend<ImageEffectSuiteV1>,
@@ -45,17 +27,24 @@ pub struct SharedDataInner {
     pub multi_thread_suite: Option<GuaranteeSend<MultiThreadSuiteV1>>,
 }
 
-impl SharedData {
-    pub fn try_new(host: GuaranteeSend<Host>) -> Result<Self, StatusError> {
+impl PluginData {
+    pub fn try_new(
+        host: GuaranteeSend<Host>,
+        features: PluginDataaFeatures,
+    ) -> Result<Self, StatusError> {
         let property_suite =
             unsafe { host.fetch_property_suite_v1() }.ok_or(StatusError::ErrMissingHostFeature)?;
         let image_effect_suite = unsafe { host.fetch_image_effect_suite_v1() }
             .ok_or(StatusError::ErrMissingHostFeature)?;
         let parameter_suite =
             unsafe { host.fetch_parameter_suite_v1() }.ok_or(StatusError::ErrMissingHostFeature)?;
-        let multi_thread_suite = unsafe { host.fetch_multi_thread_suite_v1() };
+        let multi_thread_suite = if features.multi_thread_suite {
+            unsafe { host.fetch_multi_thread_suite_v1() }
+        } else {
+            None
+        };
 
-        Ok(SharedData(Arc::new(SharedDataInner {
+        Ok(PluginData(Arc::new(PluginDataInner {
             host,
             property_suite: GuaranteeSend(property_suite),
             image_effect_suite: GuaranteeSend(image_effect_suite),
@@ -65,8 +54,8 @@ impl SharedData {
     }
 }
 
-impl Deref for SharedData {
-    type Target = SharedDataInner;
+impl Deref for PluginData {
+    type Target = PluginDataInner;
 
     fn deref(&self) -> &Self::Target {
         &self.0

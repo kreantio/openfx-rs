@@ -9,6 +9,11 @@ repository.workspace = true
 
 [dependencies]
 openfx.workspace = true
+openfx-layer-low-examples-support = { workspace = true, features = [
+  "cuda",
+  "metal",
+  "opencl",
+] }
 
 tracing.workspace = true
 tracing-subscriber.workspace = true

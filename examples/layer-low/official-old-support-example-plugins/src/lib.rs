@@ -24,7 +24,6 @@ use crate::plugin_gpu_gain::PluginExampleGpuGainForceMetalBuffers;
 
 mod definitions;
 
-mod helpers;
 mod plugin_gpu_gain;
 
 static TRACING_DISPATCH: OnceLock<tracing::Dispatch> = OnceLock::new();

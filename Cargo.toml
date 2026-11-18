@@ -1,14 +1,18 @@
 [workspace]
 resolver = "3"
 members = [
-  "xtask",
   "crates/openfx",
   "crates/openfx-internal-macros",
+
+  "xtask",
+
   "crates/private/openfx-codegen",
+  "crates/private/openfx-codegen-config",
+
+  "examples/layer-low/shared/support",
   "examples/layer-low/official-example-plugins",
   "examples/layer-low/official-guide-example-plugins",
   "examples/layer-low/official-old-support-example-plugins",
-  "crates/private/openfx-codegen-config",
 ]
 # for some reason, globs (e.g. "vendor/*", "vendor/**/*") don't work.
 exclude = [
@@ -30,6 +34,7 @@ openfx = { path = "crates/openfx", version = "0.8.0" }
 openfx-codegen = { path = "crates/private/openfx-codegen", version = "0.8.0" }
 openfx-codegen-config = { path = "crates/private/openfx-codegen-config", version = "0.8.0" }
 openfx-internal-macros = { path = "crates/openfx-internal-macros", version = "0.8.0" }
+openfx-layer-low-examples-support = { path = "examples/layer-low/shared/support", version = "0.8.0" }
 
 openfx-datagen = { path = "vendor/openfx-data/openfx-datagen/crates/openfx-datagen", version = "0.6.0" }
 

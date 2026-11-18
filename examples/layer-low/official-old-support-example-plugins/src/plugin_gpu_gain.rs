@@ -100,17 +100,18 @@ use openfx::{
     },
 };
 
+use openfx_layer_low_examples_support::{
+    guarantee_send::{GuaranteeSend, GuaranteeSendClipInstance},
+    managed_clip_images::{for_cpu::ManagedClipImageForCpu, for_opencl::ManagedClipImageForOpencl},
+    plugin_data::{PluginData, PluginDataaFeatures},
+    renderer_info::{Renderer, UsedRenderer},
+    set_labels,
+    sys_type_utils::rect_i_from_array,
+};
+
 use crate::{
     TRACING_DISPATCH,
     definitions::{PLUGINS_GROUPING, PluginInfo},
-    helpers::{
-        internal_utils::{
-            ManagedClipImageForCpu, ManagedClipImageForOpencl, rect_i_from_array,
-            renderer_info::{Renderer, UsedRenderer},
-            set_labels,
-        },
-        shared_data::{GuaranteeSend, GuaranteeSendClipInstance, SharedData},
-    },
 };
 
 mod opencl_kernels;
@@ -161,7 +162,7 @@ struct PluginVariant {
     force_renderer: Option<Renderer>,
 
     host_before_action_load: Mutex<Option<GuaranteeSend<Host>>>,
-    global_data: Mutex<Option<(SharedData, Arc<AdditionalSharedData>)>>,
+    global_data: Mutex<Option<(PluginData, Arc<AdditionalSharedData>)>>,
 }
 impl PluginVariant {
     const fn new(info: PluginInfo, force_renderer: Option<Renderer>) -> Self {
@@ -184,7 +185,7 @@ impl PluginVariant {
         lock.replace(GuaranteeSend(host));
     }
 
-    fn global_data_lockless(&self) -> Result<(SharedData, Arc<AdditionalSharedData>), StatusError> {
+    fn global_data_lockless(&self) -> Result<(PluginData, Arc<AdditionalSharedData>), StatusError> {
         let data = self.global_data.lock().map_err(|_| StatusError::Failed)?;
         let data = data.as_ref().ok_or(StatusError::Failed)?;
         Ok((data.0.clone(), data.1.clone()))
@@ -333,7 +334,14 @@ fn action_load(var: &PluginVariant) -> OutboundResult {
     *data = Some({
         let additional = { AdditionalSharedData {} };
 
-        let data = SharedData::try_new(host)?;
+        let data = PluginData::try_new(
+            host,
+            #[allow(clippy::needless_update)]
+            PluginDataaFeatures {
+                multi_thread_suite: true,
+                ..Default::default()
+            },
+        )?;
 
         (data, Arc::new(additional))
     });
@@ -851,7 +859,7 @@ fn action_instance_changed(
     Ok(Status::OK)
 }
 
-fn set_enabledness(data: &SharedData, instance: &ImageEffectInstance) -> Result<(), StatusError> {
+fn set_enabledness(data: &PluginData, instance: &ImageEffectInstance) -> Result<(), StatusError> {
     let s_prop = &data.property_suite.0;
     let s_ifx = &data.image_effect_suite.0;
     let s_param = &data.parameter_suite.0;
@@ -1044,12 +1052,10 @@ fn action_render(
         };
 
         if is_enabled {
-            let output_img = unsafe {
-                ManagedClipImageForOpencl::try_new_from_clip(&data, &my_data.output_clip.0, time)
-            }?;
-            let source_img = unsafe {
-                ManagedClipImageForOpencl::try_new_from_clip(&data, &my_data.source_clip.0, time)
-            }?;
+            let output_img =
+                ManagedClipImageForOpencl::try_new_from_clip(&data, &my_data.output_clip.0, time)?;
+            let source_img =
+                ManagedClipImageForOpencl::try_new_from_clip(&data, &my_data.source_clip.0, time)?;
 
             if output_img.pixel_depth() != source_img.pixel_depth()
                 || output_img.n_comps() != source_img.n_comps()
@@ -1079,7 +1085,7 @@ fn action_render(
 
     #[cfg(not(target_os = "macos"))]
     if var.force_renderer.is_none_or(|r| r == Renderer::Cuda) {
-        use crate::helpers::internal_utils::ManagedClipImageForCuda;
+        use openfx_layer_low_examples_support::managed_clip_images::for_cuda::ManagedClipImageForCuda;
 
         let is_enabled = match unsafe { in_args.get_image_effect_cuda_enabled(s_prop) } {
             InboundResult::Ok(v) => v,
@@ -1090,12 +1096,10 @@ fn action_render(
         };
 
         if is_enabled {
-            let output_img = unsafe {
-                ManagedClipImageForCuda::try_new_from_clip(&data, &my_data.output_clip.0, time)
-            }?;
-            let source_img = unsafe {
-                ManagedClipImageForCuda::try_new_from_clip(&data, &my_data.source_clip.0, time)
-            }?;
+            let output_img =
+                ManagedClipImageForCuda::try_new_from_clip(&data, &my_data.output_clip.0, time)?;
+            let source_img =
+                ManagedClipImageForCuda::try_new_from_clip(&data, &my_data.source_clip.0, time)?;
 
             if output_img.pixel_depth() != source_img.pixel_depth()
                 || output_img.n_comps() != source_img.n_comps()
@@ -1118,7 +1122,7 @@ fn action_render(
         .force_renderer
         .is_none_or(|r| r == Renderer::MetalWithBuffers)
     {
-        use crate::helpers::internal_utils::ManagedClipImageForMetal;
+        use openfx_layer_low_examples_support::managed_clip_images::for_metal::ManagedClipImageForMetal;
 
         let is_enabled = match unsafe { in_args.get_image_effect_metal_enabled(s_prop) } {
             InboundResult::Ok(v) => v,
@@ -1129,12 +1133,10 @@ fn action_render(
         };
 
         if is_enabled {
-            let output_img = unsafe {
-                ManagedClipImageForMetal::try_new_from_clip(&data, &my_data.output_clip.0, time)
-            }?;
-            let source_img = unsafe {
-                ManagedClipImageForMetal::try_new_from_clip(&data, &my_data.source_clip.0, time)
-            }?;
+            let output_img =
+                ManagedClipImageForMetal::try_new_from_clip(&data, &my_data.output_clip.0, time)?;
+            let source_img =
+                ManagedClipImageForMetal::try_new_from_clip(&data, &my_data.source_clip.0, time)?;
 
             if output_img.pixel_depth() != source_img.pixel_depth()
                 || output_img.n_comps() != source_img.n_comps()
@@ -1156,12 +1158,10 @@ fn action_render(
     }
 
     if var.force_renderer.is_none_or(|r| r == Renderer::Cpu) {
-        let output_img = unsafe {
-            ManagedClipImageForCpu::try_new_from_clip(&data, &my_data.output_clip.0, time)
-        }?;
-        let source_img = unsafe {
-            ManagedClipImageForCpu::try_new_from_clip(&data, &my_data.source_clip.0, time)
-        }?;
+        let output_img =
+            ManagedClipImageForCpu::try_new_from_clip(&data, &my_data.output_clip.0, time)?;
+        let source_img =
+            ManagedClipImageForCpu::try_new_from_clip(&data, &my_data.source_clip.0, time)?;
 
         if output_img.pixel_depth() != source_img.pixel_depth()
             || output_img.n_comps() != source_img.n_comps()
@@ -1197,12 +1197,14 @@ mod processing_opencl {
 
     use openfx::low::StatusError;
 
-    use crate::{
-        helpers::internal_utils::{
-            ManagedClipImageForOpencl, ManagedClipImageForOpenclData, renderer_info::Renderer,
+    use openfx_layer_low_examples_support::{
+        managed_clip_images::for_opencl::{
+            ManagedClipImageForOpencl, ManagedClipImageForOpenclData,
         },
-        plugin_gpu_gain::{MyInstanceData, Scales},
+        renderer_info::Renderer,
     };
+
+    use crate::plugin_gpu_gain::{MyInstanceData, Scales};
 
     pub fn process_images_opencl(
         my_data: &MyInstanceData,
@@ -1271,10 +1273,9 @@ mod processing_cuda {
 
     use openfx::low::StatusError;
 
-    use crate::{
-        helpers::internal_utils::ManagedClipImageForCuda,
-        plugin_gpu_gain::{MyInstanceData, Scales, cuda_kernel::run_cuda_kernel},
-    };
+    use openfx_layer_low_examples_support::managed_clip_images::for_cuda::ManagedClipImageForCuda;
+
+    use crate::plugin_gpu_gain::{MyInstanceData, Scales, cuda_kernel::run_cuda_kernel};
 
     pub fn process_images_cuda(
         my_data: &MyInstanceData,
@@ -1305,10 +1306,9 @@ mod processing_metal {
 
     use openfx::low::StatusError;
 
-    use crate::{
-        helpers::internal_utils::ManagedClipImageForMetal,
-        plugin_gpu_gain::{MyInstanceData, Scales, metal_kernel::run_metal_kernel},
-    };
+    use openfx_layer_low_examples_support::managed_clip_images::for_metal::ManagedClipImageForMetal;
+
+    use crate::plugin_gpu_gain::{MyInstanceData, Scales, metal_kernel::run_metal_kernel};
 
     pub fn process_images_metal(
         my_data: &MyInstanceData,
@@ -1338,13 +1338,14 @@ mod processing_cpu {
 
     use openfx::{low::StatusError, low_plugin::objects::ImageEffectInstance, sys::core::OfxRectI};
 
-    use crate::{
-        helpers::{internal_utils::ManagedClipImageForCpu, shared_data::SharedData},
-        plugin_gpu_gain::{MyInstanceData, Scales},
+    use openfx_layer_low_examples_support::{
+        managed_clip_images::for_cpu::ManagedClipImageForCpu, plugin_data::PluginData,
     };
 
+    use crate::plugin_gpu_gain::{MyInstanceData, Scales};
+
     pub fn process_images(
-        data: &SharedData,
+        data: &PluginData,
         my_data: &MyInstanceData,
         instance: &ImageEffectInstance,
         scales: Scales,
@@ -1399,7 +1400,7 @@ mod processing_cpu {
     }
 
     struct ProcessArgument<'a> {
-        data: &'a SharedData,
+        data: &'a PluginData,
         instance: &'a ImageEffectInstance,
         scales: &'a Scales,
         source_img: &'a ManagedClipImageForCpu,
@@ -1488,7 +1489,7 @@ struct Scales {
 }
 impl Scales {
     fn retrieve_at_time(
-        data: &SharedData,
+        data: &PluginData,
         my_data: &MyInstanceData,
         time: OfxTime,
     ) -> Result<Scales, StatusError> {

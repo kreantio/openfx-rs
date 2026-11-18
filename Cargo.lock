@@ -409,6 +409,7 @@ dependencies = [
  "objc2-foundation",
  "objc2-metal",
  "openfx",
+ "openfx-layer-low-examples-support",
  "tracing",
  "tracing-oslog",
  "tracing-subscriber",
@@ -625,6 +626,14 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 3.0.3",
+]
+
+[[package]]
+name = "openfx-layer-low-examples-support"
+version = "0.8.0"
+dependencies = [
+ "openfx",
+ "tracing",
 ]
 
 [[package]]
