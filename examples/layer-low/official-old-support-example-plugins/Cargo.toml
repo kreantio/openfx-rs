@@ -16,7 +16,6 @@ tracing-subscriber.workspace = true
 cl3.workspace = true
 
 [target.'cfg(target_os = "macos")'.dependencies]
-libloading.workspace = true
 objc2.workspace = true
 objc2-foundation.workspace = true
 objc2-metal.workspace = true
