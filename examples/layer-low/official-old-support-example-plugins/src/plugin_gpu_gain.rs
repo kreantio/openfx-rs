@@ -83,8 +83,7 @@ use crate::{
     definitions::{PLUGINS_GROUPING, PluginInfo},
     helpers::{
         internal_utils::{
-            ManagedClipImageForCpu, ManagedClipImageForCuda, ManagedClipImageForOpencl,
-            rect_i_from_array,
+            ManagedClipImageForCpu, ManagedClipImageForOpencl, rect_i_from_array,
             renderer_info::{Renderer, UsedRenderer},
             set_labels,
         },
@@ -92,8 +91,10 @@ use crate::{
     },
 };
 
-mod cuda_kernel;
 mod opencl_kernels;
+
+#[cfg(not(target_os = "macos"))]
+mod cuda_kernel;
 
 #[cfg(target_os = "macos")]
 mod metal_kernel;
@@ -1043,7 +1044,10 @@ fn action_render(
         }
     }
 
+    #[cfg(not(target_os = "macos"))]
     if var.force_renderer.is_none_or(|r| r == Renderer::Cuda) {
+        use crate::helpers::internal_utils::ManagedClipImageForCuda;
+
         let is_enabled = match unsafe { in_args.get_image_effect_cuda_enabled(s_prop) } {
             InboundResult::Ok(v) => v,
             other => {
@@ -1228,6 +1232,7 @@ mod processing_opencl {
     }
 }
 
+#[cfg(not(target_os = "macos"))]
 mod processing_cuda {
     use std::{ffi::c_void, ptr::NonNull};
 
@@ -1235,7 +1240,7 @@ mod processing_cuda {
 
     use crate::{
         helpers::internal_utils::ManagedClipImageForCuda,
-        plugin_gpu_gain::{MyInstanceData, Scales},
+        plugin_gpu_gain::{MyInstanceData, Scales, cuda_kernel::run_cuda_kernel},
     };
 
     pub fn process_images_cuda(
@@ -1245,8 +1250,6 @@ mod processing_cuda {
         output_img: ManagedClipImageForCuda,
         stream: Option<NonNull<c_void>>,
     ) -> Result<(), StatusError> {
-        use crate::plugin_gpu_gain::cuda_kernel::run_cuda_kernel;
-
         tracing::debug!("Processing via CUDA (Buffers)");
         my_data.used_renderer.store_cuda(stream.is_some());
 
@@ -1271,7 +1274,7 @@ mod processing_metal {
 
     use crate::{
         helpers::internal_utils::ManagedClipImageForMetal,
-        plugin_gpu_gain::{MyInstanceData, Scales},
+        plugin_gpu_gain::{MyInstanceData, Scales, metal_kernel::run_metal_kernel},
     };
 
     pub fn process_images_metal(
@@ -1281,8 +1284,6 @@ mod processing_metal {
         output_img: ManagedClipImageForMetal,
         cmd_q: NonNull<c_void>,
     ) -> Result<(), StatusError> {
-        use crate::plugin_gpu_gain::metal_kernel::run_metal_kernel;
-
         tracing::debug!("Processing via Metal (Buffers)");
         my_data.used_renderer.store_metal_buffer();
 
