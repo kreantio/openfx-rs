@@ -1,14 +1,13 @@
 # Example Index
 
-This folder contains examples for the projects in this repository. Every example
-is located two folders below this directory.
+This folder contains examples for the projects in this repository.
 
-The name of an outer folder indicates which project the example is for:
+The name of each outermost folder in this directory indicates which project the
+examples are for (except for the `shared` folder, which contains content shared
+across examples):
 
 - [`layer-low`](./layer-low/): The examples demonstrate how to write OpenFX
   plugins using `openfx::{low, low_plugin}`.
-
-The name of an inner folder indicates the topic of the example.
 
 ## Examples Categorized by Topic
 

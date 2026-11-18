@@ -1,5 +1,7 @@
+PATH_BUNDLE_SH := "../shared/scripts/bundle.sh"
+
 build *args:
-    ./scripts/bundle.sh \
+    {{ PATH_BUNDLE_SH }} \
       --base-name OfxGuideExamplePluginsLayerLow \
       --info-plist assets/info.plist \
       {{ args }}
@@ -15,7 +17,7 @@ build-preferring-dash *args:
         SH="sh"
     fi
 
-    /usr/bin/env "$SH" ./scripts/bundle.sh \
+    /usr/bin/env "$SH" {{ PATH_BUNDLE_SH }} \
       --base-name OfxGuideExamplePluginsLayerLow \
       --info-plist assets/info.plist \
       {{ args }}
