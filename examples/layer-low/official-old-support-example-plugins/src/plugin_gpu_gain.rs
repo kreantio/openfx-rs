@@ -8,16 +8,33 @@
 //!
 //! ## Divergences from the original example
 //!
-//! The original example declares support for the general context, but since it
-//! strictly uses only a single source clip, general context support is
-//! unnecessary. Therefore, this port does not declare support for the general
-//! context.
+//! ### Metal
 //!
 //! The mutex's lifespan in the Metal implementation is shorter than in the
 //! original example. Here, it is released immediately after the pipeline state
 //! is retrieved, rather than being held for the entire duration of the
 //! `run_metal_kernel` function. The original implementation and the OpenCL port
 //! work similarly in this regard.
+//!
+//! ### CUDA
+//!
+//! The original example uses `nvcc` at build time to compile CUDA kernels. This
+//! port instead uses `nvrtc` to compile CUDA kernels at runtime. This way, you
+//! can cross-compile the code containing the CUDA implementation on macOS for
+//! other platforms.
+//!
+//! Please note that, unlike the other ports, this port's code is not directly
+//! derived from the original example, and the person who wrote this
+//! implementation (with AI assistance, but without agentic activities) is not
+//! skilled in CUDA. Please review it carefully if you intend to use it as a
+//! reference.
+//!
+//! ### General
+//!
+//! The original example declares support for the general context, but since it
+//! strictly uses only a single source clip, general context support is
+//! unnecessary. Therefore, this port does not declare support for the general
+//! context.
 //!
 //! A `renderer_info` parameter is added to help debugging.
 //!
@@ -27,8 +44,12 @@
 //! ## Known issues
 //!
 //! The OpenCL image rendering logic is unverified, because the maintainer(s)
-//! don't have a host that supports it. In fact, the maintainer(s) don't even
-//! know which hosts support it.
+//! don't have access to a host that supports it. In fact, the maintainer(s)
+//! don't even know which hosts support it.
+//!
+//! Similarly, because the maintainer(s) don't have access to a host that
+//! doesn't support CUDA streams, they can't verify that the CUDA implementation
+//! works correctly when the host does not provide CUDA streams.
 //!
 //! ## TODO
 //!
