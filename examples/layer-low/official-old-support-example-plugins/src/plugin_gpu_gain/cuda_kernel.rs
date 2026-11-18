@@ -135,6 +135,14 @@ pub unsafe fn run_cuda_kernel(
         }
     }
 
+    if stream.is_null()
+        && let Err(err) =
+            unsafe { cudarc::driver::result::stream::synchronize(std::ptr::null_mut()) }
+    {
+        tracing::error!("Failed to synchronize CUDA stream: {err:?}");
+        return Err(StatusError::Failed);
+    }
+
     Ok(())
 }
 

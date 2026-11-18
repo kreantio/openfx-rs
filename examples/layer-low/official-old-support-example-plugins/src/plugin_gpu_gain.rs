@@ -29,6 +29,11 @@
 //! skilled in CUDA. Please review it carefully if you intend to use it as a
 //! reference.
 //!
+//! According to the documentation for
+//! [openfx::sys::gpu_render::kOfxImageEffectPropCudaStream], a plugin should
+//! synchronize when the stream is not provided. The original
+//! example doesn't seem to do so. This port does.
+//!
 //! ### General
 //!
 //! The original example declares support for the general context, but since it
