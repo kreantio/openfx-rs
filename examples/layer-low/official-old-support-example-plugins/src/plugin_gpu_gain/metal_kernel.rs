@@ -22,7 +22,7 @@ type IdBuffer = ProtocolObject<dyn MTLBuffer>;
 
 type PipelineQueueMap = HashMap<Retained<IdCommandQueue>, Retained<IdComputePipelineState>>;
 
-static PIPELINE_QUEUE_MUTEX: LazyLock<Mutex<PipelineQueueMap>> =
+static PIPELINE_QUEUE_CACHE_MUTEX: LazyLock<Mutex<PipelineQueueMap>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 
 /// ## TODO
@@ -44,7 +44,7 @@ pub unsafe fn run_metal_kernel(
     let device = queue.device();
 
     let pipeline_state = {
-        let mut pipeline_queue_map = match PIPELINE_QUEUE_MUTEX.lock() {
+        let mut cache = match PIPELINE_QUEUE_CACHE_MUTEX.lock() {
             Ok(map) => map,
             Err(err) => {
                 tracing::error!("Failed to lock pipeline queue mutex, {err}");
@@ -52,7 +52,7 @@ pub unsafe fn run_metal_kernel(
             }
         };
 
-        match pipeline_queue_map.entry(queue.clone()) {
+        match cache.entry(queue.clone()) {
             hash_map::Entry::Vacant(v) => {
                 let options = MTLCompileOptions::new();
                 #[expect(deprecated)]
@@ -96,13 +96,13 @@ pub unsafe fn run_metal_kernel(
         unsafe { Retained::retain(output.as_ptr().cast::<IdBuffer>()).unwrap_unchecked() };
 
     let Some(command_buffer) = queue.commandBuffer() else {
-        tracing::error!("Failed to create command buffer");
+        tracing::error!("Failed to create command buffer.");
         return Err(StatusError::Failed);
     };
     command_buffer.setLabel(Some(ns_string!("GainAdjustKernel")));
 
     let Some(compute_encoder) = command_buffer.computeCommandEncoder() else {
-        tracing::error!("Failed to create compute encoder");
+        tracing::error!("Failed to create compute encoder.");
         return Err(StatusError::Failed);
     };
     compute_encoder.setComputePipelineState(&pipeline_state);

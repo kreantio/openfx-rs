@@ -26,9 +26,6 @@
 //!
 //! ## Known issues
 //!
-//! Due to limitations of the maintainer(s), the CUDA part of the example is not
-//! implemented.
-//!
 //! The OpenCL image rendering logic is unverified, because the maintainer(s)
 //! don't have a host that supports it. In fact, the maintainer(s) don't even
 //! know which hosts support it.
@@ -47,7 +44,8 @@ use openfx::{
     low::{
         InboundResult, OutboundResult, Status, StatusError, StatusReply,
         enums::{
-            ImageEffectPropComponents, ImageEffectPropOpenCLRenderSupported,
+            ImageEffectPropComponents, ImageEffectPropCudaRenderSupported,
+            ImageEffectPropCudaStreamSupported, ImageEffectPropOpenCLRenderSupported,
             ImageEffectPropOpenCLSupported, ImageEffectPropSupportedComponents,
             ImageEffectPropSupportedContexts, ImageEffectPropSupportedPixelDepths,
             ParamPropDoubleType, PropChangeReason,
@@ -69,7 +67,10 @@ use openfx::{
     },
     sys::{
         core::{OfxTime, kOfxPropLabel},
-        gpu_render::kOfxImageEffectPropOpenCLRenderSupported,
+        gpu_render::{
+            kOfxImageEffectPropCudaRenderSupported, kOfxImageEffectPropCudaStreamSupported,
+            kOfxImageEffectPropOpenCLRenderSupported,
+        },
         image_effect::{
             kOfxImageEffectOutputClipName, kOfxImageEffectSimpleSourceClipName, kOfxTypeClip,
         },
@@ -82,7 +83,8 @@ use crate::{
     definitions::{PLUGINS_GROUPING, PluginInfo},
     helpers::{
         internal_utils::{
-            ManagedClipImageForCpu, ManagedClipImageForOpencl, rect_i_from_array,
+            ManagedClipImageForCpu, ManagedClipImageForCuda, ManagedClipImageForOpencl,
+            rect_i_from_array,
             renderer_info::{Renderer, UsedRenderer},
             set_labels,
         },
@@ -90,6 +92,7 @@ use crate::{
     },
 };
 
+mod cuda_kernel;
 mod opencl_kernels;
 
 #[cfg(target_os = "macos")]
@@ -217,6 +220,13 @@ plugin_variant!(
     PluginExampleGpuGainForceMetalBuffers,
     crate::definitions::PLUGIN_GPU_GAIN_FORCE_METAL_BUFFERS_INFO,
     Some(Renderer::MetalWithBuffers)
+);
+
+plugin_variant!(
+    plugin_variant_force_cuda,
+    PluginExampleGpuGainForceCuda,
+    crate::definitions::PLUGIN_GPU_GAIN_FORCE_CUDA_INFO,
+    Some(Renderer::Cuda)
 );
 
 plugin_variant!(
@@ -407,6 +417,29 @@ fn action_describe(var: &PluginVariant, descriptor: ImageEffectDescriptor) -> Ou
             ) && !stat.is_ok()
             {
                 tracing::warn!("Failed to set OpenCL Images render support: {stat:?}");
+            }
+        }
+
+        // Setup CUDA render capability flags on non-Apple system
+        // TODO!!: following the comment.
+        if var.force_renderer.is_none_or(|r| r == Renderer::Cuda) {
+            // TODO: Add the missing metadata upstream.
+            if let stat = s_prop.prop_set_string(
+                props.sys_handle(),
+                kOfxImageEffectPropCudaRenderSupported,
+                Some(ImageEffectPropCudaRenderSupported::True.as_c_str()),
+            ) && !stat.is_ok()
+            {
+                tracing::warn!("Failed to set CUDA render support: {stat:?}");
+            }
+            // TODO: Add the missing metadata upstream.
+            if let stat = s_prop.prop_set_string(
+                props.sys_handle(),
+                kOfxImageEffectPropCudaStreamSupported,
+                Some(ImageEffectPropCudaStreamSupported::True.as_c_str()),
+            ) && !stat.is_ok()
+            {
+                tracing::warn!("Failed to set CUDA render's stream support: {stat:?}");
             }
         }
 
@@ -1010,6 +1043,39 @@ fn action_render(
         }
     }
 
+    if var.force_renderer.is_none_or(|r| r == Renderer::Cuda) {
+        let is_enabled = match unsafe { in_args.get_image_effect_cuda_enabled(s_prop) } {
+            InboundResult::Ok(v) => v,
+            other => {
+                tracing::warn!("Failed to invoke `get_image_effect_cuda_enabled`: {other:?}");
+                false
+            }
+        };
+
+        if is_enabled {
+            let output_img = unsafe {
+                ManagedClipImageForCuda::try_new_from_clip(&data, &my_data.output_clip.0, time)
+            }?;
+            let source_img = unsafe {
+                ManagedClipImageForCuda::try_new_from_clip(&data, &my_data.source_clip.0, time)
+            }?;
+
+            if output_img.pixel_depth() != source_img.pixel_depth()
+                || output_img.n_comps() != source_img.n_comps()
+            {
+                return Err(StatusError::ErrValue); // Follow the official example.
+            }
+
+            let stream = unsafe {
+                in_args
+                    .get_image_effect_cuda_stream(s_prop)
+                    .ok_or(StatusError::Failed)?
+            };
+            processing_cuda::process_images_cuda(my_data, scales, source_img, output_img, stream)?;
+            return Ok(Status::OK);
+        }
+    }
+
     #[cfg(target_os = "macos")]
     if var
         .force_renderer
@@ -1157,6 +1223,41 @@ mod processing_opencl {
             tracing::error!("Unable to process via OpenCL: image configuration not supported!");
             return Err(StatusError::Failed);
         }
+
+        Ok(())
+    }
+}
+
+mod processing_cuda {
+    use std::{ffi::c_void, ptr::NonNull};
+
+    use openfx::low::StatusError;
+
+    use crate::{
+        helpers::internal_utils::ManagedClipImageForCuda,
+        plugin_gpu_gain::{MyInstanceData, Scales},
+    };
+
+    pub fn process_images_cuda(
+        my_data: &MyInstanceData,
+        scales: Scales,
+        source_img: ManagedClipImageForCuda,
+        output_img: ManagedClipImageForCuda,
+        stream: Option<NonNull<c_void>>,
+    ) -> Result<(), StatusError> {
+        use crate::plugin_gpu_gain::cuda_kernel::run_cuda_kernel;
+
+        tracing::debug!("Processing via CUDA (Buffers)");
+        my_data.used_renderer.store_cuda(stream.is_some());
+
+        let bounds = source_img.bounds();
+        let width = bounds.x2 - bounds.x1;
+        let height = bounds.y2 - bounds.y1;
+
+        let input = source_img.data_ptr();
+        let output = output_img.data_ptr();
+
+        unsafe { run_cuda_kernel(stream, width, height, scales.as_array(), input, output) }?;
 
         Ok(())
     }

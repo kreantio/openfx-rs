@@ -26,7 +26,7 @@ struct DeviceAndKernelMap(HashMap<cl_command_queue, (cl_device_id, cl_kernel)>);
 
 unsafe impl Send for DeviceAndKernelMap {}
 
-static DEVICE_AND_KERNEL_MUTEX_FOR_BUFFERS: LazyLock<Mutex<DeviceAndKernelMap>> =
+static DEVICE_AND_KERNEL_CACHE_MUTEX: LazyLock<Mutex<DeviceAndKernelMap>> =
     LazyLock::new(|| Mutex::new(DeviceAndKernelMap::default()));
 
 macro_rules! try_set_next_kernel_arg {
@@ -56,7 +56,7 @@ pub unsafe fn run_opencl_kernel_buffers(
     let cmd_q = cmd_q.as_ptr();
 
     let (device_id, kernel) = {
-        let mut map = match DEVICE_AND_KERNEL_MUTEX_FOR_BUFFERS.lock() {
+        let mut cache = match DEVICE_AND_KERNEL_CACHE_MUTEX.lock() {
             Ok(map) => map,
             Err(err) => {
                 tracing::error!("Failed to lock device and kernel mutex, {err}");
@@ -65,7 +65,7 @@ pub unsafe fn run_opencl_kernel_buffers(
         };
 
         get_or_create_kernel(
-            &mut map,
+            &mut cache,
             c"GainAdjustKernelBuffers",
             KERNEL_SOURCE_BUFFERS,
             cmd_q,

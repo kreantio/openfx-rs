@@ -11,8 +11,9 @@ use openfx::{
 use crate::{
     definitions::ROOT_IDENTIFIER,
     plugin_gpu_gain::{
-        PluginExampleGpuGain, PluginExampleGpuGainForceCpu, PluginExampleGpuGainForceMetalBuffers,
-        PluginExampleGpuGainForceOpenclBuffers, PluginExampleGpuGainForceOpenclImages,
+        PluginExampleGpuGain, PluginExampleGpuGainForceCpu, PluginExampleGpuGainForceCuda,
+        PluginExampleGpuGainForceMetalBuffers, PluginExampleGpuGainForceOpenclBuffers,
+        PluginExampleGpuGainForceOpenclImages,
     },
 };
 
@@ -41,6 +42,7 @@ impl Plugins for ExamplePlugins {
             plugin_struct!(PluginExampleGpuGainForceOpenclBuffers),
             plugin_struct!(PluginExampleGpuGainForceOpenclImages),
             plugin_struct!(PluginExampleGpuGainForceMetalBuffers),
+            plugin_struct!(PluginExampleGpuGainForceCuda),
             plugin_struct!(PluginExampleGpuGainForceCpu),
         ]
     }

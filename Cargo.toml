@@ -49,9 +49,10 @@ tracing-oslog = "0.3.0"
 tracing-subscriber = "0.3.23"
 
 # used in the examples:
+cl3 = "0.13.2"
+cudarc = "0.19.10"
 gl_generator = "0.14.0"
 libloading = "0.9.0"
 objc2 = "0.6.5"
 objc2-foundation = "0.3.2"
 objc2-metal = "0.3.2"
-cl3 = "0.13.2"

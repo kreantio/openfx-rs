@@ -465,3 +465,59 @@ impl ManagedClipImageForMetal {
         self.data_ptr
     }
 }
+
+pub struct ManagedClipImageForCuda {
+    base: ManagedClipImageBase,
+
+    data_ptr: NonNull<c_void>,
+}
+
+impl_base_functions!(ManagedClipImageForCuda);
+
+impl ManagedClipImageForCuda {
+    pub unsafe fn try_new_from_clip_if_available(
+        shared_data: &SharedData,
+        clip: &ImageClipInstance,
+        frame: OfxTime,
+    ) -> Result<Option<Self>, StatusError> {
+        let base = unsafe {
+            ManagedClipImageBase::try_new_from_clip_if_available(shared_data, clip, frame)
+        }?;
+        if let Some(b) = base {
+            Ok(Some(unsafe { Self::try_new_from_base(shared_data, b) }?))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// Construct from a clip by fetching an image at the given frame.
+    pub unsafe fn try_new_from_clip(
+        shared_data: &SharedData,
+        clip: &ImageClipInstance,
+        frame: OfxTime,
+    ) -> Result<Self, StatusError> {
+        let base = unsafe { ManagedClipImageBase::try_new_from_clip(shared_data, clip, frame) }?;
+        unsafe { Self::try_new_from_base(shared_data, base) }
+    }
+
+    unsafe fn try_new_from_base(
+        shared_data: &SharedData,
+        base: ManagedClipImageBase,
+    ) -> Result<Self, StatusError> {
+        let s_prop = &shared_data.property_suite.0;
+
+        let props = &base.props;
+
+        let Some(data_ptr) =
+            (unsafe { props.get_image_data(s_prop) }).ok_or(StatusError::Failed)?
+        else {
+            return Err(StatusError::Failed);
+        };
+
+        Ok(Self { base, data_ptr })
+    }
+
+    pub fn data_ptr(&self) -> NonNull<c_void> {
+        self.data_ptr
+    }
+}

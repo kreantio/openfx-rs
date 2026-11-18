@@ -35,6 +35,12 @@ pub const PLUGIN_GPU_GAIN_FORCE_METAL_BUFFERS_INFO: PluginInfo = PluginInfo {
     description: c"Apply separate RGB gain adjustments to each channels; Force Metal Buffers",
 };
 
+pub const PLUGIN_GPU_GAIN_FORCE_CUDA_INFO: PluginInfo = PluginInfo {
+    identifier:  c"umajho.kreantio.openfx-rs.official-old-support-example-plugin-ports.layer-low:GPUGain.cuda",
+    label:  c"GPU Gain (Force CUDA)",
+    description: c"Apply separate RGB gain adjustments to each channels; Force CUDA",
+};
+
 pub const PLUGIN_GPU_GAIN_FORCE_CPU_INFO: PluginInfo = PluginInfo {
     identifier:
         c"umajho.kreantio.openfx-rs.official-old-support-example-plugin-ports.layer-low:GPUGain.cpu",
