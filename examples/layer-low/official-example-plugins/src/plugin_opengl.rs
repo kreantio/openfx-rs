@@ -61,22 +61,17 @@ use openfx::{
     low_plugin::{
         Host, Plugin,
         actions::image_effect::{ActionDescribeInContextIn, ActionRenderIn, ImageEffectAction},
-        objects::{
-            ImageClipInstance, ImageEffectDescriptor, ImageEffectInstance, ParamSetDescriptor,
-        },
+        objects::{ImageEffectDescriptor, ImageEffectInstance, ParamSetDescriptor},
         parameters::ParamDouble,
-        property_sets::OpenGLTexturePropertySet,
         suites::{ImageEffectOpenGLRenderSuiteV1, ParameterSuiteV1, PropertySuiteV1},
     },
-    sys::{
-        core::OfxTime,
-        image_effect::{kOfxImageEffectOutputClipName, kOfxImageEffectSimpleSourceClipName},
-    },
+    sys::image_effect::{kOfxImageEffectOutputClipName, kOfxImageEffectSimpleSourceClipName},
 };
 
 use openfx_layer_low_examples_support::{
     gl, gl_loader,
     guarantee_send::{GuaranteeSend, GuaranteeSendClipInstance},
+    managed_clip_images::for_opengl::ManagedClipImageForOpengl,
     plugin_data::{PluginData, PluginDataaFeatures},
     set_labels,
     sys_type_utils::rect_i_from_array,
@@ -483,22 +478,18 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     };
     let my_data = unsafe { &*(my_data_ptr.as_ptr() as *const MyInstanceData) };
 
-    let _output_img = unsafe {
-        ImageManaged::try_new_from_clip(
-            &data,
-            additional.opengl_suite,
-            &my_data.output_clip.0,
-            time,
-        )
-    }?;
-    let source_img = unsafe {
-        ImageManaged::try_new_from_clip(
-            &data,
-            additional.opengl_suite,
-            &my_data.source_clip.0,
-            time,
-        )
-    }?;
+    let _output_img = ManagedClipImageForOpengl::try_new_from_clip(
+        &data,
+        additional.opengl_suite,
+        &my_data.output_clip.0,
+        time,
+    )?;
+    let source_img = ManagedClipImageForOpengl::try_new_from_clip(
+        &data,
+        additional.opengl_suite,
+        &my_data.source_clip.0,
+        time,
+    )?;
 
     let scale = unsafe {
         my_data
@@ -532,25 +523,25 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
         // Copy source texture to output by drawing a big textured quad
 
         // set up texture (how much of this is needed?)
-        gl::Enable(source_img.texture_target);
-        gl::BindTexture(source_img.texture_target, source_img.texture_index);
+        gl::Enable(source_img.texture_target());
+        gl::BindTexture(source_img.texture_target(), source_img.texture_index());
         gl::TexParameteri(
-            source_img.texture_target,
+            source_img.texture_target(),
             gl::inner::TEXTURE_WRAP_S,
             gl::inner::REPEAT as i32,
         );
         gl::TexParameteri(
-            source_img.texture_target,
+            source_img.texture_target(),
             gl::inner::TEXTURE_WRAP_T,
             gl::inner::REPEAT as i32,
         );
         gl::TexParameteri(
-            source_img.texture_target,
+            source_img.texture_target(),
             gl::inner::TEXTURE_MAG_FILTER,
             gl::inner::LINEAR as i32,
         );
         gl::TexParameteri(
-            source_img.texture_target,
+            source_img.texture_target(),
             gl::inner::TEXTURE_MIN_FILTER,
             gl::inner::LINEAR as i32,
         );
@@ -578,7 +569,7 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
         gl::Vertex2f(0.0, h * source_scale);
         gl::End();
 
-        gl::Disable(source_img.texture_target);
+        gl::Disable(source_img.texture_target());
 
         // Now draw some stuff on top of it to show we really did something
         const WIDTH: f32 = 200.0;
@@ -596,64 +587,4 @@ fn action_render(instance: ImageEffectInstance, in_args: ActionRenderIn) -> Outb
     }
 
     Ok(Status::OK)
-}
-
-struct ImageManaged {
-    opengl_suite: ImageEffectOpenGLRenderSuiteV1,
-    props: OpenGLTexturePropertySet,
-
-    texture_index: u32,
-    texture_target: u32,
-}
-impl ImageManaged {
-    pub unsafe fn try_new_from_clip(
-        data: &PluginData,
-        opengl_suite: GuaranteeSend<ImageEffectOpenGLRenderSuiteV1>,
-        clip: &ImageClipInstance,
-        frame: OfxTime,
-    ) -> Result<Self, StatusError> {
-        let prop_set = unsafe { clip.clip_load_texture(&opengl_suite.0, frame, None, None) }
-            .ok_or(StatusError::Failed)?;
-
-        let ret = unsafe { Self::try_new_from_property_set(data, &opengl_suite.0, prop_set) };
-        if !ret.is_ok() {
-            unsafe { Self::release_image(&opengl_suite.0, &prop_set) };
-        }
-        ret
-    }
-
-    unsafe fn try_new_from_property_set(
-        data: &PluginData,
-        opengl_suite: &ImageEffectOpenGLRenderSuiteV1,
-        props: OpenGLTexturePropertySet,
-    ) -> Result<Self, StatusError> {
-        let s_prop = &data.property_suite.0;
-
-        let texture_index = unsafe { props.get_image_effect_open_gl_texture_index(s_prop) }
-            .ok_or(StatusError::Failed)?;
-        let texture_target = unsafe { props.get_image_effect_open_gl_texture_target(s_prop) }
-            .ok_or(StatusError::Failed)?;
-
-        Ok(Self {
-            opengl_suite: *opengl_suite,
-            props,
-            texture_index: texture_index as u32,
-            texture_target: texture_target as u32,
-        })
-    }
-
-    /// ## TODO
-    ///
-    /// Figure out how to properly handle non-OK statuses.
-    unsafe fn release_image(
-        image_effect_suite: &ImageEffectOpenGLRenderSuiteV1,
-        props: &OpenGLTexturePropertySet,
-    ) {
-        let _ = unsafe { image_effect_suite.clip_free_texture(props) };
-    }
-}
-impl Drop for ImageManaged {
-    fn drop(&mut self) {
-        unsafe { Self::release_image(&self.opengl_suite, &self.props) };
-    }
 }
