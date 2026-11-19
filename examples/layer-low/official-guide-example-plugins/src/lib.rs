@@ -1,6 +1,8 @@
 use openfx::{
-    sys::core::{OfxHost, OfxPlugin},
-    sys_plugin_helpers::{Plugins, export_plugins, plugin_struct},
+    export_plugins,
+    low_plugin::{Host, Plugins},
+    plugin_struct,
+    sys::core::OfxPlugin,
 };
 
 use crate::{
@@ -22,7 +24,7 @@ struct ExamplePlugins;
 export_plugins!(ExamplePlugins);
 
 impl Plugins for ExamplePlugins {
-    fn plugins(_host: Option<*const OfxHost>) -> Vec<OfxPlugin> {
+    fn plugins(_host: Option<&Host>) -> Vec<OfxPlugin> {
         vec![
             plugin_struct!(PluginExampleBasics),
             plugin_struct!(PluginExampleInvert),

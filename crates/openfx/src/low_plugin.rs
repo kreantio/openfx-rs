@@ -1,8 +1,12 @@
-use std::ffi::{CStr, c_int, c_uint};
+use std::{
+    ffi::{CStr, c_int, c_uint, c_void},
+    ptr::NonNull,
+};
 
 use crate::{
-    low::OutboundResult, low_plugin::property_sets::ImageEffectHostDescriptorPropertySet,
-    sys_umbrella::OfxHost,
+    low::OutboundResult,
+    low_plugin::property_sets::ImageEffectHostDescriptorPropertySet,
+    sys_umbrella::{OfxHost, OfxPlugin},
 };
 
 pub mod actions {
@@ -31,7 +35,11 @@ impl<T: Plugin> crate::sys_plugin_helpers::ImageEffectPluginV1 for T {
 
     #[inline(always)]
     extern "C" fn set_host(host: *mut OfxHost) {
-        let host = unsafe { Host::from_sys(host as *const OfxHost) };
+        let Some(host) = NonNull::new(host) else {
+            // TODO: Emit a warning?
+            return;
+        };
+        let host = unsafe { Host::from_sys(host) };
         T::set_host(host);
     }
 
@@ -51,6 +59,17 @@ impl<T: Plugin> crate::sys_plugin_helpers::ImageEffectPluginV1 for T {
             Ok(status) => status.into(),
             Err(status) => status.into(),
         }
+    }
+}
+
+pub trait Plugins {
+    fn plugins(host: Option<&Host>) -> Vec<OfxPlugin>;
+}
+
+impl<T: Plugins> crate::sys_plugin_helpers::Plugins for T {
+    fn plugins(host: Option<NonNull<OfxHost>>) -> Vec<OfxPlugin> {
+        let host = host.map(|h| unsafe { Host::from_sys(h) });
+        T::plugins(host.as_ref())
     }
 }
 
@@ -84,7 +103,7 @@ pub trait LifetimePlugin {}
 /// [ofxThreadSafety.rst]: https://github.com/AcademySoftwareFoundation/openfx/blob/3de640d6f645fe6e346acd57e568d8b0a5ae4574/Documentation/sources/Reference/ofxThreadSafety.rst?plain=1#L41
 /// [invert.cpp]: https://github.com/AcademySoftwareFoundation/openfx/blob/3de640d6f645fe6e346acd57e568d8b0a5ae4574/Documentation/sources/Guide/Code/Example2/invert.cpp
 pub struct Host {
-    sys: *const crate::sys::core::OfxHost,
+    sys: NonNull<OfxHost>,
     host: ImageEffectHostDescriptorPropertySet,
 }
 
@@ -96,9 +115,9 @@ impl Host {
     /// ## Safety
     ///
     /// `host` must be a valid pointer to [`OfxHost`].
-    pub unsafe fn from_sys(host: *const OfxHost) -> Self {
+    pub unsafe fn from_sys(host: NonNull<OfxHost>) -> Self {
         let sys = host;
-        let host = unsafe { host.as_ref_unchecked() };
+        let host = unsafe { host.as_ref() };
 
         Self {
             sys,
@@ -106,7 +125,7 @@ impl Host {
         }
     }
 
-    pub fn sys(&self) -> *const OfxHost {
+    pub fn sys(&self) -> NonNull<OfxHost> {
         self.sys
     }
 
@@ -117,13 +136,9 @@ impl Host {
     /// ## Safety
     ///
     /// The `fetchSuite` function pointer in `self.sys` must be valid.
-    pub unsafe fn sys_fetch_suite(
-        &self,
-        suite_name: &CStr,
-        suite_version: c_int,
-    ) -> *const std::ffi::c_void {
+    pub unsafe fn sys_fetch_suite(&self, suite_name: &CStr, suite_version: c_int) -> *const c_void {
         unsafe {
-            let fetch_suite = self.sys().as_ref_unchecked().fetchSuite.unwrap_unchecked();
+            let fetch_suite = self.sys().as_ref().fetchSuite.unwrap_unchecked();
             fetch_suite(self.host().sys_handle(), suite_name.as_ptr(), suite_version)
         }
     }
