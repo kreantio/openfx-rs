@@ -14,7 +14,7 @@ use crate::guarantee_send::GuaranteeSend;
 pub struct PluginData(pub Arc<PluginDataInner>);
 
 #[derive(Default, Clone)]
-pub struct PluginDataaFeatures {
+pub struct PluginDataFeatures {
     pub multi_thread_suite: bool,
 }
 
@@ -30,7 +30,7 @@ pub struct PluginDataInner {
 impl PluginData {
     pub fn try_new(
         host: GuaranteeSend<Host>,
-        features: PluginDataaFeatures,
+        features: PluginDataFeatures,
     ) -> Result<Self, StatusError> {
         let property_suite =
             unsafe { host.fetch_property_suite_v1() }.ok_or(StatusError::ErrMissingHostFeature)?;

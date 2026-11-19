@@ -72,7 +72,7 @@ use openfx_layer_low_examples_support::{
     gl, gl_loader,
     guarantee_send::{GuaranteeSend, GuaranteeSendClipInstance},
     managed_clip_images::for_opengl::ManagedClipImageForOpengl,
-    plugin_data::{PluginData, PluginDataaFeatures},
+    plugin_data::{PluginData, PluginDataFeatures},
     set_labels,
     sys_type_utils::rect_i_from_array,
 };
@@ -191,7 +191,7 @@ fn action_load() -> OutboundResult {
             }
         };
 
-        let data = PluginData::try_new(host, PluginDataaFeatures::default())?;
+        let data = PluginData::try_new(host, PluginDataFeatures::default())?;
 
         (data, Arc::new(additional))
     });

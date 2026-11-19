@@ -103,7 +103,7 @@ use openfx::{
 use openfx_layer_low_examples_support::{
     guarantee_send::{GuaranteeSend, GuaranteeSendClipInstance},
     managed_clip_images::{for_cpu::ManagedClipImageForCpu, for_opencl::ManagedClipImageForOpencl},
-    plugin_data::{PluginData, PluginDataaFeatures},
+    plugin_data::{PluginData, PluginDataFeatures},
     renderer_info::{Renderer, UsedRenderer},
     set_labels,
     sys_type_utils::rect_i_from_array,
@@ -337,7 +337,7 @@ fn action_load(var: &PluginVariant) -> OutboundResult {
         let data = PluginData::try_new(
             host,
             #[allow(clippy::needless_update)]
-            PluginDataaFeatures {
+            PluginDataFeatures {
                 multi_thread_suite: true,
                 ..Default::default()
             },
