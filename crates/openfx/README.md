@@ -32,7 +32,7 @@ some additional work after the binary is built. See:
 [some of the scripts I use for bundling the example plugins].
 
 [OpenFX reference / Packaging OFX Plug-ins]: https://openfx.readthedocs.io/en/latest/Reference/ofxPackaging.html
-[some of the scripts I use for bundling the example plugins]: ../../examples/layer-low/official-guide-example-plugins/scripts/bundle.sh
+[some of the scripts I use for bundling the example plugins]: ../../examples/layer-low/shared/scripts/bundle.sh
 
 Please don't forget that the `Cargo.toml` of your plugin crates should contain:
 
