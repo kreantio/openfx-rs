@@ -1,4 +1,7 @@
-use std::ffi::{CStr, c_char, c_int, c_uint, c_void};
+use std::{
+    ffi::{CStr, c_char, c_int, c_uint, c_void},
+    ptr::NonNull,
+};
 
 use crate::{
     sys::core::{OfxHost, OfxPlugin, OfxPropertySetHandle, OfxStatus},
@@ -23,8 +26,12 @@ pub trait Plugin {
 pub trait Plugins {
     /// ## Safety
     ///
-    /// The `host` parameter should not be kept.
-    fn plugins(host: Option<*const OfxHost>) -> Vec<OfxPlugin>;
+    /// The `host` parameter comes from `OfxSetHost` and should not be kept:
+    /// “The host pointer is only assumed valid until OfxGetPlugin where it
+    /// might get reset.”
+    ///
+    /// See: https://openfx.readthedocs.io/en/main/Reference/api/file/ofxCore_8h.html#_CPPv410OfxSetHostPK7OfxHost
+    fn plugins(host: Option<NonNull<OfxHost>>) -> Vec<OfxPlugin>;
 }
 
 #[macro_export]
@@ -61,11 +68,7 @@ macro_rules! export_plugins {
         fn __OPENFX_SYS_HELPERS__initialize_plugins() {
             unsafe {
                 if __OPENFX_SYS_HELPERS__PLUGINS.is_null() {
-                    let host = if __OPENFX_SYS_HELPERS__HOST.is_null() {
-                        None
-                    } else {
-                        Some(__OPENFX_SYS_HELPERS__HOST)
-                    };
+                    let host = std::ptr::NonNull::new(__OPENFX_SYS_HELPERS__HOST as *mut _);
                     let plugins =
                         <$plugins_type as $crate::sys_plugin_helpers::Plugins>::plugins(host);
                     __OPENFX_SYS_HELPERS__PLUGIN_COUNT = plugins.len();

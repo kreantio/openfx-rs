@@ -3,9 +3,10 @@ use std::sync::OnceLock;
 use tracing_subscriber::{Layer, Registry, layer::SubscriberExt as _};
 
 use openfx::{
-    export_plugins, plugin_struct,
-    sys::core::{OfxHost, OfxPlugin},
-    sys_plugin_helpers::Plugins,
+    export_plugins,
+    low_plugin::{Host, Plugins},
+    plugin_struct,
+    sys::core::OfxPlugin,
 };
 
 use crate::{
@@ -38,7 +39,7 @@ enum PendingLogLevel {
 }
 
 impl Plugins for ExamplePlugins {
-    fn plugins(_host: Option<*const OfxHost>) -> Vec<OfxPlugin> {
+    fn plugins(_host: Option<&Host>) -> Vec<OfxPlugin> {
         set_up_tracing();
 
         vec![
