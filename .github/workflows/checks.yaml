@@ -92,6 +92,12 @@ jobs:
       - name: "Try building example: layer-low/official-guide-example-plugins"
         run: cd examples/layer-low/official-guide-example-plugins && just build-preferring-dash
 
+      - name: "Try building example: layer-low/official-example-plugins"
+        run: cd examples/layer-low/official-example-plugins && just build-preferring-dash
+
+      - name: "Try building example: layer-low/official-old-support-example-plugins"
+        run: cd examples/layer-low/official-old-support-example-plugins && just build-preferring-dash
+
   # ---------------------------------------------------------------------------
 
   check-stale-generated-contents:
