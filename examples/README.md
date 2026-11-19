@@ -8,6 +8,7 @@ across examples):
 
 - [`layer-low`](./layer-low/): The examples demonstrate how to write OpenFX
   plugins using `openfx::{low, low_plugin}`.
+  - See also: [layer-low/README.md](./layer-low/README.md)
 
 ## Examples Categorized by Topic
 
