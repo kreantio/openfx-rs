@@ -1,0 +1,26 @@
+[package]
+name = "openfx-layer-low-examples-support"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[features]
+cuda = []
+metal = []
+opencl = []
+opengl = ["dep:libloading"]
+
+[dependencies]
+openfx.workspace = true
+
+tracing.workspace = true
+
+libloading = { workspace = true, optional = true }
+
+[build-dependencies]
+gl_generator.workspace = true
+
+[lints]
+workspace = true

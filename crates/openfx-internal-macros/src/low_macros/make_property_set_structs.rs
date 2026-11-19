@@ -47,6 +47,7 @@ fn make_property_set_struct(
     let struct_name = &set.name;
 
     output.extend(quote! {
+        #[derive(Clone, Copy)]
         pub struct #struct_name(crate::sys::core::OfxPropertySetHandle);
 
         impl #struct_name {

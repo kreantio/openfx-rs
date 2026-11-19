@@ -6,8 +6,8 @@ use crate::low_macros::utils::make_doc_see_sys;
 /// ## Note
 ///
 /// This was originally a declarative macro. While migrating
-/// `ofx-guide-example-plugins-layer-low`, however, `rustc` reported that it
-/// could not find `sys` in numerous places. The issue may disappear once the
+/// `layer-low/official-guide-example-plugins`, however, `rustc` reported that
+/// it could not find `sys` in numerous places. The issue may disappear once the
 /// migration is complete, but these errors obscured genuine errors and made
 /// debugging difficult. It was therefore converted to a procedural macro to
 /// avoid macro expansion-order issues.

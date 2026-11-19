@@ -1,0 +1,33 @@
+PATH_BUNDLE_SH := "../shared/scripts/bundle.sh"
+
+build *args:
+    {{ PATH_BUNDLE_SH }} \
+      --base-name OfxOldSupportExamplePluginsLayerLow \
+      --info-plist assets/info.plist \
+      {{ args }}
+
+build-macos-aarch64:
+    just build --target-triple aarch64-apple-darwin
+
+build-windows-x64:
+    just build --target-triple x86_64-pc-windows-gnu
+
+# TODO: build-linux-x64, build-linux-aarch64, build-windows-aarch64
+
+build-all: build-macos-aarch64 build-windows-x64
+
+build-preferring-dash *args:
+    #!/usr/bin/env sh
+    # NOTE: On macOS, `/bin/sh` is bash. Luckily, dash is now also built into
+    # macOS, so we can prefer using dash to ensure POSIX compliance.
+    if command -v dash >/dev/null 2>&1; then
+        echo "Found dash, using dash." >&2
+        SH="dash"
+    else
+        SH="sh"
+    fi
+
+    /usr/bin/env "$SH" {{ PATH_BUNDLE_SH }} \
+      --base-name OfxOldSupportExamplePluginsLayerLow \
+      --info-plist assets/info.plist \
+      {{ args }}

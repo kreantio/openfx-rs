@@ -1,0 +1,45 @@
+[package]
+name = "layer-low-official-old-support-example-plugins"
+publish = false
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+openfx.workspace = true
+openfx-layer-low-examples-support = { workspace = true, features = [
+  "cuda",
+  "metal",
+  "opencl",
+] }
+
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+cl3.workspace = true
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2.workspace = true
+objc2-foundation.workspace = true
+objc2-metal.workspace = true
+tracing-oslog.workspace = true
+
+[target.'cfg(not(target_os = "macos"))'.dependencies]
+cudarc = { workspace = true, features = [
+  # 12.4 is the version appearing in the CI of the OpenFX standard's official repository:
+  # https://github.com/AcademySoftwareFoundation/openfx/blob/4249fe1b590a7e65caf4b1e4693b6b53220703f5/.github/workflows/build.yml#L377
+  #
+  # There is no other reason this is chosen here.
+  "cuda-12040",
+] }
+
+[build-dependencies]
+gl_generator.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[lints]
+workspace = true

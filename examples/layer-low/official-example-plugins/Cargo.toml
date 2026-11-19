@@ -1,0 +1,25 @@
+[package]
+name = "layer-low-official-example-plugins"
+publish = false
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+openfx.workspace = true
+openfx-layer-low-examples-support = { workspace = true, features = ["opengl"] }
+
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2-foundation.workspace = true
+tracing-oslog.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[lints]
+workspace = true

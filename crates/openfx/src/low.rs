@@ -123,6 +123,9 @@ impl<T> InboundResult<T> {
     pub fn ok_or<E>(self, err: E) -> Result<T, E> {
         self.ok().ok_or(err)
     }
+    pub fn unwrap_or(self, default: T) -> T {
+        self.ok().unwrap_or(default)
+    }
     pub fn map_ok<U, F>(self, f: F) -> InboundResult<U>
     where
         F: FnOnce(T) -> U,
