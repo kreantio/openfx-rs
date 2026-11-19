@@ -5,6 +5,7 @@ rust-version.workspace = true
 version.workspace = true
 license.workspace = true
 repository.workspace = true
+description = "Code shared across the example crates for `openfx::{low, low_plugin}`"
 
 [features]
 cuda = []
