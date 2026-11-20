@@ -1,0 +1,13 @@
+[package]
+name = "opk"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "OpenFX Plugin Kit: An opinionated yet flexible framework for developing OpenFX plugins"
+
+[dependencies]
+
+[lints]
+workspace = true

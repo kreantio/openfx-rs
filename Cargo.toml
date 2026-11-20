@@ -13,6 +13,9 @@ members = [
   "examples/layer-low/official-example-plugins",
   "examples/layer-low/official-guide-example-plugins",
   "examples/layer-low/official-old-support-example-plugins",
+  "crates/opk",
+  "crates/ohk",
+  "examples/ohk/ofx-ls-plugins",
 ]
 # for some reason, globs (e.g. "vendor/*", "vendor/**/*") don't work.
 exclude = [
@@ -30,16 +33,27 @@ repository = "https://github.com/kreantio/openfx-rs"
 [workspace.lints]
 
 [workspace.dependencies]
+# published:
 openfx = { path = "crates/openfx", version = "0.9.0" }
+openfx-internal-macros = { path = "crates/openfx-internal-macros", version = "0.9.0" }
+opk = { path = "crates/opk", version = "0.9.0" }
+ohk = { path = "crates/ohk", version = "0.9.0" }
+
+# codegen-related (private):
 openfx-codegen = { path = "crates/private/openfx-codegen", version = "0.9.0" }
 openfx-codegen-config = { path = "crates/private/openfx-codegen-config", version = "0.9.0" }
-openfx-internal-macros = { path = "crates/openfx-internal-macros", version = "0.9.0" }
+
+# example-related (published in name):
 openfx-layer-low-examples-support = { path = "examples/layer-low/shared/support", version = "0.9.0" }
 
+# vendored:
 openfx-datagen = { path = "vendor/openfx-data/openfx-datagen/crates/openfx-datagen", version = "0.6.0" }
 
+
+# external:
 clap = "4.6.6"
 convert_case = "0.11.0"
+libloading = "0.9.0"
 proc-macro2 = "1.0.107"
 quote = "1.0.47"
 rayon = "1.12.0"
@@ -57,7 +71,6 @@ tracing-subscriber = "0.3.23"
 cl3 = "0.13.2"
 cudarc = "0.19.10"
 gl_generator = "0.14.0"
-libloading = "0.9.0"
 objc2 = "0.6.5"
 objc2-foundation = "0.3.2"
 objc2-metal = "0.3.2"

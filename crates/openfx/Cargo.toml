@@ -5,7 +5,7 @@ rust-version.workspace = true
 version.workspace = true
 license.workspace = true
 repository.workspace = true
-description = "Rust bindings for the OpenFX API"
+description = "Primitive bindings and a low-level wrapper layer for the OpenFX API in Rust"
 include = ["src/**", "generated/**", "README.md", "LICENSE"]
 
 [features]
