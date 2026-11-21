@@ -151,7 +151,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("    {err}");
             }
             Ok(bundle) => {
-                let result = unsafe { bundle.initialize() };
+                let result = bundle.initialize();
                 if !result.errors.is_empty() {
                     tracing::warn!(
                         "There are plugin bundle manager initialization errors for `{}`: {:?}",

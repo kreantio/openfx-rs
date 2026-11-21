@@ -124,20 +124,15 @@ impl PluginBundle {
         self.library.file_name()
     }
 
-    /// ## Safety
-    ///
-    /// The safety requirements of this function are inherited from those of
-    /// invoking [`PluginLibrary::get_number_of_plugins`] and
-    /// [`PluginLibrary::get_plugin`].
-    pub unsafe fn initialize(self) -> PluginBundleManagerInitializationResult {
-        // unsafe { self.bundle.library.set_host(host) };
+    pub fn initialize(self) -> PluginBundleManagerInitializationResult {
+        // TODO: `unsafe { self.library.set_host(host) }`;
 
-        let number_of_plugins = unsafe { self.library.get_number_of_plugins() };
+        let number_of_plugins = self.library.get_number_of_plugins();
 
         let mut plugins: Vec<Plugin> = Vec::with_capacity(number_of_plugins as usize);
         let mut errors: Vec<PluginBundleManagerInitializationError> = vec![];
         for i in 0..number_of_plugins {
-            let plugin_ptr = unsafe { self.library.get_plugin(i) };
+            let plugin_ptr = self.library.get_plugin(i);
             if let Some(plugin_ptr) = NonNull::new(plugin_ptr) {
                 match Plugin::try_new(plugin_ptr) {
                     Ok(plugin) => plugins.push(plugin),
@@ -227,10 +222,14 @@ impl PluginLibrary {
 
     /// ## Safety
     ///
-    /// The execution of the library's `OfxSetHost` function is unsafe.
+    /// The caller must ensure that the host remains alive at least until
+    /// [Self::get_plugin] is called.
+    /// See: https://openfx.readthedocs.io/en/main/Reference/api/file/ofxCore_8h.html#_CPPv410OfxSetHostPK7OfxHost
     ///
-    /// Ensure that the host remains alive at least until [Self::get_plugin]
-    /// is called. See: https://openfx.readthedocs.io/en/main/Reference/api/file/ofxCore_8h.html#_CPPv410OfxSetHostPK7OfxHost
+    /// ## Note
+    ///
+    /// This function calls a foreign function, and it assumes that the foreign
+    /// function behaves correctly.
     #[expect(dead_code, reason = "TODO")]
     unsafe fn set_host(&self, host: &OfxHost) -> Option<openfx::low::InboundResult<()>> {
         self.OfxSetHost
@@ -238,18 +237,19 @@ impl PluginLibrary {
             .map(openfx::low::InboundResult::from_sys)
     }
 
-    /// ## Safety
+    /// ## Note
     ///
-    /// The execution of the library's `OfxGetNumberOfPlugins` function is
-    /// unsafe.
-    unsafe fn get_number_of_plugins(&self) -> c_int {
+    /// This function calls a foreign function, and it assumes that the foreign
+    /// function behaves correctly.
+    fn get_number_of_plugins(&self) -> c_int {
         unsafe { (self.OfxGetNumberOfPlugins)() }
     }
 
-    /// ## Safety
+    /// ## Note
     ///
-    /// The execution of the library's `OfxGetPlugin` function is unsafe.
-    unsafe fn get_plugin(&self, nth: c_int) -> *mut OfxPlugin {
+    /// This function calls a foreign function, and it assumes that the foreign
+    /// function behaves correctly.
+    fn get_plugin(&self, nth: c_int) -> *mut OfxPlugin {
         unsafe { (self.OfxGetPlugin)(nth) as *mut OfxPlugin }
     }
 }
