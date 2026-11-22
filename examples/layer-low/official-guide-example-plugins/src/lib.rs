@@ -24,7 +24,7 @@ struct ExamplePlugins;
 export_plugins!(ExamplePlugins);
 
 impl Plugins for ExamplePlugins {
-    fn plugins(_host: Option<&Host>) -> Vec<OfxPlugin> {
+    fn plugins(_host: Option<Host>) -> Vec<OfxPlugin> {
         vec![
             plugin_struct!(PluginExampleBasics),
             plugin_struct!(PluginExampleInvert),

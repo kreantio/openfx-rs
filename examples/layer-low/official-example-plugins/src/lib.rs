@@ -27,7 +27,7 @@ enum PendingLogLevel {
 }
 
 impl Plugins for ExamplePlugins {
-    fn plugins(_host: Option<&Host>) -> Vec<OfxPlugin> {
+    fn plugins(_host: Option<Host>) -> Vec<OfxPlugin> {
         #[allow(unused_mut)]
         let mut layers: Vec<Box<dyn Layer<Registry> + Send + Sync>> = vec![Box::new(
             tracing_subscriber::fmt::layer().with_writer(std::io::stderr),
