@@ -26,7 +26,7 @@ exclude = [
 [workspace.package]
 edition = "2024"
 rust-version = "1.100"
-version = "0.9.0"
+version = "0.10.0"
 license = "BSD-3-Clause"
 repository = "https://github.com/kreantio/openfx-rs"
 
@@ -34,17 +34,17 @@ repository = "https://github.com/kreantio/openfx-rs"
 
 [workspace.dependencies]
 # published:
-openfx = { path = "crates/openfx", version = "0.9.0" }
-openfx-internal-macros = { path = "crates/openfx-internal-macros", version = "0.9.0" }
-opk = { path = "crates/opk", version = "0.9.0" }
-ohk = { path = "crates/ohk", version = "0.9.0" }
+openfx = { path = "crates/openfx", version = "0.10.0" }
+openfx-internal-macros = { path = "crates/openfx-internal-macros", version = "0.10.0" }
+opk = { path = "crates/opk", version = "0.10.0" }
+ohk = { path = "crates/ohk", version = "0.10.0" }
 
 # codegen-related (private):
-openfx-codegen = { path = "crates/private/openfx-codegen", version = "0.9.0" }
-openfx-codegen-config = { path = "crates/private/openfx-codegen-config", version = "0.9.0" }
+openfx-codegen = { path = "crates/private/openfx-codegen", version = "0.10.0" }
+openfx-codegen-config = { path = "crates/private/openfx-codegen-config", version = "0.10.0" }
 
 # example-related (published in name):
-openfx-layer-low-examples-support = { path = "examples/layer-low/shared/support", version = "0.9.0" }
+openfx-layer-low-examples-support = { path = "examples/layer-low/shared/support", version = "0.10.0" }
 
 # vendored:
 openfx-datagen = { path = "vendor/openfx-data/openfx-datagen/crates/openfx-datagen", version = "0.6.0" }
