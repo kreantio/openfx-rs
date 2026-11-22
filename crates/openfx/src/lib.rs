@@ -1,3 +1,12 @@
+/// ## Lifetime Management
+///
+/// The user is responsible for ensuring the validity of instances of the types
+/// that wrap OpenFX handles defined in this crate. This crate makes no
+/// assumptions about the lifetimes of OpenFX handles and provides no RAII. It
+/// always hands out the wrapper types themselves and takes them by reference.
+///
+/// Note that for other types, such as [`std::ffi::CStr`], this crate still
+/// follows the usual Rust ownership and borrowing rules.
 #[allow(nonstandard_style)]
 #[allow(unused_parens)]
 #[allow(clippy::tabs_in_doc_comments)]

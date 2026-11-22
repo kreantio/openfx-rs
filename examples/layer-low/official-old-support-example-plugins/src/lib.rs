@@ -39,7 +39,7 @@ enum PendingLogLevel {
 }
 
 impl Plugins for ExamplePlugins {
-    fn plugins(_host: Option<&Host>) -> Vec<OfxPlugin> {
+    fn plugins(_host: Option<Host>) -> Vec<OfxPlugin> {
         set_up_tracing();
 
         vec![

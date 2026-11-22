@@ -63,13 +63,13 @@ impl<T: Plugin> crate::sys_plugin_helpers::ImageEffectPluginV1 for T {
 }
 
 pub trait Plugins {
-    fn plugins(host: Option<&Host>) -> Vec<OfxPlugin>;
+    fn plugins(host: Option<Host>) -> Vec<OfxPlugin>;
 }
 
 impl<T: Plugins> crate::sys_plugin_helpers::Plugins for T {
     fn plugins(host: Option<NonNull<OfxHost>>) -> Vec<OfxPlugin> {
         let host = host.map(|h| unsafe { Host::from_sys(h) });
-        T::plugins(host.as_ref())
+        T::plugins(host)
     }
 }
 
@@ -129,8 +129,8 @@ impl Host {
         self.sys
     }
 
-    pub fn host(&self) -> &ImageEffectHostDescriptorPropertySet {
-        &self.host
+    pub fn host(&self) -> ImageEffectHostDescriptorPropertySet {
+        self.host
     }
 
     /// ## Safety
