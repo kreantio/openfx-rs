@@ -170,10 +170,6 @@ impl ImageClipInstance {
     /// ## Safety
     ///
     /// `self` and `image_effect_open_gl_render_suite` must be valid.
-    ///
-    /// ## TODO
-    ///
-    /// See [ImageEffectOpenGLRenderSuiteV1::clip_free_texture].
     pub unsafe fn clip_load_texture(
         &self,
         image_effect_open_gl_render_suite: &ImageEffectOpenGLRenderSuiteV1,

@@ -211,9 +211,12 @@ impl ImageEffectOpenGLRenderSuiteV1 {
     ///
     /// `self` and `texture_handle` must be valid.
     ///
-    /// ## TODO
+    /// ## Note
     ///
-    /// See [ImageEffectSuiteV1::clip_release_image]'s TODO.
+    /// Although in theory, after calling this function, any further operations
+    /// on `texture_handle` are invalid, we still take it only by reference, in
+    /// accordance with
+    /// [the crate's lifetime management rules](crate#lifetime-management)
     pub unsafe fn clip_free_texture(
         &self,
         texture_handle: &OpenGLTexturePropertySet,
@@ -457,10 +460,12 @@ impl ImageEffectSuiteV1 {
     ///
     /// `self` and `image_handle` must be valid.
     ///
-    /// ## TODO
+    /// ## Note
     ///
-    /// Since all operations on it after this will be invalid, should we consume
-    /// `image_handle` here? Or is that out of the scope of the low layer?
+    /// Although in theory, after calling this function, any further operations
+    /// on `image_handle` are invalid, we still take it only by reference, in
+    /// accordance with
+    /// [the crate's lifetime management rules](crate#lifetime-management)
     pub unsafe fn clip_release_image(
         &self,
         image_handle: &ImageInstancePropertySet,
@@ -1086,10 +1091,12 @@ impl MultiThreadSuiteV1 {
     ///
     /// `self` and `mutex` must be valid.
     ///
-    /// ## TODO
+    /// ## Note
     ///
-    /// Should we consume `mutex` here? Or is that out of the scope of the low
-    /// layer?
+    /// Although in theory, after calling this function, any further operations
+    /// on `mutex` are invalid, we still take it only by reference, in
+    /// accordance with
+    /// [the crate's lifetime management rules](crate#lifetime-management)
     pub(crate) unsafe fn mutex_destroy(&self, mutex: &Mutex) -> InboundResult<()> {
         let sys_fn = unsafe { sys_fn!() };
 
