@@ -1,3 +1,10 @@
+//! ## Terminology
+//!
+//! In this crate, we use the word “surroundings” to refer to what is commonly
+//! called “context” elsewhere. That's because
+//! [`openfx::sys::image_effect::kOfxImageEffectPropContext`] is one of the core
+//! concepts in OpenFX, and we want to avoid confusion.
+
 pub use openfx::{
     export_plugins as __OPENFX__export_plugins,
     low::OutboundResult as __OPENFX_LOW__OUTBOUND_RESULT,
@@ -17,6 +24,9 @@ pub mod plugin_instance;
 
 mod utils;
 
+#[cfg(feature = "tracing")]
+pub static __TRACING_DISPATCH: std::sync::OnceLock<tracing::Dispatch> = std::sync::OnceLock::new();
+
 /// Holds a set of plugins that you want to expose to OpenFX hosts.
 pub trait Plugins {
     /// ## Parameters
@@ -30,7 +40,21 @@ pub trait Plugins {
     /// ## Returns
     ///
     /// A set of plugins that you want to expose to the host.
-    fn plugins(host: Option<&host::Host>) -> Vec<openfx::sys::core::OfxPlugin>;
+    fn plugins(
+        s: PluginsSurroundings,
+        host: Option<&host::Host>,
+    ) -> Vec<openfx::sys::core::OfxPlugin>;
+}
+
+pub struct PluginsSurroundings;
+impl PluginsSurroundings {
+    #[cfg(feature = "tracing")]
+    pub fn set_tracing_dispatch(
+        &self,
+        dispatch: tracing::Dispatch,
+    ) -> Result<(), tracing::Dispatch> {
+        __TRACING_DISPATCH.set(dispatch)
+    }
 }
 
 /// Exports (`pub extern "C"`) a set of plugins that OpenFX hosts use to
@@ -56,7 +80,7 @@ macro_rules! export_plugins_ex {
             fn plugins(host: Option<$crate::__OPENFX_UOW_PLUGINS__HOST>) -> Vec<$crate::OfxPlugin> {
                 let host = host.map(|host| $crate::host::Host::from_low(host));
                 let host = host.as_ref();
-                <$plugins_type>::plugins(host)
+                <$plugins_type>::plugins($crate::PluginsSurroundings, host)
             }
         }
         $crate::__OPENFX__export_plugins!(__OPK__Plugins);

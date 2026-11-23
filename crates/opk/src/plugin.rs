@@ -9,6 +9,7 @@ use std::{
 use openfx::{low::StatusError, low_plugin::actions::image_effect::ImageEffectAction};
 
 use crate::{
+    __TRACING_DISPATCH,
     actions::{
         self, CommonActionError, CommonActionOutput, CommonActionResult,
         image_effect::CommonActionSurroundings,
@@ -41,12 +42,35 @@ impl<T: Plugin> Default for PluginManager<T> {
 
 impl<T: Plugin> PluginManager<T> {
     pub fn __set_host(&self, host: openfx::low_plugin::Host) {
-        if self.host.set(Host::from_low(host)).is_err() {
-            tracing::warn!("`OfxPlugin::setHost` has been called more than once! Ignoring.");
+        match __TRACING_DISPATCH.get() {
+            Some(dispatch) => {
+                let _guard = tracing::dispatcher::set_default(dispatch);
+                self.set_host(host);
+            }
+            None => {
+                self.set_host(host);
+            }
         }
     }
     pub fn __main_entry(&self, action: ImageEffectAction) -> openfx::low::OutboundResult {
+        match __TRACING_DISPATCH.get() {
+            Some(dispatch) => {
+                let _guard = tracing::dispatcher::set_default(dispatch);
+                self.main_entry(action)
+            }
+            None => self.main_entry(action),
+        }
+    }
+
+    fn set_host(&self, host: openfx::low_plugin::Host) {
+        if self.host.set(Host::from_low(host)).is_err() {
+            #[cfg(feature = "tracing")]
+            tracing::warn!("`OfxPlugin::setHost` has been called more than once! Ignoring.");
+        }
+    }
+    fn main_entry(&self, action: ImageEffectAction) -> openfx::low::OutboundResult {
         let Some(host) = self.host.get() else {
+            #[cfg(feature = "tracing")]
             tracing::warn!(
                 "`OfxPlugin::setHost` has not been called before `OfxPlugin::mainEntry`. Ignoring the incoming action."
             );

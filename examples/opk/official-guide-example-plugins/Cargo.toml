@@ -12,6 +12,11 @@ openfx.workspace = true
 opk.workspace = true
 
 tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2-foundation.workspace = true
+tracing-oslog.workspace = true
 
 [lib]
 crate-type = ["cdylib"]

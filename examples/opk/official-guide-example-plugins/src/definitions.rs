@@ -1,5 +1,8 @@
 use std::ffi::CStr;
 
+pub const ROOT_IDENTIFIER: &str =
+    "umajho.kreantio.openfx-rs.official-guide-example-plugin-ports.opk";
+
 pub const PLUGINS_GROUPING: &CStr = c"openfx-rs: opk: Port of Official Guide Example";
 
 pub struct PluginInfo {

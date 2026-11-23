@@ -680,9 +680,12 @@ dependencies = [
 name = "opk-official-guide-example-plugins"
 version = "0.10.0"
 dependencies = [
+ "objc2-foundation",
  "openfx",
  "opk",
  "tracing",
+ "tracing-oslog",
+ "tracing-subscriber",
 ]
 
 [[package]]
