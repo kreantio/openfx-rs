@@ -3,6 +3,8 @@ resolver = "3"
 members = [
   "crates/openfx",
   "crates/openfx-internal-macros",
+  "crates/opk",
+  "crates/ohk",
 
   "xtask",
 
@@ -13,9 +15,8 @@ members = [
   "examples/layer-low/official-example-plugins",
   "examples/layer-low/official-guide-example-plugins",
   "examples/layer-low/official-old-support-example-plugins",
-  "crates/opk",
-  "crates/ohk",
   "examples/ohk/ofx-ls-plugins",
+  "examples/opk/official-guide-example-plugins",
 ]
 # for some reason, globs (e.g. "vendor/*", "vendor/**/*") don't work.
 exclude = [
@@ -54,6 +55,7 @@ openfx-datagen = { path = "vendor/openfx-data/openfx-datagen/crates/openfx-datag
 clap = "4.6.6"
 convert_case = "0.11.0"
 libloading = "0.9.0"
+parking_lot = "0.13.0"
 proc-macro2 = "1.0.107"
 quote = "1.0.47"
 rayon = "1.12.0"

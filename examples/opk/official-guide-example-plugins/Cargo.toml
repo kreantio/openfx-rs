@@ -1,0 +1,20 @@
+[package]
+name = "opk-official-guide-example-plugins"
+publish = false
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+openfx.workspace = true
+opk.workspace = true
+
+tracing.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[lints]
+workspace = true

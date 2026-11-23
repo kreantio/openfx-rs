@@ -8,6 +8,11 @@ repository.workspace = true
 description = "OpenFX Plugin Kit: An opinionated yet flexible framework for developing OpenFX plugins"
 
 [dependencies]
+openfx.workspace = true
+
+parking_lot.workspace = true
+snafu.workspace = true
+tracing.workspace = true
 
 [lints]
 workspace = true
