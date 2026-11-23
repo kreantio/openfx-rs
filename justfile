@@ -2,6 +2,8 @@ publish: generate-all
     cargo publish -p openfx-internal-macros
     cargo publish -p openfx
     cargo publish -p openfx-layer-low-examples-support
+    cargo publish -p opk
+    cargo publish -p ohk
 
 generate-all: generate-for-crate-openfx
 
