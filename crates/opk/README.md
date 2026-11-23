@@ -1,5 +1,10 @@
 # Crate `opk`
 
+[<img alt="github" src="https://img.shields.io/badge/github-kreantio/openfx-rs?logo=github" height="20">](https://github.com/kreantio/openfx-rs)
+[![Latest version](https://img.shields.io/crates/v/opk.svg)](https://crates.io/crates/opk)
+[![Documentation](https://docs.rs/opk/badge.svg)](https://docs.rs/opk)
+[![Crates.io License](https://img.shields.io/crates/l/opk)](https://github.com/kreantio/openfx-rs/blob/main/LICENSE)
+
 > [!NOTE]
 > Not ready yet.
 

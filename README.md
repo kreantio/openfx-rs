@@ -22,17 +22,16 @@ See Also:
 - [AI_POLICY.md](./AI_POLICY.md)
 - [ATTRIBUTION.md](./ATTRIBUTION.md)
 - [CONTRIBUTING.md](./CONTRIBUTING.md)
-- [examples/README.md](./examples/README.md)
 
 ## Prerequisites
 
 The following tools are required:
 
-| Tool(s) \\ To                           | Use crate `openfx` | Build Examples           | Update Generated Code in Crate `openfx` |
-| --------------------------------------- | ------------------ | ------------------------ | --------------------------------------- |
-| The [Rust] programming language         | `1.100.0`          | `nightly-2026-11-17`[^1] | `1.100.0`                               |
-| POSIX tools (`sh`, `rm`, `mkdir`, etc.) | no                 | yes                      | not strictly                            |
-| [`just`]                                | no                 | not strictly             | not strictly                            |
+| Tool(s) \\ To                           | Use crate `openfx`, `opk` and `ohk` | Build Examples           | Update Generated Code |
+| --------------------------------------- | ----------------------------------- | ------------------------ | --------------------- |
+| The [Rust] programming language         | `1.100.0`                           | `nightly-2026-11-17`[^1] | `1.100.0`             |
+| POSIX tools (`sh`, `rm`, `mkdir`, etc.) | no                                  | yes                      | not strictly          |
+| [`just`]                                | no                                  | not strictly             | not strictly          |
 
 [Rust]: https://rust-lang.org/
 [`just`]: https://github.com/casey/just
@@ -40,7 +39,13 @@ The following tools are required:
 [^1]: Only because
     [`cargo build --artifact-dir` is unstable](https://github.com/rust-lang/cargo/issues/6790).
 
-## Crate `openfx`
+## Examples
+
+See [examples/README.md](./examples/README.md).
+
+## Crates
+
+### Crate `openfx`
 
 [![Latest version](https://img.shields.io/crates/v/openfx.svg)](https://crates.io/crates/openfx)
 [![Documentation](https://docs.rs/openfx/badge.svg)](https://docs.rs/openfx)
@@ -50,18 +55,29 @@ The following tools are required:
 
 Primitive bindings and a low-level wrapper layer for the OpenFX API in Rust.
 
-## Crate `opk`
+### Crate `opk`
+
+[![Latest version](https://img.shields.io/crates/v/opk.svg)](https://crates.io/crates/opk)
+[![Documentation](https://docs.rs/opk/badge.svg)](https://docs.rs/opk)
+[![Crates.io License](https://img.shields.io/crates/l/opk)](https://github.com/kreantio/openfx-rs/blob/main/LICENSE)
 
 [README.md](./crates/opk/README.md)
 
 An opinionated yet flexible framework for developing OpenFX plugins built on top
 of the `openfx` crate.
 
-## Crate `ohk`
+### Crate `ohk`
+
+[![Latest version](https://img.shields.io/crates/v/ohk.svg)](https://crates.io/crates/ohk)
+[![Documentation](https://docs.rs/ohk/badge.svg)](https://docs.rs/ohk)
+[![Crates.io License](https://img.shields.io/crates/l/ohk)](https://github.com/kreantio/openfx-rs/blob/main/LICENSE)
 
 [README.md](./crates/ohk/README.md)
 
-## Internal Crates
+An opinionated framework for developing OpenFX hosts built on top of the
+`openfx` crate.
+
+### Internal Crates
 
 | Name                       | Published? | Description                                           |
 | -------------------------- | ---------- | ----------------------------------------------------- |

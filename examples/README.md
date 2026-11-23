@@ -17,13 +17,13 @@ across examples):
 These are the ports of the example plugins in the official
 [OpenFX Programming Guide].
 
-| Example Name             | Links (`layer-low`)                                                                               | Links (`opk`) |
-| ------------------------ | ------------------------------------------------------------------------------------------------- | ------------- |
-| `OFX Basics Example`     | [`plugin_1_basics.rs`](./layer-low/official-guide-example-plugins/src/plugin_1_basics.rs)         |               |
-| `OFX Invert Example`     | [`plugin_2_invert.rs`](./layer-low/official-guide-example-plugins/src/plugin_2_invert.rs)         |               |
-| `OFX Gain Example`       | [`plugin_3_gain.rs`](./layer-low/official-guide-example-plugins/src/plugin_3_gain.rs)             |               |
-| `OFX Saturation Example` | [`plugin_4_saturation.rs`](./layer-low/official-guide-example-plugins/src/plugin_4_saturation.rs) |               |
-| `OFX Circle Example`     | [`plugin_5_circle.rs`](./layer-low/official-guide-example-plugins/src/plugin_5_circle.rs)         |               |
+| Example Name             | Links (`layer-low`)                                                                               | Links (`opk`)                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `OFX Basics Example`     | [`plugin_1_basics.rs`](./layer-low/official-guide-example-plugins/src/plugin_1_basics.rs)         | [`plugin_1_basics.rs`](./opk/official-guide-example-plugins/src/plugin_1_basics.rs) |
+| `OFX Invert Example`     | [`plugin_2_invert.rs`](./layer-low/official-guide-example-plugins/src/plugin_2_invert.rs)         |                                                                                     |
+| `OFX Gain Example`       | [`plugin_3_gain.rs`](./layer-low/official-guide-example-plugins/src/plugin_3_gain.rs)             |                                                                                     |
+| `OFX Saturation Example` | [`plugin_4_saturation.rs`](./layer-low/official-guide-example-plugins/src/plugin_4_saturation.rs) |                                                                                     |
+| `OFX Circle Example`     | [`plugin_5_circle.rs`](./layer-low/official-guide-example-plugins/src/plugin_5_circle.rs)         |                                                                                     |
 
 ### Plugin Making: `official-example-plugins`
 

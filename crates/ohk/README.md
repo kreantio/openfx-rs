@@ -1,5 +1,10 @@
 # Crate `ohk`
 
+[<img alt="github" src="https://img.shields.io/badge/github-kreantio/openfx-rs?logo=github" height="20">](https://github.com/kreantio/openfx-rs)
+[![Latest version](https://img.shields.io/crates/v/ohk.svg)](https://crates.io/crates/ohk)
+[![Documentation](https://docs.rs/ohk/badge.svg)](https://docs.rs/ohk)
+[![Crates.io License](https://img.shields.io/crates/l/ohk)](https://github.com/kreantio/openfx-rs/blob/main/LICENSE)
+
 > [!NOTE]
 > Not ready yet.
 >
