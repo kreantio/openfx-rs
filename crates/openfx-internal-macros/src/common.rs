@@ -58,6 +58,7 @@ impl SimpleType {
         }
     }
 
+    #[expect(unused)]
     pub fn quote_rust_type(&self) -> proc_macro2::TokenStream {
         match self {
             Self::Int(ident) => {
