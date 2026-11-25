@@ -99,8 +99,7 @@ macro_rules! impl_accessor_methods {
     };
     (@convert:post[sys_get_to_low,slice] false values=$values:ident tmp_values=$tmp_values:ident) => {};
     (@convert:pre[sys_get_to_low,slice] $c:tt values=$values:ident tmp_values=$tmp_values:ident ty_get=$ty_get:ty) => {
-        let mut $tmp_values = Vec::<$ty_get>::with_capacity($values.len());
-        unsafe { $tmp_values.set_len($values.len()); }
+        let mut $tmp_values = vec![Default::default(); $values.len()];
     };
     (@convert:post[sys_get_to_low,slice] $c:tt values=$values:ident tmp_values=$tmp_values:ident) => {
         for (i, tmp) in $tmp_values.iter().enumerate() {
@@ -196,18 +195,18 @@ macro_rules! impl_accessor_methods {
             ) -> InboundResult<[$ty_low; N]> {
                 let sys_fn = unsafe { sys_fn!($get_n_sys_fn) };
 
-                let mut values: [$ty_get; N] =
-                    unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+                let mut values = std::mem::MaybeUninit::<[$ty_get; N]>::uninit();
 
                 InboundResult::from_sys(unsafe {
                     sys_fn(
                         properties,
                         property.as_ptr(),
                         N as c_int,
-                        values.as_mut_ptr(),
+                        values.as_mut_ptr() as *mut _,
                     )
                 })
                 .map_ok(|()| {
+                    let values = unsafe { values.assume_init() };
                     impl_accessor_methods!(@convert[sys_get_to_low,array] $conversions values)
                 })
             }

@@ -233,7 +233,6 @@ fn make_property_getter(
         );
 
         let expressive_ty = preset.expressive_type(el_type.ident());
-        let simple_type = preset.simple_type().quote_rust_type();
 
         let simple_to_expressive_quote =
             preset.simple_type_to_expressive_type(quote! { value_simple });
@@ -303,17 +302,7 @@ fn make_property_getter(
 
                         suite.prop_get_dimension(self.sys_handle(), crate::sys_umbrella::#cname)
                             .ok_and_then(|dimensions| {
-                                let dimensions = dimensions as usize;
-                                let mut value_simple: ::std::vec::Vec<#simple_type> = ::std::vec::Vec::with_capacity(dimensions);
-
-                                const _: () = assert!(!std::mem::needs_drop::<#simple_type>());
-                                // SAFETY: API contract.
-                                //
-                                // On early return: since `#simple_type` does
-                                // not need to be dropped, dropping the vector
-                                // early with uninitialized elements is safe.
-                                unsafe { value_simple.set_len(dimensions); }
-
+                                let mut value_simple = vec![Default::default(); dimensions as usize];
                                 suite.#fn_name_on_suite(self.sys_handle(), crate::sys_umbrella::#cname, &mut value_simple)
                                     .map_ok(|()| #simple_value_to_expressive_quote)
                             })
@@ -474,6 +463,7 @@ trait ImplGetterPreset {
     fn additional_safety_doc(&self) -> Option<proc_macro2::TokenStream> {
         None
     }
+    #[expect(unused)]
     fn simple_type(&self) -> SimpleType;
     /// The expressive type used in the `low` layer, i.e., the type of the value
     /// retrieved from the getter function that this preset adds.
