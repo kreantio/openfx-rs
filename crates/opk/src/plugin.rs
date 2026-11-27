@@ -12,7 +12,7 @@ use crate::{
     __TRACING_DISPATCH,
     actions::{
         self, CommonActionError, CommonActionOutput, CommonActionResult,
-        image_effect::CommonActionSurroundings,
+        image_effect::BaseActionSurroundings,
     },
     host::Host,
     plugin_instance::{
@@ -76,7 +76,7 @@ impl<T: Plugin> PluginManager<T> {
             );
             return openfx::low::OutboundResult::Err(StatusError::Failed);
         };
-        let s = actions::image_effect::CommonActionSurroundings::new(host, &action);
+        let s = actions::image_effect::BaseActionSurroundings::new(host, &action);
 
         let result = self.handle_action(host, &s, &action);
 
@@ -98,7 +98,7 @@ impl<T: Plugin> PluginManager<T> {
     fn handle_action(
         &self,
         host: &Host,
-        s: &CommonActionSurroundings,
+        s: &BaseActionSurroundings,
         action: &ImageEffectAction,
     ) -> CommonActionResult {
         match action {
@@ -121,7 +121,7 @@ impl<T: Plugin> PluginManager<T> {
                     .low_property_suite_v1()
                     .map_err(CommonActionError::from)?;
                 let s_ifx = host.low_image_effect_suite_v1()?;
-                let s = actions::image_effect::CreateInstanceSurroundings::new(s, handle);
+                let s = actions::image_effect::CreateInstanceActionSurroundings::new(s, handle);
                 let instance_creator =
                     PluginInstanceCreator::new(s_prop, s_ifx, handle, &self.instance_tracker);
                 T::handle_create_instance(&s, &instance_creator)
@@ -131,7 +131,7 @@ impl<T: Plugin> PluginManager<T> {
                 sys_in_args: _,
                 sys_out_args: _,
             } => {
-                let s = actions::image_effect::DescribeSurroundings::new(s, handle);
+                let s = actions::image_effect::DescribeActionSurroundings::new(s, handle);
                 T::handle_describe(&s)
             }
             ImageEffectAction::DestroyInstance {
@@ -143,7 +143,7 @@ impl<T: Plugin> PluginManager<T> {
                     .low_property_suite_v1()
                     .map_err(CommonActionError::from)?;
                 let s_ifx = host.low_image_effect_suite_v1()?;
-                let s = actions::image_effect::DestroyInstanceSurroundings::new(s, handle);
+                let s = actions::image_effect::DestroyInstanceActionSurroundings::new(s, handle);
                 let instance_destroyer =
                     PluginInstanceDestroyer::new(s_prop, s_ifx, handle, &self.instance_tracker);
                 T::handle_destroy_instance(&s, &instance_destroyer)
@@ -208,8 +208,9 @@ impl<T: Plugin> PluginManager<T> {
                 in_args,
                 sys_out_args: _,
             } => {
-                let s =
-                    actions::image_effect::DescribeInContextSurroundings::new(s, handle, in_args);
+                let s = actions::image_effect::DescribeInContextActionSurroundings::new(
+                    s, handle, in_args,
+                );
                 T::handle_describe_in_context(&s)
             }
             ImageEffectAction::EndSequenceRender {
@@ -256,7 +257,7 @@ impl<T: Plugin> PluginManager<T> {
                     .low_property_suite_v1()
                     .map_err(CommonActionError::from)?;
                 let s_ifx = host.low_image_effect_suite_v1()?;
-                let s = actions::image_effect::IsIdentitySurroundings::new(
+                let s = actions::image_effect::IsIdentityActionSurroundings::new(
                     s, handle, in_args, out_args,
                 );
                 let instance_retriever =
@@ -304,145 +305,151 @@ pub trait Plugin {
     type Instance: PluginInstance;
 
     fn handle_begin_instance_changed(
-        #[allow(unused_variables)] s: &actions::image_effect::BeginInstanceChangedSurroundings,
-    ) -> actions::image_effect::BeginInstanceChangedResult {
+        #[allow(unused_variables)]
+        s: &actions::image_effect::BeginInstanceChangedActionSurroundings,
+    ) -> actions::image_effect::BeginInstanceChangedActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_begin_instance_edit(
-        #[allow(unused_variables)] s: &actions::image_effect::BeginInstanceEditSurroundings,
-    ) -> actions::image_effect::BeginInstanceEditResult {
+        #[allow(unused_variables)] s: &actions::image_effect::BeginInstanceEditActionSurroundings,
+    ) -> actions::image_effect::BeginInstanceEditActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_create_instance(
-        s: &actions::image_effect::CreateInstanceSurroundings,
+        s: &actions::image_effect::CreateInstanceActionSurroundings,
         instance_creator: &PluginInstanceCreator<'_, Self::Instance>,
-    ) -> actions::image_effect::CreateInstanceResult;
+    ) -> actions::image_effect::CreateInstanceActionResult;
     fn handle_describe(
-        #[allow(unused_variables)] s: &actions::image_effect::DescribeSurroundings,
-    ) -> actions::image_effect::DescribeResult {
+        #[allow(unused_variables)] s: &actions::image_effect::DescribeActionSurroundings,
+    ) -> actions::image_effect::DescribeActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_destroy_instance(
-        #[allow(unused_variables)] s: &actions::image_effect::DestroyInstanceSurroundings,
+        #[allow(unused_variables)] s: &actions::image_effect::DestroyInstanceActionSurroundings,
         instance_destroyer: &PluginInstanceDestroyer<'_, Self::Instance>,
-    ) -> actions::image_effect::DestroyInstanceResult {
+    ) -> actions::image_effect::DestroyInstanceActionResult {
         let Some(instance) = instance_destroyer.destroy()? else {
             return Ok(CommonActionOutput::ReplyDefault);
         };
         instance.handle_destroy_instance(s)
     }
     fn handle_dialog(
-        #[allow(unused_variables)] s: &actions::image_effect::DialogSurroundings,
-    ) -> actions::image_effect::DialogResult {
+        #[allow(unused_variables)] s: &actions::image_effect::DialogActionSurroundings,
+    ) -> actions::image_effect::DialogActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_end_instance_changed(
-        #[allow(unused_variables)] s: &actions::image_effect::EndInstanceChangedSurroundings,
-    ) -> actions::image_effect::EndInstanceChangedResult {
+        #[allow(unused_variables)] s: &actions::image_effect::EndInstanceChangedActionSurroundings,
+    ) -> actions::image_effect::EndInstanceChangedActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_end_instance_edit(
-        #[allow(unused_variables)] s: &actions::image_effect::EndInstanceEditSurroundings,
-    ) -> actions::image_effect::EndInstanceEditResult {
+        #[allow(unused_variables)] s: &actions::image_effect::EndInstanceEditActionSurroundings,
+    ) -> actions::image_effect::EndInstanceEditActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_instance_changed(
-        #[allow(unused_variables)] s: &actions::image_effect::InstanceChangedSurroundings,
-    ) -> actions::image_effect::InstanceChangedResult {
+        #[allow(unused_variables)] s: &actions::image_effect::InstanceChangedActionSurroundings,
+    ) -> actions::image_effect::InstanceChangedActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_load(
-        #[allow(unused_variables)] s: &actions::image_effect::LoadSurroundings,
-    ) -> actions::image_effect::LoadResult {
+        #[allow(unused_variables)] s: &actions::image_effect::LoadActionSurroundings,
+    ) -> actions::image_effect::LoadActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_opengl_context_attached(
-        #[allow(unused_variables)] s: &actions::image_effect::OpenGLContextAttachedSurroundings,
-    ) -> actions::image_effect::OpenGLContextAttachedResult {
+        #[allow(unused_variables)]
+        s: &actions::image_effect::OpenGLContextAttachedActionSurroundings,
+    ) -> actions::image_effect::OpenGLContextAttachedActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_opengl_context_detached(
-        #[allow(unused_variables)] s: &actions::image_effect::OpenGLContextDetachedSurroundings,
-    ) -> actions::image_effect::OpenGLContextDetachedResult {
+        #[allow(unused_variables)]
+        s: &actions::image_effect::OpenGLContextDetachedActionSurroundings,
+    ) -> actions::image_effect::OpenGLContextDetachedActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_purge_caches(
-        #[allow(unused_variables)] s: &actions::image_effect::PurgeCachesSurroundings,
-    ) -> actions::image_effect::PurgeCachesResult {
+        #[allow(unused_variables)] s: &actions::image_effect::PurgeCachesActionSurroundings,
+    ) -> actions::image_effect::PurgeCachesActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_sync_private_data(
-        #[allow(unused_variables)] s: &actions::image_effect::SyncPrivateDataSurroundings,
-    ) -> actions::image_effect::SyncPrivateDataResult {
+        #[allow(unused_variables)] s: &actions::image_effect::SyncPrivateDataActionSurroundings,
+    ) -> actions::image_effect::SyncPrivateDataActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_unload(
-        #[allow(unused_variables)] s: &actions::image_effect::UnloadSurroundings,
-    ) -> actions::image_effect::UnloadResult {
+        #[allow(unused_variables)] s: &actions::image_effect::UnloadActionSurroundings,
+    ) -> actions::image_effect::UnloadActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_begin_sequence_render(
-        #[allow(unused_variables)] s: &actions::image_effect::BeginSequenceRenderSurroundings,
-    ) -> actions::image_effect::BeginSequenceRenderResult {
+        #[allow(unused_variables)] s: &actions::image_effect::BeginSequenceRenderActionSurroundings,
+    ) -> actions::image_effect::BeginSequenceRenderActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_describe_in_context(
-        #[allow(unused_variables)] s: &actions::image_effect::DescribeInContextSurroundings,
-    ) -> actions::image_effect::DescribeInContextResult {
+        #[allow(unused_variables)] s: &actions::image_effect::DescribeInContextActionSurroundings,
+    ) -> actions::image_effect::DescribeInContextActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_end_sequence_render(
-        #[allow(unused_variables)] s: &actions::image_effect::EndSequenceRenderSurroundings,
-    ) -> actions::image_effect::EndSequenceRenderResult {
+        #[allow(unused_variables)] s: &actions::image_effect::EndSequenceRenderActionSurroundings,
+    ) -> actions::image_effect::EndSequenceRenderActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_get_clip_preferences(
-        #[allow(unused_variables)] s: &actions::image_effect::GetClipPreferencesSurroundings,
-    ) -> actions::image_effect::GetClipPreferencesResult {
+        #[allow(unused_variables)] s: &actions::image_effect::GetClipPreferencesActionSurroundings,
+    ) -> actions::image_effect::GetClipPreferencesActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_get_frames_needed(
-        #[allow(unused_variables)] s: &actions::image_effect::GetFramesNeededSurroundings,
-    ) -> actions::image_effect::GetFramesNeededResult {
+        #[allow(unused_variables)] s: &actions::image_effect::GetFramesNeededActionSurroundings,
+    ) -> actions::image_effect::GetFramesNeededActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_get_output_colourspace(
-        #[allow(unused_variables)] s: &actions::image_effect::GetOutputColourspaceSurroundings,
-    ) -> actions::image_effect::GetOutputColourspaceResult {
+        #[allow(unused_variables)]
+        s: &actions::image_effect::GetOutputColourspaceActionSurroundings,
+    ) -> actions::image_effect::GetOutputColourspaceActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_get_region_of_definition(
-        #[allow(unused_variables)] s: &actions::image_effect::GetRegionOfDefinitionSurroundings,
-    ) -> actions::image_effect::GetRegionOfDefinitionResult {
+        #[allow(unused_variables)]
+        s: &actions::image_effect::GetRegionOfDefinitionActionSurroundings,
+    ) -> actions::image_effect::GetRegionOfDefinitionActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_get_regions_of_interest(
-        #[allow(unused_variables)] s: &actions::image_effect::GetRegionsOfInterestSurroundings,
-    ) -> actions::image_effect::GetRegionsOfInterestResult {
+        #[allow(unused_variables)]
+        s: &actions::image_effect::GetRegionsOfInterestActionSurroundings,
+    ) -> actions::image_effect::GetRegionsOfInterestActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_get_time_domain(
-        #[allow(unused_variables)] s: &actions::image_effect::GetTimeDomainSurroundings,
-    ) -> actions::image_effect::GetTimeDomainResult {
+        #[allow(unused_variables)] s: &actions::image_effect::GetTimeDomainActionSurroundings,
+    ) -> actions::image_effect::GetTimeDomainActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
     fn handle_is_identity(
-        #[allow(unused_variables)] s: &actions::image_effect::IsIdentitySurroundings,
+        #[allow(unused_variables)] s: &actions::image_effect::IsIdentityActionSurroundings,
         instance_retriever: &PluginInstanceRetriever<'_, Self::Instance>,
-    ) -> actions::image_effect::IsIdentityResult {
+    ) -> actions::image_effect::IsIdentityActionResult {
         let Some(instance) = instance_retriever.retrieve()? else {
             return Ok(CommonActionOutput::ReplyDefault);
         };
         instance.handle_is_identity(s)
     }
     fn handle_render(
-        #[allow(unused_variables)] s: &actions::image_effect::RenderSurroundings,
-    ) -> actions::image_effect::RenderResult {
+        #[allow(unused_variables)] s: &actions::image_effect::RenderActionSurroundings,
+    ) -> actions::image_effect::RenderActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
 
     fn handle_post_all(
-        #[allow(unused_variables)] s: &actions::image_effect::CommonActionSurroundings,
+        #[allow(unused_variables)] s: &actions::image_effect::BaseActionSurroundings,
         #[allow(unused_variables)] action: ImageEffectAction,
         previous_result: CommonActionResult,
     ) -> CommonActionResult {

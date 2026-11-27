@@ -6,7 +6,7 @@ use openfx::{
 
 use crate::{actions::CommonActionResult, host::Host};
 
-pub struct CommonActionSurroundings<'a> {
+pub struct BaseActionSurroundings<'a> {
     host: &'a Host,
 
     sys_handle: *const c_void,
@@ -14,7 +14,7 @@ pub struct CommonActionSurroundings<'a> {
     sys_out_args: *mut OfxPropertySetStruct,
 }
 
-impl<'a> CommonActionSurroundings<'a> {
+impl<'a> BaseActionSurroundings<'a> {
     pub fn new(host: &'a Host, action: &ImageEffectAction) -> Self {
         Self {
             host,
@@ -39,30 +39,30 @@ impl<'a> CommonActionSurroundings<'a> {
     }
 }
 
-pub type BeginInstanceChangedSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type BeginInstanceChangedResult = CommonActionResult;
+pub type BeginInstanceChangedActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type BeginInstanceChangedActionResult = CommonActionResult;
 
-pub type BeginInstanceEditSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type BeginInstanceEditResult = CommonActionResult;
+pub type BeginInstanceEditActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type BeginInstanceEditActionResult = CommonActionResult;
 
-pub struct CreateInstanceSurroundings<'a> {
-    common: &'a CommonActionSurroundings<'a>,
+pub struct CreateInstanceActionSurroundings<'a> {
+    base: &'a BaseActionSurroundings<'a>,
 
     low_image_effect_instance: &'a openfx::low_plugin::objects::ImageEffectInstance,
 }
-impl<'a> CreateInstanceSurroundings<'a> {
+impl<'a> CreateInstanceActionSurroundings<'a> {
     pub fn new(
-        s: &'a CommonActionSurroundings<'a>,
+        base: &'a BaseActionSurroundings<'a>,
         low_handle: &'a openfx::low_plugin::objects::ImageEffectInstance,
     ) -> Self {
         Self {
-            common: s,
+            base,
             low_image_effect_instance: low_handle,
         }
     }
 
     pub fn host(&self) -> &Host {
-        self.common.host()
+        self.base.host()
     }
 
     pub fn low_image_effect_instance(
@@ -71,32 +71,32 @@ impl<'a> CreateInstanceSurroundings<'a> {
         self.low_image_effect_instance
     }
     pub fn sys_in_args(&self) -> *mut OfxPropertySetStruct {
-        self.common.sys_in_args()
+        self.base.sys_in_args()
     }
     pub fn sys_out_args(&self) -> *mut OfxPropertySetStruct {
-        self.common.sys_out_args()
+        self.base.sys_out_args()
     }
 }
-pub type CreateInstanceResult = CommonActionResult;
+pub type CreateInstanceActionResult = CommonActionResult;
 
-pub struct DescribeSurroundings<'a> {
-    common: &'a CommonActionSurroundings<'a>,
+pub struct DescribeActionSurroundings<'a> {
+    base: &'a BaseActionSurroundings<'a>,
 
     low_image_effect_descriptor: &'a openfx::low_plugin::objects::ImageEffectDescriptor,
 }
-impl<'a> DescribeSurroundings<'a> {
+impl<'a> DescribeActionSurroundings<'a> {
     pub fn new(
-        s: &'a CommonActionSurroundings<'a>,
+        base: &'a BaseActionSurroundings<'a>,
         low_handle: &'a openfx::low_plugin::objects::ImageEffectDescriptor,
     ) -> Self {
         Self {
-            common: s,
+            base,
             low_image_effect_descriptor: low_handle,
         }
     }
 
     pub fn host(&self) -> &Host {
-        self.common.host()
+        self.base.host()
     }
 
     pub fn low_image_effect_descriptor(
@@ -105,32 +105,32 @@ impl<'a> DescribeSurroundings<'a> {
         self.low_image_effect_descriptor
     }
     pub fn sys_in_args(&self) -> *mut OfxPropertySetStruct {
-        self.common.sys_in_args()
+        self.base.sys_in_args()
     }
     pub fn sys_out_args(&self) -> *mut OfxPropertySetStruct {
-        self.common.sys_out_args()
+        self.base.sys_out_args()
     }
 }
-pub type DescribeResult = CommonActionResult;
+pub type DescribeActionResult = CommonActionResult;
 
-pub struct DestroyInstanceSurroundings<'a> {
-    common: &'a CommonActionSurroundings<'a>,
+pub struct DestroyInstanceActionSurroundings<'a> {
+    base: &'a BaseActionSurroundings<'a>,
 
     low_image_effect_instance: &'a openfx::low_plugin::objects::ImageEffectInstance,
 }
-impl<'a> DestroyInstanceSurroundings<'a> {
+impl<'a> DestroyInstanceActionSurroundings<'a> {
     pub fn new(
-        s: &'a CommonActionSurroundings<'a>,
+        base: &'a BaseActionSurroundings<'a>,
         low_handle: &'a openfx::low_plugin::objects::ImageEffectInstance,
     ) -> Self {
         Self {
-            common: s,
+            base,
             low_image_effect_instance: low_handle,
         }
     }
 
     pub fn host(&self) -> &Host {
-        self.common.host()
+        self.base.host()
     }
 
     pub fn low_image_effect_instance(
@@ -139,68 +139,68 @@ impl<'a> DestroyInstanceSurroundings<'a> {
         self.low_image_effect_instance
     }
     pub fn sys_in_args(&self) -> *mut OfxPropertySetStruct {
-        self.common.sys_in_args()
+        self.base.sys_in_args()
     }
     pub fn sys_out_args(&self) -> *mut OfxPropertySetStruct {
-        self.common.sys_out_args()
+        self.base.sys_out_args()
     }
 }
-pub type DestroyInstanceResult = CommonActionResult;
+pub type DestroyInstanceActionResult = CommonActionResult;
 
-pub type DialogSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type DialogResult = CommonActionResult;
+pub type DialogActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type DialogActionResult = CommonActionResult;
 
-pub type EndInstanceChangedSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type EndInstanceChangedResult = CommonActionResult;
+pub type EndInstanceChangedActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type EndInstanceChangedActionResult = CommonActionResult;
 
-pub type EndInstanceEditSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type EndInstanceEditResult = CommonActionResult;
+pub type EndInstanceEditActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type EndInstanceEditActionResult = CommonActionResult;
 
-pub type InstanceChangedSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type InstanceChangedResult = CommonActionResult;
+pub type InstanceChangedActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type InstanceChangedActionResult = CommonActionResult;
 
-pub type LoadSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type LoadResult = CommonActionResult;
+pub type LoadActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type LoadActionResult = CommonActionResult;
 
-pub type OpenGLContextAttachedSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type OpenGLContextAttachedResult = CommonActionResult;
+pub type OpenGLContextAttachedActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type OpenGLContextAttachedActionResult = CommonActionResult;
 
-pub type OpenGLContextDetachedSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type OpenGLContextDetachedResult = CommonActionResult;
+pub type OpenGLContextDetachedActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type OpenGLContextDetachedActionResult = CommonActionResult;
 
-pub type PurgeCachesSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type PurgeCachesResult = CommonActionResult;
+pub type PurgeCachesActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type PurgeCachesActionResult = CommonActionResult;
 
-pub type SyncPrivateDataSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type SyncPrivateDataResult = CommonActionResult;
+pub type SyncPrivateDataActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type SyncPrivateDataActionResult = CommonActionResult;
 
-pub type UnloadSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type UnloadResult = CommonActionResult;
+pub type UnloadActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type UnloadActionResult = CommonActionResult;
 
-pub type BeginSequenceRenderSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type BeginSequenceRenderResult = CommonActionResult;
+pub type BeginSequenceRenderActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type BeginSequenceRenderActionResult = CommonActionResult;
 
-pub struct DescribeInContextSurroundings<'a> {
-    common: &'a CommonActionSurroundings<'a>,
+pub struct DescribeInContextActionSurroundings<'a> {
+    base: &'a BaseActionSurroundings<'a>,
 
     low_image_effect_descriptor: &'a openfx::low_plugin::objects::ImageEffectDescriptor,
     low_in_args: &'a openfx::low_plugin::actions::image_effect::ActionDescribeInContextIn,
 }
-impl<'a> DescribeInContextSurroundings<'a> {
+impl<'a> DescribeInContextActionSurroundings<'a> {
     pub fn new(
-        s: &'a CommonActionSurroundings<'a>,
+        base: &'a BaseActionSurroundings<'a>,
         low_handle: &'a openfx::low_plugin::objects::ImageEffectDescriptor,
         low_in_args: &'a openfx::low_plugin::actions::image_effect::ActionDescribeInContextIn,
     ) -> Self {
         Self {
-            common: s,
+            base,
             low_image_effect_descriptor: low_handle,
             low_in_args,
         }
     }
 
     pub fn host(&self) -> &Host {
-        self.common.host()
+        self.base.host()
     }
 
     pub fn low_image_effect_descriptor(
@@ -214,48 +214,48 @@ impl<'a> DescribeInContextSurroundings<'a> {
         self.low_in_args
     }
     pub fn sys_out_args(&self) -> *mut OfxPropertySetStruct {
-        self.common.sys_out_args()
+        self.base.sys_out_args()
     }
 }
-pub type DescribeInContextResult = CommonActionResult;
+pub type DescribeInContextActionResult = CommonActionResult;
 
-pub type EndSequenceRenderSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type EndSequenceRenderResult = CommonActionResult;
+pub type EndSequenceRenderActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type EndSequenceRenderActionResult = CommonActionResult;
 
-pub type GetClipPreferencesSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type GetClipPreferencesResult = CommonActionResult;
+pub type GetClipPreferencesActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type GetClipPreferencesActionResult = CommonActionResult;
 
-pub type GetFramesNeededSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type GetFramesNeededResult = CommonActionResult;
+pub type GetFramesNeededActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type GetFramesNeededActionResult = CommonActionResult;
 
-pub type GetOutputColourspaceSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type GetOutputColourspaceResult = CommonActionResult;
+pub type GetOutputColourspaceActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type GetOutputColourspaceActionResult = CommonActionResult;
 
-pub type GetRegionOfDefinitionSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type GetRegionOfDefinitionResult = CommonActionResult;
+pub type GetRegionOfDefinitionActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type GetRegionOfDefinitionActionResult = CommonActionResult;
 
-pub type GetRegionsOfInterestSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type GetRegionsOfInterestResult = CommonActionResult;
+pub type GetRegionsOfInterestActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type GetRegionsOfInterestActionResult = CommonActionResult;
 
-pub type GetTimeDomainSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type GetTimeDomainResult = CommonActionResult;
+pub type GetTimeDomainActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type GetTimeDomainActionResult = CommonActionResult;
 
-pub struct IsIdentitySurroundings<'a> {
-    common: &'a CommonActionSurroundings<'a>,
+pub struct IsIdentityActionSurroundings<'a> {
+    base: &'a BaseActionSurroundings<'a>,
 
     low_image_effect_instance: &'a openfx::low_plugin::objects::ImageEffectInstance,
     low_in_args: &'a openfx::low_plugin::actions::image_effect::ActionIsIdentityIn,
     low_out_args: &'a openfx::low_plugin::actions::image_effect::ActionIsIdentityOut,
 }
-impl<'a> IsIdentitySurroundings<'a> {
+impl<'a> IsIdentityActionSurroundings<'a> {
     pub fn new(
-        s: &'a CommonActionSurroundings<'a>,
+        base: &'a BaseActionSurroundings<'a>,
         low_handle: &'a openfx::low_plugin::objects::ImageEffectInstance,
         low_in_args: &'a openfx::low_plugin::actions::image_effect::ActionIsIdentityIn,
         low_out_args: &'a openfx::low_plugin::actions::image_effect::ActionIsIdentityOut,
     ) -> Self {
         Self {
-            common: s,
+            base,
             low_image_effect_instance: low_handle,
             low_in_args,
             low_out_args,
@@ -263,7 +263,7 @@ impl<'a> IsIdentitySurroundings<'a> {
     }
 
     pub fn host(&self) -> &Host {
-        self.common.host()
+        self.base.host()
     }
 
     pub fn low_image_effect_instance(
@@ -280,7 +280,7 @@ impl<'a> IsIdentitySurroundings<'a> {
         self.low_out_args
     }
 }
-pub type IsIdentityResult = CommonActionResult;
+pub type IsIdentityActionResult = CommonActionResult;
 
-pub type RenderSurroundings<'a> = CommonActionSurroundings<'a>;
-pub type RenderResult = CommonActionResult;
+pub type RenderActionSurroundings<'a> = BaseActionSurroundings<'a>;
+pub type RenderActionResult = CommonActionResult;

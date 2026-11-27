@@ -46,8 +46,8 @@ impl Plugin for PluginExampleBasics {
 
     /// The plugin's basic description routine.
     fn handle_describe(
-        s: &opk::actions::image_effect::DescribeSurroundings,
-    ) -> opk::actions::image_effect::DescribeResult {
+        s: &opk::actions::image_effect::DescribeActionSurroundings,
+    ) -> opk::actions::image_effect::DescribeActionResult {
         let descriptor = s.low_image_effect_descriptor();
 
         let s_prop = s.host().low_property_suite_v1()?;
@@ -81,8 +81,8 @@ impl Plugin for PluginExampleBasics {
 
     /// Describe the plugin in context.
     fn handle_describe_in_context(
-        s: &opk::actions::image_effect::DescribeInContextSurroundings,
-    ) -> opk::actions::image_effect::DescribeInContextResult {
+        s: &opk::actions::image_effect::DescribeInContextActionSurroundings,
+    ) -> opk::actions::image_effect::DescribeInContextActionResult {
         let descriptor = s.low_image_effect_descriptor();
         let in_args = s.low_in_args();
 
@@ -121,9 +121,9 @@ impl Plugin for PluginExampleBasics {
 
     /// Instance construction.
     fn handle_create_instance(
-        _s: &opk::actions::image_effect::CreateInstanceSurroundings,
+        _s: &opk::actions::image_effect::CreateInstanceActionSurroundings,
         instance_creator: &opk::plugin_instance::PluginInstanceCreator<'_, Self::Instance>,
-    ) -> opk::actions::image_effect::CreateInstanceResult {
+    ) -> opk::actions::image_effect::CreateInstanceActionResult {
         // attach some instance data to the effect handle, it can be anything
         instance_creator.create(PluginExampleBasicsInstance(String::from(
             "This is random instance data that could be anything you want.",
@@ -138,8 +138,8 @@ impl PluginInstance for PluginExampleBasicsInstance {
     /// Instance destruction.
     fn handle_destroy_instance(
         self,
-        _s: &opk::actions::image_effect::DestroyInstanceSurroundings,
-    ) -> opk::actions::image_effect::DestroyInstanceResult {
+        _s: &opk::actions::image_effect::DestroyInstanceActionSurroundings,
+    ) -> opk::actions::image_effect::DestroyInstanceActionResult {
         tracing::info!("My string: {}", self.0);
 
         Ok(CommonActionOutput::Ok)
@@ -149,8 +149,8 @@ impl PluginInstance for PluginExampleBasicsInstance {
     /// the image data?
     fn handle_is_identity(
         &self,
-        #[allow(unused_variables)] s: &opk::actions::image_effect::IsIdentitySurroundings,
-    ) -> opk::actions::image_effect::IsIdentityResult {
+        #[allow(unused_variables)] s: &opk::actions::image_effect::IsIdentityActionSurroundings,
+    ) -> opk::actions::image_effect::IsIdentityActionResult {
         let out_args = s.low_out_args();
 
         let s_prop = s.host().low_property_suite_v1()?;

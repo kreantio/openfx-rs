@@ -12,15 +12,15 @@ use crate::{
 pub trait PluginInstance: Send + Sync + Sized {
     fn handle_destroy_instance(
         self,
-        #[allow(unused_variables)] s: &actions::image_effect::DestroyInstanceSurroundings,
-    ) -> actions::image_effect::DestroyInstanceResult {
+        #[allow(unused_variables)] s: &actions::image_effect::DestroyInstanceActionSurroundings,
+    ) -> actions::image_effect::DestroyInstanceActionResult {
         Ok(CommonActionOutput::Ok)
     }
 
     fn handle_is_identity(
         &self,
-        #[allow(unused_variables)] s: &actions::image_effect::IsIdentitySurroundings,
-    ) -> actions::image_effect::IsIdentityResult {
+        #[allow(unused_variables)] s: &actions::image_effect::IsIdentityActionSurroundings,
+    ) -> actions::image_effect::IsIdentityActionResult {
         Ok(CommonActionOutput::ReplyDefault)
     }
 }
