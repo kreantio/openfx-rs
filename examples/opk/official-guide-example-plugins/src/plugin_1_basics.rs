@@ -16,15 +16,12 @@
 
 use std::ffi::CStr;
 
-use openfx::{
-    low::{
-        StatusError,
-        enums::{
-            ImageEffectPropContext, ImageEffectPropSupportedComponents,
-            ImageEffectPropSupportedContexts,
-        },
+use openfx::low::{
+    StatusError,
+    enums::{
+        ImageEffectPropContext, ImageEffectPropSupportedComponents,
+        ImageEffectPropSupportedContexts,
     },
-    sys::core::kOfxPropLabel,
 };
 use opk::{actions::CommonActionOutput, plugin::Plugin, plugin_instance::PluginInstance};
 
@@ -154,17 +151,12 @@ impl PluginInstance for PluginExampleBasicsInstance {
         &self,
         #[allow(unused_variables)] s: &opk::actions::image_effect::IsIdentitySurroundings,
     ) -> opk::actions::image_effect::IsIdentityResult {
+        let out_args = s.low_out_args();
+
         let s_prop = s.host().low_property_suite_v1()?;
 
         // we set the name of the input clip to pull data from
-        (unsafe {
-            s_prop.prop_set_string(
-                s.low_out_args().sys_handle(),
-                kOfxPropLabel,
-                Some(c"Source"),
-            )
-        })
-        .ok_or(StatusError::Failed)?;
+        unsafe { out_args.set_name(s_prop, Some(c"Source")) }.ok_or(StatusError::Failed)?;
 
         Ok(CommonActionOutput::Ok)
     }
