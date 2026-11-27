@@ -5,13 +5,27 @@
 [![Documentation](https://docs.rs/openfx/badge.svg)](https://docs.rs/openfx)
 [![Crates.io License](https://img.shields.io/crates/l/openfx)](https://github.com/kreantio/openfx-rs/blob/main/LICENSE)
 
+> [!NOTE]
+>
+> We recommend that anyone interested in developing OpenFX plugins look into
+> [the `opk` crate] (“OpenFX Plugin Kit”), a high-level framework built on top
+> of this crate for developing OpenFX plugins, which embraces Rust idioms (when
+> it is ready).
+>
+> We recommend that anyone interested in developing OpenFX hosts look into
+> [the `ohk` crate] (“OpenFX Host Kit”), a high-level framework built on top of
+> this crate for developing OpenFX hosts, which embraces Rust idioms (when it is
+> ready).
+
 > [!CAUTION]
 >
-> This crate is in the early stages of development:
+> This crate is in the early stages of development. At present:
 >
 > - Its API is expected to change.
-> - At present, only `openfx::sys` is fully implemented.
->   `openfx::{low, low_plugin}` is still under development.
+> - Only `openfx::sys` is fully implemented.
+> - `openfx::{low, low_plugin}` is still under development. However, you can
+>   always reach `openfx::sys` directly whenever something is not yet
+>   implemented here.
 
 This crate provides bindings for the OpenFX API in these abstraction layers:
 
@@ -85,3 +99,6 @@ impl Plugin for BasicExamplePlugin {
 ```
 
 </details>
+
+[the `opk` crate]: https://crates.io/crates/opk
+[the `ohk` crate]: https://crates.io/crates/ohk

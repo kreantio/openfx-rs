@@ -1,0 +1,23 @@
+[package]
+name = "opk"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "OpenFX Plugin Kit: An opinionated yet flexible framework for developing OpenFX plugins"
+
+[features]
+default = ["tracing"]
+
+tracing = ["dep:tracing"]
+
+[dependencies]
+openfx.workspace = true
+
+parking_lot.workspace = true
+snafu.workspace = true
+tracing = { workspace = true, optional = true }
+
+[lints]
+workspace = true

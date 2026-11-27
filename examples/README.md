@@ -17,20 +17,20 @@ across examples):
 These are the ports of the example plugins in the official
 [OpenFX Programming Guide].
 
-| Plugin Name              | Code (`layer-low`)                                                                                |
-| ------------------------ | ------------------------------------------------------------------------------------------------- |
-| `OFX Basics Example`     | [`plugin_1_basics.rs`](./layer-low/official-guide-example-plugins/src/plugin_1_basics.rs)         |
-| `OFX Invert Example`     | [`plugin_2_invert.rs`](./layer-low/official-guide-example-plugins/src/plugin_2_invert.rs)         |
-| `OFX Gain Example`       | [`plugin_3_gain.rs`](./layer-low/official-guide-example-plugins/src/plugin_3_gain.rs)             |
-| `OFX Saturation Example` | [`plugin_4_saturation.rs`](./layer-low/official-guide-example-plugins/src/plugin_4_saturation.rs) |
-| `OFX Circle Example`     | [`plugin_5_circle.rs`](./layer-low/official-guide-example-plugins/src/plugin_5_circle.rs)         |
+| Example Name             | Links (`layer-low`)                                                                               | Links (`opk`)                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `OFX Basics Example`     | [`plugin_1_basics.rs`](./layer-low/official-guide-example-plugins/src/plugin_1_basics.rs)         | [`plugin_1_basics.rs`](./opk/official-guide-example-plugins/src/plugin_1_basics.rs) |
+| `OFX Invert Example`     | [`plugin_2_invert.rs`](./layer-low/official-guide-example-plugins/src/plugin_2_invert.rs)         |                                                                                     |
+| `OFX Gain Example`       | [`plugin_3_gain.rs`](./layer-low/official-guide-example-plugins/src/plugin_3_gain.rs)             |                                                                                     |
+| `OFX Saturation Example` | [`plugin_4_saturation.rs`](./layer-low/official-guide-example-plugins/src/plugin_4_saturation.rs) |                                                                                     |
+| `OFX Circle Example`     | [`plugin_5_circle.rs`](./layer-low/official-guide-example-plugins/src/plugin_5_circle.rs)         |                                                                                     |
 
 ### Plugin Making: `official-example-plugins`
 
 These are the ports of the example plugins under the official repository's
 [`Examples` folder].
 
-| Plugin Name                                    | Code (`layer-low`)                                                              | Keywords                                                     |
+| Example Name                                   | Links (`layer-low`)                                                             | Keywords                                                     |
 | ---------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------ |
 | Basic (`OFX Gain Example`)                     | TODO                                                                            | (TBD)                                                        |
 | ChoiceParams (`OFX Choice Param Example`)      | TODO                                                                            | `kOfxParamTypeChoice`                                        |
@@ -62,7 +62,7 @@ For an example ported here, apart from categorization, it doesn't matter whether
 the original version uses a support library, or which support library it uses.
 They are all Rust code utilizing `openfx::{low, low_plugin}` now.
 
-| Plugin Name                                   | Code (`layer-low`)                                                                            | Keywords                           |
+| Example Name                                  | Links (`layer-low`)                                                                           | Keywords                           |
 | --------------------------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------- |
 | Basic (`Gain`)                                | TODO                                                                                          | (TBD)                              |
 | ChoiceParams (`Choice Params (Support)`)      | TODO                                                                                          | `kOfxParamTypeChoice`              |
@@ -76,10 +76,16 @@ They are all Rust code utilizing `openfx::{low, low_plugin}` now.
 | Transition (`Cross Fade`)                     | TODO                                                                                          | `kOfxImageEffectContextTransition` |
 | ../PropTester (`Prop Tester`)                 | TODO                                                                                          | (TBD)                              |
 
-### Plugin Making: `our-layer-low-exclusive-example-plugins`
+### Plugin Making: `our-plugin-examples`
 
-| Plugin Name | Code (`layer-low`) | Keywords |
-| ----------- | ------------------ | -------- |
+| Example Name | Links (`layer-low`) | Keywords |
+| ------------ | ------------------- | -------- |
+
+### Host Making: `our-host-examples`
+
+| Example Name     | Links (`ohk`)                               | Keywords |
+| ---------------- | ------------------------------------------- | -------- |
+| `ofx-ls-plugins` | [README.md](./ohk/ofx-ls-plugins/README.md) |          |
 
 [^1]: The official version of this example is intended to showcase a single
     OpenFX bundle containing multiple plugins. We already do this: example
