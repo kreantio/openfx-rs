@@ -40,7 +40,7 @@ use openfx::{
         objects::{ImageEffectDescriptor, ImageEffectInstance},
         parameters::{ParamBoolean, ParamDouble, ParamDouble2D, ParamRGBA},
     },
-    sys::core::{OfxRectI, kOfxPropLabel},
+    sys::core::OfxRectI,
 };
 
 use crate::{
@@ -633,8 +633,7 @@ fn action_is_identity(
 
     if is_identity {
         // we set the name of the input clip to pull default images from
-        (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })
-            .ok_or(StatusError::Failed)?;
+        unsafe { out_args.set_name(s_prop, Some(c"Source")) }.ok_or(StatusError::Failed)?;
         // and say we trapped the action and we are at the identity
         Ok(Status::OK)
     } else {

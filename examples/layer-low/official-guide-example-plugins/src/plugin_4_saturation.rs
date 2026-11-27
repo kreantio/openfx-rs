@@ -34,7 +34,7 @@ use openfx::{
         objects::{ImageEffectDescriptor, ImageEffectInstance},
         parameters::ParamDouble,
     },
-    sys::core::{OfxRectI, kOfxPropLabel},
+    sys::core::OfxRectI,
 };
 
 use crate::{
@@ -417,8 +417,7 @@ fn action_is_identity(
     .ok_or(StatusError::Failed)?;
 
     if (saturation - 1.0).abs() < 0.000000001 {
-        (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })
-            .ok_or(StatusError::Failed)?;
+        unsafe { out_args.set_name(s_prop, Some(c"Source")) }.ok_or(StatusError::Failed)?;
         Ok(Status::OK)
     } else {
         Ok(StatusReply::ReplyDefault.into())

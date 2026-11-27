@@ -91,7 +91,7 @@ use openfx::{
         suites::{ParameterSuiteV1, PropertySuiteV1},
     },
     sys::{
-        core::{OfxTime, kOfxPropLabel},
+        core::OfxTime,
         gpu_render::kOfxImageEffectPropOpenCLRenderSupported,
         image_effect::{
             kOfxImageEffectOutputClipName, kOfxImageEffectSimpleSourceClipName, kOfxTypeClip,
@@ -941,14 +941,8 @@ fn action_is_identity(
     } = Scales::retrieve_at_time(&data, my_data, time)?;
 
     if r_scale == 1.0 && g_scale == 1.0 && b_scale == 1.0 && a_scale == 1.0 {
-        unsafe {
-            s_prop.prop_set_string(
-                out_args.sys_handle(),
-                kOfxPropLabel,
-                Some(kOfxImageEffectSimpleSourceClipName),
-            )
-        }
-        .ok_or(StatusError::Failed)?;
+        unsafe { out_args.set_name(s_prop, Some(kOfxImageEffectSimpleSourceClipName)) }
+            .ok_or(StatusError::Failed)?;
         Ok(Status::OK)
     } else {
         Ok(StatusReply::ReplyDefault.into())
