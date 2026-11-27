@@ -43,7 +43,6 @@ use openfx::{
         },
         objects::{ImageEffectDescriptor, ImageEffectInstance},
     },
-    sys::core::kOfxPropLabel,
 };
 
 use crate::{
@@ -347,8 +346,7 @@ fn action_is_identity(out_args: ActionIsIdentityOut) -> OutboundResult {
     let s_prop = &data.property_suite.0;
 
     // we set the name of the input clip to pull data from
-    (unsafe { s_prop.prop_set_string(out_args.sys_handle(), kOfxPropLabel, Some(c"Source")) })
-        .ok_or(StatusError::Failed)?;
+    unsafe { out_args.set_name(s_prop, Some(c"Source")) }.ok_or(StatusError::Failed)?;
 
     Ok(Status::OK)
 }
